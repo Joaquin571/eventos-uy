@@ -1,6 +1,8 @@
 package manejadores;
 
-import clases.Usuario;
+import clases.*;
+
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,4 +37,36 @@ public class ManejadorUsuarios {
     public Usuario obtenerUsuario(String nickname) {
         return usuariosNickname.get(nickname);
     }
+
+    public boolean existeUsuario(String nickname) {
+        if (usuariosNickname.containsKey(nickname)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean existeCorreo(String correoElectronico){
+        for (Usuario usuario : usuariosNickname.values()){
+            if(usuario.getCorreoElectronico().equals(correoElectronico)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Collection<Usuario> listarUsuarios() {
+        return usuariosNickname.values();
+    }
+
+    public Asistente obtenerAsistente(String nickname) {
+
+        Usuario usuario = obtenerUsuario(nickname);
+
+        if (usuario instanceof Asistente) {
+            return (Asistente) usuario;
+        }
+
+        return null;
+    }
 }
+

@@ -1,11 +1,11 @@
-package datatypes;
+package clases;
 
-public class DtInstitucion {
+public class Institucion {
     private String idNombre;
     private String descripcion;
     private String sitioWeb;
 
-    public DtInstitucion(String idNombre, String descripcion, String sitioWeb) {
+    public Institucion(String idNombre, String descripcion, String sitioWeb) {
         this.idNombre = idNombre;
         this.descripcion = descripcion;
         this.sitioWeb = sitioWeb;

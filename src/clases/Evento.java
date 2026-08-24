@@ -1,14 +1,14 @@
-package datatypes;
+package clases;
 
 import java.time.LocalDate;
 
-public class DtEvento {
+public class Evento {
     private String nombre;
     private String sigla;
     private String descripcion;
     private LocalDate fechaAlta;
 
-    public DtEvento(String nombre, String sigla, String descripcion, LocalDate fechaAlta) {
+    public Evento(String nombre, String sigla, String descripcion, LocalDate fechaAlta) {
         this.nombre = nombre;
         this.sigla = sigla;
         this.descripcion = descripcion;
