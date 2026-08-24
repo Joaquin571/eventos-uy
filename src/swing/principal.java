@@ -9,6 +9,9 @@ public class principal {
     private JPanel panelPrincipal;
     private JDesktopPane desktopPane;
 
+    private JInternalFrame internoConsultaUsuario;
+    private ConsultaUsuarioPanel panelConsultaUsuario;
+
     public principal() {
         panelPrincipal = new JPanel(new BorderLayout());
 
@@ -43,6 +46,10 @@ public class principal {
         JMenuItem registroEdicionEvento = new JMenuItem("Registro a Edicion de evento");
         JMenuItem consultaRegistroEvento = new JMenuItem("Consulta a Registro de edicion de evento");
 
+        consultaUsuario.addActionListener(e -> {
+            panelConsultaUsuario.recargarUsuarios();
+            mostrar(internoConsultaUsuario);
+        });
 
         menuUsuarios.add(altaUsuario);
         menuUsuarios.add(consultaUsuario);
