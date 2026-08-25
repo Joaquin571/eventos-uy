@@ -10,14 +10,29 @@ public class principal {
     private JDesktopPane desktopPane;
 
     private JInternalFrame internoModificarUsuario;
+    private JInternalFrame internoAltaUsuario;
 
     public principal() {
-
         panelPrincipal = new JPanel(new BorderLayout());
-
         desktopPane = new JDesktopPane();
         panelPrincipal.add(desktopPane, BorderLayout.CENTER);
+        
+        inicializarVentanasInternas();
+    }
 
+    private void inicializarVentanasInternas() {
+
+        //ALTA USUARIO
+        AltaUsuarioPanel panelAlta = new AltaUsuarioPanel();
+        internoAltaUsuario = crearInterno("Alta Usuario", panelAlta.getMainPanel(), 20, 20);
+
+        // Configuramos para que la ventana se oculte al cancelar o completar el alta
+        panelAlta.setAccionCerrar(() -> internoAltaUsuario.setVisible(false));
+
+        // La registramos en el desktopPane para poder visualizarla
+        desktopPane.add(internoAltaUsuario);
+
+        //MODIFICAR DATOS DE USUARIO
         internoModificarUsuario = crearInternoModificarUsuario();
         desktopPane.add(internoModificarUsuario);
     }
@@ -32,54 +47,24 @@ public class principal {
         JMenu menuPatrocinio = new JMenu("Patrocinios");
         JMenu menuInstitucion = new JMenu("Instituciones");
         JMenu menuSesion = new JMenu("Sesión");
-
-        JMenuItem altaUsuario =
-                new JMenuItem("Alta Usuario");
-
-        JMenuItem consultaUsuario =
-                new JMenuItem("Consulta Usuario");
-
-        JMenuItem modificarUsuario =
-                new JMenuItem("Modificar Datos de Usuario");
-
-        JMenuItem altaInstitucion =
-                new JMenuItem("Alta Institucion");
-
-        JMenuItem altaEvento =
-                new JMenuItem("Alta Evento");
-
-        JMenuItem consultaEvento =
-                new JMenuItem("Consulta Evento");
-
-        JMenuItem altaEdicion =
-                new JMenuItem("Alta Edicion");
-
-        JMenuItem consultaEdicion =
-                new JMenuItem("Consulta Edicion");
-
-        JMenuItem altaTipoRegistro =
-                new JMenuItem("Alta Tipo Registro");
-
-        JMenuItem consultaTipoRegistro =
-                new JMenuItem("Consulta Tipo Registro");
-
-        JMenuItem altaCategoria =
-                new JMenuItem("Alta Categoria");
-
-        JMenuItem altaPatrocinio =
-                new JMenuItem("Alta Patrocinio");
-
-        JMenuItem consultaPatrocinio =
-                new JMenuItem("Consulta Patrocinio");
-
-        JMenuItem registroEdicionEvento =
-                new JMenuItem("Registro a Edicion de Evento");
-
-        JMenuItem consultaRegistroEvento =
-                new JMenuItem("Consulta de Registro de Edicion de Evento");
-
-        JMenuItem itemSalir =
-                new JMenuItem("Salir");
+        
+        
+        JMenuItem altaUsuario = new JMenuItem("Alta Usuario");
+        JMenuItem consultaUsuario = new JMenuItem("Consulta Usuario");
+        JMenuItem modificarUsuario = new JMenuItem("Modifica Datos de Usuario");
+        JMenuItem altaInstitucion = new JMenuItem("Alta Institucion");
+        JMenuItem altaEvento = new JMenuItem("Alta Evento");
+        JMenuItem consultaEvento = new JMenuItem("Consulta Evento");
+        JMenuItem altaEdicion = new JMenuItem("Alta Edicion");
+        JMenuItem consultaEdicion = new JMenuItem("Consulta Edicion");
+        JMenuItem altaTipoRegistro = new JMenuItem("Alta Tipo Registro");
+        JMenuItem consultaTipoRegistro = new JMenuItem("Consulta Tipo Registro");
+        JMenuItem altaCategoria = new JMenuItem("Alta Categoria");
+        JMenuItem altaPatrocinio = new JMenuItem("Alta Patrocinio");
+        JMenuItem consultaPatrocinio = new JMenuItem("Consulta Patrocinio");
+        JMenuItem registroEdicionEvento = new JMenuItem("Registro a Edicion de evento");
+        JMenuItem consultaRegistroEvento = new JMenuItem("Consulta a Registro de edicion de evento");
+        JMenuItem itemSalir = new JMenuItem("Salir");
 
 
         // =========================
@@ -94,6 +79,7 @@ public class principal {
                 e -> System.exit(0)
         );
 
+        altaUsuario.addActionListener(e -> mostrar(internoAltaUsuario));
 
         // =========================
         // ARMADO DE LOS MENÚS

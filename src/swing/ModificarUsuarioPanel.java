@@ -43,23 +43,16 @@ public class ModificarUsuarioPanel {
 
 
     public ModificarUsuarioPanel() {
-
-        // La presentación obtiene la lógica mediante la fábrica
         sistema = Fabrica.getInstance().getISistema();
 
         configurarTipoUsuario();
         configurarEventos();
 
-        // Carga los usuarios existentes en el combo
         cargarUsuarios();
 
         actualizarCamposTipo();
     }
 
-
-    /**
-     * Carga los tipos de usuario.
-     */
     private void configurarTipoUsuario() {
 
         comboTipoUsuario.removeAllItems();
@@ -68,10 +61,6 @@ public class ModificarUsuarioPanel {
         comboTipoUsuario.addItem("Organizador");
     }
 
-
-    /**
-     * Carga los usuarios existentes en el JComboBox.
-     */
     private void cargarUsuarios() {
 
         comboUsuarios.removeAllItems();
@@ -258,10 +247,6 @@ public class ModificarUsuarioPanel {
         }
     }
 
-
-    /**
-     * Guarda la modificación de un asistente.
-     */
     private void guardarAsistente(
             String nickname,
             String nombre,
@@ -322,10 +307,6 @@ public class ModificarUsuarioPanel {
         }
     }
 
-
-    /**
-     * Guarda la modificación de un organizador.
-     */
     private void guardarOrganizador(
             String nickname,
             String nombre,
@@ -353,10 +334,6 @@ public class ModificarUsuarioPanel {
         mostrarExito();
     }
 
-
-    /**
-     * Mensaje después de modificar correctamente.
-     */
     private void mostrarExito() {
 
         JOptionPane.showMessageDialog(
@@ -367,10 +344,6 @@ public class ModificarUsuarioPanel {
         );
     }
 
-
-    /**
-     * Limpia los campos específicos.
-     */
     private void limpiarDatosEspecificos() {
 
         txtApellido.setText("");
@@ -390,9 +363,6 @@ public class ModificarUsuarioPanel {
     }
 
 
-    /**
-     * Principal define qué hacer cuando se presiona Cancelar.
-     */
     public void setAccionCerrar(Runnable accionCerrar) {
         this.accionCerrar = accionCerrar;
     }
