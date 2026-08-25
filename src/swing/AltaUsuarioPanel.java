@@ -95,13 +95,27 @@ public class AltaUsuarioPanel {
         }
 
         // Validación de existencia previa en el sistema
-        if (sistema.existeUsuario(nickname, nombre, correo)) {
-            JOptionPane.showMessageDialog(mainPanel, "El nickname '" + nickname + "' ya existe en el sistema.", "Error de Validación", JOptionPane.ERROR_MESSAGE);
+        if (sistema.existeUsuario(nickname)) {
+
+            JOptionPane.showMessageDialog(
+                    mainPanel,
+                    "El nickname '" + nickname + "' ya existe en el sistema.",
+                    "Error de Validación",
+                    JOptionPane.ERROR_MESSAGE
+            );
+
             return;
         }
 
         if (sistema.existeCorreoElectronico(correo)) {
-            JOptionPane.showMessageDialog(mainPanel, "El correo electrónico '" + correo + "' ya se encuentra registrado.", "Error de Validación", JOptionPane.ERROR_MESSAGE);
+
+            JOptionPane.showMessageDialog(
+                    mainPanel,
+                    "El correo electrónico '" + correo + "' ya se encuentra registrado.",
+                    "Error de Validación",
+                    JOptionPane.ERROR_MESSAGE
+            );
+
             return;
         }
 
@@ -140,7 +154,18 @@ public class AltaUsuarioPanel {
 
             // Crear y dar de alta asistente
             DtAsistente dtAsistente = new DtAsistente(nickname, nombre, correo, apellido, fechaNac);
-            sistema.altaAsistente(dtAsistente);
+            boolean agregado = sistema.altaAsistente(dtAsistente);
+
+            if(!agregado) {
+                JOptionPane.showMessageDialog(
+                        mainPanel,
+                        "No se pudo registrar el usuario.",
+                        "Alta Usuario",
+                        JOptionPane.ERROR_MESSAGE
+                );
+
+                return;
+            }
 
         } else {
             String descripcion = txtDescripcion.getText().trim();
@@ -153,10 +178,20 @@ public class AltaUsuarioPanel {
 
             // Crear y dar de alta organizador
             DtOrganizador dtOrganizador = new DtOrganizador(nickname, nombre, correo, descripcion, sitioWeb.isEmpty() ? null : sitioWeb);
-            sistema.altaOrganizador(dtOrganizador);
+            boolean agregado = sistema.altaOrganizador(dtOrganizador);
+
+            if(!agregado) {
+                JOptionPane.showMessageDialog(
+                        mainPanel,
+                        "No se pudo registrar el usuario",
+                        "Alta Usuario",
+                        JOptionPane.ERROR_MESSAGE
+                );
+
+                return;
+            }
         }
 
-        // Éxito y limpieza
         JOptionPane.showMessageDialog(mainPanel, "Usuario registrado con éxito.", "Alta Usuario", JOptionPane.INFORMATION_MESSAGE);
         limpiar();
         accionCerrar.run();

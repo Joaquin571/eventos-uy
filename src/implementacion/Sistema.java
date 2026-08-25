@@ -20,11 +20,6 @@ public class Sistema implements ISistema {
         cargarDatosPrueba();
     }
 
-
-    // =====================================================
-    // DATOS DE PRUEBA
-    // =====================================================
-
     private void cargarDatosPrueba() {
 
         if (!manejadorUsuarios.existeUsuario("joaquin")) {
@@ -61,11 +56,7 @@ public class Sistema implements ISistema {
     // =====================================================
 
     @Override
-    public boolean existeUsuario(
-            String nickname,
-            String nombre,
-            String correoElectronico) {
-
+    public boolean existeUsuario(String nickname) {
         return manejadorUsuarios.existeUsuario(nickname);
     }
 
@@ -82,7 +73,7 @@ public class Sistema implements ISistema {
     // =====================================================
 
     @Override
-    public void altaAsistente(DtAsistente dt) {
+    public boolean altaAsistente(DtAsistente dt) {
 
         Asistente asistente = new Asistente(
                 dt.getNickname(),
@@ -92,12 +83,12 @@ public class Sistema implements ISistema {
                 dt.getFechaNacimiento()
         );
 
-        manejadorUsuarios.addUsuario(asistente);
+        return manejadorUsuarios.addUsuario(asistente);
     }
 
 
     @Override
-    public void altaOrganizador(DtOrganizador dt) {
+    public boolean altaOrganizador(DtOrganizador dt) {
 
         Organizador organizador = new Organizador(
                 dt.getNickname(),
@@ -107,7 +98,7 @@ public class Sistema implements ISistema {
                 dt.getSitioWeb()
         );
 
-        manejadorUsuarios.addUsuario(organizador);
+        return manejadorUsuarios.addUsuario(organizador);
     }
 
 

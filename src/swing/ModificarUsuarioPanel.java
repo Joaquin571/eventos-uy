@@ -43,15 +43,17 @@ public class ModificarUsuarioPanel {
 
 
     public ModificarUsuarioPanel() {
+
         sistema = Fabrica.getInstance().getISistema();
 
         configurarTipoUsuario();
         configurarEventos();
 
-        cargarUsuarios();
+        refrescarUsuarios();
 
         actualizarCamposTipo();
     }
+
 
     private void configurarTipoUsuario() {
 
@@ -59,19 +61,11 @@ public class ModificarUsuarioPanel {
 
         comboTipoUsuario.addItem("Asistente");
         comboTipoUsuario.addItem("Organizador");
+
+        // El tipo se muestra pero no se modifica
+        comboTipoUsuario.setEnabled(false);
     }
 
-    private void cargarUsuarios() {
-
-        comboUsuarios.removeAllItems();
-
-        for (DtUsuario usuario : sistema.listarUsuarios()) {
-            comboUsuarios.addItem(usuario.getNickname());
-        }
-
-        // Arranca sin ningún usuario seleccionado
-        comboUsuarios.setSelectedIndex(-1);
-    }
 
     private void configurarEventos() {
 
@@ -88,10 +82,29 @@ public class ModificarUsuarioPanel {
         );
 
         btnCancelar.addActionListener(e -> {
-            limpiarDatosEspecificos();
+            limpiarFormulario();
             accionCerrar.run();
         });
     }
+
+
+    /**
+     * Vuelve a consultar los usuarios existentes.
+     * Se llama cada vez que se abre la ventana.
+     */
+    public void refrescarUsuarios() {
+
+        comboUsuarios.removeAllItems();
+
+        for (DtUsuario usuario : sistema.listarUsuarios()) {
+            comboUsuarios.addItem(usuario.getNickname());
+        }
+
+        comboUsuarios.setSelectedIndex(-1);
+
+        limpiarFormulario();
+    }
+
 
     private void actualizarCamposTipo() {
 
@@ -107,6 +120,7 @@ public class ModificarUsuarioPanel {
         mainPanel.revalidate();
         mainPanel.repaint();
     }
+
 
     private void seleccionarUsuario() {
 
@@ -127,6 +141,7 @@ public class ModificarUsuarioPanel {
         cargarUsuario(usuario);
     }
 
+
     private void cargarUsuario(DtUsuario usuario) {
 
         cargarDatosComunes(
@@ -135,10 +150,8 @@ public class ModificarUsuarioPanel {
                 usuario.getCorreoElectronico()
         );
 
-        if (usuario instanceof DtAsistente) {
 
-            DtAsistente asistente =
-                    (DtAsistente) usuario;
+        if (usuario instanceof DtAsistente asistente) {
 
             cargarAsistente(
                     asistente.getApellido(),
@@ -146,10 +159,7 @@ public class ModificarUsuarioPanel {
                     null
             );
 
-        } else if (usuario instanceof DtOrganizador) {
-
-            DtOrganizador organizador =
-                    (DtOrganizador) usuario;
+        } else if (usuario instanceof DtOrganizador organizador) {
 
             cargarOrganizador(
                     organizador.getDescripcion(),
@@ -157,6 +167,7 @@ public class ModificarUsuarioPanel {
             );
         }
     }
+
 
     private void cargarDatosComunes(
             String nickname,
@@ -169,6 +180,7 @@ public class ModificarUsuarioPanel {
 
         txtNickname.setEditable(false);
     }
+
 
     private void cargarAsistente(
             String apellido,
@@ -187,6 +199,7 @@ public class ModificarUsuarioPanel {
         actualizarCamposTipo();
     }
 
+
     private void cargarOrganizador(
             String descripcion,
             String sitioWeb) {
@@ -198,6 +211,7 @@ public class ModificarUsuarioPanel {
 
         actualizarCamposTipo();
     }
+
 
     private void guardarCambios() {
 
@@ -246,6 +260,7 @@ public class ModificarUsuarioPanel {
             );
         }
     }
+
 
     private void guardarAsistente(
             String nickname,
@@ -307,6 +322,7 @@ public class ModificarUsuarioPanel {
         }
     }
 
+
     private void guardarOrganizador(
             String nickname,
             String nombre,
@@ -328,11 +344,11 @@ public class ModificarUsuarioPanel {
                         sitioWeb
                 );
 
-
         sistema.modificarOrganizador(dt);
 
         mostrarExito();
     }
+
 
     private void mostrarExito() {
 
@@ -344,17 +360,26 @@ public class ModificarUsuarioPanel {
         );
     }
 
-    private void limpiarDatosEspecificos() {
+
+    /**
+     * Limpia toda la información mostrada,
+     * pero no modifica los datos del sistema.
+     */
+    private void limpiarFormulario() {
+
+        txtNickname.setText("");
+        txtNombre.setText("");
+        txtCorreo.setText("");
 
         txtApellido.setText("");
         txtFechaNacimiento.setText("");
 
+        txtDescripcion.setText("");
+        txtSitioWeb.setText("");
+
         if (comboInstitucion.getItemCount() > 0) {
             comboInstitucion.setSelectedIndex(-1);
         }
-
-        txtDescripcion.setText("");
-        txtSitioWeb.setText("");
     }
 
 
