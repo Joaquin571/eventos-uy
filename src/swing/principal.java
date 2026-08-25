@@ -1,8 +1,5 @@
 package swing;
 
-import interfaces.ISistema;
-import implementacion.Sistema;
-
 import java.beans.PropertyVetoException;
 import javax.swing.*;
 import java.awt.*;
@@ -12,22 +9,21 @@ public class principal {
     private JPanel panelPrincipal;
     private JDesktopPane desktopPane;
 
-    private final ISistema sistema;
+    private JInternalFrame internoModificarUsuario;
     private JInternalFrame internoAltaUsuario;
 
     public principal() {
-
-        sistema = new Sistema();
-
         panelPrincipal = new JPanel(new BorderLayout());
         desktopPane = new JDesktopPane();
         panelPrincipal.add(desktopPane, BorderLayout.CENTER);
-
+        
         inicializarVentanasInternas();
     }
 
     private void inicializarVentanasInternas() {
-        AltaUsuarioPanel panelAlta = new AltaUsuarioPanel(sistema);
+
+        //ALTA USUARIO
+        AltaUsuarioPanel panelAlta = new AltaUsuarioPanel();
         internoAltaUsuario = crearInterno("Alta Usuario", panelAlta.getMainPanel(), 20, 20);
 
         // Configuramos para que la ventana se oculte al cancelar o completar el alta
@@ -35,9 +31,14 @@ public class principal {
 
         // La registramos en el desktopPane para poder visualizarla
         desktopPane.add(internoAltaUsuario);
+
+        //MODIFICAR DATOS DE USUARIO
+        internoModificarUsuario = crearInternoModificarUsuario();
+        desktopPane.add(internoModificarUsuario);
     }
 
     private JMenuBar crearMenu() {
+
         JMenuBar menuBar = new JMenuBar();
 
         JMenu menuUsuarios = new JMenu("Usuarios");
@@ -45,12 +46,10 @@ public class principal {
         JMenu menuRegistro = new JMenu("Registros");
         JMenu menuPatrocinio = new JMenu("Patrocinios");
         JMenu menuInstitucion = new JMenu("Instituciones");
-        JMenu volver =  new JMenu("Volver");
-
-
+        JMenu menuSesion = new JMenu("Sesión");
+        
+        
         JMenuItem altaUsuario = new JMenuItem("Alta Usuario");
-        altaUsuario.addActionListener(e -> mostrar(internoAltaUsuario));
-
         JMenuItem consultaUsuario = new JMenuItem("Consulta Usuario");
         JMenuItem modificarUsuario = new JMenuItem("Modifica Datos de Usuario");
         JMenuItem altaInstitucion = new JMenuItem("Alta Institucion");
@@ -65,57 +64,144 @@ public class principal {
         JMenuItem consultaPatrocinio = new JMenuItem("Consulta Patrocinio");
         JMenuItem registroEdicionEvento = new JMenuItem("Registro a Edicion de evento");
         JMenuItem consultaRegistroEvento = new JMenuItem("Consulta a Registro de edicion de evento");
+        JMenuItem itemSalir = new JMenuItem("Salir");
 
+
+        // =========================
+        // EVENTOS DE LOS MENU ITEMS
+        // =========================
+
+        modificarUsuario.addActionListener(
+                e -> mostrar(internoModificarUsuario)
+        );
+
+        itemSalir.addActionListener(
+                e -> System.exit(0)
+        );
+
+        altaUsuario.addActionListener(e -> mostrar(internoAltaUsuario));
+
+        // =========================
+        // ARMADO DE LOS MENÚS
+        // =========================
 
         menuUsuarios.add(altaUsuario);
         menuUsuarios.add(consultaUsuario);
         menuUsuarios.add(modificarUsuario);
+
         menuInstitucion.add(altaInstitucion);
+
         menuEventos.add(altaEvento);
         menuEventos.add(consultaEvento);
+        menuEventos.addSeparator();
         menuEventos.add(altaEdicion);
         menuEventos.add(consultaEdicion);
+        menuEventos.addSeparator();
         menuEventos.add(altaTipoRegistro);
         menuEventos.add(consultaTipoRegistro);
+        menuEventos.addSeparator();
         menuEventos.add(altaCategoria);
+
         menuRegistro.add(registroEdicionEvento);
         menuRegistro.add(consultaRegistroEvento);
+
         menuPatrocinio.add(altaPatrocinio);
         menuPatrocinio.add(consultaPatrocinio);
+
+        menuSesion.add(itemSalir);
+
+
+        // =========================
+        // AGREGAR MENÚS A LA BARRA
+        // =========================
 
         menuBar.add(menuUsuarios);
         menuBar.add(menuEventos);
         menuBar.add(menuRegistro);
         menuBar.add(menuPatrocinio);
         menuBar.add(menuInstitucion);
-        menuBar.add(volver);
+        menuBar.add(menuSesion);
 
         return menuBar;
     }
 
+
+    /**
+     * Muestra un JInternalFrame existente.
+     */
     private void mostrar(JInternalFrame interno) {
+
         interno.setVisible(true);
         interno.toFront();
+
         try {
             interno.setSelected(true);
         } catch (PropertyVetoException ignored) {
-            // La ventana interna queda visible aunque no pueda seleccionarse.
+            // La ventana queda visible aunque no pueda seleccionarse.
         }
     }
 
-    private JInternalFrame crearInterno(String titulo, Container contenido, int x, int y) {
-        JInternalFrame interno = new JInternalFrame(titulo, true, true, true, true);
-        interno.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+
+    /**
+     * Crea un JInternalFrame reutilizable para cualquier caso de uso.
+     */
+    private JInternalFrame crearInterno(
+            String titulo,
+            Container contenido,
+            int x,
+            int y) {
+
+        JInternalFrame interno =
+                new JInternalFrame(
+                        titulo,
+                        true,
+                        true,
+                        true,
+                        true
+                );
+
+        interno.setDefaultCloseOperation(
+                WindowConstants.HIDE_ON_CLOSE
+        );
+
         interno.setFrameIcon(null);
         interno.setContentPane(contenido);
+
         interno.pack();
-        // Impide achicar la ventana hasta el punto de recortar los componentes.
-        interno.setMinimumSize(interno.getSize());
+
+        interno.setMinimumSize(
+                interno.getSize()
+        );
+
         interno.setLocation(x, y);
         interno.setVisible(false);
+
         return interno;
     }
 
+
+    /**
+     * Crea específicamente la ventana de Modificar Usuario.
+     */
+    private JInternalFrame crearInternoModificarUsuario() {
+
+        ModificarUsuarioPanel panel =
+                new ModificarUsuarioPanel();
+
+        JInternalFrame interno =
+                crearInterno(
+                        "Modificar Datos de Usuario",
+                        panel.getMainPanel(),
+                        60,
+                        60
+                );
+
+        panel.setAccionCerrar(
+                () -> interno.setVisible(false)
+        );
+
+        return interno;
+    }
 
 
     public static void main(String[] args) {
@@ -124,12 +210,21 @@ public class principal {
 
             principal ventana = new principal();
 
-            JFrame frame = new JFrame("eventos.uy");
+            JFrame frame =
+                    new JFrame("eventos.uy");
 
-            frame.setContentPane(ventana.panelPrincipal);
-            frame.setJMenuBar(ventana.crearMenu());
+            frame.setContentPane(
+                    ventana.panelPrincipal
+            );
 
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setJMenuBar(
+                    ventana.crearMenu()
+            );
+
+            frame.setDefaultCloseOperation(
+                    JFrame.EXIT_ON_CLOSE
+            );
+
             frame.setSize(1200, 750);
             frame.setLocationRelativeTo(null);
 

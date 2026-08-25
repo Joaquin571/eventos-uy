@@ -2,6 +2,7 @@ package swing;
 
 import datatypes.DtAsistente;
 import datatypes.DtOrganizador;
+import implementacion.Fabrica;
 import interfaces.ISistema;
 
 import javax.swing.*;
@@ -15,6 +16,7 @@ public class AltaUsuarioPanel {
 
     private JPanel mainPanel;
 
+    private final transient ISistema sistema;
     // Componentes comunes
     private JRadioButton radioAsistente;
     private JRadioButton radioOrganizador;
@@ -40,11 +42,10 @@ public class AltaUsuarioPanel {
     private JPanel panelAsistente;
     private JPanel panelOrganizador;
 
-    private final ISistema sistema;
     private Runnable accionCerrar = () -> {};
 
-    public AltaUsuarioPanel(ISistema sistema) {
-        this.sistema = sistema;
+    public AltaUsuarioPanel() {
+        sistema = Fabrica.getInstance().getISistema();
 
         inicializarComponentes();
 
