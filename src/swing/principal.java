@@ -1,5 +1,8 @@
 package swing;
 
+import interfaces.ISistema;
+import implementacion.Sistema;
+
 import java.beans.PropertyVetoException;
 import javax.swing.*;
 import java.awt.*;
@@ -9,12 +12,29 @@ public class principal {
     private JPanel panelPrincipal;
     private JDesktopPane desktopPane;
 
+    private final ISistema sistema;
+    private JInternalFrame internoAltaUsuario;
+
     public principal() {
+
+        sistema = new Sistema();
+
         panelPrincipal = new JPanel(new BorderLayout());
-
         desktopPane = new JDesktopPane();
-
         panelPrincipal.add(desktopPane, BorderLayout.CENTER);
+
+        inicializarVentanasInternas();
+    }
+
+    private void inicializarVentanasInternas() {
+        AltaUsuarioPanel panelAlta = new AltaUsuarioPanel(sistema);
+        internoAltaUsuario = crearInterno("Alta Usuario", panelAlta.getMainPanel(), 20, 20);
+
+        // Configuramos para que la ventana se oculte al cancelar o completar el alta
+        panelAlta.setAccionCerrar(() -> internoAltaUsuario.setVisible(false));
+
+        // La registramos en el desktopPane para poder visualizarla
+        desktopPane.add(internoAltaUsuario);
     }
 
     private JMenuBar crearMenu() {
@@ -27,7 +47,10 @@ public class principal {
         JMenu menuInstitucion = new JMenu("Instituciones");
         JMenu volver =  new JMenu("Volver");
 
+
         JMenuItem altaUsuario = new JMenuItem("Alta Usuario");
+        altaUsuario.addActionListener(e -> mostrar(internoAltaUsuario));
+
         JMenuItem consultaUsuario = new JMenuItem("Consulta Usuario");
         JMenuItem modificarUsuario = new JMenuItem("Modifica Datos de Usuario");
         JMenuItem altaInstitucion = new JMenuItem("Alta Institucion");
