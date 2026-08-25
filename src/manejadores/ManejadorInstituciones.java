@@ -37,7 +37,7 @@ public class ManejadorInstituciones {
         return institucionesIdNombre.containsKey(nombre);
     }
 
-    public Collection<Institucion> obtenerInstituciones() {
+    public Collection<Institucion> listarInstituciones() {
         return institucionesIdNombre.values();
     }
 

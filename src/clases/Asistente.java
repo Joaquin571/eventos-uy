@@ -20,5 +20,5 @@ public class Asistente extends Usuario {
     }
 
     public void setApellido(String apellido){}
-    public void setFechaNacimiento(String fechaNacimiento){}
+    public void setFechaNacimiento(LocalDate fechaNacimiento){}
 }
