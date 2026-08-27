@@ -4,6 +4,7 @@ import clases.*;
 import datatypes.*;
 import interfaces.ISistema;
 import manejadores.ManejadorUsuarios;
+import manejadores.ManejadorInstituciones;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -12,9 +13,11 @@ import java.util.Collection;
 public class Sistema implements ISistema {
 
     private final ManejadorUsuarios manejadorUsuarios;
+    private final ManejadorInstituciones manejadorInstituciones;
 
     public Sistema() {
         manejadorUsuarios = ManejadorUsuarios.getInstance();
+        manejadorInstituciones = ManejadorInstituciones.getInstance();
 
         // Temporal: datos para probar sin persistencia
         cargarDatosPrueba();
@@ -29,7 +32,8 @@ public class Sistema implements ISistema {
                     "Joaquin",
                     "joaquin@gmail.com",
                     "Gonzalez",
-                    LocalDate.of(2004, 8, 6)
+                    LocalDate.of(2004, 8, 6),
+                    null
             );
 
             manejadorUsuarios.addUsuario(asistente);
@@ -80,7 +84,8 @@ public class Sistema implements ISistema {
                 dt.getNombre(),
                 dt.getCorreoElectronico(),
                 dt.getApellido(),
-                dt.getFechaNacimiento()
+                dt.getFechaNacimiento(),
+                dt.getNombreInstitucion()
         );
 
         return manejadorUsuarios.addUsuario(asistente);
@@ -121,7 +126,8 @@ public class Sistema implements ISistema {
                                 asistente.getNombre(),
                                 asistente.getCorreoElectronico(),
                                 asistente.getApellido(),
-                                asistente.getFechaNacimiento()
+                                asistente.getFechaNacimiento(),
+                                asistente.getNombreInstitucion()
                         )
                 );
 
@@ -165,7 +171,8 @@ public class Sistema implements ISistema {
                     asistente.getNombre(),
                     asistente.getCorreoElectronico(),
                     asistente.getApellido(),
-                    asistente.getFechaNacimiento()
+                    asistente.getFechaNacimiento(),
+                    asistente.getNombreInstitucion()
             );
         }
 
@@ -192,15 +199,15 @@ public class Sistema implements ISistema {
 
     @Override
     public void modificarAsistente(
-            DtAsistente dt,
-            String institucion) {
+            DtAsistente dt) {
 
         manejadorUsuarios.modificarAsistente(
                 dt.getNickname(),
                 dt.getNombre(),
                 dt.getCorreoElectronico(),
                 dt.getApellido(),
-                dt.getFechaNacimiento()
+                dt.getFechaNacimiento(),
+                dt.getNombreInstitucion()
         );
 
         /*
@@ -224,5 +231,38 @@ public class Sistema implements ISistema {
                 dt.getDescripcion(),
                 dt.getSitioWeb()
         );
+    }
+
+    // =====================================================
+    // ALTA INSTITUCION
+    // =====================================================
+    @Override
+    public boolean altaInstitucion(DtInstitucion dt) {
+
+        Institucion institucion = new Institucion(
+                dt.getNombre(),
+                dt.getDescripcion(),
+                dt.getSitioWeb()
+
+        );
+
+        return manejadorInstituciones.addInstitucion(institucion);
+    }
+    @Override
+    public boolean existeInstitucion(String Nombre) {
+        return manejadorInstituciones.existeInstitucion(Nombre);
+    }
+    @Override
+    public Collection<DtInstitucion> listarInstituciones(){
+        Collection<DtInstitucion> resultado = new ArrayList<>();
+
+        for (Institucion institucion : manejadorInstituciones.listarInstituciones()) {
+            resultado.add(new DtInstitucion(
+                    institucion.getNombre(),
+                    institucion.getDescripcion(),
+                    institucion.getSitioWeb()
+            ));
+        }
+        return resultado;
     }
 }

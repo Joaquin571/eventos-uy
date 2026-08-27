@@ -1,6 +1,7 @@
 package swing;
 
 import datatypes.DtAsistente;
+import datatypes.DtInstitucion;
 import datatypes.DtOrganizador;
 import datatypes.DtUsuario;
 import implementacion.Fabrica;
@@ -49,6 +50,7 @@ public class ModificarUsuarioPanel {
         configurarTipoUsuario();
         configurarEventos();
 
+        cargarInstituciones();
         refrescarUsuarios();
 
         actualizarCamposTipo();
@@ -62,8 +64,24 @@ public class ModificarUsuarioPanel {
         comboTipoUsuario.addItem("Asistente");
         comboTipoUsuario.addItem("Organizador");
 
-        // El tipo se muestra pero no se modifica
         comboTipoUsuario.setEnabled(false);
+    }
+
+
+    /**
+     * Carga en el combo todas las instituciones existentes.
+     */
+    private void cargarInstituciones() {
+
+        comboInstitucion.removeAllItems();
+
+        comboInstitucion.addItem("Sin Institución");
+
+        for (DtInstitucion institucion : sistema.listarInstituciones()) {
+            comboInstitucion.addItem(institucion.getNombre());
+        }
+
+        comboInstitucion.setSelectedIndex(0);
     }
 
 
@@ -89,10 +107,12 @@ public class ModificarUsuarioPanel {
 
 
     /**
-     * Vuelve a consultar los usuarios existentes.
-     * Se llama cada vez que se abre la ventana.
+     * Refresca usuarios e instituciones cada vez
+     * que se abre el caso de uso.
      */
     public void refrescarUsuarios() {
+
+        cargarInstituciones();
 
         comboUsuarios.removeAllItems();
 
@@ -156,7 +176,7 @@ public class ModificarUsuarioPanel {
             cargarAsistente(
                     asistente.getApellido(),
                     asistente.getFechaNacimiento().toString(),
-                    null
+                    asistente.getNombreInstitucion()
             );
 
         } else if (usuario instanceof DtOrganizador organizador) {
@@ -192,7 +212,9 @@ public class ModificarUsuarioPanel {
         txtApellido.setText(apellido);
         txtFechaNacimiento.setText(fechaNacimiento);
 
-        if (institucion != null) {
+        if (institucion == null || institucion.isBlank()) {
+            comboInstitucion.setSelectedItem("Sin Institución");
+        } else {
             comboInstitucion.setSelectedItem(institucion);
         }
 
@@ -295,20 +317,21 @@ public class ModificarUsuarioPanel {
             LocalDate fechaNacimiento =
                     LocalDate.parse(fechaTexto);
 
+            if ("Sin Institución".equals(institucion)) {
+                institucion = null;
+            }
+
             DtAsistente dt =
                     new DtAsistente(
                             nickname,
                             nombre,
                             correo,
                             apellido,
-                            fechaNacimiento
+                            fechaNacimiento,
+                            institucion
                     );
 
-            sistema.modificarAsistente(
-                    dt,
-                    institucion
-            );
-
+            sistema.modificarAsistente(dt);
             mostrarExito();
 
         } catch (DateTimeParseException e) {
@@ -361,10 +384,6 @@ public class ModificarUsuarioPanel {
     }
 
 
-    /**
-     * Limpia toda la información mostrada,
-     * pero no modifica los datos del sistema.
-     */
     private void limpiarFormulario() {
 
         txtNickname.setText("");
@@ -378,7 +397,7 @@ public class ModificarUsuarioPanel {
         txtSitioWeb.setText("");
 
         if (comboInstitucion.getItemCount() > 0) {
-            comboInstitucion.setSelectedIndex(-1);
+            comboInstitucion.setSelectedIndex(0);
         }
     }
 

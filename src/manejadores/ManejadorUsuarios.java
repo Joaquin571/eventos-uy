@@ -73,7 +73,8 @@ public class ManejadorUsuarios {
             String nombre,
             String correo,
             String apellido,
-            LocalDate fechaNacimiento
+            LocalDate fechaNacimiento,
+            String nombreInstitucion
     ) {
 
         Usuario usuario = obtenerUsuario(nickname);
@@ -86,6 +87,7 @@ public class ManejadorUsuarios {
         asistente.setCorreoElectronico(correo);
         asistente.setApellido(apellido);
         asistente.setFechaNacimiento(fechaNacimiento);
+        asistente.setNombreInstitucion(nombreInstitucion);
 
         return true;
     }
