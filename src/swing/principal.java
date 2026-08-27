@@ -11,10 +11,10 @@ public class principal {
 
     private JInternalFrame internoModificarUsuario;
     private JInternalFrame internoAltaUsuario;
+    private JInternalFrame internoAltaInstitucion;
 
     // Guardamos también el panel porque necesitamos refrescarlo
     private ModificarUsuarioPanel panelModificarUsuario;
-
 
     public principal() {
 
@@ -78,9 +78,21 @@ public class principal {
                 () -> internoModificarUsuario.setVisible(false)
         );
 
-        desktopPane.add(
-                internoModificarUsuario
+        desktopPane.add(internoModificarUsuario);
+
+        //ALTA INSTITUCIÓN
+        AltaInstitucionPanel panelAltaInstitucion = new AltaInstitucionPanel();
+        internoAltaInstitucion =
+                crearInterno(
+                    "Alta Institución",
+                    panelAltaInstitucion.getMainPanel(),
+                    60,
+                    60
+                );
+        panelAltaInstitucion.setAccionCerrar(
+                () -> internoAltaInstitucion.setVisible(false)
         );
+        desktopPane.add(internoAltaInstitucion);
     }
 
 
@@ -163,17 +175,11 @@ public class principal {
         altaUsuario.addActionListener(
                 e -> mostrar(internoAltaUsuario)
         );
-
-
         modificarUsuario.addActionListener(e -> {
-
-            // IMPORTANTE:
-            // vuelve a consultar los usuarios del sistema
             panelModificarUsuario.refrescarUsuarios();
-
             mostrar(internoModificarUsuario);
         });
-
+        altaInstitucion.addActionListener(e -> {mostrar(internoAltaInstitucion);});
 
         itemSalir.addActionListener(
                 e -> System.exit(0)

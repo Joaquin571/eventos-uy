@@ -26,11 +26,15 @@ public interface ISistema {
 
     // MODIFICAR USUARIO
     void modificarAsistente(
-            DtAsistente asistente,
-            String institucion
+            DtAsistente asistente
     );
 
     void modificarOrganizador(
             DtOrganizador organizador
     );
+
+    //ALTA INSTITUCION
+    boolean existeInstitucion(String nombre);
+    boolean altaInstitucion(DtInstitucion institucion);
+    Collection<DtInstitucion> listarInstituciones();
 }

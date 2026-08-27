@@ -1,17 +1,17 @@
 package clases;
 
 public class Institucion {
-    private String idNombre;
+    private String Nombre;
     private String descripcion;
     private String sitioWeb;
 
-    public Institucion(String idNombre, String descripcion, String sitioWeb) {
-        this.idNombre = idNombre;
+    public Institucion(String Nombre, String descripcion, String sitioWeb) {
+        this.Nombre = Nombre;
         this.descripcion = descripcion;
         this.sitioWeb = sitioWeb;
     }
-    public String getIdNombre() {return idNombre;}
-    public void setIdNombre(String idNombre) {this.idNombre = idNombre;}
+    public String getNombre() {return Nombre;}
+    public void setNombre(String idNombre) {this.Nombre = Nombre;}
     public String getDescripcion() {return descripcion;}
     public void setDescripcion(String descripcion) {this.descripcion = descripcion;}
     public String getSitioWeb() {return sitioWeb;}
