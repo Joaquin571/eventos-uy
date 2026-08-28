@@ -13,9 +13,7 @@ public class ManejadorPatrocinios {
 
     private final Map<String, Patrocinio> patrociniosCodigo;
 
-    private ManejadorPatrocinios() {
-        patrociniosCodigo = new HashMap<>();
-    }
+    private ManejadorPatrocinios() {patrociniosCodigo = new HashMap<>();}
 
     public static ManejadorPatrocinios getInstance() {
         if (instancia == null) {
