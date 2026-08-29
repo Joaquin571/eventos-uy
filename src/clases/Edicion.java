@@ -11,7 +11,9 @@ public class Edicion {
     private LocalDate fechaAlta;
     private String ciudad;
     private String pais;
-
+    private Organizador organizador;
+    private TipoRegistro tipoRegistro;
+    private ArrayList<Patrocinio> patrocinios;
     public Edicion(
             String idNombre,
             String sigla,
@@ -19,8 +21,13 @@ public class Edicion {
             LocalDate fechaFin,
             LocalDate fechaAlta,
             String ciudad,
-            String pais
+            String pais,
+            Organizador organizador,
+            TipoRegistro tipoRegistro,
+            patrocinios=new ArrayList<>()
     ) {
+        this.organizador=organizador;
+        this.tipoRegistro=tipoRegistro;
         this.idNombre = idNombre;
         this.sigla = sigla;
         this.fechaInicio = fechaInicio;
@@ -28,6 +35,30 @@ public class Edicion {
         this.fechaAlta = fechaAlta;
         this.ciudad = ciudad;
         this.pais = pais;
+    }
+
+    public ArrayList<Patrocinio> getPatrocinios() {
+        return patrocinios;
+    }
+
+    public void setPatrocinios(ArrayList<Patrocinio> patrocinios) {
+        this.patrocinios = patrocinios;
+    }
+
+    public Organizador getOrganizador() {
+        return organizador;
+    }
+
+    public void setOrganizador(Organizador organizador) {
+        this.organizador = organizador;
+    }
+
+    public TipoRegistro getTipoRegistro() {
+        return tipoRegistro;
+    }
+
+    public void setTipoRegistro(TipoRegistro tipoRegistro) {
+        this.tipoRegistro = tipoRegistro;
     }
 
     public String getIdNombre() {
