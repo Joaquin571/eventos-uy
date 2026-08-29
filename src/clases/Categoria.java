@@ -1,18 +1,17 @@
 package clases;
 
 public class Categoria {
+    private String nombre;
 
-    private String idNombre;
-
-    public Categoria(String idNombre) {
-        this.idNombre = idNombre;
+    public Categoria(String nombre) {
+        this.nombre = nombre;
     }
 
-    public String getIdNombre() {
-        return idNombre;
+    public String getNombre() {
+        return nombre;
     }
 
-    public void setIdNombre(String idNombre) {
-        this.idNombre = idNombre;
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 }

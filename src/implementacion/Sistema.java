@@ -5,6 +5,7 @@ import datatypes.*;
 import interfaces.ISistema;
 import manejadores.ManejadorUsuarios;
 import manejadores.ManejadorInstituciones;
+import manejadores.ManejadorEventos;
 import manejadores.ManejadorPatrocinios;
 
 import java.time.LocalDate;
@@ -15,18 +16,15 @@ public class Sistema implements ISistema {
 
     private final ManejadorUsuarios manejadorUsuarios;
     private final ManejadorInstituciones manejadorInstituciones;
+    private final ManejadorEventos manejadorEventos;
     private final ManejadorPatrocinios manejadorPatrocinios;
 
     public Sistema() {
 
-        manejadorUsuarios =
-                ManejadorUsuarios.getInstance();
-
-        manejadorInstituciones =
-                ManejadorInstituciones.getInstance();
-
-        manejadorPatrocinios =
-                ManejadorPatrocinios.getInstance();
+        manejadorUsuarios = ManejadorUsuarios.getInstance();
+        manejadorInstituciones = ManejadorInstituciones.getInstance();
+        manejadorPatrocinios = ManejadorPatrocinios.getInstance();
+        manejadorEventos = ManejadorEventos.getInstance();
 
         cargarDatosPrueba();
     }
@@ -296,8 +294,19 @@ public class Sistema implements ISistema {
 
         return resultado;
     }
+    
+    // =====================================================
+    // CATEGORÍAS
+    // =====================================================
 
-
+    @Override
+    public Collection<String> listarCategorias() {
+        Collection<String> resultado = new ArrayList<>();
+        for (Categoria c : manejadorEventos.obtenerCategorias()) {
+            resultado.add(c.getNombre());
+        }
+        return resultado;
+    }
     // =====================================================
     // ALTA PATROCINIO
     // =====================================================
@@ -345,11 +354,54 @@ public class Sistema implements ISistema {
                     )
             );
         }
-
+        
         return resultado;
     }
+        
+    // =====================================================
+    // ALTA DE EVENTO
+    // =====================================================
 
+    @Override
+    public boolean existeEvento(String nombre) {
+        return manejadorEventos.existeEvento(nombre);
+    }
 
+    @Override
+    public boolean altaEvento(DtEvento dt) throws Exception {
+
+        // 1. Validar si el evento ya existe por nombre
+        if (manejadorEventos.existeEvento(dt.getNombre())) {
+            throw new Exception("Ya existe un evento con el nombre: " + dt.getNombre());
+        }
+
+        // 2. Validar que se haya seleccionado al menos una categoría
+        if (dt.getCategorias() == null || dt.getCategorias().isEmpty()) {
+            throw new Exception("Debe seleccionar al menos una categoría para el evento.");
+        }
+
+        // 3. Instanciar la clase de dominio Evento
+        Evento evento = new Evento(
+                dt.getNombre(),
+                dt.getSigla(),
+                dt.getDescripcion(),
+                dt.getFechaAlta()
+        );
+
+        // 4. Obtener cada Categoria desde manejadorEventos y asociarla al Evento
+        for (String nombreCat : dt.getCategorias()) {
+            Categoria cat = manejadorEventos.obtenerCategoria(nombreCat);
+            if (cat != null) {
+                evento.agregarCategoria(cat);
+            } else {
+                throw new Exception("La categoría '" + nombreCat + "' no existe en el sistema.");
+            }
+        }
+
+        // 5. Guardar el evento en la colección en memoria
+        return manejadorEventos.addEvento(evento);
+    }
+        
     @Override
     public DtPatrocinio consultarPatrocinio(
             String codigo) {
@@ -372,3 +424,4 @@ public class Sistema implements ISistema {
         );
     }
 }
+

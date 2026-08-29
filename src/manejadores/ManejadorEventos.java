@@ -8,7 +8,12 @@ import java.util.Map;
 public class ManejadorEventos {
     private static ManejadorEventos instancia = null;
     private final Map<String, Evento> eventosNombre;
-    private ManejadorEventos() {eventosNombre = new HashMap<>();}
+    private final Map<String, Categoria> categoriasNombre;
+
+    private ManejadorEventos() {
+        eventosNombre = new HashMap<>();
+        categoriasNombre = new HashMap<>();
+    }
 
     public static ManejadorEventos getInstance() {
         if (instancia == null) {
@@ -49,12 +54,26 @@ public class ManejadorEventos {
     public Collection<Edicion> obtenerEdiciones();
     public Collection<Edicion> obtenerEdicionesEvento(String nombreEvento);
 
+  */
     // CATEGORÍAS
-    boolean addCategoria(Categoria categoria);
-    Categoria obtenerCategoria(String nombre);
-    boolean existeCategoria(String nombre);
-    Collection<Categoria> obtenerCategorias();
+    public boolean addCategoria(Categoria categoria) {
+        if (existeCategoria(categoria.getNombre())) {
+            return false;
+        }
+        categoriasNombre.put(categoria.getNombre(), categoria);
+        return true;
+    }
+    public Categoria obtenerCategoria(String nombre) {
+        return categoriasNombre.get(nombre);
+    }
+    public boolean existeCategoria(String nombre) {
+        return categoriasNombre.containsKey(nombre);
+    }
+    public Collection<Categoria> obtenerCategorias() {
+        return categoriasNombre.values();
+    }
 
+/*
     // TIPOS DE REGISTRO
     boolean addTipoRegistro(TipoRegistro tipoRegistro);
     TipoRegistro obtenerTipoRegistro(String nombre);

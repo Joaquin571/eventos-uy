@@ -14,6 +14,8 @@ public class principal {
     private JInternalFrame internoModificarUsuario;
     private JInternalFrame internoConsultaUsuario;
     private JInternalFrame internoAltaInstitucion;
+    private JInternalFrame internoAltaEvento;
+    private AltaEventoPanel panelAltaEvento;
     private JInternalFrame internoAltaPatrocinio;
     private JInternalFrame internoConsultaPatrocinio;
 
@@ -116,6 +118,20 @@ public class principal {
 
         desktopPane.add(internoAltaInstitucion);
 
+        // =========================
+        // ALTA EVENTO
+        // =========================
+        panelAltaEvento = new AltaEventoPanel();
+        internoAltaEvento = crearInterno(
+                "Alta Evento",
+                panelAltaEvento.getMainPanel(),
+                80,
+                80
+        );
+        panelAltaEvento.setAccionCerrar(
+                () -> internoAltaEvento.setVisible(false)
+        );
+        desktopPane.add(internoAltaEvento);
 
         // =========================
         // ALTA PATROCINIO
@@ -229,6 +245,11 @@ public class principal {
             mostrar(internoConsultaPatrocinio);
         });
 
+        altaEvento.addActionListener(e -> {
+            panelAltaEvento.cargarCategorias();
+            mostrar(internoAltaEvento);
+        });
+
         itemSalir.addActionListener(
                 e -> System.exit(0)
         );
@@ -332,6 +353,13 @@ public class principal {
     public static void main(
             String[] args
     ) {
+
+
+        //Solo para probar alta evento BORRARLO CUANDO HAGAMOS CATEGORIAS
+        manejadores.ManejadorEventos me = manejadores.ManejadorEventos.getInstance();
+        me.addCategoria(new clases.Categoria("Deportes"));
+        me.addCategoria(new clases.Categoria("Tecnología"));
+        me.addCategoria(new clases.Categoria("Cultura"));
 
         SwingUtilities.invokeLater(() -> {
 
