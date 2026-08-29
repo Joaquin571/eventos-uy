@@ -1,30 +1,35 @@
 package swing;
 
-import java.beans.PropertyVetoException;
 import javax.swing.*;
 import java.awt.*;
+import java.beans.PropertyVetoException;
 
 public class principal {
 
     private JPanel panelPrincipal;
     private JDesktopPane desktopPane;
 
-    private JInternalFrame internoModificarUsuario;
+    // INTERNAL FRAMES
     private JInternalFrame internoAltaUsuario;
+    private JInternalFrame internoModificarUsuario;
+    private JInternalFrame internoConsultaUsuario;
     private JInternalFrame internoAltaInstitucion;
     private JInternalFrame internoAltaEvento;
     private AltaEventoPanel panelAltaEvento;
+    private JInternalFrame internoAltaPatrocinio;
+    private JInternalFrame internoConsultaPatrocinio;
 
-
+    //PARA REFRESCAR
     private ModificarUsuarioPanel panelModificarUsuario;
+    private ConsultaUsuarioPanel panelConsultaUsuario;
+
+    private AltaPatrocinioPanel panelAltaPatrocinio;
+    private ConsultaPatrocinioPanel panelConsultaPatrocinio;
 
     public principal() {
 
-        panelPrincipal =
-                new JPanel(new BorderLayout());
-
-        desktopPane =
-                new JDesktopPane();
+        panelPrincipal = new JPanel(new BorderLayout());
+        desktopPane = new JDesktopPane();
 
         panelPrincipal.add(
                 desktopPane,
@@ -34,40 +39,33 @@ public class principal {
         inicializarVentanasInternas();
     }
 
-
+    // INICIALIZAR VENTANAS INTERNAS
     private void inicializarVentanasInternas() {
 
         // =========================
         // ALTA USUARIO
         // =========================
 
-        AltaUsuarioPanel panelAlta =
-                new AltaUsuarioPanel();
-
+        AltaUsuarioPanel panelAltaUsuario = new AltaUsuarioPanel();
         internoAltaUsuario =
                 crearInterno(
                         "Alta Usuario",
-                        panelAlta.getMainPanel(),
+                        panelAltaUsuario.getMainPanel(),
                         20,
                         20
                 );
 
-        panelAlta.setAccionCerrar(
+        panelAltaUsuario.setAccionCerrar(
                 () -> internoAltaUsuario.setVisible(false)
         );
-
-        desktopPane.add(
-                internoAltaUsuario
-        );
+        desktopPane.add(internoAltaUsuario);
 
 
         // =========================
         // MODIFICAR USUARIO
         // =========================
 
-        panelModificarUsuario =
-                new ModificarUsuarioPanel();
-
+        panelModificarUsuario = new ModificarUsuarioPanel();
         internoModificarUsuario =
                 crearInterno(
                         "Modificar Datos de Usuario",
@@ -79,21 +77,45 @@ public class principal {
         panelModificarUsuario.setAccionCerrar(
                 () -> internoModificarUsuario.setVisible(false)
         );
-
         desktopPane.add(internoModificarUsuario);
 
-        //ALTA INSTITUCIÓN
+
+        // =========================
+        // CONSULTA USUARIO
+        // =========================
+
+        panelConsultaUsuario = new ConsultaUsuarioPanel();
+        internoConsultaUsuario =
+                crearInterno(
+                        "Consulta Usuario",
+                        panelConsultaUsuario.getMainPanel(),
+                        80,
+                        80
+                );
+
+        panelConsultaUsuario.setAccionCerrar(
+                () -> internoConsultaUsuario.setVisible(false)
+        );
+        desktopPane.add(internoConsultaUsuario);
+
+
+        // =========================
+        // ALTA INSTITUCIÓN
+        // =========================
+
         AltaInstitucionPanel panelAltaInstitucion = new AltaInstitucionPanel();
         internoAltaInstitucion =
                 crearInterno(
-                    "Alta Institución",
-                    panelAltaInstitucion.getMainPanel(),
-                    60,
-                    60
+                        "Alta Institución",
+                        panelAltaInstitucion.getMainPanel(),
+                        60,
+                        60
                 );
+
         panelAltaInstitucion.setAccionCerrar(
                 () -> internoAltaInstitucion.setVisible(false)
         );
+
         desktopPane.add(internoAltaInstitucion);
 
         // =========================
@@ -110,93 +132,118 @@ public class principal {
                 () -> internoAltaEvento.setVisible(false)
         );
         desktopPane.add(internoAltaEvento);
+
+        // =========================
+        // ALTA PATROCINIO
+        // =========================
+
+        panelAltaPatrocinio = new AltaPatrocinioPanel();
+        internoAltaPatrocinio =
+                crearInterno(
+                        "Alta Patrocinio",
+                        panelAltaPatrocinio.getMainPanel(),
+                        60,
+                        60
+                );
+
+        panelAltaPatrocinio.setAccionCerrar(
+                () -> internoAltaPatrocinio.setVisible(false)
+        );
+
+        desktopPane.add(internoAltaPatrocinio);
+
+
+        // =========================
+        // CONSULTA PATROCINIO
+        // =========================
+
+        panelConsultaPatrocinio = new ConsultaPatrocinioPanel();
+        internoConsultaPatrocinio =
+                crearInterno(
+                        "Consulta Patrocinio",
+                        panelConsultaPatrocinio.getMainPanel(),
+                        60,
+                        60
+                );
+
+        panelConsultaPatrocinio.setAccionCerrar(
+                () -> internoConsultaPatrocinio.setVisible(false)
+        );
+
+        desktopPane.add(internoConsultaPatrocinio);
     }
 
-
+    // CREAR MENÚ
     private JMenuBar crearMenu() {
 
         JMenuBar menuBar = new JMenuBar();
+        JMenu menuUsuarios = new JMenu("Usuarios");
+        JMenu menuEventos = new JMenu("Eventos");
+        JMenu menuRegistro = new JMenu("Registros");
+        JMenu menuPatrocinio = new JMenu("Patrocinios");
+        JMenu menuInstitucion = new JMenu("Instituciones");
+        JMenu menuSesion = new JMenu("Sesión");
 
-        JMenu menuUsuarios =
-                new JMenu("Usuarios");
-
-        JMenu menuEventos =
-                new JMenu("Eventos");
-
-        JMenu menuRegistro =
-                new JMenu("Registros");
-
-        JMenu menuPatrocinio =
-                new JMenu("Patrocinios");
-
-        JMenu menuInstitucion =
-                new JMenu("Instituciones");
-
-        JMenu menuSesion =
-                new JMenu("Sesión");
-
-
-        JMenuItem altaUsuario =
-                new JMenuItem("Alta Usuario");
-
-        JMenuItem consultaUsuario =
-                new JMenuItem("Consulta Usuario");
-
-        JMenuItem modificarUsuario =
-                new JMenuItem("Modificar Datos de Usuario");
-
-        JMenuItem altaInstitucion =
-                new JMenuItem("Alta Institucion");
-
-        JMenuItem altaEvento =
-                new JMenuItem("Alta Evento");
-
-        JMenuItem consultaEvento =
-                new JMenuItem("Consulta Evento");
-
-        JMenuItem altaEdicion =
-                new JMenuItem("Alta Edicion");
-
-        JMenuItem consultaEdicion =
-                new JMenuItem("Consulta Edicion");
-
-        JMenuItem altaTipoRegistro =
-                new JMenuItem("Alta Tipo Registro");
-
-        JMenuItem consultaTipoRegistro =
-                new JMenuItem("Consulta Tipo Registro");
-
-        JMenuItem altaCategoria =
-                new JMenuItem("Alta Categoria");
-
-        JMenuItem altaPatrocinio =
-                new JMenuItem("Alta Patrocinio");
-
-        JMenuItem consultaPatrocinio =
-                new JMenuItem("Consulta Patrocinio");
-
-        JMenuItem registroEdicionEvento =
-                new JMenuItem("Registro a Edicion de Evento");
+        JMenuItem altaUsuario = new JMenuItem("Alta Usuario");
+        JMenuItem consultaUsuario = new JMenuItem("Consulta Usuario");
+        JMenuItem modificarUsuario = new JMenuItem("Modificar Datos de Usuario");
+        JMenuItem altaInstitucion = new JMenuItem("Alta Institucion");
+        JMenuItem altaEvento = new JMenuItem("Alta Evento");
+        JMenuItem consultaEvento = new JMenuItem("Consulta Evento");
+        JMenuItem altaEdicion = new JMenuItem("Alta Edicion");
+        JMenuItem consultaEdicion = new JMenuItem("Consulta Edicion");
+        JMenuItem altaTipoRegistro = new JMenuItem("Alta Tipo Registro");
+        JMenuItem consultaTipoRegistro = new JMenuItem("Consulta Tipo Registro");
+        JMenuItem altaCategoria = new JMenuItem("Alta Categoria");
+        JMenuItem altaPatrocinio = new JMenuItem("Alta Patrocinio");
+        JMenuItem consultaPatrocinio = new JMenuItem("Consulta Patrocinio");
+        JMenuItem registroEdicionEvento = new JMenuItem("Registro a Edicion de Evento");
 
         JMenuItem consultaRegistroEvento =
-                new JMenuItem("Consulta de Registro de Edicion de Evento");
+                new JMenuItem(
+                        "Consulta de Registro de Edicion de Evento"
+                );
 
         JMenuItem itemSalir =
                 new JMenuItem("Salir");
 
+        altaUsuario.addActionListener(e -> {
+            mostrar(internoAltaUsuario);
+        });
 
-        // =========================
-        // EVENTOS
-        // =========================
 
-        altaUsuario.addActionListener(
-                e -> mostrar(internoAltaUsuario)
-        );
         modificarUsuario.addActionListener(e -> {
+
             panelModificarUsuario.refrescarUsuarios();
+
             mostrar(internoModificarUsuario);
         });
-        altaInstitucion.addActionListener(e -> {mostrar(internoAltaInstitucion);});
+
+
+        consultaUsuario.addActionListener(e -> {
+
+            panelConsultaUsuario.recargarUsuarios();
+
+            mostrar(internoConsultaUsuario);
+        });
+
+        altaInstitucion.addActionListener(e -> {
+            mostrar(internoAltaInstitucion);
+        });
+
+        altaPatrocinio.addActionListener(e -> {
+
+            panelAltaPatrocinio.refrescarDatos();
+
+            mostrar(internoAltaPatrocinio);
+        });
+
+        consultaPatrocinio.addActionListener(e -> {
+
+            panelConsultaPatrocinio.refrescarDatos();
+
+            mostrar(internoConsultaPatrocinio);
+        });
 
         altaEvento.addActionListener(e -> {
             panelAltaEvento.cargarCategorias();
@@ -207,71 +254,30 @@ public class principal {
                 e -> System.exit(0)
         );
 
-
-        // =========================
-        // ARMADO MENÚ USUARIOS
-        // =========================
-
         menuUsuarios.add(altaUsuario);
-        menuUsuarios.add(consultaUsuario);
         menuUsuarios.add(modificarUsuario);
-
-
-        // =========================
-        // INSTITUCIONES
-        // =========================
+        menuUsuarios.add(consultaUsuario);
 
         menuInstitucion.add(altaInstitucion);
 
-
-        // =========================
-        // EVENTOS
-        // =========================
-
         menuEventos.add(altaEvento);
         menuEventos.add(consultaEvento);
-
         menuEventos.addSeparator();
-
         menuEventos.add(altaEdicion);
         menuEventos.add(consultaEdicion);
-
         menuEventos.addSeparator();
-
         menuEventos.add(altaTipoRegistro);
         menuEventos.add(consultaTipoRegistro);
-
         menuEventos.addSeparator();
-
         menuEventos.add(altaCategoria);
-
-
-        // =========================
-        // REGISTROS
-        // =========================
 
         menuRegistro.add(registroEdicionEvento);
         menuRegistro.add(consultaRegistroEvento);
 
-
-        // =========================
-        // PATROCINIOS
-        // =========================
-
         menuPatrocinio.add(altaPatrocinio);
         menuPatrocinio.add(consultaPatrocinio);
 
-
-        // =========================
-        // SESIÓN
-        // =========================
-
         menuSesion.add(itemSalir);
-
-
-        // =========================
-        // BARRA
-        // =========================
 
         menuBar.add(menuUsuarios);
         menuBar.add(menuEventos);
@@ -284,7 +290,10 @@ public class principal {
     }
 
 
-    private void mostrar(JInternalFrame interno) {
+    // MOSTRAR INTERNAL FRAME
+    private void mostrar(
+            JInternalFrame interno
+    ) {
 
         interno.setVisible(true);
         interno.toFront();
@@ -294,21 +303,16 @@ public class principal {
             interno.setSelected(true);
 
         } catch (PropertyVetoException ignored) {
-
-            // La ventana sigue visible.
         }
     }
 
-
-    /**
-     * Método genérico que crea cualquier
-     * ventana interna del sistema.
-     */
+    // CREAR INTERNAL FRAME
     private JInternalFrame crearInterno(
             String titulo,
             Container contenido,
             int x,
-            int y) {
+            int y
+    ) {
 
         JInternalFrame interno =
                 new JInternalFrame(
@@ -345,8 +349,10 @@ public class principal {
         return interno;
     }
 
-
-    public static void main(String[] args) {
+    // MAIN
+    public static void main(
+            String[] args
+    ) {
 
 
         //Solo para probar alta evento BORRARLO CUANDO HAGAMOS CATEGORIAS
@@ -361,7 +367,9 @@ public class principal {
                     new principal();
 
             JFrame frame =
-                    new JFrame("eventos.uy");
+                    new JFrame(
+                            "eventos.uy"
+                    );
 
             frame.setContentPane(
                     ventana.panelPrincipal
@@ -381,7 +389,6 @@ public class principal {
             );
 
             frame.setLocationRelativeTo(null);
-
             frame.setVisible(true);
         });
     }
