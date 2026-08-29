@@ -14,7 +14,6 @@ public class ConsultaUsuarioPanel {
 
     private JPanel mainPanel;
     private JComboBox<DtUsuario> cbUsuarios;
-
     private JLabel lblTipoUsuario;
     private JLabel lblNickname;
     private JLabel lblNombre;
