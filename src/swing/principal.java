@@ -12,8 +12,10 @@ public class principal {
     private JInternalFrame internoModificarUsuario;
     private JInternalFrame internoAltaUsuario;
     private JInternalFrame internoAltaInstitucion;
+    private JInternalFrame internoAltaEvento;
+    private AltaEventoPanel panelAltaEvento;
 
-    // Guardamos también el panel porque necesitamos refrescarlo
+
     private ModificarUsuarioPanel panelModificarUsuario;
 
     public principal() {
@@ -93,6 +95,21 @@ public class principal {
                 () -> internoAltaInstitucion.setVisible(false)
         );
         desktopPane.add(internoAltaInstitucion);
+
+        // =========================
+        // ALTA EVENTO
+        // =========================
+        panelAltaEvento = new AltaEventoPanel();
+        internoAltaEvento = crearInterno(
+                "Alta Evento",
+                panelAltaEvento.getMainPanel(),
+                80,
+                80
+        );
+        panelAltaEvento.setAccionCerrar(
+                () -> internoAltaEvento.setVisible(false)
+        );
+        desktopPane.add(internoAltaEvento);
     }
 
 
@@ -180,6 +197,11 @@ public class principal {
             mostrar(internoModificarUsuario);
         });
         altaInstitucion.addActionListener(e -> {mostrar(internoAltaInstitucion);});
+
+        altaEvento.addActionListener(e -> {
+            panelAltaEvento.cargarCategorias();
+            mostrar(internoAltaEvento);
+        });
 
         itemSalir.addActionListener(
                 e -> System.exit(0)
@@ -325,6 +347,13 @@ public class principal {
 
 
     public static void main(String[] args) {
+
+
+        //Solo para probar alta evento BORRARLO CUANDO HAGAMOS CATEGORIAS
+        manejadores.ManejadorEventos me = manejadores.ManejadorEventos.getInstance();
+        me.addCategoria(new clases.Categoria("Deportes"));
+        me.addCategoria(new clases.Categoria("Tecnología"));
+        me.addCategoria(new clases.Categoria("Cultura"));
 
         SwingUtilities.invokeLater(() -> {
 

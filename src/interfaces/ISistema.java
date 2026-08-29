@@ -37,4 +37,10 @@ public interface ISistema {
     boolean existeInstitucion(String nombre);
     boolean altaInstitucion(DtInstitucion institucion);
     Collection<DtInstitucion> listarInstituciones();
+
+    //ALTA EVENTO
+    Collection<String> listarCategorias();
+    boolean existeEvento(String nombre);
+    boolean altaEvento(DtEvento dt) throws Exception;
 }
+

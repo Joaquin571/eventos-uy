@@ -1,19 +1,32 @@
 package clases;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Evento {
     private String nombre;
     private String sigla;
     private String descripcion;
     private LocalDate fechaAlta;
+    private List<Categoria> categorias;
 
     public Evento(String nombre, String sigla, String descripcion, LocalDate fechaAlta) {
         this.nombre = nombre;
         this.sigla = sigla;
         this.descripcion = descripcion;
         this.fechaAlta = fechaAlta;
+        this.categorias = new ArrayList<>();
     }
+
+    public void agregarCategoria(Categoria categoria) {
+        this.categorias.add(categoria);
+    }
+
+    public List<Categoria> getCategorias() {
+        return this.categorias;
+    }
+
     public String getNombre() {return this.nombre;}
     public String getSigla() {return this.sigla;}
     public String getDescripcion() {return this.descripcion;}
