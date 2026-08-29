@@ -18,26 +18,33 @@ public class Sistema implements ISistema {
     private final ManejadorPatrocinios manejadorPatrocinios;
 
     public Sistema() {
-        manejadorUsuarios = ManejadorUsuarios.getInstance();
-        manejadorInstituciones = ManejadorInstituciones.getInstance();
-        manejadorPatrocinios = ManejadorPatrocinios.getInstance();
 
-        // Temporal: datos para probar sin persistencia
+        manejadorUsuarios =
+                ManejadorUsuarios.getInstance();
+
+        manejadorInstituciones =
+                ManejadorInstituciones.getInstance();
+
+        manejadorPatrocinios =
+                ManejadorPatrocinios.getInstance();
+
         cargarDatosPrueba();
     }
+
 
     private void cargarDatosPrueba() {
 
         if (!manejadorUsuarios.existeUsuario("joaquin")) {
 
-            Asistente asistente = new Asistente(
-                    "joaquin",
-                    "Joaquin",
-                    "joaquin@gmail.com",
-                    "Gonzalez",
-                    LocalDate.of(2004, 8, 6),
-                    null
-            );
+            Asistente asistente =
+                    new Asistente(
+                            "joaquin",
+                            "Joaquin",
+                            "joaquin@gmail.com",
+                            "Gonzalez",
+                            LocalDate.of(2004, 8, 6),
+                            null
+                    );
 
             manejadorUsuarios.addUsuario(asistente);
         }
@@ -45,13 +52,14 @@ public class Sistema implements ISistema {
 
         if (!manejadorUsuarios.existeUsuario("ignacio")) {
 
-            Organizador organizador = new Organizador(
-                    "ignacio",
-                    "Ignacio",
-                    "ignacio@gmail.com",
-                    "Organizador de eventos",
-                    "www.ignacio.com"
-            );
+            Organizador organizador =
+                    new Organizador(
+                            "ignacio",
+                            "Ignacio",
+                            "ignacio@gmail.com",
+                            "Organizador de eventos",
+                            "www.ignacio.com"
+                    );
 
             manejadorUsuarios.addUsuario(organizador);
         }
@@ -69,57 +77,67 @@ public class Sistema implements ISistema {
 
 
     @Override
-    public boolean existeCorreoElectronico(String correoElectronico) {
+    public boolean existeCorreoElectronico(
+            String correoElectronico) {
 
-        return manejadorUsuarios.existeCorreo(correoElectronico);
+        return manejadorUsuarios.existeCorreo(
+                correoElectronico
+        );
     }
 
 
     // =====================================================
-    // ALTA DE USUARIO
+    // ALTA USUARIO
     // =====================================================
 
     @Override
     public boolean altaAsistente(DtAsistente dt) {
 
-        Asistente asistente = new Asistente(
-                dt.getNickname(),
-                dt.getNombre(),
-                dt.getCorreoElectronico(),
-                dt.getApellido(),
-                dt.getFechaNacimiento(),
-                dt.getNombreInstitucion()
-        );
+        Asistente asistente =
+                new Asistente(
+                        dt.getNickname(),
+                        dt.getNombre(),
+                        dt.getCorreoElectronico(),
+                        dt.getApellido(),
+                        dt.getFechaNacimiento(),
+                        dt.getNombreInstitucion()
+                );
 
         return manejadorUsuarios.addUsuario(asistente);
     }
 
 
     @Override
-    public boolean altaOrganizador(DtOrganizador dt) {
+    public boolean altaOrganizador(
+            DtOrganizador dt) {
 
-        Organizador organizador = new Organizador(
-                dt.getNickname(),
-                dt.getNombre(),
-                dt.getCorreoElectronico(),
-                dt.getDescripcion(),
-                dt.getSitioWeb()
+        Organizador organizador =
+                new Organizador(
+                        dt.getNickname(),
+                        dt.getNombre(),
+                        dt.getCorreoElectronico(),
+                        dt.getDescripcion(),
+                        dt.getSitioWeb()
+                );
+
+        return manejadorUsuarios.addUsuario(
+                organizador
         );
-
-        return manejadorUsuarios.addUsuario(organizador);
     }
 
 
     // =====================================================
-    // LISTADO DE USUARIOS
+    // CONSULTA / LISTADO USUARIO
     // =====================================================
 
     @Override
     public Collection<DtUsuario> listarUsuarios() {
 
-        Collection<DtUsuario> resultado = new ArrayList<>();
+        Collection<DtUsuario> resultado =
+                new ArrayList<>();
 
-        for (Usuario usuario : manejadorUsuarios.listarUsuarios()) {
+        for (Usuario usuario :
+                manejadorUsuarios.listarUsuarios()) {
 
             if (usuario instanceof Asistente asistente) {
 
@@ -134,7 +152,8 @@ public class Sistema implements ISistema {
                         )
                 );
 
-            } else if (usuario instanceof Organizador organizador) {
+            } else if (
+                    usuario instanceof Organizador organizador) {
 
                 resultado.add(
                         new DtOrganizador(
@@ -152,20 +171,18 @@ public class Sistema implements ISistema {
     }
 
 
-    // =====================================================
-    // CONSULTA DE USUARIO
-    // =====================================================
-
     @Override
-    public DtUsuario consultarUsuario(String nickname) {
+    public DtUsuario consultarUsuario(
+            String nickname) {
 
         Usuario usuario =
-                manejadorUsuarios.obtenerUsuario(nickname);
+                manejadorUsuarios.obtenerUsuario(
+                        nickname
+                );
 
         if (usuario == null) {
             return null;
         }
-
 
         if (usuario instanceof Asistente asistente) {
 
@@ -179,7 +196,6 @@ public class Sistema implements ISistema {
             );
         }
 
-
         if (usuario instanceof Organizador organizador) {
 
             return new DtOrganizador(
@@ -191,13 +207,12 @@ public class Sistema implements ISistema {
             );
         }
 
-
         return null;
     }
 
 
     // =====================================================
-    // MODIFICAR ASISTENTE
+    // MODIFICAR USUARIO
     // =====================================================
 
     @Override
@@ -212,20 +227,12 @@ public class Sistema implements ISistema {
                 dt.getFechaNacimiento(),
                 dt.getNombreInstitucion()
         );
-
-        /*
-         * Después conectamos institución con
-         * ManejadorInstituciones.
-         */
     }
 
 
-    // =====================================================
-    // MODIFICAR ORGANIZADOR
-    // =====================================================
-
     @Override
-    public void modificarOrganizador(DtOrganizador dt) {
+    public void modificarOrganizador(
+            DtOrganizador dt) {
 
         manejadorUsuarios.modificarOrganizador(
                 dt.getNickname(),
@@ -236,75 +243,126 @@ public class Sistema implements ISistema {
         );
     }
 
+
     // =====================================================
-    // ALTA INSTITUCION
+    // INSTITUCIONES
     // =====================================================
+
     @Override
-    public boolean altaInstitucion(DtInstitucion dt) {
+    public boolean altaInstitucion(
+            DtInstitucion dt) {
 
-        Institucion institucion = new Institucion(
-                dt.getNombre(),
-                dt.getDescripcion(),
-                dt.getSitioWeb()
+        Institucion institucion =
+                new Institucion(
+                        dt.getNombre(),
+                        dt.getDescripcion(),
+                        dt.getSitioWeb()
+                );
 
+        return manejadorInstituciones.addInstitucion(
+                institucion
         );
-
-        return manejadorInstituciones.addInstitucion(institucion);
     }
-    @Override
-    public boolean existeInstitucion(String Nombre) {
-        return manejadorInstituciones.existeInstitucion(Nombre);
-    }
-    @Override
-    public Collection<DtInstitucion> listarInstituciones(){
-        Collection<DtInstitucion> resultado = new ArrayList<>();
 
-        for (Institucion institucion : manejadorInstituciones.listarInstituciones()) {
-            resultado.add(new DtInstitucion(
-                    institucion.getNombre(),
-                    institucion.getDescripcion(),
-                    institucion.getSitioWeb()
-            ));
+
+    @Override
+    public boolean existeInstitucion(
+            String nombre) {
+
+        return manejadorInstituciones.existeInstitucion(
+                nombre
+        );
+    }
+
+
+    @Override
+    public Collection<DtInstitucion>
+    listarInstituciones() {
+
+        Collection<DtInstitucion> resultado =
+                new ArrayList<>();
+
+        for (Institucion institucion :
+                manejadorInstituciones.listarInstituciones()) {
+
+            resultado.add(
+                    new DtInstitucion(
+                            institucion.getNombre(),
+                            institucion.getDescripcion(),
+                            institucion.getSitioWeb()
+                    )
+            );
         }
+
         return resultado;
     }
 
+
+    // =====================================================
     // ALTA PATROCINIO
+    // =====================================================
 
     @Override
-    public boolean altaPatrocinio(DtPatrocinio dt) {
-        Patrocinio patrocinio = new Patrocinio(
-                dt.getFecha(),
-                dt.getMontoAporte(),
-                dt.getCantRegistrosGrat(),
-                dt.getCodigoPatrocinio(),
-                dt.getNivel()
+    public boolean altaPatrocinio(
+            DtPatrocinio dt) {
+
+        Patrocinio patrocinio =
+                new Patrocinio(
+                        dt.getFecha(),
+                        dt.getMontoAporte(),
+                        dt.getCantRegistrosGrat(),
+                        dt.getCodigoPatrocinio(),
+                        dt.getNivel()
+                );
+
+        return manejadorPatrocinios.addPatrocinio(
+                patrocinio
         );
-        return manejadorPatrocinios.addPatrocinio(patrocinio);
     }
 
+
+    // =====================================================
+    // CONSULTA PATROCINIO
+    // =====================================================
+
     @Override
-    public Collection<DtPatrocinio> listarPatrocinios() {
-        Collection<DtPatrocinio> resultado = new ArrayList<>();
-        for(Patrocinio patrocinio : manejadorPatrocinios.listarPatrocinios()) {
-            resultado.add(new DtPatrocinio(
-                    patrocinio.getFecha(),
-                    patrocinio.getMontoAporte(),
-                    patrocinio.getCantRegistrosGrat(),
-                    patrocinio.getCodigoPatrocinio(),
-                    patrocinio.getNivel()
-            ));
+    public Collection<DtPatrocinio>
+    listarPatrocinios() {
+
+        Collection<DtPatrocinio> resultado =
+                new ArrayList<>();
+
+        for (Patrocinio patrocinio :
+                manejadorPatrocinios.listarPatrocinios()) {
+
+            resultado.add(
+                    new DtPatrocinio(
+                            patrocinio.getFecha(),
+                            patrocinio.getMontoAporte(),
+                            patrocinio.getCantRegistrosGrat(),
+                            patrocinio.getCodigoPatrocinio(),
+                            patrocinio.getNivel()
+                    )
+            );
         }
+
         return resultado;
     }
 
+
     @Override
-    public DtPatrocinio consultarPatrocinio(String codigo) {
-        Patrocinio patrocinio = manejadorPatrocinios.obtenerPatrocinio(codigo);
+    public DtPatrocinio consultarPatrocinio(
+            String codigo) {
+
+        Patrocinio patrocinio =
+                manejadorPatrocinios.obtenerPatrocinio(
+                        codigo
+                );
 
         if (patrocinio == null) {
             return null;
         }
+
         return new DtPatrocinio(
                 patrocinio.getFecha(),
                 patrocinio.getMontoAporte(),
