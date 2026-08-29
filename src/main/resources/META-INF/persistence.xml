@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence" version="3.0">
+
+    <persistence-unit name="postgres" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+
+        <class>clases.Usuario</class>
+        <class>clases.Asistente</class>
+        <class>clases.Organizador</class>
+        <class>clases.Evento</class>
+        <class>clases.Edicion</class>
+        <class>clases.Categoria</class>
+        <class>clases.Institucion</class>
+        <class>clases.TipoRegistro</class>
+        <class>clases.Registro</class>
+        <class>clases.Patrocinio</class>
+
+        <properties>
+            <!--
+              PostgreSQL local. BaseDeDatos.java arranca el servidor y crea el rol/base
+              antes de que JPA abra esta unidad de persistencia.
+              Los valores se sobreescriben en tiempo de ejecución desde BaseDeDatos.propiedadesJpa()
+              (que respeta las variables de entorno JPADEMO_DB_*).
+            -->
+            <property name="jakarta.persistence.jdbc.driver"   value="org.postgresql.Driver"/>
+            <property name="jakarta.persistence.jdbc.url"      value="jdbc:postgresql://localhost:5432/eventosuy"/>
+            <property name="jakarta.persistence.jdbc.user"     value="postgres"/>
+            <property name="jakarta.persistence.jdbc.password" value="root"/>
+
+            <!-- Crea/actualiza tablas automáticamente según las entidades -->
+            <property name="hibernate.hbm2ddl.auto"     value="update"/>
+
+            <!-- Desactivar para demo limpia; activar para debuggear queries -->
+            <property name="hibernate.show_sql"         value="false"/>
+            <property name="hibernate.format_sql"       value="false"/>
+
+            <property name="hibernate.dialect"          value="org.hibernate.dialect.PostgreSQLDialect"/>
+        </properties>
+    </persistence-unit>
+
+</persistence>
