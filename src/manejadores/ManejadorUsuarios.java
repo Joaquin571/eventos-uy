@@ -2,9 +2,8 @@ package manejadores;
 
 import clases.*;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.time.LocalDate;
 
 /** Colección global de usuarios en memoria (singleton). */
 public class ManejadorUsuarios {
@@ -67,6 +66,55 @@ public class ManejadorUsuarios {
         }
 
         return null;
+    }
+
+    public boolean modificarAsistente(
+            String nickname,
+            String nombre,
+            String correo,
+            String apellido,
+            LocalDate fechaNacimiento,
+            String nombreInstitucion
+    ) {
+
+        Usuario usuario = obtenerUsuario(nickname);
+
+        if (!(usuario instanceof Asistente asistente)) {
+            return false;
+        }
+
+        asistente.setNombre(nombre);
+        asistente.setCorreoElectronico(correo);
+        asistente.setApellido(apellido);
+        asistente.setFechaNacimiento(fechaNacimiento);
+        asistente.setNombreInstitucion(nombreInstitucion);
+
+        return true;
+    }
+
+    public boolean modificarOrganizador(
+            String nickname,
+            String nombre,
+            String correo,
+            String descripcion,
+            String sitioWeb
+    ) {
+
+        Usuario usuario = obtenerUsuario(nickname);
+
+        if (!(usuario instanceof Organizador organizador)) {
+            return false;
+        }
+
+        organizador.setNombre(nombre);
+        organizador.setCorreoElectronico(correo);
+        organizador.setDescripcion(descripcion);
+        organizador.setSitioWeb(sitioWeb);
+
+        return true;
+    }
+    public Set<String> listarNicknames() {
+        return new HashSet<>(usuariosNickname.keySet());
     }
 }
 

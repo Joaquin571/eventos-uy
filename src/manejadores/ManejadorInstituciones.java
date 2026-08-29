@@ -1,31 +1,40 @@
 package manejadores;
 
-import clases.*;
+import clases.Institucion;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ManejadorInstituciones {
+
     private static ManejadorInstituciones instancia = null;
 
     private final Map<String, Institucion> institucionesIdNombre;
-    private ManejadorInstituciones() {institucionesIdNombre = new HashMap<>();}
+
+    private ManejadorInstituciones() {
+        institucionesIdNombre = new HashMap<>();
+    }
 
     public static ManejadorInstituciones getInstance() {
+
         if (instancia == null) {
             instancia = new ManejadorInstituciones();
         }
+
         return instancia;
     }
+
     public boolean addInstitucion(Institucion institucion) {
-        String nombre = institucion.getIdNombre();
+
+        String nombre = institucion.getNombre();
 
         if (existeInstitucion(nombre)) {
             return false;
         }
 
         institucionesIdNombre.put(nombre, institucion);
+
         return true;
     }
 
@@ -37,9 +46,7 @@ public class ManejadorInstituciones {
         return institucionesIdNombre.containsKey(nombre);
     }
 
-    public Collection<Institucion> obtenerInstituciones() {
+    public Collection<Institucion> listarInstituciones() {
         return institucionesIdNombre.values();
     }
-
-
 }
