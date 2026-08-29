@@ -11,6 +11,8 @@ import manejadores.ManejadorPatrocinios;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Sistema implements ISistema {
 
@@ -423,5 +425,129 @@ public class Sistema implements ISistema {
                 patrocinio.getNivel()
         );
     }
+
+    // =====================================================
+    // REGISTRO
+    // =====================================================
+
+    @Override
+    public boolean estaRegistradoAEdicion(String nicknameAsistente, String nombreEdicion) {
+        return manejadorUsuarios.estaRegistradoAEdicion(nicknameAsistente, nombreEdicion);
+    }
+
+    @Override
+    public boolean registroAEdicion(String nicknameAsistente, String nombreEdicion, String nombreTipoRegistro, DtRegistro dtRegistro) {
+        Usuario usr = manejadorUsuarios.obtenerUsuario(nicknameAsistente);
+        if (!(usr instanceof Asistente)) {
+            return false;
+        }
+        Asistente asistente = (Asistente) usr;
+        Edicion edicion = manejadorEventos.obtenerEdicion(nombreEdicion);
+        if (edicion == null) {
+            return false;
+        }
+        TipoRegistro tipoRegistro = edicion.obtenerTipoRegistro(nombreTipoRegistro);
+        if (tipoRegistro == null) {
+            return false;
+        }
+        Registro registro = new Registro(dtRegistro.getFechaRegistro(), tipoRegistro.getCosto(), tipoRegistro, edicion);
+        asistente.agregarRegistro(registro);
+
+        return true;
+    }
+
+
+    // =====================================================
+    // Evento y Ediciones
+    // =====================================================
+    @Override
+    public Collection<DtEvento> listarEventos() {
+        Collection<Evento> eventos = manejadorEventos.obtenerEventos();
+        Collection<DtEvento> dtEventos = new ArrayList<>();
+
+        for (Evento e : eventos) {
+            Set<String> nombresCategorias = new HashSet<>();
+            for (Categoria c : e.getCategorias()) {
+                nombresCategorias.add(c.getNombre());
+            }
+
+            dtEventos.add(new DtEvento(
+                    e.getNombre(),
+                    e.getSigla(),
+                    e.getDescripcion(),
+                    e.getFechaAlta(),
+                    nombresCategorias
+            ));
+        }
+
+        return dtEventos;
+    }
+
+    @Override
+    public Collection<DtEdicion> obtenerEdicionesEvento(String nombreEvento) {
+        Collection<Edicion> ediciones = manejadorEventos.obtenerEdicionesEvento(nombreEvento);
+        Collection<DtEdicion> dtEdiciones = new ArrayList<>();
+        for (Edicion ed : ediciones) {
+            dtEdiciones.add(new DtEdicion(ed.getIdNombre(), ed.getSigla(), ed.getFechaInicio(), ed.getFechaFin(), ed.getFechaAlta(), ed.getCiudad(), ed.getPais()));
+        }
+        return dtEdiciones;
+    }
+
+    // =====================================================
+    // Evento y Ediciones
+    // =====================================================
+    @Override
+    public boolean altaTipoRegistro(DtTipoRegistro dtTipoRegistro, String nombreEdicion) {
+        Edicion edicion = manejadorEventos.obtenerEdicion(nombreEdicion);
+        if (edicion == null || manejadorEventos.existeTipoRegistro(dtTipoRegistro.getIdNombre())) {
+            return false;
+        }
+        TipoRegistro tr = new TipoRegistro(dtTipoRegistro.getIdNombre(), dtTipoRegistro.getDescripcion(), dtTipoRegistro.getCosto(), dtTipoRegistro.getCupo());
+        manejadorEventos.addTipoRegistro(tr);
+        edicion.agregarTipoRegistro(tr);
+        return true;
+    }
+
+    @Override
+    public Collection<DtTipoRegistro> obtenerTiposRegistroEdicion(String nombreEdicion) {
+        Collection<TipoRegistro> tipos = manejadorEventos.obtenerTiposRegistroEdicion(nombreEdicion);
+        Collection<DtTipoRegistro> dtTipos = new ArrayList<>();
+        for (TipoRegistro tr : tipos) {
+            dtTipos.add(new DtTipoRegistro(tr.getIdNombre(), tr.getDescripcion(), tr.getCosto(), tr.getCupo()));
+        }
+        return dtTipos;
+    }
+
+    @Override
+    public DtTipoRegistro consultarTipoRegistro(String nombreTipoRegistro) {
+        TipoRegistro tr = manejadorEventos.obtenerTipoRegistro(nombreTipoRegistro);
+        if (tr != null) {
+            return new DtTipoRegistro(tr.getIdNombre(), tr.getDescripcion(), tr.getCosto(), tr.getCupo());
+        }
+        return null;
+    }
+
+    @Override
+    public boolean altaEdicion(DtEdicion dtEdicion, String nombreEvento) {
+        Evento evento = manejadorEventos.obtenerEvento(nombreEvento);
+        if (evento == null || manejadorEventos.existeEdicion(dtEdicion.getIdNombre())) {
+            return false;
+        }
+
+        Edicion edicion = new Edicion(
+                dtEdicion.getIdNombre(),
+                dtEdicion.getSigla(),
+                dtEdicion.getFechaInicio(),
+                dtEdicion.getFechaFin(),
+                dtEdicion.getFechaAlta(),
+                dtEdicion.getCiudad(),
+                dtEdicion.getPais()
+        );
+
+        manejadorEventos.addEdicion(edicion);
+        evento.agregarEdicion(edicion);
+        return true;
+    }
+
 }
 
