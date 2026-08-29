@@ -1,80 +1,140 @@
 package swing;
 
-import datatypes.*;
-import implementacion.Sistema;
+import datatypes.DtAsistente;
+import datatypes.DtOrganizador;
+import datatypes.DtUsuario;
+import implementacion.Fabrica;
 import interfaces.ISistema;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.List;
-
+import java.util.Collection;
 
 public class ConsultaUsuarioPanel {
+
     private JPanel mainPanel;
     private JComboBox<DtUsuario> cbUsuarios;
+
     private JLabel lblTipoUsuario;
     private JLabel lblNickname;
     private JLabel lblNombre;
     private JLabel lblCorreo;
     private JLabel lblEspecial1;
     private JLabel lblEspecial2;
+
     private JButton btnCerrar;
 
-    private final ISistema sistema;
-    private Runnable accionCerrar = () -> {};
+    private final transient ISistema sistema;
+    private transient Runnable accionCerrar = () -> {};
 
-    public ConsultaUsuarioPanel(){
-        this.sistema = new Sistema();
+    public ConsultaUsuarioPanel() {
+
+        sistema = Fabrica.getInstance().getISistema();
+
         armarUI();
-        cbUsuarios.addActionListener(e -> cargarDatosUsuario());
-        btnCerrar.addActionListener(e -> accionCerrar.run());
+        configurarEventos();
+
+        limpiarCampos();
     }
 
-    public JPanel getMainPanel(){
-        return mainPanel;
+    private void configurarEventos() {
+
+        cbUsuarios.addActionListener(e -> cargarDatosUsuario());
+
+        btnCerrar.addActionListener(e -> {
+            limpiarCampos();
+            accionCerrar.run();
+        });
     }
-    public void setAccionCerrar(Runnable accionCerrar){
-        this.accionCerrar = accionCerrar;
-    }
-    public void recargarUsuarios(){
+
+    public void recargarUsuarios() {
+
         cbUsuarios.removeAllItems();
-        List<DtUsuario> usuarios = sistema.listarUsuarios();
-        for (DtUsuario u : usuarios){
-            cbUsuarios.addItem(u);
+
+        Collection<DtUsuario> usuarios = sistema.listarUsuarios();
+
+        for (DtUsuario usuario : usuarios) {
+            cbUsuarios.addItem(usuario);
         }
-        if(usuarios.isEmpty()){
-            limpiarCampos();
-        }
+
+        cbUsuarios.setSelectedIndex(-1);
+        limpiarCampos();
     }
-    private void cargarDatosUsuario(){
-        DtUsuario seleccionado = (DtUsuario) cbUsuarios.getSelectedItem();
-        if(seleccionado == null){
+
+    private void cargarDatosUsuario() {
+
+        DtUsuario seleccionado =
+                (DtUsuario) cbUsuarios.getSelectedItem();
+
+        if (seleccionado == null) {
             limpiarCampos();
             return;
         }
-        DtUsuario completo = sistema.obtenerInformacionUsuario(seleccionado.getNickname());
-        if(completo == null){
+
+        DtUsuario completo =
+                sistema.consultarUsuario(
+                        seleccionado.getNickname()
+                );
+
+        if (completo == null) {
+            limpiarCampos();
             return;
         }
+
         lblNickname.setText(completo.getNickname());
-        lblNombre.setText(completo.getNickname());
         lblNombre.setText(completo.getNombre());
         lblCorreo.setText(completo.getCorreoElectronico());
 
-        if(completo instanceof DtAsistente){
-            DtAsistente a = (DtAsistente) completo;
-            lblTipoUsuario.setText("Asistente");
-            lblEspecial1.setText("Apellido: " + a.getApellido());
-            lblEspecial2.setText("Fecha Nac.: " + (a.getFechaNacimiento() != null ? a.getFechaNacimiento().toString() : "-"));
-        }else if (completo instanceof DtOrganizador){
-            DtOrganizador o = (DtOrganizador) completo;
-            lblTipoUsuario.setText("Organizado");
-            lblEspecial1.setText("Sitio Web: " + o.getSitioWeb());
-            lblEspecial2.setText("Descripcion: " + o.getDescripcion());
-        }
+        if (completo instanceof DtAsistente) {
 
+            DtAsistente asistente =
+                    (DtAsistente) completo;
+
+            lblTipoUsuario.setText("Asistente");
+
+            lblEspecial1.setText(
+                    "Apellido: " +
+                            asistente.getApellido()
+            );
+
+            lblEspecial2.setText(
+                    "Fecha Nac.: " +
+                            (
+                                    asistente.getFechaNacimiento() != null
+                                            ? asistente.getFechaNacimiento().toString()
+                                            : "-"
+                            )
+            );
+
+        } else if (completo instanceof DtOrganizador) {
+
+            DtOrganizador organizador =
+                    (DtOrganizador) completo;
+
+            lblTipoUsuario.setText("Organizador");
+
+            lblEspecial1.setText(
+                    "Sitio Web: " +
+                            (
+                                    organizador.getSitioWeb() != null
+                                            ? organizador.getSitioWeb()
+                                            : "-"
+                            )
+            );
+
+            lblEspecial2.setText(
+                    "Descripción: " +
+                            (
+                                    organizador.getDescripcion() != null
+                                            ? organizador.getDescripcion()
+                                            : "-"
+                            )
+            );
+        }
     }
-    private void limpiarCampos(){
+
+    private void limpiarCampos() {
+
         lblTipoUsuario.setText("-");
         lblNickname.setText("-");
         lblNombre.setText("-");
@@ -83,50 +143,154 @@ public class ConsultaUsuarioPanel {
         lblEspecial2.setText("-");
     }
 
-    private void armarUI(){
-        mainPanel = new JPanel(new BorderLayout(10,10));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        topPanel.add(new JLabel("Seleccionar Usuario: "));
+    private void armarUI() {
+
+        mainPanel = new JPanel(
+                new BorderLayout(10, 10)
+        );
+
+        mainPanel.setBorder(
+                BorderFactory.createEmptyBorder(
+                        15,
+                        15,
+                        15,
+                        15
+                )
+        );
+
+        // =========================
+        // PANEL SUPERIOR
+        // =========================
+
+        JPanel topPanel =
+                new JPanel(
+                        new FlowLayout(
+                                FlowLayout.LEFT
+                        )
+                );
+
+        topPanel.add(
+                new JLabel("Seleccionar Usuario:")
+        );
+
         cbUsuarios = new JComboBox<>();
-        cbUsuarios.setPreferredSize(new Dimension(250,25));
+
+        cbUsuarios.setPreferredSize(
+                new Dimension(250, 25)
+        );
+
         topPanel.add(cbUsuarios);
 
-        JPanel detailPanel= new JPanel(new GridLayout(6,2,5,5));
-        detailPanel.setBorder(BorderFactory.createTitledBorder("Informacion del Usuario"));
+        // =========================
+        // PANEL DATOS
+        // =========================
 
-        detailPanel.add(new JLabel("Tipo:"));
+        JPanel detailPanel =
+                new JPanel(
+                        new GridLayout(
+                                6,
+                                2,
+                                5,
+                                5
+                        )
+                );
+
+        detailPanel.setBorder(
+                BorderFactory.createTitledBorder(
+                        "Información del Usuario"
+                )
+        );
+
+        detailPanel.add(
+                new JLabel("Tipo:")
+        );
+
         lblTipoUsuario = new JLabel("-");
-        detailPanel.add(lblNombre);
+        detailPanel.add(lblTipoUsuario);
 
-        detailPanel.add(new JLabel("Nickname"));
+
+        detailPanel.add(
+                new JLabel("Nickname:")
+        );
+
         lblNickname = new JLabel("-");
         detailPanel.add(lblNickname);
 
-        detailPanel.add(new JLabel("Nombre:"));
+
+        detailPanel.add(
+                new JLabel("Nombre:")
+        );
+
         lblNombre = new JLabel("-");
         detailPanel.add(lblNombre);
 
-        detailPanel.add(new JLabel("Correo:"));
+
+        detailPanel.add(
+                new JLabel("Correo:")
+        );
+
         lblCorreo = new JLabel("-");
         detailPanel.add(lblCorreo);
 
-        detailPanel.add(new JLabel("Dato Adicional 1:"));
+
+        detailPanel.add(
+                new JLabel("Dato adicional 1:")
+        );
+
         lblEspecial1 = new JLabel("-");
         detailPanel.add(lblEspecial1);
 
-        detailPanel.add(new JLabel("Dato Adicional 2:"));
+
+        detailPanel.add(
+                new JLabel("Dato adicional 2:")
+        );
+
         lblEspecial2 = new JLabel("-");
         detailPanel.add(lblEspecial2);
 
-        JPanel botPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        btnCerrar = new JButton("Cerrar");
+        // =========================
+        // BOTÓN CERRAR
+        // =========================
+
+        JPanel botPanel =
+                new JPanel(
+                        new FlowLayout(
+                                FlowLayout.RIGHT
+                        )
+                );
+
+        btnCerrar =
+                new JButton("Cerrar");
+
         botPanel.add(btnCerrar);
 
-        mainPanel.add(topPanel, BorderLayout.NORTH);
-        mainPanel.add(detailPanel, BorderLayout.CENTER);
-        mainPanel.add(botPanel, BorderLayout.SOUTH);
+        // =========================
+        // ARMAR PANEL
+        // =========================
+
+        mainPanel.add(
+                topPanel,
+                BorderLayout.NORTH
+        );
+
+        mainPanel.add(
+                detailPanel,
+                BorderLayout.CENTER
+        );
+
+        mainPanel.add(
+                botPanel,
+                BorderLayout.SOUTH
+        );
     }
 
+    public JPanel getMainPanel() {
+        return mainPanel;
+    }
 
+    public void setAccionCerrar(
+            Runnable accionCerrar
+    ) {
+        this.accionCerrar = accionCerrar;
+    }
 }
