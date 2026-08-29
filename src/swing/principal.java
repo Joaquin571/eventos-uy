@@ -12,10 +12,13 @@ public class principal {
     private JInternalFrame internoModificarUsuario;
     private JInternalFrame internoAltaUsuario;
     private JInternalFrame internoAltaInstitucion;
+    private JInternalFrame internoAltaPatrocinio;
+    private JInternalFrame internoConsultaPatrocinio;
 
     // Guardamos también el panel porque necesitamos refrescarlo
     private ModificarUsuarioPanel panelModificarUsuario;
-
+    private AltaPatrocinioPanel panelAltaPatrocinio;
+    private ConsultaPatrocinioPanel panelConsultaPatrocinio;
     public principal() {
 
         panelPrincipal =
@@ -93,6 +96,33 @@ public class principal {
                 () -> internoAltaInstitucion.setVisible(false)
         );
         desktopPane.add(internoAltaInstitucion);
+
+        panelAltaPatrocinio = new AltaPatrocinioPanel();
+        internoAltaPatrocinio =
+                crearInterno(
+                        "Alta Patrocinio",
+                        panelAltaPatrocinio.getMainPanel(),
+                        60,
+                        60
+                );
+        panelAltaPatrocinio.setAccionCerrar(
+                () -> internoAltaPatrocinio.setVisible(false)
+        );
+        desktopPane.add(internoAltaPatrocinio);
+
+        //CONSULTA PATROCINIO
+        panelConsultaPatrocinio = new ConsultaPatrocinioPanel();
+        internoConsultaPatrocinio =
+                crearInterno(
+                        "Consulta Patrocinio",
+                        panelConsultaPatrocinio.getMainPanel(),
+                        60,
+                        60
+                );
+        panelConsultaPatrocinio.setAccionCerrar(
+                () -> internoConsultaPatrocinio.setVisible(false)
+        );
+        desktopPane.add(internoConsultaPatrocinio);
     }
 
 
@@ -172,14 +202,24 @@ public class principal {
         // EVENTOS
         // =========================
 
-        altaUsuario.addActionListener(
-                e -> mostrar(internoAltaUsuario)
-        );
+        altaUsuario.addActionListener(e -> mostrar(internoAltaUsuario));
+
         modificarUsuario.addActionListener(e -> {
             panelModificarUsuario.refrescarUsuarios();
             mostrar(internoModificarUsuario);
         });
+
         altaInstitucion.addActionListener(e -> {mostrar(internoAltaInstitucion);});
+        altaPatrocinio.addActionListener(e ->{
+            panelAltaPatrocinio.refrescarDatos();
+            mostrar(internoAltaPatrocinio);});
+
+        consultaPatrocinio.addActionListener(e -> {
+            panelConsultaPatrocinio.refrescarDatos();
+            mostrar(internoConsultaPatrocinio);
+        });
+
+
 
         itemSalir.addActionListener(
                 e -> System.exit(0)

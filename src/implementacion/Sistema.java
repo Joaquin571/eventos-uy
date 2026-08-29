@@ -5,6 +5,7 @@ import datatypes.*;
 import interfaces.ISistema;
 import manejadores.ManejadorUsuarios;
 import manejadores.ManejadorInstituciones;
+import manejadores.ManejadorPatrocinios;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -14,10 +15,12 @@ public class Sistema implements ISistema {
 
     private final ManejadorUsuarios manejadorUsuarios;
     private final ManejadorInstituciones manejadorInstituciones;
+    private final ManejadorPatrocinios manejadorPatrocinios;
 
     public Sistema() {
         manejadorUsuarios = ManejadorUsuarios.getInstance();
         manejadorInstituciones = ManejadorInstituciones.getInstance();
+        manejadorPatrocinios = ManejadorPatrocinios.getInstance();
 
         // Temporal: datos para probar sin persistencia
         cargarDatosPrueba();
@@ -264,5 +267,50 @@ public class Sistema implements ISistema {
             ));
         }
         return resultado;
+    }
+
+    // ALTA PATROCINIO
+
+    @Override
+    public boolean altaPatrocinio(DtPatrocinio dt) {
+        Patrocinio patrocinio = new Patrocinio(
+                dt.getFecha(),
+                dt.getMontoAporte(),
+                dt.getCantRegistrosGrat(),
+                dt.getCodigoPatrocinio(),
+                dt.getNivel()
+        );
+        return manejadorPatrocinios.addPatrocinio(patrocinio);
+    }
+
+    @Override
+    public Collection<DtPatrocinio> listarPatrocinios() {
+        Collection<DtPatrocinio> resultado = new ArrayList<>();
+        for(Patrocinio patrocinio : manejadorPatrocinios.listarPatrocinios()) {
+            resultado.add(new DtPatrocinio(
+                    patrocinio.getFecha(),
+                    patrocinio.getMontoAporte(),
+                    patrocinio.getCantRegistrosGrat(),
+                    patrocinio.getCodigoPatrocinio(),
+                    patrocinio.getNivel()
+            ));
+        }
+        return resultado;
+    }
+
+    @Override
+    public DtPatrocinio consultarPatrocinio(String codigo) {
+        Patrocinio patrocinio = manejadorPatrocinios.obtenerPatrocinio(codigo);
+
+        if (patrocinio == null) {
+            return null;
+        }
+        return new DtPatrocinio(
+                patrocinio.getFecha(),
+                patrocinio.getMontoAporte(),
+                patrocinio.getCantRegistrosGrat(),
+                patrocinio.getCodigoPatrocinio(),
+                patrocinio.getNivel()
+        );
     }
 }

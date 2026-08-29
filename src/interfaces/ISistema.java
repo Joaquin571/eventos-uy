@@ -37,4 +37,11 @@ public interface ISistema {
     boolean existeInstitucion(String nombre);
     boolean altaInstitucion(DtInstitucion institucion);
     Collection<DtInstitucion> listarInstituciones();
+
+    // ALTA PATROCINIO
+    boolean altaPatrocinio(DtPatrocinio patrocinio);
+
+    // CONSULTA PATROCINIO
+    Collection<DtPatrocinio> listarPatrocinios();
+    DtPatrocinio consultarPatrocinio(String codigo);
 }
