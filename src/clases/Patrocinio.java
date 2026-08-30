@@ -4,20 +4,23 @@ import java.time.LocalDate;
 
 public class Patrocinio {
 
+
     private LocalDate fecha;
     private float montoAporte;
     private int cantRegistrosGrat;
     private String codigoPatrocinio;
     private NivelPatrocinio nivel;
+    private Institucion  institucion;
 
     public Patrocinio(
             LocalDate fecha,
             float montoAporte,
             int cantRegistrosGrat,
             String codigoPatrocinio,
-            NivelPatrocinio nivel) {
+            NivelPatrocinio nivel,Institucion institucion) {
 
         this.fecha = fecha;
+        this.institucion=institucion;
         this.montoAporte = montoAporte;
         this.cantRegistrosGrat = cantRegistrosGrat;
         this.codigoPatrocinio = codigoPatrocinio;

@@ -12,13 +12,17 @@ public class Evento {
     private List<Categoria> categorias;
     private List<Edicion> ediciones;
 
-    public Evento(String nombre, String sigla, String descripcion, LocalDate fechaAlta) {
+    public Evento(String nombre, String sigla, String descripcion, LocalDate fechaAlta,Categoria categoria) {
         this.nombre = nombre;
         this.sigla = sigla;
         this.descripcion = descripcion;
         this.fechaAlta = fechaAlta;
         this.categorias = new ArrayList<>();
+
         this.ediciones = new ArrayList<>();
+        this.categorias.add(categoria);
+        this.ediciones=new ArrayList<>();
+
     }
 
     public void agregarCategoria(Categoria categoria) {
@@ -28,9 +32,23 @@ public class Evento {
     public List<Categoria> getCategorias() {
         return this.categorias;
     }
+
     public List<Edicion> getEdiciones(){
         return this.ediciones;
     }
+
+    public void setCategorias(List<Categoria> categorias) {
+        this.categorias = categorias;
+    }
+
+    public List<Edicion> getEdiciones() {
+        return ediciones;
+    }
+
+    public void setEdiciones(List<Edicion> ediciones) {
+        this.ediciones = ediciones;
+    }
+
     public String getNombre() {return this.nombre;}
     public String getSigla() {return this.sigla;}
     public String getDescripcion() {return this.descripcion;}
