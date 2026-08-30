@@ -36,5 +36,18 @@ public interface ISistema {
     boolean altaPatrocinio(DtPatrocinio patrocinio);
     Collection<DtPatrocinio> listarPatrocinios();
     DtPatrocinio consultarPatrocinio(String codigo);
+
+    //REGISTRO
+    boolean estaRegistradoAEdicion(String nicknameAsistente, String nombreEdicion);
+    boolean registroAEdicion(String nicknameAsistente, String nombreEdicion, String nombreTipoRegistro, DtRegistro dtRegistro);
+
+
+    //EVENTOS
+    public Collection<DtEvento> listarEventos();
+    public Collection<DtEdicion> obtenerEdicionesEvento(String nombreEvento);
+    public boolean altaTipoRegistro(DtTipoRegistro dtTipoRegistro, String nombreEdicion);
+    public Collection<DtTipoRegistro> obtenerTiposRegistroEdicion(String nombreEdicion);
+    public DtTipoRegistro consultarTipoRegistro(String nombreTipoRegistro);
+    boolean altaEdicion(DtEdicion dtEdicion, String nombreEvento);
 }
 

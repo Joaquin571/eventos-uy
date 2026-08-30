@@ -1,6 +1,8 @@
 package clases;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Edicion {
 
@@ -11,9 +13,11 @@ public class Edicion {
     private LocalDate fechaAlta;
     private String ciudad;
     private String pais;
+
+    private List<TipoRegistro> tiposRegistro;
     private Organizador organizador;
-    private TipoRegistro tipoRegistro;
     private ArrayList<Patrocinio> patrocinios;
+
     public Edicion(
             String idNombre,
             String sigla,
@@ -23,7 +27,7 @@ public class Edicion {
             String ciudad,
             String pais,
             Organizador organizador,
-            TipoRegistro tipoRegistro,
+            tiposRegistro=new ArrayList<>(),
             patrocinios=new ArrayList<>()
     ) {
         this.organizador=organizador;
@@ -35,6 +39,23 @@ public class Edicion {
         this.fechaAlta = fechaAlta;
         this.ciudad = ciudad;
         this.pais = pais;
+        this.tiposRegistro = new ArrayList<>();
+    }
+
+    public List<TipoRegistro> getTiposRegistro(){
+        return this.tiposRegistro;
+    }
+    public void agregarTipoRegistro(TipoRegistro tipoRegistro){
+        this.tiposRegistro.add(tipoRegistro);
+    }
+
+    public TipoRegistro obtenerTipoRegistro(String nombreTipoRegistro) {
+        for (TipoRegistro tr : tiposRegistro) {
+            if (tr.getIdNombre().equalsIgnoreCase(nombreTipoRegistro)) {
+                return tr;
+            }
+        }
+        return null;
     }
 
     public ArrayList<Patrocinio> getPatrocinios() {
