@@ -16,8 +16,13 @@ public class principal {
     private JInternalFrame internoAltaInstitucion;
     private JInternalFrame internoAltaEvento;
     private AltaEventoPanel panelAltaEvento;
+    private JInternalFrame internoConsultaEvento;
+    private ConsultaEventoPanel panelConsultaEvento;
     private JInternalFrame internoAltaPatrocinio;
     private JInternalFrame internoConsultaPatrocinio;
+
+    private JInternalFrame internoAltaCategoria;
+    private AltaCategoriaPanel panelAltaCategoria;
 
     //PARA REFRESCAR
     private ModificarUsuarioPanel panelModificarUsuario;
@@ -171,6 +176,32 @@ public class principal {
         );
 
         desktopPane.add(internoConsultaPatrocinio);
+
+        // =========================
+        // CONSULTA EVENTO
+        // =========================
+        panelConsultaEvento = new ConsultaEventoPanel();
+        internoConsultaEvento = crearInterno(
+                "Consulta Evento",
+                panelConsultaEvento, // O panelConsultaEvento.getMainPanel() si creaste un método contenedor
+                80,
+                80
+        );
+
+        desktopPane.add(internoConsultaEvento);
+
+        // =========================
+        // ALTA CATEGORIA
+        // =========================
+        panelAltaCategoria = new AltaCategoriaPanel();
+        internoAltaCategoria = crearInterno(
+                "Alta Categoría",
+                panelAltaCategoria.getMainPanel(),
+                80,
+                80
+        );
+        panelAltaCategoria.setAccionCerrar(() -> internoAltaCategoria.setVisible(false));
+        desktopPane.add(internoAltaCategoria);
     }
 
     // CREAR MENÚ
@@ -253,6 +284,16 @@ public class principal {
         itemSalir.addActionListener(
                 e -> System.exit(0)
         );
+
+        consultaEvento.addActionListener(e -> {
+            panelConsultaEvento.cargarComboEventos();
+            mostrar(internoConsultaEvento);
+        });
+
+        altaCategoria.addActionListener(e -> {
+            panelAltaCategoria.cargarArbolCategorias();
+            mostrar(internoAltaCategoria);
+        });
 
         menuUsuarios.add(altaUsuario);
         menuUsuarios.add(modificarUsuario);
@@ -353,13 +394,6 @@ public class principal {
     public static void main(
             String[] args
     ) {
-
-
-        //Solo para probar alta evento BORRARLO CUANDO HAGAMOS CATEGORIAS
-        manejadores.ManejadorEventos me = manejadores.ManejadorEventos.getInstance();
-        me.addCategoria(new clases.Categoria("Deportes"));
-        me.addCategoria(new clases.Categoria("Tecnología"));
-        me.addCategoria(new clases.Categoria("Cultura"));
 
         SwingUtilities.invokeLater(() -> {
 

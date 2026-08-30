@@ -11,6 +11,7 @@ import manejadores.ManejadorPatrocinios;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class Sistema implements ISistema {
 
@@ -401,6 +402,48 @@ public class Sistema implements ISistema {
         // 5. Guardar el evento en la colección en memoria
         return manejadorEventos.addEvento(evento);
     }
+
+    // =====================================================
+    // CONSULTA DE EVENTO
+    // =====================================================
+
+    @Override
+    public Collection<String> listarEventos() {
+        // Obtenemos la instancia del Singleton con getInstance()
+        ManejadorEventos me = ManejadorEventos.getInstance();
+
+        // obtenerEventos() te devuelve Collection<Evento>
+        Collection<Evento> eventos = me.obtenerEventos();
+        Collection<String> nombres = new ArrayList<>();
+
+        for (Evento e : eventos) {
+            nombres.add(e.getNombre());
+        }
+        return nombres;
+    }
+
+    @Override
+    public DtEvento obtenerInformacionEvento(String nombreEvento) {
+        ManejadorEventos me = ManejadorEventos.getInstance();
+        Evento e = me.obtenerEvento(nombreEvento);
+
+        if (e != null) {
+            // Usamos Collection y ArrayList igual que en listarUsuarios
+            Collection<String> nombresCategorias = new ArrayList<>();
+            for (Categoria cat : e.getCategorias()) {
+                nombresCategorias.add(cat.getNombre());
+            }
+
+            return new DtEvento(
+                    e.getNombre(),
+                    e.getSigla(),
+                    e.getDescripcion(),
+                    e.getFechaAlta(),
+                    nombresCategorias
+            );
+        }
+        return null;
+    }
         
     @Override
     public DtPatrocinio consultarPatrocinio(
@@ -422,6 +465,64 @@ public class Sistema implements ISistema {
                 patrocinio.getCodigoPatrocinio(),
                 patrocinio.getNivel()
         );
+    }
+
+    // =====================================================
+    // ALTA CATEGORIA
+    // =====================================================
+    @Override
+    public void altaCategoria(String nombre, String nombrePadre) throws Exception {
+        ManejadorEventos me = ManejadorEventos.getInstance();
+
+        if (nombre == null || nombre.trim().isEmpty()) {
+            throw new Exception("El nombre de la categoría no puede estar vacío.");
+        }
+
+        if (me.obtenerCategoria(nombre) != null) {
+            throw new Exception("Ya existe una categoría con el nombre '" + nombre + "'.");
+        }
+
+        Categoria catPadre = null;
+        if (nombrePadre != null && !nombrePadre.trim().isEmpty()) {
+            catPadre = me.obtenerCategoria(nombrePadre);
+            if (catPadre == null) {
+                throw new Exception("La categoría padre especificada no existe.");
+            }
+        }
+
+        Categoria nuevaCategoria = new Categoria(nombre, catPadre);
+
+        if (catPadre != null) {
+            catPadre.agregarSubcategoria(nuevaCategoria);
+        }
+
+        me.addCategoria(nuevaCategoria);
+    }
+
+    @Override
+    public Collection<String> listarCategoriasFormateadas() {
+        ManejadorEventos me = ManejadorEventos.getInstance();
+        List<String> resultado = new ArrayList<>();
+
+        Collection<Categoria> categorias = me.obtenerCategorias();
+        if (categorias != null) {
+            for (Categoria c : categorias) {
+                // Empezamos solo por las raíces (las que no tienen padre)
+                if (c.getPadre() == null) {
+                    agregarConIndentacion(c, "", resultado);
+                }
+            }
+        }
+        return resultado;
+    }
+
+    private void agregarConIndentacion(Categoria cat, String prefijo, List<String> resultado) {
+        // Agrega el nombre con espacio/prefijo para dar efecto visual de árbol
+        resultado.add(prefijo + cat.getNombre());
+
+        for (Categoria hija : cat.getSubcategorias()) {
+            agregarConIndentacion(hija, prefijo + "   - ", resultado);
+        }
     }
 }
 

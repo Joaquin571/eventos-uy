@@ -32,9 +32,17 @@ public interface ISistema {
     boolean existeEvento(String nombre);
     boolean altaEvento(DtEvento dt) throws Exception;
 
+    //CONSULTA EVENTO
+    public abstract Collection<String> listarEventos();
+    public abstract DtEvento obtenerInformacionEvento(String nombreEvento);
+
     // PATROCINIOS
     boolean altaPatrocinio(DtPatrocinio patrocinio);
     Collection<DtPatrocinio> listarPatrocinios();
     DtPatrocinio consultarPatrocinio(String codigo);
+
+    // ALTA CATEGORIA
+    void altaCategoria(String nombre, String nombrePadre) throws Exception;
+    Collection<String> listarCategoriasFormateadas();
 }
 
