@@ -26,12 +26,12 @@ public class Edicion {
             LocalDate fechaAlta,
             String ciudad,
             String pais,
-            Organizador organizador,
-            tiposRegistro=new ArrayList<>(),
-            patrocinios=new ArrayList<>()
+            Organizador organizador
     ) {
         this.organizador=organizador;
-        this.tipoRegistro=tipoRegistro;
+
+        tiposRegistro=new ArrayList<>();
+        patrocinios=new ArrayList<>();
         this.idNombre = idNombre;
         this.sigla = sigla;
         this.fechaInicio = fechaInicio;
@@ -74,12 +74,8 @@ public class Edicion {
         this.organizador = organizador;
     }
 
-    public TipoRegistro getTipoRegistro() {
-        return tipoRegistro;
-    }
-
-    public void setTipoRegistro(TipoRegistro tipoRegistro) {
-        this.tipoRegistro = tipoRegistro;
+    public void setTipoRegistro(ArrayList<TipoRegistro> tipoRegistro) {
+        this.tiposRegistro = tipoRegistro;
     }
 
     public String getIdNombre() {

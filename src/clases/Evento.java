@@ -33,9 +33,7 @@ public class Evento {
         return this.categorias;
     }
 
-    public List<Edicion> getEdiciones(){
-        return this.ediciones;
-    }
+
 
     public void setCategorias(List<Categoria> categorias) {
         this.categorias = categorias;
