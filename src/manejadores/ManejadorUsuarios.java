@@ -53,6 +53,19 @@ public class ManejadorUsuarios {
         return false;
     }
 
+    public boolean estaRegistradoAEdicion(String nicknameAsistente, String nombreEdicion){
+        Asistente asistente = obtenerAsistente(nicknameAsistente);
+        if(asistente == null){
+            return false;
+        }
+        for(Registro r : asistente.getRegistros()){
+            if(r.getEdicion().getIdNombre().equalsIgnoreCase(nombreEdicion)){
+                return true;
+            }
+        }
+        return false;
+    }
+
     public Collection<Usuario> listarUsuarios() {
         return usuariosNickname.values();
     }

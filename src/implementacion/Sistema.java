@@ -3,15 +3,17 @@ package implementacion;
 import clases.*;
 import datatypes.*;
 import interfaces.ISistema;
-import manejadores.ManejadorUsuarios;
-import manejadores.ManejadorInstituciones;
 import manejadores.ManejadorEventos;
+import manejadores.ManejadorInstituciones;
 import manejadores.ManejadorPatrocinios;
+import manejadores.ManejadorUsuarios;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Sistema implements ISistema {
 
@@ -20,12 +22,20 @@ public class Sistema implements ISistema {
     private final ManejadorEventos manejadorEventos;
     private final ManejadorPatrocinios manejadorPatrocinios;
 
+
     public Sistema() {
 
-        manejadorUsuarios = ManejadorUsuarios.getInstance();
-        manejadorInstituciones = ManejadorInstituciones.getInstance();
-        manejadorPatrocinios = ManejadorPatrocinios.getInstance();
-        manejadorEventos = ManejadorEventos.getInstance();
+        manejadorUsuarios =
+                ManejadorUsuarios.getInstance();
+
+        manejadorInstituciones =
+                ManejadorInstituciones.getInstance();
+
+        manejadorPatrocinios =
+                ManejadorPatrocinios.getInstance();
+
+        manejadorEventos =
+                ManejadorEventos.getInstance();
 
         cargarDatosPrueba();
     }
@@ -66,7 +76,7 @@ public class Sistema implements ISistema {
 
 
     // =====================================================
-    // VALIDACIONES
+    // VALIDACIONES USUARIO
     // =====================================================
 
     @Override
@@ -295,19 +305,519 @@ public class Sistema implements ISistema {
 
         return resultado;
     }
-    
+
+
     // =====================================================
     // CATEGORÍAS
     // =====================================================
 
     @Override
     public Collection<String> listarCategorias() {
-        Collection<String> resultado = new ArrayList<>();
-        for (Categoria c : manejadorEventos.obtenerCategorias()) {
-            resultado.add(c.getNombre());
+
+        Collection<String> resultado =
+                new ArrayList<>();
+
+        for (Categoria c :
+                manejadorEventos.obtenerCategorias()) {
+
+            resultado.add(
+                    c.getNombre()
+            );
         }
+
         return resultado;
     }
+
+
+    @Override
+    public void altaCategoria(
+            String nombre,
+            String nombrePadre) throws Exception {
+
+        if (nombre == null ||
+                nombre.trim().isEmpty()) {
+
+            throw new Exception(
+                    "El nombre de la categoría no puede estar vacío."
+            );
+        }
+
+        if (manejadorEventos.obtenerCategoria(nombre) != null) {
+
+            throw new Exception(
+                    "Ya existe una categoría con el nombre '" +
+                            nombre + "'."
+            );
+        }
+
+        Categoria catPadre = null;
+
+        if (nombrePadre != null &&
+                !nombrePadre.trim().isEmpty()) {
+
+            catPadre =
+                    manejadorEventos.obtenerCategoria(
+                            nombrePadre
+                    );
+
+            if (catPadre == null) {
+
+                throw new Exception(
+                        "La categoría padre especificada no existe."
+                );
+            }
+        }
+
+        Categoria nuevaCategoria =
+                new Categoria(
+                        nombre,
+                        catPadre
+                );
+
+        if (catPadre != null) {
+            catPadre.agregarSubcategoria(
+                    nuevaCategoria
+            );
+        }
+
+        manejadorEventos.addCategoria(
+                nuevaCategoria
+        );
+    }
+
+
+    @Override
+    public Collection<String>
+    listarCategoriasFormateadas() {
+
+        List<String> resultado =
+                new ArrayList<>();
+
+        Collection<Categoria> categorias =
+                manejadorEventos.obtenerCategorias();
+
+        if (categorias != null) {
+
+            for (Categoria categoria :
+                    categorias) {
+
+                if (categoria.getPadre() == null) {
+
+                    agregarConIndentacion(
+                            categoria,
+                            "",
+                            resultado
+                    );
+                }
+            }
+        }
+
+        return resultado;
+    }
+
+
+    private void agregarConIndentacion(
+            Categoria categoria,
+            String prefijo,
+            List<String> resultado) {
+
+        resultado.add(
+                prefijo + categoria.getNombre()
+        );
+
+        for (Categoria hija :
+                categoria.getSubcategorias()) {
+
+            agregarConIndentacion(
+                    hija,
+                    prefijo + "   - ",
+                    resultado
+            );
+        }
+    }
+
+
+    // =====================================================
+    // EVENTOS
+    // =====================================================
+
+    @Override
+    public boolean existeEvento(
+            String nombre) {
+
+        return manejadorEventos.existeEvento(
+                nombre
+        );
+    }
+
+
+    @Override
+    public boolean altaEvento(
+            DtEvento dt) throws Exception {
+
+        if (manejadorEventos.existeEvento(
+                dt.getNombre())) {
+
+            throw new Exception(
+                    "Ya existe un evento con el nombre: " +
+                            dt.getNombre()
+            );
+        }
+
+        if (dt.getCategorias() == null ||
+                dt.getCategorias().isEmpty()) {
+
+            throw new Exception(
+                    "Debe seleccionar al menos una categoría para el evento."
+            );
+        }
+
+        Evento evento =
+                new Evento(
+                        dt.getNombre(),
+                        dt.getSigla(),
+                        dt.getDescripcion(),
+                        dt.getFechaAlta()
+                );
+
+        for (String nombreCat :
+                dt.getCategorias()) {
+
+            Categoria categoria =
+                    manejadorEventos.obtenerCategoria(
+                            nombreCat
+                    );
+
+            if (categoria != null) {
+
+                evento.agregarCategoria(
+                        categoria
+                );
+
+            } else {
+
+                throw new Exception(
+                        "La categoría '" +
+                                nombreCat +
+                                "' no existe en el sistema."
+                );
+            }
+        }
+
+        return manejadorEventos.addEvento(
+                evento
+        );
+    }
+
+
+    @Override
+    public Collection<DtEvento> listarEventos() {
+
+        Collection<Evento> eventos =
+                manejadorEventos.obtenerEventos();
+
+        Collection<DtEvento> resultado =
+                new ArrayList<>();
+
+        for (Evento evento : eventos) {
+
+            Set<String> nombresCategorias =
+                    new HashSet<>();
+
+            for (Categoria categoria :
+                    evento.getCategorias()) {
+
+                nombresCategorias.add(
+                        categoria.getNombre()
+                );
+            }
+
+            resultado.add(
+                    new DtEvento(
+                            evento.getNombre(),
+                            evento.getSigla(),
+                            evento.getDescripcion(),
+                            evento.getFechaAlta(),
+                            nombresCategorias
+                    )
+            );
+        }
+
+        return resultado;
+    }
+
+
+    @Override
+    public DtEvento obtenerInformacionEvento(
+            String nombreEvento) {
+
+        Evento evento =
+                manejadorEventos.obtenerEvento(
+                        nombreEvento
+                );
+
+        if (evento == null) {
+            return null;
+        }
+
+        Collection<String> nombresCategorias =
+                new ArrayList<>();
+
+        for (Categoria categoria :
+                evento.getCategorias()) {
+
+            nombresCategorias.add(
+                    categoria.getNombre()
+            );
+        }
+
+        return new DtEvento(
+                evento.getNombre(),
+                evento.getSigla(),
+                evento.getDescripcion(),
+                evento.getFechaAlta(),
+                nombresCategorias
+        );
+    }
+
+
+    // =====================================================
+    // EDICIONES
+    // =====================================================
+
+    @Override
+    public boolean altaEdicion(
+            DtEdicion dtEdicion,
+            String nombreEvento) {
+
+        Evento evento =
+                manejadorEventos.obtenerEvento(
+                        nombreEvento
+                );
+
+        if (evento == null ||
+                manejadorEventos.existeEdicion(
+                        dtEdicion.getIdNombre())) {
+
+            return false;
+        }
+
+        Edicion edicion =
+                new Edicion(
+                        dtEdicion.getIdNombre(),
+                        dtEdicion.getSigla(),
+                        dtEdicion.getFechaInicio(),
+                        dtEdicion.getFechaFin(),
+                        dtEdicion.getFechaAlta(),
+                        dtEdicion.getCiudad(),
+                        dtEdicion.getPais()
+                );
+
+        manejadorEventos.addEdicion(
+                edicion
+        );
+
+        evento.agregarEdicion(
+                edicion
+        );
+
+        return true;
+    }
+
+
+    @Override
+    public Collection<DtEdicion>
+    obtenerEdicionesEvento(
+            String nombreEvento) {
+
+        Collection<Edicion> ediciones =
+                manejadorEventos.obtenerEdicionesEvento(
+                        nombreEvento
+                );
+
+        Collection<DtEdicion> resultado =
+                new ArrayList<>();
+
+        for (Edicion edicion : ediciones) {
+
+            resultado.add(
+                    new DtEdicion(
+                            edicion.getIdNombre(),
+                            edicion.getSigla(),
+                            edicion.getFechaInicio(),
+                            edicion.getFechaFin(),
+                            edicion.getFechaAlta(),
+                            edicion.getCiudad(),
+                            edicion.getPais()
+                    )
+            );
+        }
+
+        return resultado;
+    }
+
+
+    // =====================================================
+    // TIPOS DE REGISTRO
+    // =====================================================
+
+    @Override
+    public boolean altaTipoRegistro(
+            DtTipoRegistro dtTipoRegistro,
+            String nombreEdicion) {
+
+        Edicion edicion =
+                manejadorEventos.obtenerEdicion(
+                        nombreEdicion
+                );
+
+        if (edicion == null ||
+                manejadorEventos.existeTipoRegistro(
+                        dtTipoRegistro.getIdNombre())) {
+
+            return false;
+        }
+
+        TipoRegistro tipoRegistro =
+                new TipoRegistro(
+                        dtTipoRegistro.getIdNombre(),
+                        dtTipoRegistro.getDescripcion(),
+                        dtTipoRegistro.getCosto(),
+                        dtTipoRegistro.getCupo()
+                );
+
+        manejadorEventos.addTipoRegistro(
+                tipoRegistro
+        );
+
+        edicion.agregarTipoRegistro(
+                tipoRegistro
+        );
+
+        return true;
+    }
+
+
+    @Override
+    public Collection<DtTipoRegistro>
+    obtenerTiposRegistroEdicion(
+            String nombreEdicion) {
+
+        Collection<TipoRegistro> tipos =
+                manejadorEventos.obtenerTiposRegistroEdicion(
+                        nombreEdicion
+                );
+
+        Collection<DtTipoRegistro> resultado =
+                new ArrayList<>();
+
+        for (TipoRegistro tipo : tipos) {
+
+            resultado.add(
+                    new DtTipoRegistro(
+                            tipo.getIdNombre(),
+                            tipo.getDescripcion(),
+                            tipo.getCosto(),
+                            tipo.getCupo()
+                    )
+            );
+        }
+
+        return resultado;
+    }
+
+
+    @Override
+    public DtTipoRegistro consultarTipoRegistro(
+            String nombreTipoRegistro) {
+
+        TipoRegistro tipoRegistro =
+                manejadorEventos.obtenerTipoRegistro(
+                        nombreTipoRegistro
+                );
+
+        if (tipoRegistro == null) {
+            return null;
+        }
+
+        return new DtTipoRegistro(
+                tipoRegistro.getIdNombre(),
+                tipoRegistro.getDescripcion(),
+                tipoRegistro.getCosto(),
+                tipoRegistro.getCupo()
+        );
+    }
+
+
+    // =====================================================
+    // REGISTRO A EDICIÓN
+    // =====================================================
+
+    @Override
+    public boolean estaRegistradoAEdicion(
+            String nicknameAsistente,
+            String nombreEdicion) {
+
+        return manejadorUsuarios.estaRegistradoAEdicion(
+                nicknameAsistente,
+                nombreEdicion
+        );
+    }
+
+
+    @Override
+    public boolean registroAEdicion(
+            String nicknameAsistente,
+            String nombreEdicion,
+            String nombreTipoRegistro,
+            DtRegistro dtRegistro) {
+
+        Usuario usuario =
+                manejadorUsuarios.obtenerUsuario(
+                        nicknameAsistente
+                );
+
+        if (!(usuario instanceof Asistente)) {
+            return false;
+        }
+
+        Asistente asistente =
+                (Asistente) usuario;
+
+        Edicion edicion =
+                manejadorEventos.obtenerEdicion(
+                        nombreEdicion
+                );
+
+        if (edicion == null) {
+            return false;
+        }
+
+        TipoRegistro tipoRegistro =
+                edicion.obtenerTipoRegistro(
+                        nombreTipoRegistro
+                );
+
+        if (tipoRegistro == null) {
+            return false;
+        }
+
+        Registro registro =
+                new Registro(
+                        dtRegistro.getFechaRegistro(),
+                        tipoRegistro.getCosto(),
+                        tipoRegistro,
+                        edicion
+                );
+
+        asistente.agregarRegistro(
+                registro
+        );
+
+        return true;
+    }
+
+
     // =====================================================
     // ALTA PATROCINIO
     // =====================================================
@@ -355,96 +865,11 @@ public class Sistema implements ISistema {
                     )
             );
         }
-        
+
         return resultado;
     }
-        
-    // =====================================================
-    // ALTA DE EVENTO
-    // =====================================================
 
-    @Override
-    public boolean existeEvento(String nombre) {
-        return manejadorEventos.existeEvento(nombre);
-    }
 
-    @Override
-    public boolean altaEvento(DtEvento dt) throws Exception {
-
-        // 1. Validar si el evento ya existe por nombre
-        if (manejadorEventos.existeEvento(dt.getNombre())) {
-            throw new Exception("Ya existe un evento con el nombre: " + dt.getNombre());
-        }
-
-        // 2. Validar que se haya seleccionado al menos una categoría
-        if (dt.getCategorias() == null || dt.getCategorias().isEmpty()) {
-            throw new Exception("Debe seleccionar al menos una categoría para el evento.");
-        }
-
-        // 3. Instanciar la clase de dominio Evento
-        Evento evento = new Evento(
-                dt.getNombre(),
-                dt.getSigla(),
-                dt.getDescripcion(),
-                dt.getFechaAlta()
-        );
-
-        // 4. Obtener cada Categoria desde manejadorEventos y asociarla al Evento
-        for (String nombreCat : dt.getCategorias()) {
-            Categoria cat = manejadorEventos.obtenerCategoria(nombreCat);
-            if (cat != null) {
-                evento.agregarCategoria(cat);
-            } else {
-                throw new Exception("La categoría '" + nombreCat + "' no existe en el sistema.");
-            }
-        }
-
-        // 5. Guardar el evento en la colección en memoria
-        return manejadorEventos.addEvento(evento);
-    }
-
-    // =====================================================
-    // CONSULTA DE EVENTO
-    // =====================================================
-
-    @Override
-    public Collection<String> listarEventos() {
-        // Obtenemos la instancia del Singleton con getInstance()
-        ManejadorEventos me = ManejadorEventos.getInstance();
-
-        // obtenerEventos() te devuelve Collection<Evento>
-        Collection<Evento> eventos = me.obtenerEventos();
-        Collection<String> nombres = new ArrayList<>();
-
-        for (Evento e : eventos) {
-            nombres.add(e.getNombre());
-        }
-        return nombres;
-    }
-
-    @Override
-    public DtEvento obtenerInformacionEvento(String nombreEvento) {
-        ManejadorEventos me = ManejadorEventos.getInstance();
-        Evento e = me.obtenerEvento(nombreEvento);
-
-        if (e != null) {
-            // Usamos Collection y ArrayList igual que en listarUsuarios
-            Collection<String> nombresCategorias = new ArrayList<>();
-            for (Categoria cat : e.getCategorias()) {
-                nombresCategorias.add(cat.getNombre());
-            }
-
-            return new DtEvento(
-                    e.getNombre(),
-                    e.getSigla(),
-                    e.getDescripcion(),
-                    e.getFechaAlta(),
-                    nombresCategorias
-            );
-        }
-        return null;
-    }
-        
     @Override
     public DtPatrocinio consultarPatrocinio(
             String codigo) {
@@ -466,63 +891,4 @@ public class Sistema implements ISistema {
                 patrocinio.getNivel()
         );
     }
-
-    // =====================================================
-    // ALTA CATEGORIA
-    // =====================================================
-    @Override
-    public void altaCategoria(String nombre, String nombrePadre) throws Exception {
-        ManejadorEventos me = ManejadorEventos.getInstance();
-
-        if (nombre == null || nombre.trim().isEmpty()) {
-            throw new Exception("El nombre de la categoría no puede estar vacío.");
-        }
-
-        if (me.obtenerCategoria(nombre) != null) {
-            throw new Exception("Ya existe una categoría con el nombre '" + nombre + "'.");
-        }
-
-        Categoria catPadre = null;
-        if (nombrePadre != null && !nombrePadre.trim().isEmpty()) {
-            catPadre = me.obtenerCategoria(nombrePadre);
-            if (catPadre == null) {
-                throw new Exception("La categoría padre especificada no existe.");
-            }
-        }
-
-        Categoria nuevaCategoria = new Categoria(nombre, catPadre);
-
-        if (catPadre != null) {
-            catPadre.agregarSubcategoria(nuevaCategoria);
-        }
-
-        me.addCategoria(nuevaCategoria);
-    }
-
-    @Override
-    public Collection<String> listarCategoriasFormateadas() {
-        ManejadorEventos me = ManejadorEventos.getInstance();
-        List<String> resultado = new ArrayList<>();
-
-        Collection<Categoria> categorias = me.obtenerCategorias();
-        if (categorias != null) {
-            for (Categoria c : categorias) {
-                // Empezamos solo por las raíces (las que no tienen padre)
-                if (c.getPadre() == null) {
-                    agregarConIndentacion(c, "", resultado);
-                }
-            }
-        }
-        return resultado;
-    }
-
-    private void agregarConIndentacion(Categoria cat, String prefijo, List<String> resultado) {
-        // Agrega el nombre con espacio/prefijo para dar efecto visual de árbol
-        resultado.add(prefijo + cat.getNombre());
-
-        for (Categoria hija : cat.getSubcategorias()) {
-            agregarConIndentacion(hija, prefijo + "   - ", resultado);
-        }
-    }
 }
-

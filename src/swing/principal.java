@@ -20,6 +20,10 @@ public class principal {
     private ConsultaEventoPanel panelConsultaEvento;
     private JInternalFrame internoAltaPatrocinio;
     private JInternalFrame internoConsultaPatrocinio;
+    private JInternalFrame internoAltaEdicion;
+    private JInternalFrame internoConsultaTipoRegistro;
+    private JInternalFrame internoRegistroEdicion;
+    private JInternalFrame internoConsultaEdicion;
 
     private JInternalFrame internoAltaCategoria;
     private AltaCategoriaPanel panelAltaCategoria;
@@ -27,9 +31,12 @@ public class principal {
     //PARA REFRESCAR
     private ModificarUsuarioPanel panelModificarUsuario;
     private ConsultaUsuarioPanel panelConsultaUsuario;
-
     private AltaPatrocinioPanel panelAltaPatrocinio;
     private ConsultaPatrocinioPanel panelConsultaPatrocinio;
+    private AltaEdicionEventoPanel panelAltaEdicion;
+    private ConsultaTipoRegistroPanel panelConsultaTipoRegistro;
+    private RegistroEdicionEventoPanel panelRegistroEdicion;
+    private ConsultaEdicionEventoPanel panelConsultaEdicion;
 
     public principal() {
 
@@ -177,6 +184,7 @@ public class principal {
 
         desktopPane.add(internoConsultaPatrocinio);
 
+
         // =========================
         // CONSULTA EVENTO
         // =========================
@@ -202,7 +210,60 @@ public class principal {
         );
         panelAltaCategoria.setAccionCerrar(() -> internoAltaCategoria.setVisible(false));
         desktopPane.add(internoAltaCategoria);
+
+
+        // =========================
+        // ALTA EDICIÓN DE EVENTO
+        // =========================
+        panelAltaEdicion = new AltaEdicionEventoPanel();
+        internoAltaEdicion = crearInterno(
+                "Alta Edición de Evento",
+                panelAltaEdicion,
+                70,
+                70
+        );
+        desktopPane.add(internoAltaEdicion);
+
+        // =========================
+        // CONSULTA TIPO DE REGISTRO
+        // =========================
+        panelConsultaTipoRegistro = new ConsultaTipoRegistroPanel();
+        internoConsultaTipoRegistro = crearInterno(
+                "Consulta Tipo de Registro",
+                panelConsultaTipoRegistro,
+                90,
+                90
+        );
+        desktopPane.add(internoConsultaTipoRegistro);
+
+        // =========================
+        // REGISTRO A EDICIÓN DE EVENTO
+        // =========================
+        panelRegistroEdicion = new RegistroEdicionEventoPanel();
+        internoRegistroEdicion = crearInterno(
+                "Registro a Edición de Evento",
+                panelRegistroEdicion,
+                100,
+                100
+        );
+        desktopPane.add(internoRegistroEdicion);
+
+        // =========================
+        // CONSULTA EDICIÓN DE EVENTO
+        // =========================
+        panelConsultaEdicion = new ConsultaEdicionEventoPanel();
+        internoConsultaEdicion = crearInterno(
+                "Consulta Edición de Evento",
+                panelConsultaEdicion,
+                110,
+                110
+        );
+        desktopPane.add(internoConsultaEdicion);
+        
     }
+
+
+
 
     // CREAR MENÚ
     private JMenuBar crearMenu() {
@@ -244,7 +305,7 @@ public class principal {
 
 
         modificarUsuario.addActionListener(e -> {
-
+            panelModificarUsuario.cargarInstituciones();
             panelModificarUsuario.refrescarUsuarios();
 
             mostrar(internoModificarUsuario);
@@ -279,6 +340,27 @@ public class principal {
         altaEvento.addActionListener(e -> {
             panelAltaEvento.cargarCategorias();
             mostrar(internoAltaEvento);
+        });
+
+        altaEdicion.addActionListener(e -> {
+            panelAltaEdicion.cargarEventos();
+            mostrar(internoAltaEdicion);
+        });
+
+        consultaTipoRegistro.addActionListener(e -> {
+            panelConsultaTipoRegistro.cargarEventos();
+            mostrar(internoConsultaTipoRegistro);
+        });
+
+        consultaEdicion.addActionListener(e -> {
+            panelConsultaEdicion.cargarEventos();
+            mostrar(internoConsultaEdicion);
+        });
+
+        registroEdicionEvento.addActionListener(e -> {
+            panelRegistroEdicion.cargarAsistentes();
+            panelRegistroEdicion.cargarEventos();
+            mostrar(internoRegistroEdicion);
         });
 
         itemSalir.addActionListener(

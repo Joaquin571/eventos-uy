@@ -33,7 +33,6 @@ public interface ISistema {
     boolean altaEvento(DtEvento dt) throws Exception;
 
     //CONSULTA EVENTO
-    public abstract Collection<String> listarEventos();
     public abstract DtEvento obtenerInformacionEvento(String nombreEvento);
 
     // PATROCINIOS
@@ -44,5 +43,19 @@ public interface ISistema {
     // ALTA CATEGORIA
     void altaCategoria(String nombre, String nombrePadre) throws Exception;
     Collection<String> listarCategoriasFormateadas();
+
+    //REGISTRO
+    boolean estaRegistradoAEdicion(String nicknameAsistente, String nombreEdicion);
+    boolean registroAEdicion(String nicknameAsistente, String nombreEdicion, String nombreTipoRegistro, DtRegistro dtRegistro);
+
+
+    //EVENTOS
+    public Collection<DtEvento> listarEventos();
+    public Collection<DtEdicion> obtenerEdicionesEvento(String nombreEvento);
+    public boolean altaTipoRegistro(DtTipoRegistro dtTipoRegistro, String nombreEdicion);
+    public Collection<DtTipoRegistro> obtenerTiposRegistroEdicion(String nombreEdicion);
+    public DtTipoRegistro consultarTipoRegistro(String nombreTipoRegistro);
+    boolean altaEdicion(DtEdicion dtEdicion, String nombreEvento);
+
 }
 

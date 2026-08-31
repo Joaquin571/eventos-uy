@@ -1,0 +1,1267 @@
+﻿package clases;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.ArrayList;
+
+public class Asistente extends Usuario {
+    private String apellido;
+    private LocalDate fechaNacimiento;
+    private String nombreInstitucion;
+    private List<Registro> registros;
+
+    public Asistente(String nickname, String nombre, String correoElectronico, String apellido, LocalDate fechaNacimiento,  String nombreInstitucion) {
+        super(nickname,nombre,correoElectronico);
+        this.apellido = apellido;
+        this.fechaNacimiento = fechaNacimiento;
+        this.nombreInstitucion = nombreInstitucion;
+        this.registros = new ArrayList<>();
+    }
+
+    public String getApellido() {
+        return apellido;
+    }
+    public LocalDate getFechaNacimiento(){
+        return fechaNacimiento;
+    }
+    public String getNombreInstitucion() {return nombreInstitucion;}
+    public List<Registro> getRegistros(){
+        return registros;
+    }
+
+    public void setApellido(String apellido){this.apellido=apellido;}
+    public void setFechaNacimiento(LocalDate fechaNacimiento){this.fechaNacimiento=fechaNacimiento;}
+    public void setNombreInstitucion(String nombreInstitucion){this.nombreInstitucion=nombreInstitucion;}
+    public void agregarRegistro(Registro registro){
+        this.registros.add(registro);
+    }
+}
+package clases;
+
+import java.time.LocalDate;
+
+public class Edicion {
+
+    private String idNombre;
+    private String sigla;
+    private LocalDate fechaInicio;
+    private LocalDate fechaFin;
+    private LocalDate fechaAlta;
+    private String ciudad;
+    private String pais;
+
+    public Edicion(
+            String idNombre,
+            String sigla,
+            LocalDate fechaInicio,
+            LocalDate fechaFin,
+            LocalDate fechaAlta,
+            String ciudad,
+            String pais
+    ) {
+        this.idNombre = idNombre;
+        this.sigla = sigla;
+        this.fechaInicio = fechaInicio;
+        this.fechaFin = fechaFin;
+        this.fechaAlta = fechaAlta;
+        this.ciudad = ciudad;
+        this.pais = pais;
+    }
+
+    public String getIdNombre() {
+        return idNombre;
+    }
+
+    public void setIdNombre(String idNombre) {
+        this.idNombre = idNombre;
+    }
+
+    public String getSigla() {
+        return sigla;
+    }
+
+    public void setSigla(String sigla) {
+        this.sigla = sigla;
+    }
+
+    public LocalDate getFechaInicio() {
+        return fechaInicio;
+    }
+
+    public void setFechaInicio(LocalDate fechaInicio) {
+        this.fechaInicio = fechaInicio;
+    }
+
+    public LocalDate getFechaFin() {
+        return fechaFin;
+    }
+
+    public void setFechaFin(LocalDate fechaFin) {
+        this.fechaFin = fechaFin;
+    }
+
+    public LocalDate getFechaAlta() {
+        return fechaAlta;
+    }
+
+    public void setFechaAlta(LocalDate fechaAlta) {
+        this.fechaAlta = fechaAlta;
+    }
+
+    public String getCiudad() {
+        return ciudad;
+    }
+
+    public void setCiudad(String ciudad) {
+        this.ciudad = ciudad;
+    }
+
+    public String getPais() {
+        return pais;
+    }
+
+    public void setPais(String pais) {
+        this.pais = pais;
+    }
+}
+package clases;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Evento {
+    private String nombre;
+    private String sigla;
+    private String descripcion;
+    private LocalDate fechaAlta;
+    private List<Categoria> categorias;
+
+    public Evento(String nombre, String sigla, String descripcion, LocalDate fechaAlta) {
+        this.nombre = nombre;
+        this.sigla = sigla;
+        this.descripcion = descripcion;
+        this.fechaAlta = fechaAlta;
+        this.categorias = new ArrayList<>();
+    }
+
+    public void agregarCategoria(Categoria categoria) {
+        this.categorias.add(categoria);
+    }
+
+    public List<Categoria> getCategorias() {
+        return this.categorias;
+    }
+
+    public String getNombre() {return this.nombre;}
+    public String getSigla() {return this.sigla;}
+    public String getDescripcion() {return this.descripcion;}
+    public LocalDate getFechaAlta() {return this.fechaAlta;}
+    public void setNombre(String nombre) {this.nombre = nombre;}
+    public void setSigla(String sigla) {this.sigla = sigla;}
+    public void setDescripcion(String descripcion) {this.descripcion = descripcion;}
+    public void setFechaAlta(LocalDate fechaAlta) {this.fechaAlta = fechaAlta;}
+}
+package clases;
+
+import java.time.LocalDate;
+
+public class Registro {
+
+    private LocalDate fechaRegistro;
+    private float costo;
+    private TipoRegistro tipoRegistro;
+    private Edicion edicion;
+
+    public Registro(LocalDate fechaRegistro, float costo, TipoRegistro tipoRegistro,Edicion edicion) {
+        this.fechaRegistro = fechaRegistro;
+        this.costo = costo;
+        this.tipoRegistro = tipoRegistro;
+        this.edicion = edicion;
+    }
+
+    public LocalDate getFechaRegistro() {
+        return fechaRegistro;
+    }
+
+    public TipoRegistro getTipoRegistro(){
+        return tipoRegistro;
+    }
+
+    public Edicion getEdicion(){
+        return edicion;
+    }
+
+    public float getCosto() {
+        return costo;
+    }
+
+    public void setCosto(float costo) {
+        this.costo = costo;
+    }
+
+    public void setFechaRegistro(LocalDate fechaRegistro) {
+        this.fechaRegistro = fechaRegistro;
+    }
+
+    public void setTipoRegistro(TipoRegistro tipoRegistro){
+        this.tipoRegistro = tipoRegistro;
+    }
+
+    public void setEdicion(Edicion edicion){
+        this.edicion = edicion;
+    }
+}
+package clases;
+
+public class TipoRegistro {
+
+    private String idNombre;
+    private String descripcion;
+    private float costo;
+    private int cupo;
+
+    public TipoRegistro(
+            String idNombre,
+            String descripcion,
+            float costo,
+            int cupo
+    ) {
+        this.idNombre = idNombre;
+        this.descripcion = descripcion;
+        this.costo = costo;
+        this.cupo = cupo;
+    }
+
+    public String getIdNombre() {
+        return idNombre;
+    }
+
+    public void setIdNombre(String idNombre) {
+        this.idNombre = idNombre;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
+    public float getCosto() {
+        return costo;
+    }
+
+    public void setCosto(float costo) {
+        this.costo = costo;
+    }
+
+    public int getCupo() {
+        return cupo;
+    }
+
+    public void setCupo(int cupo) {
+        this.cupo = cupo;
+    }
+}
+package datatypes;
+
+import java.time.LocalDate;
+
+public class DtAsistente extends DtUsuario {
+    private String apellido;
+    private LocalDate fechaNacimiento;
+    private  String nombreInstitucion;
+
+    public DtAsistente(String nickname, String nombre, String correoElectronico, String apellido, LocalDate fechaNacimiento, String nombreInstitucion) {
+        super(nickname, nombre, correoElectronico);
+        this.apellido = apellido;
+        this.fechaNacimiento = fechaNacimiento;
+        this.nombreInstitucion = nombreInstitucion;
+    }
+    public String getApellido() {return apellido;}
+    public void setApellido(String apellido){this.apellido = apellido;}
+    public LocalDate getFechaNacimiento() {return fechaNacimiento;}
+    public void setFechaNacimiento(){this.fechaNacimiento = fechaNacimiento;}
+    public  String getNombreInstitucion() {return nombreInstitucion;}
+    public void setNombreInstitucion(){this.nombreInstitucion = nombreInstitucion;}
+}
+package datatypes;
+
+import java.time.LocalDate;
+
+public class DtEdicion {
+
+    private String idNombre;
+    private String sigla;
+    private LocalDate fechaInicio;
+    private LocalDate fechaFin;
+    private LocalDate fechaAlta;
+    private String ciudad;
+    private String pais;
+
+    public DtEdicion(
+            String idNombre,
+            String sigla,
+            LocalDate fechaInicio,
+            LocalDate fechaFin,
+            LocalDate fechaAlta,
+            String ciudad,
+            String pais
+    ) {
+        this.idNombre = idNombre;
+        this.sigla = sigla;
+        this.fechaInicio = fechaInicio;
+        this.fechaFin = fechaFin;
+        this.fechaAlta = fechaAlta;
+        this.ciudad = ciudad;
+        this.pais = pais;
+    }
+
+    public String getIdNombre() {
+        return idNombre;
+    }
+
+    public String getSigla() {
+        return sigla;
+    }
+
+    public LocalDate getFechaInicio() {
+        return fechaInicio;
+    }
+
+    public LocalDate getFechaFin() {
+        return fechaFin;
+    }
+
+    public LocalDate getFechaAlta() {
+        return fechaAlta;
+    }
+
+    public String getCiudad() {
+        return ciudad;
+    }
+
+    public String getPais() {
+        return pais;
+    }
+
+    @Override
+    public String toString() {
+        return idNombre;
+    }
+}
+package datatypes;
+
+import java.time.LocalDate;
+import java.util.Set;
+
+public class DtEvento {
+    private String nombre;
+    private String sigla;
+    private String descripcion;
+    private LocalDate fechaAlta;
+    private Set<String> categorias;
+
+    public DtEvento(String nombre, String sigla, String descripcion, LocalDate fechaAlta, Set<String> categorias) {
+        this.nombre = nombre;
+        this.sigla = sigla;
+        this.descripcion = descripcion;
+        this.fechaAlta = fechaAlta;
+        this.categorias = categorias;
+    }
+    public String getNombre() {return this.nombre;}
+    public String getSigla() {return this.sigla;}
+    public String getDescripcion() {return this.descripcion;}
+    public LocalDate getFechaAlta() {return this.fechaAlta;}
+    public Set<String> getCategorias() { return categorias; }
+    public void setNombre(String nombre) {this.nombre = nombre;}
+    public void setSigla(String sigla) {this.sigla = sigla;}
+    public void setDescripcion(String descripcion) {this.descripcion = descripcion;}
+    public void setFechaAlta(LocalDate fechaAlta) {this.fechaAlta = fechaAlta;}
+}
+package datatypes;
+
+import java.time.LocalDate;
+
+public class DtRegistro {
+
+    private LocalDate fechaRegistro;
+    private float costo;
+
+    public DtRegistro(
+            LocalDate fechaRegistro,
+            float costo
+    ) {
+        this.fechaRegistro = fechaRegistro;
+        this.costo = costo;
+    }
+
+    public LocalDate getFechaRegistro() {
+        return fechaRegistro;
+    }
+
+    public float getCosto() {
+        return costo;
+    }
+}
+package datatypes;
+
+public class DtTipoRegistro {
+
+    private String idNombre;
+    private String descripcion;
+    private float costo;
+    private int cupo;
+
+    public DtTipoRegistro(
+            String idNombre,
+            String descripcion,
+            float costo,
+            int cupo
+    ) {
+        this.idNombre = idNombre;
+        this.descripcion = descripcion;
+        this.costo = costo;
+        this.cupo = cupo;
+    }
+
+    public String getIdNombre() {
+        return idNombre;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public float getCosto() {
+        return costo;
+    }
+
+    public int getCupo() {
+        return cupo;
+    }
+
+    @Override
+    public String toString() {
+        return idNombre;
+    }
+}
+package implementacion;
+
+import interfaces.ISistema;
+
+public class Fabrica {
+
+    private static Fabrica instancia;
+
+    private Fabrica() {
+    }
+
+    public static Fabrica getInstance() {
+
+        if (instancia == null) {
+            instancia = new Fabrica();
+        }
+
+        return instancia;
+    }
+
+    public ISistema getISistema() {
+        return new Sistema();
+    }
+}
+package implementacion;
+
+import clases.*;
+import datatypes.*;
+import interfaces.ISistema;
+import manejadores.ManejadorUsuarios;
+import manejadores.ManejadorInstituciones;
+import manejadores.ManejadorEventos;
+import manejadores.ManejadorPatrocinios;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
+
+public class Sistema implements ISistema {
+
+    private final ManejadorUsuarios manejadorUsuarios;
+    private final ManejadorInstituciones manejadorInstituciones;
+    private final ManejadorEventos manejadorEventos;
+    private final ManejadorPatrocinios manejadorPatrocinios;
+
+    public Sistema() {
+
+        manejadorUsuarios = ManejadorUsuarios.getInstance();
+        manejadorInstituciones = ManejadorInstituciones.getInstance();
+        manejadorPatrocinios = ManejadorPatrocinios.getInstance();
+        manejadorEventos = ManejadorEventos.getInstance();
+
+        cargarDatosPrueba();
+    }
+
+
+    private void cargarDatosPrueba() {
+
+        if (!manejadorUsuarios.existeUsuario("joaquin")) {
+
+            Asistente asistente =
+                    new Asistente(
+                            "joaquin",
+                            "Joaquin",
+                            "joaquin@gmail.com",
+                            "Gonzalez",
+                            LocalDate.of(2004, 8, 6),
+                            null
+                    );
+
+            manejadorUsuarios.addUsuario(asistente);
+        }
+
+
+        if (!manejadorUsuarios.existeUsuario("ignacio")) {
+
+            Organizador organizador =
+                    new Organizador(
+                            "ignacio",
+                            "Ignacio",
+                            "ignacio@gmail.com",
+                            "Organizador de eventos",
+                            "www.ignacio.com"
+                    );
+
+            manejadorUsuarios.addUsuario(organizador);
+        }
+    }
+
+
+    // =====================================================
+    // VALIDACIONES
+    // =====================================================
+
+    @Override
+    public boolean existeUsuario(String nickname) {
+        return manejadorUsuarios.existeUsuario(nickname);
+    }
+
+
+    @Override
+    public boolean existeCorreoElectronico(
+            String correoElectronico) {
+
+        return manejadorUsuarios.existeCorreo(
+                correoElectronico
+        );
+    }
+
+
+    // =====================================================
+    // ALTA USUARIO
+    // =====================================================
+
+    @Override
+    public boolean altaAsistente(DtAsistente dt) {
+
+        Asistente asistente =
+                new Asistente(
+                        dt.getNickname(),
+                        dt.getNombre(),
+                        dt.getCorreoElectronico(),
+                        dt.getApellido(),
+                        dt.getFechaNacimiento(),
+                        dt.getNombreInstitucion()
+                );
+
+        return manejadorUsuarios.addUsuario(asistente);
+    }
+
+
+    @Override
+    public boolean altaOrganizador(
+            DtOrganizador dt) {
+
+        Organizador organizador =
+                new Organizador(
+                        dt.getNickname(),
+                        dt.getNombre(),
+                        dt.getCorreoElectronico(),
+                        dt.getDescripcion(),
+                        dt.getSitioWeb()
+                );
+
+        return manejadorUsuarios.addUsuario(
+                organizador
+        );
+    }
+
+
+    // =====================================================
+    // CONSULTA / LISTADO USUARIO
+    // =====================================================
+
+    @Override
+    public Collection<DtUsuario> listarUsuarios() {
+
+        Collection<DtUsuario> resultado =
+                new ArrayList<>();
+
+        for (Usuario usuario :
+                manejadorUsuarios.listarUsuarios()) {
+
+            if (usuario instanceof Asistente asistente) {
+
+                resultado.add(
+                        new DtAsistente(
+                                asistente.getNickname(),
+                                asistente.getNombre(),
+                                asistente.getCorreoElectronico(),
+                                asistente.getApellido(),
+                                asistente.getFechaNacimiento(),
+                                asistente.getNombreInstitucion()
+                        )
+                );
+
+            } else if (
+                    usuario instanceof Organizador organizador) {
+
+                resultado.add(
+                        new DtOrganizador(
+                                organizador.getNickname(),
+                                organizador.getNombre(),
+                                organizador.getCorreoElectronico(),
+                                organizador.getDescripcion(),
+                                organizador.getSitioWeb()
+                        )
+                );
+            }
+        }
+
+        return resultado;
+    }
+
+
+    @Override
+    public DtUsuario consultarUsuario(
+            String nickname) {
+
+        Usuario usuario =
+                manejadorUsuarios.obtenerUsuario(
+                        nickname
+                );
+
+        if (usuario == null) {
+            return null;
+        }
+
+        if (usuario instanceof Asistente asistente) {
+
+            return new DtAsistente(
+                    asistente.getNickname(),
+                    asistente.getNombre(),
+                    asistente.getCorreoElectronico(),
+                    asistente.getApellido(),
+                    asistente.getFechaNacimiento(),
+                    asistente.getNombreInstitucion()
+            );
+        }
+
+        if (usuario instanceof Organizador organizador) {
+
+            return new DtOrganizador(
+                    organizador.getNickname(),
+                    organizador.getNombre(),
+                    organizador.getCorreoElectronico(),
+                    organizador.getDescripcion(),
+                    organizador.getSitioWeb()
+            );
+        }
+
+        return null;
+    }
+
+
+    // =====================================================
+    // MODIFICAR USUARIO
+    // =====================================================
+
+    @Override
+    public void modificarAsistente(
+            DtAsistente dt) {
+
+        manejadorUsuarios.modificarAsistente(
+                dt.getNickname(),
+                dt.getNombre(),
+                dt.getCorreoElectronico(),
+                dt.getApellido(),
+                dt.getFechaNacimiento(),
+                dt.getNombreInstitucion()
+        );
+    }
+
+
+    @Override
+    public void modificarOrganizador(
+            DtOrganizador dt) {
+
+        manejadorUsuarios.modificarOrganizador(
+                dt.getNickname(),
+                dt.getNombre(),
+                dt.getCorreoElectronico(),
+                dt.getDescripcion(),
+                dt.getSitioWeb()
+        );
+    }
+
+
+    // =====================================================
+    // INSTITUCIONES
+    // =====================================================
+
+    @Override
+    public boolean altaInstitucion(
+            DtInstitucion dt) {
+
+        Institucion institucion =
+                new Institucion(
+                        dt.getNombre(),
+                        dt.getDescripcion(),
+                        dt.getSitioWeb()
+                );
+
+        return manejadorInstituciones.addInstitucion(
+                institucion
+        );
+    }
+
+
+    @Override
+    public boolean existeInstitucion(
+            String nombre) {
+
+        return manejadorInstituciones.existeInstitucion(
+                nombre
+        );
+    }
+
+
+    @Override
+    public Collection<DtInstitucion>
+    listarInstituciones() {
+
+        Collection<DtInstitucion> resultado =
+                new ArrayList<>();
+
+        for (Institucion institucion :
+                manejadorInstituciones.listarInstituciones()) {
+
+            resultado.add(
+                    new DtInstitucion(
+                            institucion.getNombre(),
+                            institucion.getDescripcion(),
+                            institucion.getSitioWeb()
+                    )
+            );
+        }
+
+        return resultado;
+    }
+    
+    // =====================================================
+    // CATEGORÃAS
+    // =====================================================
+
+    @Override
+    public Collection<String> listarCategorias() {
+        Collection<String> resultado = new ArrayList<>();
+        for (Categoria c : manejadorEventos.obtenerCategorias()) {
+            resultado.add(c.getNombre());
+        }
+        return resultado;
+    }
+    // =====================================================
+    // ALTA PATROCINIO
+    // =====================================================
+
+    @Override
+    public boolean altaPatrocinio(
+            DtPatrocinio dt) {
+
+        Patrocinio patrocinio =
+                new Patrocinio(
+                        dt.getFecha(),
+                        dt.getMontoAporte(),
+                        dt.getCantRegistrosGrat(),
+                        dt.getCodigoPatrocinio(),
+                        dt.getNivel()
+                );
+
+        return manejadorPatrocinios.addPatrocinio(
+                patrocinio
+        );
+    }
+
+
+    // =====================================================
+    // CONSULTA PATROCINIO
+    // =====================================================
+
+    @Override
+    public Collection<DtPatrocinio>
+    listarPatrocinios() {
+
+        Collection<DtPatrocinio> resultado =
+                new ArrayList<>();
+
+        for (Patrocinio patrocinio :
+                manejadorPatrocinios.listarPatrocinios()) {
+
+            resultado.add(
+                    new DtPatrocinio(
+                            patrocinio.getFecha(),
+                            patrocinio.getMontoAporte(),
+                            patrocinio.getCantRegistrosGrat(),
+                            patrocinio.getCodigoPatrocinio(),
+                            patrocinio.getNivel()
+                    )
+            );
+        }
+        
+        return resultado;
+    }
+        
+    // =====================================================
+    // ALTA DE EVENTO
+    // =====================================================
+
+    @Override
+    public boolean existeEvento(String nombre) {
+        return manejadorEventos.existeEvento(nombre);
+    }
+
+    @Override
+    public boolean altaEvento(DtEvento dt) throws Exception {
+
+        // 1. Validar si el evento ya existe por nombre
+        if (manejadorEventos.existeEvento(dt.getNombre())) {
+            throw new Exception("Ya existe un evento con el nombre: " + dt.getNombre());
+        }
+
+        // 2. Validar que se haya seleccionado al menos una categorÃ­a
+        if (dt.getCategorias() == null || dt.getCategorias().isEmpty()) {
+            throw new Exception("Debe seleccionar al menos una categorÃ­a para el evento.");
+        }
+
+        // 3. Instanciar la clase de dominio Evento
+        Evento evento = new Evento(
+                dt.getNombre(),
+                dt.getSigla(),
+                dt.getDescripcion(),
+                dt.getFechaAlta()
+        );
+
+        // 4. Obtener cada Categoria desde manejadorEventos y asociarla al Evento
+        for (String nombreCat : dt.getCategorias()) {
+            Categoria cat = manejadorEventos.obtenerCategoria(nombreCat);
+            if (cat != null) {
+                evento.agregarCategoria(cat);
+            } else {
+                throw new Exception("La categorÃ­a '" + nombreCat + "' no existe en el sistema.");
+            }
+        }
+
+        // 5. Guardar el evento en la colecciÃ³n en memoria
+        return manejadorEventos.addEvento(evento);
+    }
+        
+    @Override
+    public DtPatrocinio consultarPatrocinio(
+            String codigo) {
+
+        Patrocinio patrocinio =
+                manejadorPatrocinios.obtenerPatrocinio(
+                        codigo
+                );
+
+        if (patrocinio == null) {
+            return null;
+        }
+
+        return new DtPatrocinio(
+                patrocinio.getFecha(),
+                patrocinio.getMontoAporte(),
+                patrocinio.getCantRegistrosGrat(),
+                patrocinio.getCodigoPatrocinio(),
+                patrocinio.getNivel()
+        );
+    }
+    @Override
+    public boolean estaRegistradoAEdicion(String nicknameAsistente, String nombreEdicion) {
+        return manejadorUsuarios.estaRegistradoAEdicion(nicknameAsistente, nombreEdicion);
+    }
+}
+
+package interfaces;
+
+import datatypes.*;
+
+import java.util.Collection;
+
+public interface ISistema {
+
+    // VALIDACIONES USUARIO
+    boolean existeUsuario(String nickname);
+    boolean existeCorreoElectronico(String correoElectronico);
+
+    // ALTA USUARIO
+    boolean altaAsistente(DtAsistente asistente);
+    boolean altaOrganizador(DtOrganizador organizador);
+
+    // CONSULTA USUARIO
+    Collection<DtUsuario> listarUsuarios();
+    DtUsuario consultarUsuario(String nickname);
+
+    // MODIFICAR USUARIO
+    void modificarAsistente(DtAsistente asistente);
+    void modificarOrganizador(DtOrganizador organizador);
+
+    // INSTITUCIONES
+    boolean existeInstitucion(String nombre);
+    boolean altaInstitucion(DtInstitucion institucion);
+    Collection<DtInstitucion> listarInstituciones();
+
+    //ALTA EVENTO
+    Collection<String> listarCategorias();
+    boolean existeEvento(String nombre);
+    boolean altaEvento(DtEvento dt) throws Exception;
+
+    // PATROCINIOS
+    boolean altaPatrocinio(DtPatrocinio patrocinio);
+    Collection<DtPatrocinio> listarPatrocinios();
+    DtPatrocinio consultarPatrocinio(String codigo);
+
+    //REGISTRO
+    boolean estaRegistradoAEdicion(String nicknameAsistente, String nombreEdicion);
+}
+
+package manejadores;
+
+import clases.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+public class ManejadorEventos {
+    private static ManejadorEventos instancia = null;
+    private final Map<String, Evento> eventosNombre;
+    private final Map<String, Categoria> categoriasNombre;
+
+    private ManejadorEventos() {
+        eventosNombre = new HashMap<>();
+        categoriasNombre = new HashMap<>();
+    }
+
+    public static ManejadorEventos getInstance() {
+        if (instancia == null) {
+            instancia = new ManejadorEventos();
+        }
+        return instancia;
+    }
+
+    //SECCION EVENTOS
+    public boolean addEvento(Evento evento) {
+
+        String nombre = evento.getNombre();
+
+        if (existeEvento(nombre)) {
+            return false;
+        }
+
+        eventosNombre.put(nombre, evento);
+        return true;
+    }
+
+    public Evento obtenerEvento(String nombre) {
+        return eventosNombre.get(nombre);
+    }
+
+    public boolean existeEvento(String nombre) {
+        return eventosNombre.containsKey(nombre);
+    }
+
+    public Collection<Evento> obtenerEventos() {
+        return eventosNombre.values();
+    }
+    /*
+    // EDICIONES
+    public boolean addEdicion(Edicion edicion);
+    public Edicion obtenerEdicion(String nombre);
+    public boolean existeEdicion(String nombre);
+    public Collection<Edicion> obtenerEdiciones();
+    public Collection<Edicion> obtenerEdicionesEvento(String nombreEvento);
+
+  */
+    // CATEGORÃAS
+    public boolean addCategoria(Categoria categoria) {
+        if (existeCategoria(categoria.getNombre())) {
+            return false;
+        }
+        categoriasNombre.put(categoria.getNombre(), categoria);
+        return true;
+    }
+    public Categoria obtenerCategoria(String nombre) {
+        return categoriasNombre.get(nombre);
+    }
+    public boolean existeCategoria(String nombre) {
+        return categoriasNombre.containsKey(nombre);
+    }
+    public Collection<Categoria> obtenerCategorias() {
+        return categoriasNombre.values();
+    }
+
+/*
+    // TIPOS DE REGISTRO
+    boolean addTipoRegistro(TipoRegistro tipoRegistro);
+    TipoRegistro obtenerTipoRegistro(String nombre);
+    boolean existeTipoRegistro(String nombre);
+    Collection<TipoRegistro> obtenerTiposRegistro();
+    Collection<TipoRegistro> obtenerTiposRegistroEdicion(String nombreEdicion);
+
+    */
+}
+
+package manejadores;
+
+import clases.Institucion;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+public class ManejadorInstituciones {
+
+    private static ManejadorInstituciones instancia = null;
+
+    private final Map<String, Institucion> institucionesIdNombre;
+
+    private ManejadorInstituciones() {
+        institucionesIdNombre = new HashMap<>();
+    }
+
+    public static ManejadorInstituciones getInstance() {
+
+        if (instancia == null) {
+            instancia = new ManejadorInstituciones();
+        }
+
+        return instancia;
+    }
+
+    public boolean addInstitucion(Institucion institucion) {
+
+        String nombre = institucion.getNombre();
+
+        if (existeInstitucion(nombre)) {
+            return false;
+        }
+
+        institucionesIdNombre.put(nombre, institucion);
+
+        return true;
+    }
+
+    public Institucion obtenerInstitucion(String nombre) {
+        return institucionesIdNombre.get(nombre);
+    }
+
+    public boolean existeInstitucion(String nombre) {
+        return institucionesIdNombre.containsKey(nombre);
+    }
+
+    public Collection<Institucion> listarInstituciones() {
+        return institucionesIdNombre.values();
+    }
+}
+package manejadores;
+
+import clases.Patrocinio;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+public class ManejadorPatrocinios {
+
+    private static ManejadorPatrocinios instancia = null;
+
+    private final Map<String, Patrocinio> patrociniosCodigo;
+
+    private ManejadorPatrocinios() {patrociniosCodigo = new HashMap<>();}
+
+    public static ManejadorPatrocinios getInstance() {
+        if (instancia == null) {
+            instancia = new ManejadorPatrocinios();
+        }
+        return instancia;
+    }
+
+    public boolean addPatrocinio(Patrocinio patrocinio) {
+
+        String codigo = patrocinio.getCodigoPatrocinio();
+
+        if (existePatrocinio(codigo)) {
+            return false;
+        }
+
+        patrociniosCodigo.put(codigo, patrocinio);
+        return true;
+    }
+
+    public boolean existePatrocinio(String codigo) {
+        return patrociniosCodigo.containsKey(codigo);
+    }
+
+    public Patrocinio obtenerPatrocinio(String codigo) {
+        return patrociniosCodigo.get(codigo);
+    }
+
+    public Collection<Patrocinio> listarPatrocinios() {
+        return patrociniosCodigo.values();
+    }
+}
+package manejadores;
+
+import clases.*;
+
+import java.util.*;
+import java.time.LocalDate;
+
+/** ColecciÃ³n global de usuarios en memoria (singleton). */
+public class ManejadorUsuarios {
+
+    private static ManejadorUsuarios instancia = null;
+
+    private final Map<String, Usuario> usuariosNickname;
+
+    private ManejadorUsuarios() {
+        usuariosNickname = new HashMap<>();
+    }
+
+    public static ManejadorUsuarios getInstance() {
+        if (instancia == null) {
+            instancia = new ManejadorUsuarios();
+        }
+        return instancia;
+    }
+
+    /** @return true si se agregÃ³; false si la cÃ©dula ya existÃ­a */
+    public boolean addUsuario(Usuario usuario) {
+        String nickname = usuario.getNickname();
+        if (obtenerUsuario(nickname) != null) {
+            return false;
+        }
+        usuariosNickname.put(nickname, usuario);
+        return true;
+    }
+
+    public Usuario obtenerUsuario(String nickname) {
+        return usuariosNickname.get(nickname);
+    }
+
+    public boolean existeUsuario(String nickname) {
+        if (usuariosNickname.containsKey(nickname)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean existeCorreo(String correoElectronico){
+        for (Usuario usuario : usuariosNickname.values()){
+            if(usuario.getCorreoElectronico().equals(correoElectronico)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean estaRegistradoEdicion(String nicknameAsistente, String nombreEdicion){
+        Asistente asistente = obtenerAsistente(nicknameAsistente);
+        if(asistente == null){
+            return false;
+        }
+        for(Registro r : asistente.getRegistros()){
+            if(r.getEdicion().getIdNombre().equalsIgnoreCase(nombreEdicion)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Collection<Usuario> listarUsuarios() {
+        return usuariosNickname.values();
+    }
+
+    public Asistente obtenerAsistente(String nickname) {
+
+        Usuario usuario = obtenerUsuario(nickname);
+
+        if (usuario instanceof Asistente) {
+            return (Asistente) usuario;
+        }
+
+        return null;
+    }
+
+    public boolean modificarAsistente(
+            String nickname,
+            String nombre,
+            String correo,
+            String apellido,
+            LocalDate fechaNacimiento,
+            String nombreInstitucion
+    ) {
+
+        Usuario usuario = obtenerUsuario(nickname);
+
+        if (!(usuario instanceof Asistente asistente)) {
+            return false;
+        }
+
+        asistente.setNombre(nombre);
+        asistente.setCorreoElectronico(correo);
+        asistente.setApellido(apellido);
+        asistente.setFechaNacimiento(fechaNacimiento);
+        asistente.setNombreInstitucion(nombreInstitucion);
+
+        return true;
+    }
+
+    public boolean modificarOrganizador(
+            String nickname,
+            String nombre,
+            String correo,
+            String descripcion,
+            String sitioWeb
+    ) {
+
+        Usuario usuario = obtenerUsuario(nickname);
+
+        if (!(usuario instanceof Organizador organizador)) {
+            return false;
+        }
+
+        organizador.setNombre(nombre);
+        organizador.setCorreoElectronico(correo);
+        organizador.setDescripcion(descripcion);
+        organizador.setSitioWeb(sitioWeb);
+
+        return true;
+    }
+    public Set<String> listarNicknames() {
+        return new HashSet<>(usuariosNickname.keySet());
+    }
+}
+
