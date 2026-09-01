@@ -11,6 +11,7 @@ public class DtEdicion {
     private LocalDate fechaAlta;
     private String ciudad;
     private String pais;
+    private String nombreOrganizador;
 
     public DtEdicion(
             String idNombre,
@@ -19,7 +20,8 @@ public class DtEdicion {
             LocalDate fechaFin,
             LocalDate fechaAlta,
             String ciudad,
-            String pais
+            String pais,
+            String nombreOrganizador
     ) {
         this.idNombre = idNombre;
         this.sigla = sigla;
@@ -28,6 +30,7 @@ public class DtEdicion {
         this.fechaAlta = fechaAlta;
         this.ciudad = ciudad;
         this.pais = pais;
+        this.nombreOrganizador = nombreOrganizador;
     }
 
     public String getIdNombre() {
@@ -56,6 +59,10 @@ public class DtEdicion {
 
     public String getPais() {
         return pais;
+    }
+
+    public String getNombreOrganizador() {
+        return nombreOrganizador;
     }
 
     @Override

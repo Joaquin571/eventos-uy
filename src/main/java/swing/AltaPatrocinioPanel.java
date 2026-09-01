@@ -157,7 +157,10 @@ public class AltaPatrocinioPanel {
                             aporte,
                             cantidadRegistros,
                             codigo,
-                            nivelSeleccionado
+                            nivelSeleccionado,
+                            institucion,
+                            edicion,
+                            tipoRegistro
                     );
 
             boolean agregado = sistema.altaPatrocinio(dt);

@@ -1,0 +1,61 @@
+M	.gitignore
+D	.idea/compiler.xml
+D	.idea/encodings.xml
+D	.idea/jarRepositories.xml
+M	.idea/misc.xml
+A	.idea/modules.xml
+M	.idea/vcs.xml
+D	pom.xml
+A	src/clases/Asistente.java
+A	src/clases/Categoria.java
+R050	src/main/java/clases/Edicion.java	src/clases/Edicion.java
+A	src/clases/Evento.java
+R050	src/main/java/clases/Institucion.java	src/clases/Institucion.java
+R100	src/main/java/clases/NivelPatrocinio.java	src/clases/NivelPatrocinio.java
+R055	src/main/java/clases/Organizador.java	src/clases/Organizador.java
+A	src/clases/Patrocinio.java
+R068	src/main/java/clases/Registro.java	src/clases/Registro.java
+R055	src/main/java/clases/TipoRegistro.java	src/clases/TipoRegistro.java
+R075	src/main/java/clases/Usuario.java	src/clases/Usuario.java
+R099	src/main/java/datatypes/DtAsistente.java	src/datatypes/DtAsistente.java
+R100	src/main/java/datatypes/DtCategoria.java	src/datatypes/DtCategoria.java
+R084	src/main/java/datatypes/DtEdicion.java	src/datatypes/DtEdicion.java
+R076	src/main/java/datatypes/DtEvento.java	src/datatypes/DtEvento.java
+R061	src/main/java/datatypes/DtInstitucion.java	src/datatypes/DtInstitucion.java
+R100	src/main/java/datatypes/DtOrganizador.java	src/datatypes/DtOrganizador.java
+R075	src/main/java/datatypes/DtPatrocinio.java	src/datatypes/DtPatrocinio.java
+R100	src/main/java/datatypes/DtRegistro.java	src/datatypes/DtRegistro.java
+R100	src/main/java/datatypes/DtTipoRegistro.java	src/datatypes/DtTipoRegistro.java
+R088	src/main/java/datatypes/DtUsuario.java	src/datatypes/DtUsuario.java
+R100	src/main/java/implementacion/Fabrica.java	src/implementacion/Fabrica.java
+A	src/implementacion/Sistema.java
+R084	src/main/java/interfaces/ISistema.java	src/interfaces/ISistema.java
+D	src/main/java/clases/Asistente.java
+D	src/main/java/clases/Categoria.java
+D	src/main/java/clases/Evento.java
+D	src/main/java/clases/Patrocinio.java
+D	src/main/java/implementacion/Sistema.java
+D	src/main/java/swing/AltaCategoriaPanel.java
+D	src/main/java/swing/ConsultaEventoPanel.java
+D	src/main/resources/META-INF/persistence.xml
+R100	src/main/java/manejadores/ManejadorEventos.java	src/manejadores/ManejadorEventos.java
+R100	src/main/java/manejadores/ManejadorInstituciones.java	src/manejadores/ManejadorInstituciones.java
+R100	src/main/java/manejadores/ManejadorPatrocinios.java	src/manejadores/ManejadorPatrocinios.java
+R065	src/main/java/manejadores/ManejadorUsuarios.java	src/manejadores/ManejadorUsuarios.java
+R100	src/main/java/swing/AltaEdicionEventoPanel.java	src/swing/AltaEdicionEventoPanel.java
+R091	src/main/java/swing/AltaEventoPanel.java	src/swing/AltaEventoPanel.java
+R100	src/main/java/swing/AltaInstitucionPanel.form	src/swing/AltaInstitucionPanel.form
+R100	src/main/java/swing/AltaInstitucionPanel.java	src/swing/AltaInstitucionPanel.java
+R100	src/main/java/swing/AltaPatrocinioPanel.form	src/swing/AltaPatrocinioPanel.form
+R100	src/main/java/swing/AltaPatrocinioPanel.java	src/swing/AltaPatrocinioPanel.java
+R100	src/main/java/swing/AltaUsuarioPanel.java	src/swing/AltaUsuarioPanel.java
+R100	src/main/java/swing/Apariencia.java	src/swing/Apariencia.java
+R100	src/main/java/swing/ConsultaEdicionEventoPanel.java	src/swing/ConsultaEdicionEventoPanel.java
+R100	src/main/java/swing/ConsultaPatrocinioPanel.form	src/swing/ConsultaPatrocinioPanel.form
+R100	src/main/java/swing/ConsultaPatrocinioPanel.java	src/swing/ConsultaPatrocinioPanel.java
+R100	src/main/java/swing/ConsultaTipoRegistroPanel.java	src/swing/ConsultaTipoRegistroPanel.java
+R100	src/main/java/swing/ConsultaUsuarioPanel.java	src/swing/ConsultaUsuarioPanel.java
+R100	src/main/java/swing/ModificarUsuarioPanel.form	src/swing/ModificarUsuarioPanel.form
+R100	src/main/java/swing/ModificarUsuarioPanel.java	src/swing/ModificarUsuarioPanel.java
+R100	src/main/java/swing/RegistroEdicionEventoPanel.java	src/swing/RegistroEdicionEventoPanel.java
+R090	src/main/java/swing/principal.java	src/swing/principal.java

@@ -2,7 +2,9 @@ package swing;
 
 import datatypes.DtEdicion;
 import datatypes.DtEvento;
+import datatypes.DtOrganizador;
 import datatypes.DtTipoRegistro;
+import datatypes.DtUsuario;
 import interfaces.ISistema;
 import implementacion.Fabrica;
 
@@ -20,8 +22,9 @@ public class AltaEdicionEventoPanel extends JPanel {
 
     private final ISistema sistema;
 
-
     private JComboBox<String> comboEventos;
+    private JComboBox<String> comboOrganizadores;
+
     private JTextField txtNombreEdicion;
     private JTextField txtSigla;
     private JSpinner spinnerFechaInicio;
@@ -37,56 +40,110 @@ public class AltaEdicionEventoPanel extends JPanel {
     private JTable tablaTiposRegistro;
     private DefaultTableModel modelTablaTR;
 
-    private final List<DtTipoRegistro> listaTiposRegistroAgregados = new ArrayList<>();
+    private final List<DtTipoRegistro> listaTiposRegistroAgregados =
+            new ArrayList<>();
 
     public AltaEdicionEventoPanel() {
+
         this.sistema = Fabrica.getInstance().getISistema();
+
         initUI();
+
         cargarEventos();
+        cargarOrganizadores();
     }
 
     private void initUI() {
+
         setLayout(new BorderLayout(10, 10));
 
-        // Panel de Formulario Principal
-        JPanel panelForm = new JPanel(new GridLayout(7, 2, 5, 5));
-        panelForm.setBorder(BorderFactory.createTitledBorder("Datos de la Edición"));
+        // =====================================================
+        // DATOS DE LA EDICIÓN
+        // =====================================================
+
+        JPanel panelForm =
+                new JPanel(new GridLayout(8, 2, 5, 5));
+
+        panelForm.setBorder(
+                BorderFactory.createTitledBorder(
+                        "Datos de la Edición"
+                )
+        );
 
         panelForm.add(new JLabel("Seleccionar Evento:"));
+
         comboEventos = new JComboBox<>();
         panelForm.add(comboEventos);
 
+        panelForm.add(new JLabel("Organizador:"));
+
+        comboOrganizadores = new JComboBox<>();
+        panelForm.add(comboOrganizadores);
+
         panelForm.add(new JLabel("Nombre / ID Edición:"));
+
         txtNombreEdicion = new JTextField();
         panelForm.add(txtNombreEdicion);
 
         panelForm.add(new JLabel("Sigla:"));
+
         txtSigla = new JTextField();
         panelForm.add(txtSigla);
 
         panelForm.add(new JLabel("Fecha Inicio:"));
-        spinnerFechaInicio = new JSpinner(new SpinnerDateModel());
-        spinnerFechaInicio.setEditor(new JSpinner.DateEditor(spinnerFechaInicio, "yyyy-MM-dd"));
+
+        spinnerFechaInicio =
+                new JSpinner(new SpinnerDateModel());
+
+        spinnerFechaInicio.setEditor(
+                new JSpinner.DateEditor(
+                        spinnerFechaInicio,
+                        "yyyy-MM-dd"
+                )
+        );
+
         panelForm.add(spinnerFechaInicio);
 
         panelForm.add(new JLabel("Fecha Fin:"));
-        spinnerFechaFin = new JSpinner(new SpinnerDateModel());
-        spinnerFechaFin.setEditor(new JSpinner.DateEditor(spinnerFechaFin, "yyyy-MM-dd"));
+
+        spinnerFechaFin =
+                new JSpinner(new SpinnerDateModel());
+
+        spinnerFechaFin.setEditor(
+                new JSpinner.DateEditor(
+                        spinnerFechaFin,
+                        "yyyy-MM-dd"
+                )
+        );
+
         panelForm.add(spinnerFechaFin);
 
         panelForm.add(new JLabel("Ciudad:"));
+
         txtCiudad = new JTextField();
         panelForm.add(txtCiudad);
 
         panelForm.add(new JLabel("País:"));
+
         txtPais = new JTextField();
         panelForm.add(txtPais);
 
-        // Panel de Tipos de Registro
-        JPanel panelTR = new JPanel(new BorderLayout(5, 5));
-        panelTR.setBorder(BorderFactory.createTitledBorder("Tipos de Registro de la Edición"));
+        // =====================================================
+        // TIPOS DE REGISTRO
+        // =====================================================
 
-        JPanel panelInputsTR = new JPanel(new GridLayout(2, 4, 5, 5));
+        JPanel panelTR =
+                new JPanel(new BorderLayout(5, 5));
+
+        panelTR.setBorder(
+                BorderFactory.createTitledBorder(
+                        "Tipos de Registro de la Edición"
+                )
+        );
+
+        JPanel panelInputsTR =
+                new JPanel(new GridLayout(2, 4, 5, 5));
+
         txtNombreTR = new JTextField();
         txtDescripcionTR = new JTextField();
         txtCostoTR = new JTextField();
@@ -102,119 +159,358 @@ public class AltaEdicionEventoPanel extends JPanel {
         panelInputsTR.add(txtCostoTR);
         panelInputsTR.add(txtCupoTR);
 
-        JButton btnAgregarTR = new JButton("Agregar Tipo Registro");
-        btnAgregarTR.addActionListener(e -> agregarTipoRegistroALista());
+        JButton btnAgregarTR =
+                new JButton("Agregar Tipo Registro");
 
-        JPanel panelNorthTR = new JPanel(new BorderLayout());
-        panelNorthTR.add(panelInputsTR, BorderLayout.CENTER);
-        panelNorthTR.add(btnAgregarTR, BorderLayout.SOUTH);
+        btnAgregarTR.addActionListener(
+                e -> agregarTipoRegistroALista()
+        );
 
-        modelTablaTR = new DefaultTableModel(new String[]{"Nombre", "Descripción", "Costo", "Cupo"}, 0);
-        tablaTiposRegistro = new JTable(modelTablaTR);
-        JScrollPane scrollTabla = new JScrollPane(tablaTiposRegistro);
+        JPanel panelNorthTR =
+                new JPanel(new BorderLayout());
 
-        panelTR.add(panelNorthTR, BorderLayout.NORTH);
-        panelTR.add(scrollTabla, BorderLayout.CENTER);
+        panelNorthTR.add(
+                panelInputsTR,
+                BorderLayout.CENTER
+        );
 
-        // Panel Central que junta Edición + Tipos de Registro
-        JPanel panelCenter = new JPanel(new BorderLayout(10, 10));
-        panelCenter.add(panelForm, BorderLayout.NORTH);
-        panelCenter.add(panelTR, BorderLayout.CENTER);
+        panelNorthTR.add(
+                btnAgregarTR,
+                BorderLayout.SOUTH
+        );
 
-        // Botón Guardar
-        JButton btnGuardar = new JButton("Alta Edición de Evento");
-        btnGuardar.setFont(new Font("SansSerif", Font.BOLD, 14));
-        btnGuardar.addActionListener(e -> guardarEdicion());
+        modelTablaTR = new DefaultTableModel(
+                new String[]{
+                        "Nombre",
+                        "Descripción",
+                        "Costo",
+                        "Cupo"
+                },
+                0
+        );
 
-        add(panelCenter, BorderLayout.CENTER);
-        add(btnGuardar, BorderLayout.SOUTH);
+        tablaTiposRegistro =
+                new JTable(modelTablaTR);
+
+        JScrollPane scrollTabla =
+                new JScrollPane(tablaTiposRegistro);
+
+        panelTR.add(
+                panelNorthTR,
+                BorderLayout.NORTH
+        );
+
+        panelTR.add(
+                scrollTabla,
+                BorderLayout.CENTER
+        );
+
+        // =====================================================
+        // PANEL CENTRAL
+        // =====================================================
+
+        JPanel panelCenter =
+                new JPanel(new BorderLayout(10, 10));
+
+        panelCenter.add(
+                panelForm,
+                BorderLayout.NORTH
+        );
+
+        panelCenter.add(
+                panelTR,
+                BorderLayout.CENTER
+        );
+
+        // =====================================================
+        // BOTÓN GUARDAR
+        // =====================================================
+
+        JButton btnGuardar =
+                new JButton("Alta Edición de Evento");
+
+        btnGuardar.setFont(
+                new Font(
+                        "SansSerif",
+                        Font.BOLD,
+                        14
+                )
+        );
+
+        btnGuardar.addActionListener(
+                e -> guardarEdicion()
+        );
+
+        add(
+                panelCenter,
+                BorderLayout.CENTER
+        );
+
+        add(
+                btnGuardar,
+                BorderLayout.SOUTH
+        );
     }
 
+    // =====================================================
+    // CARGAR EVENTOS
+    // =====================================================
+
     public void cargarEventos() {
+
         comboEventos.removeAllItems();
-        Collection<DtEvento> eventos = sistema.listarEventos();
-        for (DtEvento ev : eventos) {
-            comboEventos.addItem(ev.getNombre());
+
+        Collection<DtEvento> eventos =
+                sistema.listarEventos();
+
+        for (DtEvento evento : eventos) {
+            comboEventos.addItem(
+                    evento.getNombre()
+            );
         }
     }
 
-    private void agregarTipoRegistroALista() {
-        String nombre = txtNombreTR.getText().trim();
-        String desc = txtDescripcionTR.getText().trim();
-        String costoStr = txtCostoTR.getText().trim();
-        String cupoStr = txtCupoTR.getText().trim();
+    // =====================================================
+    // CARGAR ORGANIZADORES
+    // =====================================================
 
-        if (nombre.isEmpty() || desc.isEmpty() || costoStr.isEmpty() || cupoStr.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Debe completar todos los campos del Tipo de Registro.", "Error", JOptionPane.ERROR_MESSAGE);
+    private void cargarOrganizadores() {
+
+        comboOrganizadores.removeAllItems();
+
+        Collection<DtUsuario> usuarios =
+                sistema.listarUsuarios();
+
+        for (DtUsuario usuario : usuarios) {
+
+            if (usuario instanceof DtOrganizador) {
+
+                comboOrganizadores.addItem(
+                        usuario.getNickname()
+                );
+            }
+        }
+    }
+
+    // =====================================================
+    // AGREGAR TIPO REGISTRO
+    // =====================================================
+
+    private void agregarTipoRegistroALista() {
+
+        String nombre =
+                txtNombreTR.getText().trim();
+
+        String desc =
+                txtDescripcionTR.getText().trim();
+
+        String costoStr =
+                txtCostoTR.getText().trim();
+
+        String cupoStr =
+                txtCupoTR.getText().trim();
+
+        if (nombre.isEmpty()
+                || desc.isEmpty()
+                || costoStr.isEmpty()
+                || cupoStr.isEmpty()) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Debe completar todos los campos del Tipo de Registro.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+
             return;
         }
 
         try {
-            float costo = Float.parseFloat(costoStr);
-            int cupo = Integer.parseInt(cupoStr);
 
-            DtTipoRegistro dtTR = new DtTipoRegistro(nombre, desc, costo, cupo);
-            listaTiposRegistroAgregados.add(dtTR);
-            modelTablaTR.addRow(new Object[]{nombre, desc, costo, cupo});
+            float costo =
+                    Float.parseFloat(costoStr);
 
-            // Limpiar inputs TR
+            int cupo =
+                    Integer.parseInt(cupoStr);
+
+            DtTipoRegistro dtTR =
+                    new DtTipoRegistro(
+                            nombre,
+                            desc,
+                            costo,
+                            cupo
+                    );
+
+            listaTiposRegistroAgregados.add(
+                    dtTR
+            );
+
+            modelTablaTR.addRow(
+                    new Object[]{
+                            nombre,
+                            desc,
+                            costo,
+                            cupo
+                    }
+            );
+
             txtNombreTR.setText("");
             txtDescripcionTR.setText("");
             txtCostoTR.setText("");
             txtCupoTR.setText("");
+
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Costo y Cupo deben ser valores numéricos válidos.", "Error", JOptionPane.ERROR_MESSAGE);
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Costo y Cupo deben ser valores numéricos válidos.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
         }
     }
 
-    private void guardarEdicion() {
-        String eventoSel = (String) comboEventos.getSelectedItem();
-        String nombre = txtNombreEdicion.getText().trim();
-        String sigla = txtSigla.getText().trim();
-        String ciudad = txtCiudad.getText().trim();
-        String pais = txtPais.getText().trim();
+    // =====================================================
+    // GUARDAR EDICIÓN
+    // =====================================================
 
-        if (eventoSel == null || nombre.isEmpty() || sigla.isEmpty() || ciudad.isEmpty() || pais.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Por favor complete todos los campos de la edición.", "Atención", JOptionPane.WARNING_MESSAGE);
+    private void guardarEdicion() {
+
+        String eventoSel =
+                (String) comboEventos.getSelectedItem();
+
+        String organizadorSel =
+                (String) comboOrganizadores.getSelectedItem();
+
+        String nombre =
+                txtNombreEdicion.getText().trim();
+
+        String sigla =
+                txtSigla.getText().trim();
+
+        String ciudad =
+                txtCiudad.getText().trim();
+
+        String pais =
+                txtPais.getText().trim();
+
+        if (eventoSel == null
+                || organizadorSel == null
+                || nombre.isEmpty()
+                || sigla.isEmpty()
+                || ciudad.isEmpty()
+                || pais.isEmpty()) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Por favor complete todos los campos de la edición.",
+                    "Atención",
+                    JOptionPane.WARNING_MESSAGE
+            );
+
             return;
         }
 
-        LocalDate fInicio = toLocalDate((Date) spinnerFechaInicio.getValue());
-        LocalDate fFin = toLocalDate((Date) spinnerFechaFin.getValue());
+        LocalDate fInicio =
+                toLocalDate(
+                        (Date) spinnerFechaInicio.getValue()
+                );
+
+        LocalDate fFin =
+                toLocalDate(
+                        (Date) spinnerFechaFin.getValue()
+                );
 
         if (fFin.isBefore(fInicio)) {
-            JOptionPane.showMessageDialog(this, "La fecha de fin no puede ser anterior a la de inicio.", "Error", JOptionPane.ERROR_MESSAGE);
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "La fecha de fin no puede ser anterior a la de inicio.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+
             return;
         }
 
-        DtEdicion dtEdicion = new DtEdicion(nombre, sigla, fInicio, fFin, LocalDate.now(), ciudad, pais);
+        DtEdicion dtEdicion =
+                new DtEdicion(
+                        nombre,
+                        sigla,
+                        fInicio,
+                        fFin,
+                        LocalDate.now(),
+                        ciudad,
+                        pais,
+                        organizadorSel
+                );
 
         try {
-            boolean okEdicion = sistema.altaEdicion(dtEdicion, eventoSel);
+
+            boolean okEdicion =
+                    sistema.altaEdicion(
+                            dtEdicion,
+                            eventoSel
+                    );
 
             if (okEdicion) {
-                for (DtTipoRegistro dtTR : listaTiposRegistroAgregados) {
-                    sistema.altaTipoRegistro(dtTR, dtEdicion.getIdNombre());
+
+                for (DtTipoRegistro dtTR :
+                        listaTiposRegistroAgregados) {
+
+                    sistema.altaTipoRegistro(
+                            dtTR,
+                            dtEdicion.getIdNombre()
+                    );
                 }
-                JOptionPane.showMessageDialog(this, "Edición registrada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Edición registrada correctamente.",
+                        "Éxito",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+
                 limpiarFormulario();
+
             } else {
-                JOptionPane.showMessageDialog(this, "No se pudo crear la edición (ya existe una con ese nombre).", "Error", JOptionPane.ERROR_MESSAGE);
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "No se pudo crear la edición. Verifique que el nombre no exista y que el organizador sea válido.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
             }
+
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Error: " + ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
         }
     }
 
     private LocalDate toLocalDate(Date date) {
-        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+        return date
+                .toInstant()
+                .atZone(
+                        ZoneId.systemDefault()
+                )
+                .toLocalDate();
     }
 
     private void limpiarFormulario() {
+
         txtNombreEdicion.setText("");
         txtSigla.setText("");
         txtCiudad.setText("");
         txtPais.setText("");
+
         listaTiposRegistroAgregados.clear();
         modelTablaTR.setRowCount(0);
     }

@@ -88,4 +88,7 @@ public class TipoRegistro {
     public Set<Patrocinio> getPatrocinios() {
         return patrocinios;
     }
+    public void agregarRegistro(Registro registro) {
+        registros.add(registro);
+    }
 }

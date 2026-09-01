@@ -27,13 +27,13 @@ public interface ISistema {
     boolean altaInstitucion(DtInstitucion institucion);
     Collection<DtInstitucion> listarInstituciones();
 
-    //ALTA EVENTO
+    // ALTA EVENTO
     Collection<String> listarCategorias();
     boolean existeEvento(String nombre);
     boolean altaEvento(DtEvento dt) throws Exception;
 
-    //CONSULTA EVENTO
-    public abstract DtEvento obtenerInformacionEvento(String nombreEvento);
+    // CONSULTA EVENTO
+    DtEvento obtenerInformacionEvento(String nombreEvento);
 
     // PATROCINIOS
     boolean altaPatrocinio(DtPatrocinio patrocinio);
@@ -44,18 +44,41 @@ public interface ISistema {
     void altaCategoria(String nombre, String nombrePadre) throws Exception;
     Collection<String> listarCategoriasFormateadas();
 
-    //REGISTRO
-    boolean estaRegistradoAEdicion(String nicknameAsistente, String nombreEdicion);
-    boolean registroAEdicion(String nicknameAsistente, String nombreEdicion, String nombreTipoRegistro, DtRegistro dtRegistro);
+    // REGISTRO
+    boolean estaRegistradoAEdicion(
+            String nicknameAsistente,
+            String nombreEdicion
+    );
 
+    boolean registroAEdicion(
+            String nicknameAsistente,
+            String nombreEdicion,
+            String nombreTipoRegistro,
+            DtRegistro dtRegistro
+    );
 
-    //EVENTOS
-    public Collection<DtEvento> listarEventos();
-    public Collection<DtEdicion> obtenerEdicionesEvento(String nombreEvento);
-    public boolean altaTipoRegistro(DtTipoRegistro dtTipoRegistro, String nombreEdicion);
-    public Collection<DtTipoRegistro> obtenerTiposRegistroEdicion(String nombreEdicion);
-    public DtTipoRegistro consultarTipoRegistro(String nombreTipoRegistro);
-    boolean altaEdicion(DtEdicion dtEdicion, String nombreEvento);
+    // EVENTOS / EDICIONES
+    Collection<DtEvento> listarEventos();
 
+    Collection<DtEdicion> obtenerEdicionesEvento(
+            String nombreEvento
+    );
+
+    boolean altaTipoRegistro(
+            DtTipoRegistro dtTipoRegistro,
+            String nombreEdicion
+    );
+
+    Collection<DtTipoRegistro> obtenerTiposRegistroEdicion(
+            String nombreEdicion
+    );
+
+    DtTipoRegistro consultarTipoRegistro(
+            String nombreTipoRegistro
+    );
+
+    boolean altaEdicion(
+            DtEdicion dtEdicion,
+            String nombreEvento
+    );
 }
-
