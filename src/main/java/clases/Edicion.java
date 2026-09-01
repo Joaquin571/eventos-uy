@@ -1,12 +1,17 @@
 package clases;
 
+import jakarta.persistence.*;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
 public class Edicion {
 
+    @Id
     private String idNombre;
+
     private String sigla;
     private LocalDate fechaInicio;
     private LocalDate fechaFin;
@@ -14,10 +19,27 @@ public class Edicion {
     private String ciudad;
     private String pais;
 
+    @ManyToOne
+    @JoinColumn(name = "ORG_NICKNAME")
     private Organizador organizador;
 
-    private List<Patrocinio> patrocinios;
-    private List<TipoRegistro> tiposRegistros;
+    @ManyToOne
+    @JoinColumn(name = "EVE_NOMBRE")
+    private Evento evento;
+
+    @OneToMany(mappedBy = "edicion")
+    private List<Patrocinio> patrocinios = new ArrayList<>();
+
+    @OneToMany(mappedBy = "edicion")
+    private List<TipoRegistro> tiposRegistros = new ArrayList<>();
+
+    @OneToMany(mappedBy = "edicion")
+    private List<Registro> registros = new ArrayList<>();
+
+
+    // Constructor requerido por JPA
+    protected Edicion() {
+    }
 
 
     public Edicion(
@@ -38,9 +60,6 @@ public class Edicion {
         this.ciudad = ciudad;
         this.pais = pais;
         this.organizador = organizador;
-
-        this.patrocinios = new ArrayList<>();
-        this.tiposRegistros = new ArrayList<>();
     }
 
 
@@ -93,6 +112,23 @@ public class Edicion {
 
 
     // =========================
+    // REGISTROS
+    // =========================
+
+    public List<Registro> getRegistros() {
+        return registros;
+    }
+
+    public void setRegistros(List<Registro> registros) {
+        this.registros = registros;
+    }
+
+    public void agregarRegistro(Registro registro) {
+        registros.add(registro);
+    }
+
+
+    // =========================
     // ORGANIZADOR
     // =========================
 
@@ -103,6 +139,20 @@ public class Edicion {
     public void setOrganizador(Organizador organizador) {
         this.organizador = organizador;
     }
+
+
+    // =========================
+    // EVENTO
+    // =========================
+
+    public Evento getEvento() {
+        return evento;
+    }
+
+    public void setEvento(Evento evento) {
+        this.evento = evento;
+    }
+
 
     // =========================
     // DATOS EDICIÓN

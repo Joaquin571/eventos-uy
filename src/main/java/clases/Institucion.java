@@ -1,5 +1,6 @@
 package clases;
 
+
 public class Institucion {
     private String Nombre;
     private String descripcion;
