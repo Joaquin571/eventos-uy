@@ -98,9 +98,9 @@ public class AltaEventoPanel {
 
         ISistema sistema = Fabrica.getInstance().getISistema();
 
-        // Iterar directamente sobre la Collection/Set devuelta por el sistema
-        for (String cat : sistema.listarCategorias()) {
-            JCheckBox chk = new JCheckBox(cat);
+        // Cargar las categorías formateadas con sangría
+        for (String catFormateada : sistema.listarCategoriasFormateadas()) {
+            JCheckBox chk = new JCheckBox(catFormateada);
             checkCategorias.add(chk);
             popupCategorias.add(chk);
         }
@@ -111,11 +111,13 @@ public class AltaEventoPanel {
         String sigla = txtSigla.getText().trim();
         String descripcion = txtDescripcion.getText().trim();
 
-        // Obtener todas las categorías marcadas por el usuario
+        // Obtener todas las categorías marcadas y remover la sangría visual
         Set<String> categoriasSeleccionadas = new HashSet<>();
         for (JCheckBox chk : checkCategorias) {
             if (chk.isSelected()) {
-                categoriasSeleccionadas.add(chk.getText());
+                // Se limpian los espacios y guiones agregados para la jerarquía
+                String nombrePuro = chk.getText().replace("   - ", "").trim();
+                categoriasSeleccionadas.add(nombrePuro);
             }
         }
 
