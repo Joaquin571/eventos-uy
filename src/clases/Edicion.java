@@ -14,9 +14,11 @@ public class Edicion {
     private String ciudad;
     private String pais;
 
-    private List<TipoRegistro> tiposRegistro;
     private Organizador organizador;
-    private ArrayList<Patrocinio> patrocinios;
+
+    private List<Patrocinio> patrocinios;
+    private List<TipoRegistro> tiposRegistros;
+
 
     public Edicion(
             String idNombre,
@@ -26,12 +28,8 @@ public class Edicion {
             LocalDate fechaAlta,
             String ciudad,
             String pais,
-            Organizador organizador,
-            tiposRegistro=new ArrayList<>(),
-            patrocinios=new ArrayList<>()
+            Organizador organizador
     ) {
-        this.organizador=organizador;
-        this.tipoRegistro=tipoRegistro;
         this.idNombre = idNombre;
         this.sigla = sigla;
         this.fechaInicio = fechaInicio;
@@ -39,32 +37,64 @@ public class Edicion {
         this.fechaAlta = fechaAlta;
         this.ciudad = ciudad;
         this.pais = pais;
-        this.tiposRegistro = new ArrayList<>();
+        this.organizador = organizador;
+
+        this.patrocinios = new ArrayList<>();
+        this.tiposRegistros = new ArrayList<>();
     }
 
-    public List<TipoRegistro> getTiposRegistro(){
-        return this.tiposRegistro;
+
+    // =========================
+    // TIPOS DE REGISTRO
+    // =========================
+
+    public List<TipoRegistro> getTiposRegistro() {
+        return tiposRegistros;
     }
-    public void agregarTipoRegistro(TipoRegistro tipoRegistro){
-        this.tiposRegistro.add(tipoRegistro);
+
+    public void setTiposRegistro(List<TipoRegistro> tiposRegistros) {
+        this.tiposRegistros = tiposRegistros;
+    }
+
+    public void agregarTipoRegistro(TipoRegistro tipoRegistro) {
+        tiposRegistros.add(tipoRegistro);
     }
 
     public TipoRegistro obtenerTipoRegistro(String nombreTipoRegistro) {
-        for (TipoRegistro tr : tiposRegistro) {
-            if (tr.getIdNombre().equalsIgnoreCase(nombreTipoRegistro)) {
-                return tr;
+
+        for (TipoRegistro tipoRegistro : tiposRegistros) {
+
+            if (tipoRegistro.getIdNombre()
+                    .equalsIgnoreCase(nombreTipoRegistro)) {
+
+                return tipoRegistro;
             }
         }
+
         return null;
     }
 
-    public ArrayList<Patrocinio> getPatrocinios() {
+
+    // =========================
+    // PATROCINIOS
+    // =========================
+
+    public List<Patrocinio> getPatrocinios() {
         return patrocinios;
     }
 
-    public void setPatrocinios(ArrayList<Patrocinio> patrocinios) {
+    public void setPatrocinios(List<Patrocinio> patrocinios) {
         this.patrocinios = patrocinios;
     }
+
+    public void agregarPatrocinio(Patrocinio patrocinio) {
+        patrocinios.add(patrocinio);
+    }
+
+
+    // =========================
+    // ORGANIZADOR
+    // =========================
 
     public Organizador getOrganizador() {
         return organizador;
@@ -74,13 +104,10 @@ public class Edicion {
         this.organizador = organizador;
     }
 
-    public TipoRegistro getTipoRegistro() {
-        return tipoRegistro;
-    }
 
-    public void setTipoRegistro(TipoRegistro tipoRegistro) {
-        this.tipoRegistro = tipoRegistro;
-    }
+    // =========================
+    // DATOS EDICIÓN
+    // =========================
 
     public String getIdNombre() {
         return idNombre;

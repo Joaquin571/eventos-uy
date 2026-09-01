@@ -259,7 +259,7 @@ public class principal {
                 110
         );
         desktopPane.add(internoConsultaEdicion);
-        
+
     }
 
 
