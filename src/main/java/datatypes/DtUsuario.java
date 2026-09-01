@@ -16,5 +16,9 @@ public class DtUsuario {
     public void setNickname(String nickname){this.nickname = nickname;}
     public void setNombre(String nombre){this.nombre = nombre;}
     public void setCorreoElectronico(String correoElectronico){this.correoElectronico = correoElectronico;}
+    @Override
+    public String toString() {
+        return nombre + " (" + nickname + ")";
+    }
 
 }

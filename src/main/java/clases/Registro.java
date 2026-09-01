@@ -1,31 +1,57 @@
 package clases;
 
+import jakarta.persistence.*;
+
 import java.time.LocalDate;
 
+@Entity
+@Table(name = "registro")
 public class Registro {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     private LocalDate fechaRegistro;
     private float costo;
+
+    @ManyToOne
+    @JoinColumn(name = "TIPO_REGISTRO_ID")
     private TipoRegistro tipoRegistro;
+
+    @ManyToOne
+    @JoinColumn(name = "EDICION_ID")
     private Edicion edicion;
 
-    public Registro(LocalDate fechaRegistro, float costo, TipoRegistro tipoRegistro,Edicion edicion) {
+    @ManyToOne
+    @JoinColumn(name = "ASISTENTE_NICKNAME")
+    private Asistente asistente;
+
+    protected Registro() {
+    }
+
+    public Registro(
+            LocalDate fechaRegistro,
+            float costo,
+            TipoRegistro tipoRegistro,
+            Edicion edicion
+    ) {
         this.fechaRegistro = fechaRegistro;
         this.costo = costo;
         this.tipoRegistro = tipoRegistro;
         this.edicion = edicion;
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public LocalDate getFechaRegistro() {
         return fechaRegistro;
     }
 
-    public TipoRegistro getTipoRegistro(){
-        return tipoRegistro;
-    }
-
-    public Edicion getEdicion(){
-        return edicion;
+    public void setFechaRegistro(LocalDate fechaRegistro) {
+        this.fechaRegistro = fechaRegistro;
     }
 
     public float getCosto() {
@@ -36,15 +62,27 @@ public class Registro {
         this.costo = costo;
     }
 
-    public void setFechaRegistro(LocalDate fechaRegistro) {
-        this.fechaRegistro = fechaRegistro;
+    public TipoRegistro getTipoRegistro() {
+        return tipoRegistro;
     }
 
-    public void setTipoRegistro(TipoRegistro tipoRegistro){
+    public void setTipoRegistro(TipoRegistro tipoRegistro) {
         this.tipoRegistro = tipoRegistro;
     }
 
-    public void setEdicion(Edicion edicion){
+    public Edicion getEdicion() {
+        return edicion;
+    }
+
+    public void setEdicion(Edicion edicion) {
         this.edicion = edicion;
+    }
+
+    public Asistente getAsistente() {
+        return asistente;
+    }
+
+    public void setAsistente(Asistente asistente) {
+        this.asistente = asistente;
     }
 }

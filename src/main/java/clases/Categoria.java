@@ -1,13 +1,29 @@
 package clases;
 
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.persistence.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
+@Entity
+@Table(name = "categoria")
 public class Categoria {
 
+    @Id
     private String nombre;
+
+    @ManyToOne
+    @JoinColumn(name = "PADRE_NOMBRE")
     private Categoria padre;
-    private List<Categoria> subcategorias;
+
+    @OneToMany(mappedBy = "padre")
+    private Set<Categoria> subcategorias = new HashSet<>();
+
+    @ManyToMany(mappedBy = "categorias")
+    private Set<Evento> eventos = new HashSet<>();
+
+    protected Categoria() {
+    }
 
     public Categoria(String nombre) {
         this(nombre, null);
@@ -16,7 +32,6 @@ public class Categoria {
     public Categoria(String nombre, Categoria padre) {
         this.nombre = nombre;
         this.padre = padre;
-        this.subcategorias = new ArrayList<>();
     }
 
     public void agregarSubcategoria(Categoria subcategoria) {
@@ -40,7 +55,11 @@ public class Categoria {
         this.padre = padre;
     }
 
-    public List<Categoria> getSubcategorias() {
+    public Set<Categoria> getSubcategorias() {
         return subcategorias;
+    }
+
+    public Set<Evento> getEventos() {
+        return eventos;
     }
 }

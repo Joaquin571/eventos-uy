@@ -3,8 +3,8 @@ package clases;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 public class Edicion {
@@ -28,16 +28,14 @@ public class Edicion {
     private Evento evento;
 
     @OneToMany(mappedBy = "edicion")
-    private List<Patrocinio> patrocinios = new ArrayList<>();
+    private Set<Patrocinio> patrocinios = new HashSet<Patrocinio>();
 
     @OneToMany(mappedBy = "edicion")
-    private List<TipoRegistro> tiposRegistros = new ArrayList<>();
+    private Set<TipoRegistro> tiposRegistros = new HashSet<>();
 
     @OneToMany(mappedBy = "edicion")
-    private List<Registro> registros = new ArrayList<>();
+    private Set<Registro> registros = new HashSet<>();
 
-
-    // Constructor requerido por JPA
     protected Edicion() {
     }
 
@@ -67,11 +65,11 @@ public class Edicion {
     // TIPOS DE REGISTRO
     // =========================
 
-    public List<TipoRegistro> getTiposRegistro() {
+    public Set<TipoRegistro> getTiposRegistro() {
         return tiposRegistros;
     }
 
-    public void setTiposRegistro(List<TipoRegistro> tiposRegistros) {
+    public void setTiposRegistro(Set<TipoRegistro> tiposRegistros) {
         this.tiposRegistros = tiposRegistros;
     }
 
@@ -98,11 +96,11 @@ public class Edicion {
     // PATROCINIOS
     // =========================
 
-    public List<Patrocinio> getPatrocinios() {
+    public Set<Patrocinio> getPatrocinios() {
         return patrocinios;
     }
 
-    public void setPatrocinios(List<Patrocinio> patrocinios) {
+    public void setPatrocinios(Set<Patrocinio> patrocinios) {
         this.patrocinios = patrocinios;
     }
 
@@ -115,11 +113,11 @@ public class Edicion {
     // REGISTROS
     // =========================
 
-    public List<Registro> getRegistros() {
+    public Set<Registro> getRegistros() {
         return registros;
     }
 
-    public void setRegistros(List<Registro> registros) {
+    public void setRegistros(Set<Registro> registros) {
         this.registros = registros;
     }
 

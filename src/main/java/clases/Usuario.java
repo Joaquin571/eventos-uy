@@ -1,10 +1,19 @@
 package clases;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Usuario {
+    @Id
     private String nickname;
     private String nombre;
     private String correoElectronico;
 
+    protected Usuario() {}
     public Usuario(String nickname, String nombre, String correoElectronico) {
         this.nickname = nickname;
         this.nombre = nombre;
