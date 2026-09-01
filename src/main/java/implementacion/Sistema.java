@@ -34,6 +34,7 @@ public class Sistema implements ISistema {
     private void cargarDatosPrueba() {
 
         if (!manejadorUsuarios.existeUsuario("joaquin")) {
+
             Asistente asistente = new Asistente(
                     "joaquin",
                     "Joaquin",
@@ -47,6 +48,7 @@ public class Sistema implements ISistema {
         }
 
         if (!manejadorUsuarios.existeUsuario("ignacio")) {
+
             Organizador organizador = new Organizador(
                     "ignacio",
                     "Ignacio",
@@ -82,8 +84,8 @@ public class Sistema implements ISistema {
 
         Institucion institucion = null;
 
-        if (dt.getNombreInstitucion() != null &&
-                !dt.getNombreInstitucion().isBlank()) {
+        if (dt.getNombreInstitucion() != null
+                && !dt.getNombreInstitucion().isBlank()) {
 
             institucion = manejadorInstituciones.obtenerInstitucion(
                     dt.getNombreInstitucion()
@@ -197,13 +199,12 @@ public class Sistema implements ISistema {
 
         Institucion institucion = null;
 
-        if (dt.getNombreInstitucion() != null &&
-                !dt.getNombreInstitucion().isBlank()) {
+        if (dt.getNombreInstitucion() != null
+                && !dt.getNombreInstitucion().isBlank()) {
 
-            institucion =
-                    manejadorInstituciones.obtenerInstitucion(
-                            dt.getNombreInstitucion()
-                    );
+            institucion = manejadorInstituciones.obtenerInstitucion(
+                    dt.getNombreInstitucion()
+            );
         }
 
         manejadorUsuarios.modificarAsistente(
@@ -382,8 +383,8 @@ public class Sistema implements ISistema {
             );
         }
 
-        if (dt.getCategorias() == null ||
-                dt.getCategorias().isEmpty()) {
+        if (dt.getCategorias() == null
+                || dt.getCategorias().isEmpty()) {
 
             throw new Exception(
                     "Debe seleccionar al menos una categoría."
@@ -419,14 +420,12 @@ public class Sistema implements ISistema {
     @Override
     public Collection<DtEvento> listarEventos() {
 
-        Collection<DtEvento> resultado =
-                new ArrayList<>();
+        Collection<DtEvento> resultado = new ArrayList<>();
 
         for (Evento evento :
                 manejadorEventos.obtenerEventos()) {
 
-            Set<String> categorias =
-                    new HashSet<>();
+            Set<String> categorias = new HashSet<>();
 
             for (Categoria categoria :
                     evento.getCategorias()) {
@@ -490,17 +489,19 @@ public class Sistema implements ISistema {
                 manejadorEventos.obtenerEvento(nombreEvento);
 
         if (evento == null ||
-                manejadorEventos.existeEdicion(
-                        dt.getIdNombre())) {
+                manejadorEventos.existeEdicion(dt.getIdNombre())) {
 
             return false;
         }
 
-        /*
-         * Todavía el CU no está enviando el organizador.
-         * Por eso temporalmente usamos null.
-         */
-        Organizador organizador = null;
+        Organizador organizador =
+                manejadorUsuarios.obtenerOrganizador(
+                        dt.getNombreOrganizador()
+                );
+
+        if (organizador == null) {
+            return false;
+        }
 
         Edicion edicion = new Edicion(
                 dt.getIdNombre(),
@@ -513,8 +514,11 @@ public class Sistema implements ISistema {
                 organizador
         );
 
+        edicion.setEvento(evento);
+
         manejadorEventos.addEdicion(edicion);
         evento.agregarEdicion(edicion);
+        organizador.agregarEdicion(edicion);
 
         return true;
     }
@@ -524,12 +528,17 @@ public class Sistema implements ISistema {
             String nombreEvento
     ) {
 
-        Collection<DtEdicion> resultado =
-                new ArrayList<>();
+        Collection<DtEdicion> resultado = new ArrayList<>();
 
         for (Edicion edicion :
-                manejadorEventos.obtenerEdicionesEvento(
-                        nombreEvento)) {
+                manejadorEventos.obtenerEdicionesEvento(nombreEvento)) {
+
+            String nombreOrganizador = null;
+
+            if (edicion.getOrganizador() != null) {
+                nombreOrganizador =
+                        edicion.getOrganizador().getNickname();
+            }
 
             resultado.add(new DtEdicion(
                     edicion.getIdNombre(),
@@ -538,7 +547,8 @@ public class Sistema implements ISistema {
                     edicion.getFechaFin(),
                     edicion.getFechaAlta(),
                     edicion.getCiudad(),
-                    edicion.getPais()
+                    edicion.getPais(),
+                    nombreOrganizador
             ));
         }
 
@@ -571,6 +581,8 @@ public class Sistema implements ISistema {
                 dt.getCosto(),
                 dt.getCupo()
         );
+
+        tipoRegistro.setEdicion(edicion);
 
         manejadorEventos.addTipoRegistro(tipoRegistro);
         edicion.agregarTipoRegistro(tipoRegistro);
@@ -649,18 +661,17 @@ public class Sistema implements ISistema {
 
         Usuario usuario =
                 manejadorUsuarios.obtenerUsuario(
-                        nicknameAsistente);
+                        nicknameAsistente
+                );
 
-        if (!(usuario instanceof Asistente)) {
+        if (!(usuario instanceof Asistente asistente)) {
             return false;
         }
 
-        Asistente asistente =
-                (Asistente) usuario;
-
         Edicion edicion =
                 manejadorEventos.obtenerEdicion(
-                        nombreEdicion);
+                        nombreEdicion
+                );
 
         if (edicion == null) {
             return false;
@@ -668,7 +679,8 @@ public class Sistema implements ISistema {
 
         TipoRegistro tipoRegistro =
                 edicion.obtenerTipoRegistro(
-                        nombreTipoRegistro);
+                        nombreTipoRegistro
+                );
 
         if (tipoRegistro == null) {
             return false;
@@ -681,7 +693,11 @@ public class Sistema implements ISistema {
                 edicion
         );
 
+        registro.setAsistente(asistente);
+
         asistente.agregarRegistro(registro);
+        edicion.agregarRegistro(registro);
+        tipoRegistro.agregarRegistro(registro);
 
         return true;
     }
@@ -693,16 +709,43 @@ public class Sistema implements ISistema {
     @Override
     public boolean altaPatrocinio(DtPatrocinio dt) {
 
-        /*
-         * ATENCIÓN:
-         * Tu clase Patrocinio ahora pide 6 parámetros,
-         * pero el DTO que veníamos usando solamente aporta 5.
-         *
-         * Hasta saber cuál es exactamente ese sexto parámetro
-         * NO conviene inventarlo acá.
-         */
+        Institucion institucion =
+                manejadorInstituciones.obtenerInstitucion(
+                        dt.getNombreInstituto()
+                );
 
-        return false;
+        Edicion edicion =
+                manejadorEventos.obtenerEdicion(
+                        dt.getNombreEdicion()
+                );
+
+        TipoRegistro tipoRegistro =
+                manejadorEventos.obtenerTipoRegistro(
+                        dt.getNombreTipoRegistro()
+                );
+
+        if (institucion == null ||
+                edicion == null ||
+                tipoRegistro == null) {
+
+            return false;
+        }
+
+        Patrocinio patrocinio = new Patrocinio(
+                dt.getFecha(),
+                dt.getMontoAporte(),
+                dt.getCantRegistrosGrat(),
+                dt.getCodigoPatrocinio(),
+                dt.getNivel(),
+                institucion
+        );
+
+        patrocinio.setEdicion(edicion);
+        patrocinio.setTipoRegistro(tipoRegistro);
+
+        return manejadorPatrocinios.addPatrocinio(
+                patrocinio
+        );
     }
 
     @Override
@@ -714,12 +757,26 @@ public class Sistema implements ISistema {
         for (Patrocinio patrocinio :
                 manejadorPatrocinios.listarPatrocinios()) {
 
+            String nombreInstitucion = null;
+
+            if (patrocinio.getInstitucion() != null) {
+                nombreInstitucion =
+                        patrocinio.getInstitucion().getNombre();
+            }
+
             resultado.add(new DtPatrocinio(
                     patrocinio.getFecha(),
                     patrocinio.getMontoAporte(),
                     patrocinio.getCantRegistrosGrat(),
                     patrocinio.getCodigoPatrocinio(),
-                    patrocinio.getNivel()
+                    patrocinio.getNivel(),
+                    nombreInstitucion,
+                    patrocinio.getEdicion() != null
+                            ? patrocinio.getEdicion().getIdNombre()
+                            : null,
+                    patrocinio.getTipoRegistro() != null
+                            ? patrocinio.getTipoRegistro().getIdNombre()
+                            : null
             ));
         }
 
@@ -738,12 +795,26 @@ public class Sistema implements ISistema {
             return null;
         }
 
+        String nombreInstitucion = null;
+
+        if (patrocinio.getInstitucion() != null) {
+            nombreInstitucion =
+                    patrocinio.getInstitucion().getNombre();
+        }
+
         return new DtPatrocinio(
                 patrocinio.getFecha(),
                 patrocinio.getMontoAporte(),
                 patrocinio.getCantRegistrosGrat(),
                 patrocinio.getCodigoPatrocinio(),
-                patrocinio.getNivel()
+                patrocinio.getNivel(),
+                nombreInstitucion,
+                patrocinio.getEdicion() != null
+                        ? patrocinio.getEdicion().getIdNombre()
+                        : null,
+                patrocinio.getTipoRegistro() != null
+                        ? patrocinio.getTipoRegistro().getIdNombre()
+                        : null
         );
     }
 }

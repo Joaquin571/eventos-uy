@@ -152,4 +152,15 @@ public class ManejadorUsuarios {
     public Set<String> listarNicknames() {
         return new HashSet<>(usuariosNickname.keySet());
     }
+
+    public Organizador obtenerOrganizador(String nickname) {
+
+        Usuario usuario = obtenerUsuario(nickname);
+
+        if (usuario instanceof Organizador organizador) {
+            return organizador;
+        }
+
+        return null;
+    }
 }
