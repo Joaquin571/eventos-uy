@@ -27,4 +27,8 @@ public class DtEvento {
     public void setSigla(String sigla) {this.sigla = sigla;}
     public void setDescripcion(String descripcion) {this.descripcion = descripcion;}
     public void setFechaAlta(LocalDate fechaAlta) {this.fechaAlta = fechaAlta;}
+    @Override
+    public String toString() {
+        return nombre;
+    }
 }

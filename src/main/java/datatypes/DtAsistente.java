@@ -19,4 +19,5 @@ public class DtAsistente extends DtUsuario {
     public void setFechaNacimiento(){this.fechaNacimiento = fechaNacimiento;}
     public  String getNombreInstitucion() {return nombreInstitucion;}
     public void setNombreInstitucion(){this.nombreInstitucion = nombreInstitucion;}
+
 }

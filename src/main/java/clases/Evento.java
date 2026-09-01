@@ -1,19 +1,35 @@
 package clases;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.persistence.*;
 
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
+
+@Entity
+@Table(name = "evento")
 public class Evento {
 
+    @Id
     private String nombre;
+
     private String sigla;
     private String descripcion;
     private LocalDate fechaAlta;
 
-    private List<Categoria> categorias;
-    private List<Edicion> ediciones;
+    @ManyToMany
+    @JoinTable(
+            name = "evento_categoria",
+            joinColumns = @JoinColumn(name = "EVENTO_NOMBRE"),
+            inverseJoinColumns = @JoinColumn(name = "CATEGORIA_NOMBRE")
+    )
+    private Set<Categoria> categorias = new HashSet<>();
 
+    @OneToMany(mappedBy = "evento")
+    private Set<Edicion> ediciones = new HashSet<>();
+
+    protected Evento() {
+    }
 
     public Evento(
             String nombre,
@@ -25,11 +41,7 @@ public class Evento {
         this.sigla = sigla;
         this.descripcion = descripcion;
         this.fechaAlta = fechaAlta;
-
-        this.categorias = new ArrayList<>();
-        this.ediciones = new ArrayList<>();
     }
-
 
     // =========================
     // CATEGORÍAS
@@ -39,15 +51,13 @@ public class Evento {
         categorias.add(categoria);
     }
 
-    public List<Categoria> getCategorias() {
-
-        return this.categorias;
+    public Set<Categoria> getCategorias() {
+        return categorias;
     }
 
-    public void setCategorias(List<Categoria> categorias) {
+    public void setCategorias(Set<Categoria> categorias) {
         this.categorias = categorias;
     }
-
 
     // =========================
     // EDICIONES
@@ -57,14 +67,13 @@ public class Evento {
         ediciones.add(edicion);
     }
 
-    public List<Edicion> getEdiciones() {
+    public Set<Edicion> getEdiciones() {
         return ediciones;
     }
 
-    public void setEdiciones(List<Edicion> ediciones) {
+    public void setEdiciones(Set<Edicion> ediciones) {
         this.ediciones = ediciones;
     }
-
 
     // =========================
     // DATOS EVENTO
