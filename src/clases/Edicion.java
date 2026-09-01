@@ -104,7 +104,6 @@ public class Edicion {
         this.organizador = organizador;
     }
 
-
     // =========================
     // DATOS EDICIÓN
     // =========================

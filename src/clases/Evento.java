@@ -40,7 +40,8 @@ public class Evento {
     }
 
     public List<Categoria> getCategorias() {
-        return categorias;
+
+        return this.categorias;
     }
 
     public void setCategorias(List<Categoria> categorias) {
