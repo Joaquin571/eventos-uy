@@ -6,27 +6,47 @@ public class Registro {
 
     private LocalDate fechaRegistro;
     private float costo;
-    private TipoRegistro tipoRegistro;
+    private Asistente asistente;
     private Edicion edicion;
+    private TipoRegistro tipoRegistro;
 
-    public Registro(LocalDate fechaRegistro, float costo, TipoRegistro tipoRegistro,Edicion edicion) {
+    public Registro(LocalDate fechaRegistro, float costo, Asistente asistente, Edicion edicion, TipoRegistro tipoRegistro) {
         this.fechaRegistro = fechaRegistro;
         this.costo = costo;
-        this.tipoRegistro = tipoRegistro;
+        this.asistente = asistente;
         this.edicion = edicion;
+        this.tipoRegistro = tipoRegistro;
+    }
+
+    public Edicion getEdicion() {
+        return edicion;
+    }
+
+    public void setEdicion(Edicion edicion) {
+        this.edicion = edicion;
+    }
+
+    public TipoRegistro getTipoRegistro() {
+        return tipoRegistro;
+    }
+
+    public void setTipoRegistro(TipoRegistro tipoRegistro) {
+        this.tipoRegistro = tipoRegistro;
+    }
+
+    public Asistente getAsistente() {
+        return asistente;
+    }
+
+    public void setAsistente(Asistente asistente) {
+        this.asistente = asistente;
     }
 
     public LocalDate getFechaRegistro() {
         return fechaRegistro;
     }
 
-    public TipoRegistro getTipoRegistro(){
-        return tipoRegistro;
-    }
 
-    public Edicion getEdicion(){
-        return edicion;
-    }
 
     public float getCosto() {
         return costo;
@@ -40,11 +60,7 @@ public class Registro {
         this.fechaRegistro = fechaRegistro;
     }
 
-    public void setTipoRegistro(TipoRegistro tipoRegistro){
-        this.tipoRegistro = tipoRegistro;
-    }
 
-    public void setEdicion(Edicion edicion){
-        this.edicion = edicion;
-    }
+
+
 }

@@ -100,7 +100,8 @@ public class ManejadorUsuarios {
         asistente.setCorreoElectronico(correo);
         asistente.setApellido(apellido);
         asistente.setFechaNacimiento(fechaNacimiento);
-        asistente.setNombreInstitucion(nombreInstitucion);
+        Institucion institucion=ManejadorInstituciones.getInstance().obtenerInstitucion(nombreInstitucion);
+        asistente.setInstitucion(institucion);
 
         return true;
     }
@@ -128,6 +129,16 @@ public class ManejadorUsuarios {
     }
     public Set<String> listarNicknames() {
         return new HashSet<>(usuariosNickname.keySet());
+    }
+
+    public Organizador obtenerOrganizador(String nombreOrganizador) {
+        Usuario usuario = obtenerUsuario(nombreOrganizador);
+
+        if (usuario instanceof Organizador) {
+            return (Organizador) usuario;
+        }
+
+        return null;
     }
 }
 

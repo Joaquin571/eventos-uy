@@ -10,19 +10,33 @@ public class DtPatrocinio {
     private int cantRegistrosGrat;
     private String codigoPatrocinio;
     private NivelPatrocinio nivel;
-
+    private String nombreInstituto;
     public DtPatrocinio(
             LocalDate fecha,
             float montoAporte,
             int cantRegistrosGrat,
             String codigoPatrocinio,
-            NivelPatrocinio nivel) {
+            NivelPatrocinio nivel,
+            String nombreInstituto) {
 
         this.fecha = fecha;
         this.montoAporte = montoAporte;
         this.cantRegistrosGrat = cantRegistrosGrat;
         this.codigoPatrocinio = codigoPatrocinio;
         this.nivel = nivel;
+        this.nombreInstituto=nombreInstituto;
+    }
+
+    public void setNivel(NivelPatrocinio nivel) {
+        this.nivel = nivel;
+    }
+
+    public String getNombreInstituto() {
+        return nombreInstituto;
+    }
+
+    public void setNombreInstituto(String nombreInstituto) {
+        this.nombreInstituto = nombreInstituto;
     }
 
     public LocalDate getFecha() {return fecha;}

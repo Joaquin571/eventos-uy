@@ -27,6 +27,18 @@ public class Patrocinio {
         this.nivel = nivel;
     }
 
+    public void setNivel(NivelPatrocinio nivel) {
+        this.nivel = nivel;
+    }
+
+    public Institucion getInstitucion() {
+        return institucion;
+    }
+
+    public void setInstitucion(Institucion institucion) {
+        this.institucion = institucion;
+    }
+
     public LocalDate getFecha() {return fecha;}
     public float getMontoAporte() {return montoAporte;}
     public int getCantRegistrosGrat() {return cantRegistrosGrat;}

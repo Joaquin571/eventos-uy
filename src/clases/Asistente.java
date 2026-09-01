@@ -8,7 +8,7 @@ public class Asistente extends Usuario {
     private String apellido;
     private LocalDate fechaNacimiento;
 
-    private String nombreInstitucion;
+
     private List<Registro> registros;
 
     private Institucion institucion;
@@ -19,7 +19,7 @@ public class Asistente extends Usuario {
         this.apellido = apellido;
         this.fechaNacimiento = fechaNacimiento;
 
-        this.nombreInstitucion = nombreInstitucion;
+
         this.registros = new ArrayList<>();
 
         this.institucion = institucion;
@@ -33,7 +33,7 @@ public class Asistente extends Usuario {
         return fechaNacimiento;
     }
 
-    public String getNombreInstitucion() {return nombreInstitucion;}
+
     public List<Registro> getRegistros(){
         return registros;
     }
@@ -44,8 +44,25 @@ public class Asistente extends Usuario {
     public void setInstitucion(Institucion institucion) { this.institucion = institucion;    }
     public void setApellido(String apellido){this.apellido=apellido;}
     public void setFechaNacimiento(LocalDate fechaNacimiento){this.fechaNacimiento=fechaNacimiento;}
-    public void setNombreInstitucion(String nombreInstitucion){this.nombreInstitucion=nombreInstitucion;}
     public void agregarRegistro(Registro registro){
         this.registros.add(registro);
+    }
+
+    public boolean equals(Object object)
+    {
+        if( object instanceof Asistente)
+        {
+            Asistente asistente=(Asistente)object;
+            if(asistente.getNickname().equals(getNickname()))
+            {
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
+        else{
+            return false;
+        }
     }
 }

@@ -92,7 +92,7 @@ public class Sistema implements ISistema {
 
     @Override
     public boolean altaAsistente(DtAsistente dt) {
-
+        Institucion institucion=manejadorInstituciones.obtenerInstitucion( dt.getNombreInstitucion());
         Asistente asistente =
                 new Asistente(
                         dt.getNickname(),
@@ -100,7 +100,8 @@ public class Sistema implements ISistema {
                         dt.getCorreoElectronico(),
                         dt.getApellido(),
                         dt.getFechaNacimiento(),
-                        dt.getNombreInstitucion()
+                        institucion
+
                 );
 
         return manejadorUsuarios.addUsuario(asistente);
@@ -148,7 +149,7 @@ public class Sistema implements ISistema {
                                 asistente.getCorreoElectronico(),
                                 asistente.getApellido(),
                                 asistente.getFechaNacimiento(),
-                                asistente.getNombreInstitucion()
+                                asistente.getInstitucion().getNombre()
                         )
                 );
 
@@ -192,7 +193,7 @@ public class Sistema implements ISistema {
                     asistente.getCorreoElectronico(),
                     asistente.getApellido(),
                     asistente.getFechaNacimiento(),
-                    asistente.getNombreInstitucion()
+                    asistente.getInstitucion().getNombre()
             );
         }
 
@@ -316,14 +317,16 @@ public class Sistema implements ISistema {
     @Override
     public boolean altaPatrocinio(
             DtPatrocinio dt) {
-
+        Institucion institucion=manejadorInstituciones.obtenerInstitucion(dt.getNombreInstituto());
         Patrocinio patrocinio =
                 new Patrocinio(
                         dt.getFecha(),
                         dt.getMontoAporte(),
                         dt.getCantRegistrosGrat(),
                         dt.getCodigoPatrocinio(),
-                        dt.getNivel()
+                        dt.getNivel(),
+                        institucion
+
                 );
 
         return manejadorPatrocinios.addPatrocinio(
@@ -352,7 +355,8 @@ public class Sistema implements ISistema {
                             patrocinio.getMontoAporte(),
                             patrocinio.getCantRegistrosGrat(),
                             patrocinio.getCodigoPatrocinio(),
-                            patrocinio.getNivel()
+                            patrocinio.getNivel(),
+                            patrocinio.getInstitucion().getNombre()
                     )
             );
         }
@@ -382,12 +386,14 @@ public class Sistema implements ISistema {
             throw new Exception("Debe seleccionar al menos una categoría para el evento.");
         }
 
+
         // 3. Instanciar la clase de dominio Evento
         Evento evento = new Evento(
                 dt.getNombre(),
                 dt.getSigla(),
                 dt.getDescripcion(),
                 dt.getFechaAlta()
+
         );
 
         // 4. Obtener cada Categoria desde manejadorEventos y asociarla al Evento
@@ -422,7 +428,8 @@ public class Sistema implements ISistema {
                 patrocinio.getMontoAporte(),
                 patrocinio.getCantRegistrosGrat(),
                 patrocinio.getCodigoPatrocinio(),
-                patrocinio.getNivel()
+                patrocinio.getNivel(),
+                patrocinio.getInstitucion().getNombre()
         );
     }
 
@@ -436,7 +443,7 @@ public class Sistema implements ISistema {
     }
 
     @Override
-    public boolean registroAEdicion(String nicknameAsistente, String nombreEdicion, String nombreTipoRegistro, DtRegistro dtRegistro) {
+    public boolean registroAEdicion(String nicknameAsistente, String nombreEdicion, String nombreTipoRegistro, DtRegistro dtRegistro)throws Exception {
         Usuario usr = manejadorUsuarios.obtenerUsuario(nicknameAsistente);
         if (!(usr instanceof Asistente)) {
             return false;
@@ -450,8 +457,10 @@ public class Sistema implements ISistema {
         if (tipoRegistro == null) {
             return false;
         }
-        Registro registro = new Registro(dtRegistro.getFechaRegistro(), tipoRegistro.getCosto(), tipoRegistro, edicion);
-        asistente.agregarRegistro(registro);
+
+
+        Registro registro = new Registro(dtRegistro.getFechaRegistro(), tipoRegistro.getCosto(),asistente, edicion,tipoRegistro);
+        tipoRegistro.agregarRegistro(registro);
 
         return true;
     }
@@ -488,7 +497,7 @@ public class Sistema implements ISistema {
         Collection<Edicion> ediciones = manejadorEventos.obtenerEdicionesEvento(nombreEvento);
         Collection<DtEdicion> dtEdiciones = new ArrayList<>();
         for (Edicion ed : ediciones) {
-            dtEdiciones.add(new DtEdicion(ed.getIdNombre(), ed.getSigla(), ed.getFechaInicio(), ed.getFechaFin(), ed.getFechaAlta(), ed.getCiudad(), ed.getPais()));
+            dtEdiciones.add(new DtEdicion(ed.getIdNombre(), ed.getSigla(), ed.getFechaInicio(), ed.getFechaFin(), ed.getFechaAlta(), ed.getCiudad(), ed.getPais(),ed.getOrganizador().getNickname()));
         }
         return dtEdiciones;
     }
@@ -533,7 +542,12 @@ public class Sistema implements ISistema {
         if (evento == null || manejadorEventos.existeEdicion(dtEdicion.getIdNombre())) {
             return false;
         }
-
+         Usuario usuario=manejadorUsuarios.obtenerOrganizador(dtEdicion.getNombreOrganizador());
+        if(usuario==null || !(usuario instanceof Organizador))
+        {
+            return false;
+        }
+        Organizador organizador=(Organizador)usuario;
         Edicion edicion = new Edicion(
                 dtEdicion.getIdNombre(),
                 dtEdicion.getSigla(),
@@ -541,7 +555,8 @@ public class Sistema implements ISistema {
                 dtEdicion.getFechaFin(),
                 dtEdicion.getFechaAlta(),
                 dtEdicion.getCiudad(),
-                dtEdicion.getPais()
+                dtEdicion.getPais(),
+                organizador
         );
 
         manejadorEventos.addEdicion(edicion);

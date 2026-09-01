@@ -39,7 +39,7 @@ public interface ISistema {
 
     //REGISTRO
     boolean estaRegistradoAEdicion(String nicknameAsistente, String nombreEdicion);
-    boolean registroAEdicion(String nicknameAsistente, String nombreEdicion, String nombreTipoRegistro, DtRegistro dtRegistro);
+    boolean registroAEdicion(String nicknameAsistente, String nombreEdicion, String nombreTipoRegistro, DtRegistro dtRegistro) throws Exception;
 
 
     //EVENTOS

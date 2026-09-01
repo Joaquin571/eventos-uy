@@ -12,7 +12,7 @@ public class Evento {
     private List<Categoria> categorias;
     private List<Edicion> ediciones;
 
-    public Evento(String nombre, String sigla, String descripcion, LocalDate fechaAlta,Categoria categoria) {
+    public Evento(String nombre, String sigla, String descripcion, LocalDate fechaAlta) {
         this.nombre = nombre;
         this.sigla = sigla;
         this.descripcion = descripcion;
@@ -20,7 +20,7 @@ public class Evento {
         this.categorias = new ArrayList<>();
 
         this.ediciones = new ArrayList<>();
-        this.categorias.add(categoria);
+
         this.ediciones=new ArrayList<>();
 
     }
