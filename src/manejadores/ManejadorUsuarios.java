@@ -2,8 +2,8 @@ package manejadores;
 
 import clases.*;
 
-import java.util.*;
 import java.time.LocalDate;
+import java.util.*;
 
 /** Colección global de usuarios en memoria (singleton). */
 public class ManejadorUsuarios {
@@ -20,16 +20,20 @@ public class ManejadorUsuarios {
         if (instancia == null) {
             instancia = new ManejadorUsuarios();
         }
+
         return instancia;
     }
 
-    /** @return true si se agregó; false si la cédula ya existía */
     public boolean addUsuario(Usuario usuario) {
+
         String nickname = usuario.getNickname();
+
         if (obtenerUsuario(nickname) != null) {
             return false;
         }
+
         usuariosNickname.put(nickname, usuario);
+
         return true;
     }
 
@@ -38,31 +42,46 @@ public class ManejadorUsuarios {
     }
 
     public boolean existeUsuario(String nickname) {
-        if (usuariosNickname.containsKey(nickname)) {
-            return true;
-        }
-        return false;
+        return usuariosNickname.containsKey(nickname);
     }
 
-    public boolean existeCorreo(String correoElectronico){
-        for (Usuario usuario : usuariosNickname.values()){
-            if(usuario.getCorreoElectronico().equals(correoElectronico)){
+    public boolean existeCorreo(String correoElectronico) {
+
+        for (Usuario usuario : usuariosNickname.values()) {
+
+            if (usuario.getCorreoElectronico()
+                    .equalsIgnoreCase(correoElectronico)) {
+
                 return true;
             }
         }
+
         return false;
     }
 
-    public boolean estaRegistradoAEdicion(String nicknameAsistente, String nombreEdicion){
-        Asistente asistente = obtenerAsistente(nicknameAsistente);
-        if(asistente == null){
+    public boolean estaRegistradoAEdicion(
+            String nicknameAsistente,
+            String nombreEdicion
+    ) {
+
+        Asistente asistente =
+                obtenerAsistente(nicknameAsistente);
+
+        if (asistente == null) {
             return false;
         }
-        for(Registro r : asistente.getRegistros()){
-            if(r.getEdicion().getIdNombre().equalsIgnoreCase(nombreEdicion)){
+
+        for (Registro registro : asistente.getRegistros()) {
+
+            if (registro.getEdicion() != null &&
+                    registro.getEdicion()
+                            .getIdNombre()
+                            .equalsIgnoreCase(nombreEdicion)) {
+
                 return true;
             }
         }
+
         return false;
     }
 
@@ -72,10 +91,11 @@ public class ManejadorUsuarios {
 
     public Asistente obtenerAsistente(String nickname) {
 
-        Usuario usuario = obtenerUsuario(nickname);
+        Usuario usuario =
+                obtenerUsuario(nickname);
 
-        if (usuario instanceof Asistente) {
-            return (Asistente) usuario;
+        if (usuario instanceof Asistente asistente) {
+            return asistente;
         }
 
         return null;
@@ -87,10 +107,11 @@ public class ManejadorUsuarios {
             String correo,
             String apellido,
             LocalDate fechaNacimiento,
-            String nombreInstitucion
+            Institucion institucion
     ) {
 
-        Usuario usuario = obtenerUsuario(nickname);
+        Usuario usuario =
+                obtenerUsuario(nickname);
 
         if (!(usuario instanceof Asistente asistente)) {
             return false;
@@ -100,7 +121,7 @@ public class ManejadorUsuarios {
         asistente.setCorreoElectronico(correo);
         asistente.setApellido(apellido);
         asistente.setFechaNacimiento(fechaNacimiento);
-        asistente.setNombreInstitucion(nombreInstitucion);
+        asistente.setInstitucion(institucion);
 
         return true;
     }
@@ -113,7 +134,8 @@ public class ManejadorUsuarios {
             String sitioWeb
     ) {
 
-        Usuario usuario = obtenerUsuario(nickname);
+        Usuario usuario =
+                obtenerUsuario(nickname);
 
         if (!(usuario instanceof Organizador organizador)) {
             return false;
@@ -126,8 +148,8 @@ public class ManejadorUsuarios {
 
         return true;
     }
+
     public Set<String> listarNicknames() {
         return new HashSet<>(usuariosNickname.keySet());
     }
 }
-
