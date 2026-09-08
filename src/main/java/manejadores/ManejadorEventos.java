@@ -1,127 +1,524 @@
 package manejadores;
 
 import clases.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
+import persistencia.BaseDeDatos;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 public class ManejadorEventos {
+
     private static ManejadorEventos instancia = null;
-    private final Map<String, Evento> eventosNombre;
-    private final Map<String, Categoria> categoriasNombre;
-    private final Map<String, Edicion> edicionesNombre = new HashMap<>();
-    private final Map<String, TipoRegistro> tiposRegistroNombre = new HashMap<>();
 
     private ManejadorEventos() {
-        eventosNombre = new HashMap<>();
-        categoriasNombre = new HashMap<>();
     }
 
     public static ManejadorEventos getInstance() {
+
         if (instancia == null) {
             instancia = new ManejadorEventos();
         }
+
         return instancia;
     }
 
-    //SECCION EVENTOS
+    // =====================================================
+    // EVENTOS
+    // =====================================================
+
     public boolean addEvento(Evento evento) {
 
-        String nombre = evento.getNombre();
+        EntityManager em = BaseDeDatos.getEntityManager();
+        EntityTransaction tx = em.getTransaction();
 
-        if (existeEvento(nombre)) {
-            return false;
+        try {
+
+            tx.begin();
+
+            if (em.find(Evento.class, evento.getNombre()) != null) {
+                tx.rollback();
+                return false;
+            }
+
+            em.persist(evento);
+
+            tx.commit();
+            return true;
+
+        } catch (Exception e) {
+
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+
+            throw e;
+
+        } finally {
+            em.close();
         }
-
-        eventosNombre.put(nombre, evento);
-        return true;
     }
 
     public Evento obtenerEvento(String nombre) {
-        return eventosNombre.get(nombre);
+
+        EntityManager em = BaseDeDatos.getEntityManager();
+
+        try {
+
+            List<Evento> resultado =
+                    em.createQuery(
+                                    """
+                                    SELECT DISTINCT e
+                                    FROM Evento e
+                                    LEFT JOIN FETCH e.categorias
+                                    WHERE e.nombre = :nombre
+                                    """,
+                                    Evento.class
+                            )
+                            .setParameter("nombre", nombre)
+                            .getResultList();
+
+            if (resultado.isEmpty()) {
+                return null;
+            }
+
+            return resultado.getFirst();
+
+        } finally {
+            em.close();
+        }
     }
 
     public boolean existeEvento(String nombre) {
-        return eventosNombre.containsKey(nombre);
+
+        EntityManager em = BaseDeDatos.getEntityManager();
+
+        try {
+
+            return em.find(
+                    Evento.class,
+                    nombre
+            ) != null;
+
+        } finally {
+            em.close();
+        }
     }
 
     public Collection<Evento> obtenerEventos() {
-        return eventosNombre.values();
+
+        EntityManager em = BaseDeDatos.getEntityManager();
+
+        try {
+
+            return em.createQuery(
+                    """
+                    SELECT DISTINCT e
+                    FROM Evento e
+                    LEFT JOIN FETCH e.categorias
+                    ORDER BY e.nombre
+                    """,
+                    Evento.class
+            ).getResultList();
+
+        } finally {
+            em.close();
+        }
     }
 
+    // =====================================================
     // EDICIONES
-    public boolean addEdicion(Edicion edicion){
-        if(existeEdicion(edicion.getIdNombre())){
-            return false;
+    // =====================================================
+
+    public boolean addEdicion(Edicion edicion) {
+
+        EntityManager em = BaseDeDatos.getEntityManager();
+        EntityTransaction tx = em.getTransaction();
+
+        try {
+
+            tx.begin();
+
+            if (em.find(
+                    Edicion.class,
+                    edicion.getIdNombre()
+            ) != null) {
+
+                tx.rollback();
+                return false;
+            }
+
+            em.persist(edicion);
+
+            tx.commit();
+            return true;
+
+        } catch (Exception e) {
+
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+
+            throw e;
+
+        } finally {
+            em.close();
         }
-        edicionesNombre.put(edicion.getIdNombre(), edicion);
-        return true;
-    }
-    public Edicion obtenerEdicion(String nombre){
-        return edicionesNombre.get(nombre);
-    }
-    public boolean existeEdicion(String nombre){
-        return edicionesNombre.containsKey(nombre);
-    }
-    public Collection<Edicion> obtenerEdiciones(){
-        return edicionesNombre.values();
-    }
-    public Collection<Edicion> obtenerEdicionesEvento(String nombreEvento){
-        Evento evento = obtenerEvento(nombreEvento);
-        if(evento != null ){
-            return evento.getEdiciones();
-        }
-        return new ArrayList<>();
     }
 
+    public Edicion obtenerEdicion(String nombre) {
 
+        EntityManager em = BaseDeDatos.getEntityManager();
+
+        try {
+
+            List<Edicion> resultado =
+                    em.createQuery(
+                                    """
+                                    SELECT DISTINCT e
+                                    FROM Edicion e
+                                    LEFT JOIN FETCH e.tiposRegistros
+                                    LEFT JOIN FETCH e.organizador
+                                    WHERE e.idNombre = :nombre
+                                    """,
+                                    Edicion.class
+                            )
+                            .setParameter("nombre", nombre)
+                            .getResultList();
+
+            if (resultado.isEmpty()) {
+                return null;
+            }
+
+            return resultado.getFirst();
+
+        } finally {
+            em.close();
+        }
+    }
+
+    public boolean existeEdicion(String nombre) {
+
+        EntityManager em = BaseDeDatos.getEntityManager();
+
+        try {
+
+            return em.find(
+                    Edicion.class,
+                    nombre
+            ) != null;
+
+        } finally {
+            em.close();
+        }
+    }
+
+    public Collection<Edicion> obtenerEdiciones() {
+
+        EntityManager em = BaseDeDatos.getEntityManager();
+
+        try {
+
+            return em.createQuery(
+                    """
+                    SELECT DISTINCT e
+                    FROM Edicion e
+                    LEFT JOIN FETCH e.organizador
+                    ORDER BY e.idNombre
+                    """,
+                    Edicion.class
+            ).getResultList();
+
+        } finally {
+            em.close();
+        }
+    }
+
+    public Collection<Edicion> obtenerEdicionesEvento(
+            String nombreEvento
+    ) {
+
+        EntityManager em = BaseDeDatos.getEntityManager();
+
+        try {
+
+            return em.createQuery(
+                            """
+                            SELECT DISTINCT e
+                            FROM Edicion e
+                            LEFT JOIN FETCH e.organizador
+                            WHERE e.evento.nombre = :nombreEvento
+                            ORDER BY e.idNombre
+                            """,
+                            Edicion.class
+                    )
+                    .setParameter(
+                            "nombreEvento",
+                            nombreEvento
+                    )
+                    .getResultList();
+
+        } finally {
+            em.close();
+        }
+    }
+
+    // =====================================================
     // CATEGORÍAS
+    // =====================================================
+
     public boolean addCategoria(Categoria categoria) {
-        if (existeCategoria(categoria.getNombre())) {
-            return false;
+
+        EntityManager em = BaseDeDatos.getEntityManager();
+        EntityTransaction tx = em.getTransaction();
+
+        try {
+
+            tx.begin();
+
+            if (em.find(
+                    Categoria.class,
+                    categoria.getNombre()
+            ) != null) {
+
+                tx.rollback();
+                return false;
+            }
+
+            em.persist(categoria);
+
+            tx.commit();
+            return true;
+
+        } catch (Exception e) {
+
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+
+            throw e;
+
+        } finally {
+            em.close();
         }
-        categoriasNombre.put(categoria.getNombre(), categoria);
-        return true;
     }
+
     public Categoria obtenerCategoria(String nombre) {
-        return categoriasNombre.get(nombre);
+
+        EntityManager em = BaseDeDatos.getEntityManager();
+
+        try {
+
+            List<Categoria> resultado =
+                    em.createQuery(
+                                    """
+                                    SELECT DISTINCT c
+                                    FROM Categoria c
+                                    LEFT JOIN FETCH c.subcategorias
+                                    LEFT JOIN FETCH c.padre
+                                    WHERE c.nombre = :nombre
+                                    """,
+                                    Categoria.class
+                            )
+                            .setParameter("nombre", nombre)
+                            .getResultList();
+
+            if (resultado.isEmpty()) {
+                return null;
+            }
+
+            return resultado.getFirst();
+
+        } finally {
+            em.close();
+        }
     }
+
     public boolean existeCategoria(String nombre) {
-        return categoriasNombre.containsKey(nombre);
+
+        EntityManager em = BaseDeDatos.getEntityManager();
+
+        try {
+
+            return em.find(
+                    Categoria.class,
+                    nombre
+            ) != null;
+
+        } finally {
+            em.close();
+        }
     }
+
     public Collection<Categoria> obtenerCategorias() {
-        return categoriasNombre.values();
+
+        EntityManager em = BaseDeDatos.getEntityManager();
+
+        try {
+
+            List<Categoria> categorias =
+                    em.createQuery(
+                            """
+                            SELECT DISTINCT c
+                            FROM Categoria c
+                            LEFT JOIN FETCH c.subcategorias
+                            LEFT JOIN FETCH c.padre
+                            ORDER BY c.nombre
+                            """,
+                            Categoria.class
+                    ).getResultList();
+
+            // Inicializamos el árbol mientras el EntityManager sigue abierto.
+            for (Categoria categoria : categorias) {
+                inicializarSubcategorias(categoria);
+            }
+
+            return categorias;
+
+        } finally {
+            em.close();
+        }
     }
 
+    private void inicializarSubcategorias(
+            Categoria categoria
+    ) {
 
+        categoria.getSubcategorias().size();
+
+        for (Categoria hija :
+                categoria.getSubcategorias()) {
+
+            inicializarSubcategorias(hija);
+        }
+    }
+
+    // =====================================================
     // TIPOS DE REGISTRO
-    public boolean addTipoRegistro(TipoRegistro tipoRegistro){
-        if(existeTipoRegistro(tipoRegistro.getIdNombre())){
-            return false;
+    // =====================================================
+
+    public boolean addTipoRegistro(
+            TipoRegistro tipoRegistro
+    ) {
+
+        EntityManager em = BaseDeDatos.getEntityManager();
+        EntityTransaction tx = em.getTransaction();
+
+        try {
+
+            tx.begin();
+
+            if (em.find(
+                    TipoRegistro.class,
+                    tipoRegistro.getIdNombre()
+            ) != null) {
+
+                tx.rollback();
+                return false;
+            }
+
+            em.persist(tipoRegistro);
+
+            tx.commit();
+            return true;
+
+        } catch (Exception e) {
+
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+
+            throw e;
+
+        } finally {
+            em.close();
         }
-        tiposRegistroNombre.put(tipoRegistro.getIdNombre(), tipoRegistro);
-        return true;
     }
 
-    public TipoRegistro obtenerTipoRegistro(String nombre){
-        return tiposRegistroNombre.get(nombre);
-    }
-    public boolean existeTipoRegistro(String nombre){
-        return tiposRegistroNombre.containsKey(nombre);
-    }
-    public Collection<TipoRegistro> obtenerTiposRegistro(){
-        return tiposRegistroNombre.values();
-    }
-    public Collection<TipoRegistro> obtenerTiposRegistroEdicion(String nombreEdicion){
-        Edicion edicion = obtenerEdicion(nombreEdicion);
-        if (edicion != null) {
-            return edicion.getTiposRegistro();
+    public TipoRegistro obtenerTipoRegistro(
+            String nombre
+    ) {
+
+        EntityManager em = BaseDeDatos.getEntityManager();
+
+        try {
+
+            return em.find(
+                    TipoRegistro.class,
+                    nombre
+            );
+
+        } finally {
+            em.close();
         }
-        return new java.util.ArrayList<>();
     }
 
+    public boolean existeTipoRegistro(
+            String nombre
+    ) {
 
+        EntityManager em = BaseDeDatos.getEntityManager();
+
+        try {
+
+            return em.find(
+                    TipoRegistro.class,
+                    nombre
+            ) != null;
+
+        } finally {
+            em.close();
+        }
+    }
+
+    public Collection<TipoRegistro>
+    obtenerTiposRegistro() {
+
+        EntityManager em = BaseDeDatos.getEntityManager();
+
+        try {
+
+            return em.createQuery(
+                    """
+                    SELECT t
+                    FROM TipoRegistro t
+                    ORDER BY t.idNombre
+                    """,
+                    TipoRegistro.class
+            ).getResultList();
+
+        } finally {
+            em.close();
+        }
+    }
+
+    public Collection<TipoRegistro>
+    obtenerTiposRegistroEdicion(
+            String nombreEdicion
+    ) {
+
+        EntityManager em = BaseDeDatos.getEntityManager();
+
+        try {
+
+            return em.createQuery(
+                            """
+                            SELECT t
+                            FROM TipoRegistro t
+                            WHERE t.edicion.idNombre = :nombreEdicion
+                            ORDER BY t.idNombre
+                            """,
+                            TipoRegistro.class
+                    )
+                    .setParameter(
+                            "nombreEdicion",
+                            nombreEdicion
+                    )
+                    .getResultList();
+
+        } finally {
+            em.close();
+        }
+    }
 }
-

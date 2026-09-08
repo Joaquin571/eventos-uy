@@ -1,9 +1,12 @@
 package swing;
 
-import interfaces.ISistema;
+import datatypes.DtEdicion;
+import datatypes.DtEvento;
 import datatypes.DtPatrocinio;
-import javax.swing.*;
+import interfaces.ISistema;
 import implementacion.Fabrica;
+
+import javax.swing.*;
 
 public class ConsultaPatrocinioPanel {
 
@@ -13,9 +16,11 @@ public class ConsultaPatrocinioPanel {
     private JPanel mainPanel;
     private JPanel panelSeleccion;
     private JPanel panelDatos;
-    private JComboBox <String>comboEvento;
-    private JComboBox <String>comboEdicion;
-    private JComboBox <String>comboPatrocinio;
+
+    private JComboBox<String> comboEvento;
+    private JComboBox<String> comboEdicion;
+    private JComboBox<String> comboPatrocinio;
+
     private JTextField txtCodigo;
     private JTextField txtFecha;
     private JTextField txtNivel;
@@ -23,16 +28,26 @@ public class ConsultaPatrocinioPanel {
     private JTextField txtRegistroGratuito;
     private JTextField txtInstitución;
     private JTextField txtTipoRegistro;
+
     private JPanel panelBotones;
     private JButton btnCancelar;
 
-    public  ConsultaPatrocinioPanel() {
-        sistema = Fabrica.getInstance().getISistema();
+    public ConsultaPatrocinioPanel() {
+
+        sistema =
+                Fabrica.getInstance()
+                        .getISistema();
 
         configurarCampos();
         configurarEventos();
     }
+
+    // =====================================================
+    // CONFIGURACIÓN CAMPOS
+    // =====================================================
+
     private void configurarCampos() {
+
         txtCodigo.setEditable(false);
         txtFecha.setEditable(false);
         txtNivel.setEditable(false);
@@ -41,50 +56,127 @@ public class ConsultaPatrocinioPanel {
         txtInstitución.setEditable(false);
         txtTipoRegistro.setEditable(false);
 
-        // Temporalmente, hasta implementar Evento y Edición.
-        comboEvento.setEnabled(false);
-        comboEdicion.setEnabled(false);
+        comboEvento.setEnabled(true);
+        comboEdicion.setEnabled(true);
+        comboPatrocinio.setEnabled(true);
     }
 
+    // =====================================================
+    // EVENTOS DE LA PANTALLA
+    // =====================================================
+
     private void configurarEventos() {
+
+        comboEvento.addActionListener(
+                e -> cargarEdiciones()
+        );
+
+        comboEdicion.addActionListener(
+                e -> cargarPatrocinios()
+        );
+
         comboPatrocinio.addActionListener(
                 e -> seleccionarPatrocinio()
         );
 
         btnCancelar.addActionListener(e -> {
+
             limpiarFormulario();
+
             accionCerrar.run();
         });
     }
 
-    private void limpiarFormulario() {
+    // =====================================================
+    // REFRESCAR
+    // =====================================================
 
-        txtCodigo.setText("");
-        txtAporte.setText("");
-        txtFecha.setText("");
-        txtNivel.setText("");
-        txtRegistroGratuito.setText("");
-        txtTipoRegistro.setText("");
-        txtInstitución.setText("");
+    public void refrescarDatos() {
+
+        limpiarFormulario();
+
+        cargarEventos();
+    }
+
+    // =====================================================
+    // CARGAR EVENTOS
+    // =====================================================
+
+    private void cargarEventos() {
+
+        comboEvento.removeAllItems();
+
+        for (DtEvento evento :
+                sistema.listarEventos()) {
+
+            comboEvento.addItem(
+                    evento.getNombre()
+            );
+        }
 
         comboEvento.setSelectedIndex(-1);
+    }
+
+    // =====================================================
+    // CARGAR EDICIONES
+    // =====================================================
+
+    private void cargarEdiciones() {
+
+        comboEdicion.removeAllItems();
+        comboPatrocinio.removeAllItems();
+
+        limpiarDatosPatrocinio();
+
+        String nombreEvento =
+                (String) comboEvento.getSelectedItem();
+
+        if (nombreEvento == null) {
+
+            comboEdicion.setSelectedIndex(-1);
+            comboPatrocinio.setSelectedIndex(-1);
+
+            return;
+        }
+
+        for (DtEdicion edicion :
+                sistema.obtenerEdicionesEvento(
+                        nombreEvento
+                )) {
+
+            comboEdicion.addItem(
+                    edicion.getIdNombre()
+            );
+        }
+
         comboEdicion.setSelectedIndex(-1);
         comboPatrocinio.setSelectedIndex(-1);
     }
-    public void refrescarDatos() {
 
-        cargarPatrocinios();
+    // =====================================================
+    // CARGAR PATROCINIOS DE LA EDICIÓN
+    // =====================================================
 
-        comboEvento.removeAllItems();
-        comboEdicion.removeAllItems();
-
-        limpiarFormulario();
-    }
     private void cargarPatrocinios() {
 
         comboPatrocinio.removeAllItems();
 
-        for (DtPatrocinio patrocinio : sistema.listarPatrocinios()) {
+        limpiarDatosPatrocinio();
+
+        String nombreEdicion =
+                (String) comboEdicion.getSelectedItem();
+
+        if (nombreEdicion == null) {
+
+            comboPatrocinio.setSelectedIndex(-1);
+
+            return;
+        }
+
+        for (DtPatrocinio patrocinio :
+                sistema.obtenerPatrociniosEdicion(
+                        nombreEdicion
+                )) {
 
             comboPatrocinio.addItem(
                     patrocinio.getCodigoPatrocinio()
@@ -94,6 +186,9 @@ public class ConsultaPatrocinioPanel {
         comboPatrocinio.setSelectedIndex(-1);
     }
 
+    // =====================================================
+    // MOSTRAR PATROCINIO
+    // =====================================================
 
     private void seleccionarPatrocinio() {
 
@@ -101,13 +196,21 @@ public class ConsultaPatrocinioPanel {
                 (String) comboPatrocinio.getSelectedItem();
 
         if (codigo == null) {
+
+            limpiarDatosPatrocinio();
+
             return;
         }
 
         DtPatrocinio patrocinio =
-                sistema.consultarPatrocinio(codigo);
+                sistema.consultarPatrocinio(
+                        codigo
+                );
 
         if (patrocinio == null) {
+
+            limpiarDatosPatrocinio();
+
             return;
         }
 
@@ -115,13 +218,27 @@ public class ConsultaPatrocinioPanel {
                 patrocinio.getCodigoPatrocinio()
         );
 
-        txtFecha.setText(
-                patrocinio.getFecha().toString()
-        );
+        if (patrocinio.getFecha() != null) {
 
-        txtNivel.setText(
-                patrocinio.getNivel().toString()
-        );
+            txtFecha.setText(
+                    patrocinio.getFecha().toString()
+            );
+
+        } else {
+
+            txtFecha.setText("");
+        }
+
+        if (patrocinio.getNivel() != null) {
+
+            txtNivel.setText(
+                    patrocinio.getNivel().toString()
+            );
+
+        } else {
+
+            txtNivel.setText("");
+        }
 
         txtAporte.setText(
                 String.valueOf(
@@ -135,21 +252,74 @@ public class ConsultaPatrocinioPanel {
                 )
         );
 
-        /*
-         * Esto lo completamos cuando DtPatrocinio
-         * incluya correctamente las relaciones.
-         */
+        if (patrocinio.getNombreInstituto() != null) {
 
+            txtInstitución.setText(
+                    patrocinio.getNombreInstituto()
+            );
+
+        } else {
+
+            txtInstitución.setText("");
+        }
+
+        if (patrocinio.getNombreTipoRegistro() != null) {
+
+            txtTipoRegistro.setText(
+                    patrocinio.getNombreTipoRegistro()
+            );
+
+        } else {
+
+            txtTipoRegistro.setText("");
+        }
+    }
+
+    // =====================================================
+    // LIMPIAR DATOS DEL PATROCINIO
+    // =====================================================
+
+    private void limpiarDatosPatrocinio() {
+
+        txtCodigo.setText("");
+        txtFecha.setText("");
+        txtNivel.setText("");
+        txtAporte.setText("");
+        txtRegistroGratuito.setText("");
         txtInstitución.setText("");
         txtTipoRegistro.setText("");
     }
+
+    // =====================================================
+    // LIMPIAR TODO
+    // =====================================================
+
+    private void limpiarFormulario() {
+
+        limpiarDatosPatrocinio();
+
+        comboEvento.removeAllItems();
+        comboEdicion.removeAllItems();
+        comboPatrocinio.removeAllItems();
+
+        comboEvento.setSelectedIndex(-1);
+        comboEdicion.setSelectedIndex(-1);
+        comboPatrocinio.setSelectedIndex(-1);
+    }
+
+    // =====================================================
+    // GETTERS / CIERRE
+    // =====================================================
 
     public JPanel getMainPanel() {
         return mainPanel;
     }
 
+    public void setAccionCerrar(
+            Runnable accionCerrar
+    ) {
 
-    public void setAccionCerrar(Runnable accionCerrar) {
-        this.accionCerrar = accionCerrar;
+        this.accionCerrar =
+                accionCerrar;
     }
 }

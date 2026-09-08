@@ -81,4 +81,7 @@ public interface ISistema {
             DtEdicion dtEdicion,
             String nombreEvento
     );
+    Collection<DtPatrocinio> obtenerPatrociniosEdicion(
+            String nombreEdicion
+    );
 }

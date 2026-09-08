@@ -1,6 +1,11 @@
 package swing;
 
-import datatypes.*;
+import datatypes.DtAsistente;
+import datatypes.DtEdicion;
+import datatypes.DtEvento;
+import datatypes.DtRegistro;
+import datatypes.DtTipoRegistro;
+import datatypes.DtUsuario;
 import implementacion.Fabrica;
 import interfaces.ISistema;
 
@@ -21,15 +26,34 @@ public class RegistroEdicionEventoPanel extends JPanel {
 
     public RegistroEdicionEventoPanel() {
         this.sistema = Fabrica.getInstance().getISistema();
+
         armarUI();
         configurarEventos();
+
+        refrescarDatos();
     }
 
     private void armarUI() {
-        setLayout(new BorderLayout(10, 10));
-        setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        JPanel panelForm = new JPanel(new GridLayout(4, 2, 10, 10));
+        setLayout(new BorderLayout(10, 10));
+        setBorder(
+                BorderFactory.createEmptyBorder(
+                        15,
+                        15,
+                        15,
+                        15
+                )
+        );
+
+        JPanel panelForm =
+                new JPanel(
+                        new GridLayout(
+                                4,
+                                2,
+                                10,
+                                10
+                        )
+                );
 
         panelForm.add(new JLabel("Asistente:"));
         comboAsistentes = new JComboBox<>();
@@ -47,8 +71,18 @@ public class RegistroEdicionEventoPanel extends JPanel {
         comboTiposRegistro = new JComboBox<>();
         panelForm.add(comboTiposRegistro);
 
-        btnRegistrar = new JButton("Confirmar Registro");
-        JPanel panelBoton = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        btnRegistrar =
+                new JButton(
+                        "Confirmar Registro"
+                );
+
+        JPanel panelBoton =
+                new JPanel(
+                        new FlowLayout(
+                                FlowLayout.RIGHT
+                        )
+                );
+
         panelBoton.add(btnRegistrar);
 
         add(panelForm, BorderLayout.CENTER);
@@ -56,94 +90,220 @@ public class RegistroEdicionEventoPanel extends JPanel {
     }
 
     private void configurarEventos() {
-        comboEventos.addActionListener(e -> cargarEdiciones());
-        comboEdiciones.addActionListener(e -> cargarTiposRegistro());
 
-        btnRegistrar.addActionListener(e -> ejecutarRegistro());
+        comboEventos.addActionListener(
+                e -> cargarEdiciones()
+        );
+
+        comboEdiciones.addActionListener(
+                e -> cargarTiposRegistro()
+        );
+
+        btnRegistrar.addActionListener(
+                e -> ejecutarRegistro()
+        );
+    }
+
+    public void refrescarDatos() {
+
+        cargarAsistentes();
+        cargarEventos();
+
+        comboEdiciones.removeAllItems();
+        comboTiposRegistro.removeAllItems();
+
+        comboAsistentes.setSelectedIndex(-1);
+        comboEventos.setSelectedIndex(-1);
+        comboEdiciones.setSelectedIndex(-1);
+        comboTiposRegistro.setSelectedIndex(-1);
     }
 
     public void cargarAsistentes() {
+
         comboAsistentes.removeAllItems();
-        Collection<DtUsuario> usuarios = sistema.listarUsuarios();
-        for (DtUsuario u : usuarios) {
-            if (u instanceof DtAsistente) {
-                comboAsistentes.addItem(u.getNickname());
+
+        Collection<DtUsuario> usuarios =
+                sistema.listarUsuarios();
+
+        for (DtUsuario usuario : usuarios) {
+
+            if (usuario instanceof DtAsistente) {
+
+                comboAsistentes.addItem(
+                        usuario.getNickname()
+                );
             }
         }
+
+        comboAsistentes.setSelectedIndex(-1);
     }
 
     public void cargarEventos() {
+
         comboEventos.removeAllItems();
-        Collection<DtEvento> eventos = sistema.listarEventos();
-        for (DtEvento ev : eventos) {
-            comboEventos.addItem(ev.getNombre());
+
+        Collection<DtEvento> eventos =
+                sistema.listarEventos();
+
+        for (DtEvento evento : eventos) {
+
+            comboEventos.addItem(
+                    evento.getNombre()
+            );
         }
+
+        comboEventos.setSelectedIndex(-1);
     }
 
     private void cargarEdiciones() {
+
         comboEdiciones.removeAllItems();
-        String eventoSel = (String) comboEventos.getSelectedItem();
-        if (eventoSel != null) {
-            Collection<DtEdicion> ediciones = sistema.obtenerEdicionesEvento(eventoSel);
-            for (DtEdicion ed : ediciones) {
-                comboEdiciones.addItem(ed.getIdNombre());
-            }
+        comboTiposRegistro.removeAllItems();
+
+        String eventoSeleccionado =
+                (String) comboEventos.getSelectedItem();
+
+        if (eventoSeleccionado == null) {
+
+            comboEdiciones.setSelectedIndex(-1);
+            comboTiposRegistro.setSelectedIndex(-1);
+
+            return;
         }
+
+        Collection<DtEdicion> ediciones =
+                sistema.obtenerEdicionesEvento(
+                        eventoSeleccionado
+                );
+
+        for (DtEdicion edicion : ediciones) {
+
+            comboEdiciones.addItem(
+                    edicion.getIdNombre()
+            );
+        }
+
+        comboEdiciones.setSelectedIndex(-1);
+        comboTiposRegistro.setSelectedIndex(-1);
     }
 
     private void cargarTiposRegistro() {
+
         comboTiposRegistro.removeAllItems();
-        String edicionSel = (String) comboEdiciones.getSelectedItem();
-        if (edicionSel != null) {
-            Collection<DtTipoRegistro> tipos = sistema.obtenerTiposRegistroEdicion(edicionSel);
-            for (DtTipoRegistro tr : tipos) {
-                comboTiposRegistro.addItem(tr.getIdNombre());
-            }
+
+        String edicionSeleccionada =
+                (String) comboEdiciones.getSelectedItem();
+
+        if (edicionSeleccionada == null) {
+
+            comboTiposRegistro.setSelectedIndex(-1);
+
+            return;
         }
+
+        Collection<DtTipoRegistro> tipos =
+                sistema.obtenerTiposRegistroEdicion(
+                        edicionSeleccionada
+                );
+
+        for (DtTipoRegistro tipo : tipos) {
+
+            comboTiposRegistro.addItem(
+                    tipo.getIdNombre()
+            );
+        }
+
+        comboTiposRegistro.setSelectedIndex(-1);
     }
 
     private void ejecutarRegistro() {
-        String nickname = (String) comboAsistentes.getSelectedItem();
-        String edicionSel = (String) comboEdiciones.getSelectedItem();
-        String tipoRegistroSel = (String) comboTiposRegistro.getSelectedItem();
 
-        if (nickname == null || edicionSel == null || tipoRegistroSel == null) {
-            JOptionPane.showMessageDialog(this, "Debe seleccionar un asistente, un evento, una edición y un tipo de registro.", "Atención", JOptionPane.WARNING_MESSAGE);
+        String nickname =
+                (String) comboAsistentes.getSelectedItem();
+
+        String eventoSeleccionado =
+                (String) comboEventos.getSelectedItem();
+
+        String edicionSeleccionada =
+                (String) comboEdiciones.getSelectedItem();
+
+        String tipoRegistroSeleccionado =
+                (String) comboTiposRegistro.getSelectedItem();
+
+        if (nickname == null
+                || eventoSeleccionado == null
+                || edicionSeleccionada == null
+                || tipoRegistroSeleccionado == null) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Debe seleccionar un asistente, un evento, una edición y un tipo de registro.",
+                    "Registro a Edición",
+                    JOptionPane.WARNING_MESSAGE
+            );
+
             return;
         }
 
-        // 1. Validar si ya está registrado
-        if (sistema.estaRegistradoAEdicion(nickname, edicionSel)) {
-            JOptionPane.showMessageDialog(this, "El asistente seleccionado ya está registrado a esta edición.", "Registro duplicado", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        // Declaración única de dtTR
-        DtTipoRegistro dtTR = sistema.consultarTipoRegistro(tipoRegistroSel);
-
-        // 2. Validar si se alcanzó el cupo disponible
-        if (dtTR != null && dtTR.getCupo() <= 0) {
-            JOptionPane.showMessageDialog(this, "Se ha alcanzado el cupo máximo para este tipo de registro.", "Cupo agotado", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        // 3. Ejecutar alta de registro
         try {
-            LocalDate fechaActual = LocalDate.now();
-            float costo = (dtTR != null) ? dtTR.getCosto() : 0f;
 
-            // Se reasigna directamente sin volver a declarar dtTR
-            DtRegistro dtRegistro = new DtRegistro(fechaActual, costo);
+            DtTipoRegistro tipoRegistro =
+                    sistema.consultarTipoRegistro(
+                            tipoRegistroSeleccionado
+                    );
 
-            boolean ok = sistema.registroAEdicion(nickname, edicionSel, tipoRegistroSel, dtRegistro);
+            if (tipoRegistro == null) {
 
-            if (ok) {
-                JOptionPane.showMessageDialog(this, "Registro realizado con éxito a la edición.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            } else {
-                JOptionPane.showMessageDialog(this, "No se pudo completar el registro.", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(
+                        this,
+                        "El tipo de registro seleccionado no existe.",
+                        "Registro a Edición",
+                        JOptionPane.WARNING_MESSAGE
+                );
+
+                return;
             }
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+
+            DtRegistro dtRegistro =
+                    new DtRegistro(
+                            LocalDate.now(),
+                            tipoRegistro.getCosto()
+                    );
+
+            sistema.registroAEdicion(
+                    nickname,
+                    edicionSeleccionada,
+                    tipoRegistroSeleccionado,
+                    dtRegistro
+            );
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Registro realizado correctamente.",
+                    "Registro a Edición",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+
+            refrescarDatos();
+
+        } catch (IllegalArgumentException e) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    e.getMessage(),
+                    "Registro a Edición",
+                    JOptionPane.WARNING_MESSAGE
+            );
+
+        } catch (Exception e) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Ocurrió un error inesperado:\n"
+                            + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
         }
     }
 }
