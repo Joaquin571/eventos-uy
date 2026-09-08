@@ -1,22 +1,25 @@
 package manejadores;
 
 import clases.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
+import persistencia.BaseDeDatos;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-/** Colección global de usuarios en memoria (singleton). */
 public class ManejadorUsuarios {
 
     private static ManejadorUsuarios instancia = null;
 
-    private final Map<String, Usuario> usuariosNickname;
-
     private ManejadorUsuarios() {
-        usuariosNickname = new HashMap<>();
     }
 
     public static ManejadorUsuarios getInstance() {
+
         if (instancia == null) {
             instancia = new ManejadorUsuarios();
         }
@@ -26,37 +29,123 @@ public class ManejadorUsuarios {
 
     public boolean addUsuario(Usuario usuario) {
 
-        String nickname = usuario.getNickname();
+        EntityManager em = BaseDeDatos.getEntityManager();
+        EntityTransaction tx = em.getTransaction();
 
-        if (obtenerUsuario(nickname) != null) {
-            return false;
+        try {
+
+            tx.begin();
+
+            if (em.find(
+                    Usuario.class,
+                    usuario.getNickname()
+            ) != null) {
+
+                tx.rollback();
+                return false;
+            }
+
+            // Si es Asistente y tiene institución,
+            // obtenemos la instancia gestionada por ESTE EntityManager.
+            if (usuario instanceof Asistente asistente
+                    && asistente.getInstitucion() != null) {
+
+                Institucion institucionGestionada =
+                        em.find(
+                                Institucion.class,
+                                asistente.getInstitucion().getNombre()
+                        );
+
+                if (institucionGestionada == null) {
+                    tx.rollback();
+                    return false;
+                }
+
+                asistente.setInstitucion(
+                        institucionGestionada
+                );
+            }
+
+            em.persist(usuario);
+
+            tx.commit();
+
+            return true;
+
+        } catch (Exception e) {
+
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+
+            throw e;
+
+        } finally {
+
+            em.close();
         }
-
-        usuariosNickname.put(nickname, usuario);
-
-        return true;
     }
-
     public Usuario obtenerUsuario(String nickname) {
-        return usuariosNickname.get(nickname);
+
+        EntityManager em = BaseDeDatos.getEntityManager();
+
+        try {
+
+            return em.find(
+                    Usuario.class,
+                    nickname
+            );
+
+        } finally {
+
+            em.close();
+        }
     }
 
     public boolean existeUsuario(String nickname) {
-        return usuariosNickname.containsKey(nickname);
+
+        EntityManager em = BaseDeDatos.getEntityManager();
+
+        try {
+
+            return em.find(
+                    Usuario.class,
+                    nickname
+            ) != null;
+
+        } finally {
+
+            em.close();
+        }
     }
 
     public boolean existeCorreo(String correoElectronico) {
 
-        for (Usuario usuario : usuariosNickname.values()) {
+        EntityManager em = BaseDeDatos.getEntityManager();
 
-            if (usuario.getCorreoElectronico()
-                    .equalsIgnoreCase(correoElectronico)) {
+        try {
 
-                return true;
-            }
+            Long cantidad =
+                    em.createQuery(
+                                    """
+                                    SELECT COUNT(u)
+                                    FROM Usuario u
+                                    WHERE LOWER(u.correoElectronico) = LOWER(:correo)
+                                    """,
+                                    Long.class
+                            )
+                            .setParameter(
+                                    "correo",
+                                    correoElectronico
+                            )
+                            .getSingleResult();
+
+            return cantidad > 0;
+
+        } finally {
+
+            em.close();
         }
-
-        return false;
     }
 
     public boolean estaRegistradoAEdicion(
@@ -64,41 +153,73 @@ public class ManejadorUsuarios {
             String nombreEdicion
     ) {
 
-        Asistente asistente =
-                obtenerAsistente(nicknameAsistente);
+        EntityManager em = BaseDeDatos.getEntityManager();
 
-        if (asistente == null) {
-            return false;
+        try {
+
+            Long cantidad =
+                    em.createQuery(
+                                    """
+                                    SELECT COUNT(r)
+                                    FROM Registro r
+                                    WHERE r.asistente.nickname = :nickname
+                                    AND LOWER(r.edicion.idNombre) = LOWER(:edicion)
+                                    """,
+                                    Long.class
+                            )
+                            .setParameter(
+                                    "nickname",
+                                    nicknameAsistente
+                            )
+                            .setParameter(
+                                    "edicion",
+                                    nombreEdicion
+                            )
+                            .getSingleResult();
+
+            return cantidad > 0;
+
+        } finally {
+
+            em.close();
         }
-
-        for (Registro registro : asistente.getRegistros()) {
-
-            if (registro.getEdicion() != null &&
-                    registro.getEdicion()
-                            .getIdNombre()
-                            .equalsIgnoreCase(nombreEdicion)) {
-
-                return true;
-            }
-        }
-
-        return false;
     }
 
     public Collection<Usuario> listarUsuarios() {
-        return usuariosNickname.values();
+
+        EntityManager em = BaseDeDatos.getEntityManager();
+
+        try {
+
+            List<Usuario> usuarios =
+                    em.createQuery(
+                            "SELECT u FROM Usuario u ORDER BY u.nickname",
+                            Usuario.class
+                    ).getResultList();
+
+            return usuarios;
+
+        } finally {
+
+            em.close();
+        }
     }
 
     public Asistente obtenerAsistente(String nickname) {
 
-        Usuario usuario =
-                obtenerUsuario(nickname);
+        EntityManager em = BaseDeDatos.getEntityManager();
 
-        if (usuario instanceof Asistente asistente) {
-            return asistente;
+        try {
+
+            return em.find(
+                    Asistente.class,
+                    nickname
+            );
+
+        } finally {
+
+            em.close();
         }
-
-        return null;
     }
 
     public boolean modificarAsistente(
@@ -110,20 +231,63 @@ public class ManejadorUsuarios {
             Institucion institucion
     ) {
 
-        Usuario usuario =
-                obtenerUsuario(nickname);
+        EntityManager em = BaseDeDatos.getEntityManager();
+        EntityTransaction tx = em.getTransaction();
 
-        if (!(usuario instanceof Asistente asistente)) {
-            return false;
+        try {
+
+            tx.begin();
+
+            Asistente asistente =
+                    em.find(
+                            Asistente.class,
+                            nickname
+                    );
+
+            if (asistente == null) {
+
+                tx.rollback();
+                return false;
+            }
+
+            asistente.setNombre(nombre);
+            asistente.setCorreoElectronico(correo);
+            asistente.setApellido(apellido);
+            asistente.setFechaNacimiento(fechaNacimiento);
+
+            if (institucion != null) {
+
+                Institucion institucionGestionada =
+                        em.find(
+                                Institucion.class,
+                                institucion.getNombre()
+                        );
+
+                asistente.setInstitucion(
+                        institucionGestionada
+                );
+
+            } else {
+
+                asistente.setInstitucion(null);
+            }
+
+            tx.commit();
+
+            return true;
+
+        } catch (Exception e) {
+
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+
+            throw e;
+
+        } finally {
+
+            em.close();
         }
-
-        asistente.setNombre(nombre);
-        asistente.setCorreoElectronico(correo);
-        asistente.setApellido(apellido);
-        asistente.setFechaNacimiento(fechaNacimiento);
-        asistente.setInstitucion(institucion);
-
-        return true;
     }
 
     public boolean modificarOrganizador(
@@ -134,33 +298,82 @@ public class ManejadorUsuarios {
             String sitioWeb
     ) {
 
-        Usuario usuario =
-                obtenerUsuario(nickname);
+        EntityManager em = BaseDeDatos.getEntityManager();
+        EntityTransaction tx = em.getTransaction();
 
-        if (!(usuario instanceof Organizador organizador)) {
-            return false;
+        try {
+
+            tx.begin();
+
+            Organizador organizador =
+                    em.find(
+                            Organizador.class,
+                            nickname
+                    );
+
+            if (organizador == null) {
+
+                tx.rollback();
+                return false;
+            }
+
+            organizador.setNombre(nombre);
+            organizador.setCorreoElectronico(correo);
+            organizador.setDescripcion(descripcion);
+            organizador.setSitioWeb(sitioWeb);
+
+            tx.commit();
+
+            return true;
+
+        } catch (Exception e) {
+
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+
+            throw e;
+
+        } finally {
+
+            em.close();
         }
-
-        organizador.setNombre(nombre);
-        organizador.setCorreoElectronico(correo);
-        organizador.setDescripcion(descripcion);
-        organizador.setSitioWeb(sitioWeb);
-
-        return true;
     }
 
     public Set<String> listarNicknames() {
-        return new HashSet<>(usuariosNickname.keySet());
+
+        EntityManager em = BaseDeDatos.getEntityManager();
+
+        try {
+
+            List<String> nicknames =
+                    em.createQuery(
+                            "SELECT u.nickname FROM Usuario u ORDER BY u.nickname",
+                            String.class
+                    ).getResultList();
+
+            return new HashSet<>(nicknames);
+
+        } finally {
+
+            em.close();
+        }
     }
 
     public Organizador obtenerOrganizador(String nickname) {
 
-        Usuario usuario = obtenerUsuario(nickname);
+        EntityManager em = BaseDeDatos.getEntityManager();
 
-        if (usuario instanceof Organizador organizador) {
-            return organizador;
+        try {
+
+            return em.find(
+                    Organizador.class,
+                    nickname
+            );
+
+        } finally {
+
+            em.close();
         }
-
-        return null;
     }
 }

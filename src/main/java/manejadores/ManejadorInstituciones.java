@@ -1,19 +1,18 @@
 package manejadores;
 
 import clases.Institucion;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
+import persistencia.BaseDeDatos;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 public class ManejadorInstituciones {
 
     private static ManejadorInstituciones instancia = null;
 
-    private final Map<String, Institucion> institucionesIdNombre;
-
     private ManejadorInstituciones() {
-        institucionesIdNombre = new HashMap<>();
     }
 
     public static ManejadorInstituciones getInstance() {
@@ -27,26 +26,93 @@ public class ManejadorInstituciones {
 
     public boolean addInstitucion(Institucion institucion) {
 
-        String nombre = institucion.getNombre();
+        EntityManager em = BaseDeDatos.getEntityManager();
+        EntityTransaction tx = em.getTransaction();
 
-        if (existeInstitucion(nombre)) {
-            return false;
+        try {
+
+            tx.begin();
+
+            if (em.find(
+                    Institucion.class,
+                    institucion.getNombre()
+            ) != null) {
+
+                tx.rollback();
+                return false;
+            }
+
+            em.persist(institucion);
+
+            tx.commit();
+
+            return true;
+
+        } catch (Exception e) {
+
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+
+            throw e;
+
+        } finally {
+
+            em.close();
         }
-
-        institucionesIdNombre.put(nombre, institucion);
-
-        return true;
     }
 
     public Institucion obtenerInstitucion(String nombre) {
-        return institucionesIdNombre.get(nombre);
+
+        EntityManager em = BaseDeDatos.getEntityManager();
+
+        try {
+
+            return em.find(
+                    Institucion.class,
+                    nombre
+            );
+
+        } finally {
+
+            em.close();
+        }
     }
 
     public boolean existeInstitucion(String nombre) {
-        return institucionesIdNombre.containsKey(nombre);
+
+        EntityManager em = BaseDeDatos.getEntityManager();
+
+        try {
+
+            return em.find(
+                    Institucion.class,
+                    nombre
+            ) != null;
+
+        } finally {
+
+            em.close();
+        }
     }
 
     public Collection<Institucion> listarInstituciones() {
-        return institucionesIdNombre.values();
+
+        EntityManager em = BaseDeDatos.getEntityManager();
+
+        try {
+
+            List<Institucion> instituciones =
+                    em.createQuery(
+                            "SELECT i FROM Institucion i ORDER BY i.nombre",
+                            Institucion.class
+                    ).getResultList();
+
+            return instituciones;
+
+        } finally {
+
+            em.close();
+        }
     }
 }

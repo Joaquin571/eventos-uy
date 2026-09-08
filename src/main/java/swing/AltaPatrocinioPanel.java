@@ -2,16 +2,16 @@ package swing;
 
 import javax.swing.*;
 
-import clases.Edicion;
 import clases.NivelPatrocinio;
 import datatypes.DtEdicion;
 import datatypes.DtInstitucion;
 import datatypes.DtPatrocinio;
+import datatypes.DtEvento;
+import datatypes.DtTipoRegistro;
 import interfaces.ISistema;
 import implementacion.Fabrica;
 
 import java.time.LocalDate;
-
 
 public class AltaPatrocinioPanel {
 
@@ -22,25 +22,34 @@ public class AltaPatrocinioPanel {
     private JPanel panelSeleccion;
     private JPanel panelDatosPatrocinio;
     private JPanel panelBotones;
+
     private JComboBox<String> comboEvento;
     private JComboBox<String> comboEdicion;
     private JComboBox<String> comboInstitucion;
     private JComboBox<String> comboTipoRegistro;
     private JComboBox<String> comboNivel;
+
     private JTextField txtAporte;
     private JTextField txtCantidadRegistros;
     private JTextField txtCodigo;
+
     private JButton btnAceptar;
     private JButton btnCancelar;
 
     public AltaPatrocinioPanel() {
-        sistema = Fabrica.getInstance().getISistema();
+
+        sistema =
+                Fabrica.getInstance()
+                        .getISistema();
+
         configurarEventos();
 
-        cargarNiveles();
-        cargarInstituciones();
         refrescarDatos();
     }
+
+    // =====================================================
+    // CONFIGURACIÓN DE EVENTOS
+    // =====================================================
 
     private void configurarEventos() {
 
@@ -49,31 +58,203 @@ public class AltaPatrocinioPanel {
         );
 
         btnCancelar.addActionListener(e -> {
+
             limpiarFormulario();
+
             accionCerrar.run();
         });
+
+        comboEvento.addActionListener(e -> {
+
+            cargarEdiciones();
+        });
+
+        comboEdicion.addActionListener(e -> {
+
+            cargarTiposRegistro();
+        });
     }
+
+    // =====================================================
+    // CARGAR EVENTOS
+    // =====================================================
+
+    private void cargarEventos() {
+
+        comboEvento.removeAllItems();
+
+        for (DtEvento evento :
+                sistema.listarEventos()) {
+
+            comboEvento.addItem(
+                    evento.getNombre()
+            );
+        }
+
+        comboEvento.setSelectedIndex(-1);
+    }
+
+    // =====================================================
+    // CARGAR EDICIONES
+    // =====================================================
+
+    private void cargarEdiciones() {
+
+        comboEdicion.removeAllItems();
+        comboTipoRegistro.removeAllItems();
+
+        String nombreEvento =
+                (String) comboEvento.getSelectedItem();
+
+        if (nombreEvento == null) {
+
+            comboEdicion.setSelectedIndex(-1);
+            comboTipoRegistro.setSelectedIndex(-1);
+
+            return;
+        }
+
+        for (DtEdicion edicion :
+                sistema.obtenerEdicionesEvento(
+                        nombreEvento
+                )) {
+
+            comboEdicion.addItem(
+                    edicion.getIdNombre()
+            );
+        }
+
+        comboEdicion.setSelectedIndex(-1);
+        comboTipoRegistro.setSelectedIndex(-1);
+    }
+
+    // =====================================================
+    // CARGAR TIPOS DE REGISTRO
+    // =====================================================
+
+    private void cargarTiposRegistro() {
+
+        comboTipoRegistro.removeAllItems();
+
+        String nombreEdicion =
+                (String) comboEdicion.getSelectedItem();
+
+        if (nombreEdicion == null) {
+
+            comboTipoRegistro.setSelectedIndex(-1);
+
+            return;
+        }
+
+        for (DtTipoRegistro tipo :
+                sistema.obtenerTiposRegistroEdicion(
+                        nombreEdicion
+                )) {
+
+            comboTipoRegistro.addItem(
+                    tipo.getIdNombre()
+            );
+        }
+
+        comboTipoRegistro.setSelectedIndex(-1);
+    }
+
+    // =====================================================
+    // CARGAR INSTITUCIONES
+    // =====================================================
+
+    private void cargarInstituciones() {
+
+        comboInstitucion.removeAllItems();
+
+        for (DtInstitucion institucion :
+                sistema.listarInstituciones()) {
+
+            comboInstitucion.addItem(
+                    institucion.getNombre()
+            );
+        }
+
+        comboInstitucion.setSelectedIndex(-1);
+    }
+
+    // =====================================================
+    // CARGAR NIVELES
+    // =====================================================
+
+    private void cargarNiveles() {
+
+        comboNivel.removeAllItems();
+
+        for (NivelPatrocinio nivel :
+                NivelPatrocinio.values()) {
+
+            comboNivel.addItem(
+                    nivel.name()
+            );
+        }
+
+        comboNivel.setSelectedIndex(-1);
+    }
+
+    // =====================================================
+    // GUARDAR PATROCINIO
+    // =====================================================
+
     private void guardarPatrocinio() {
 
-        String evento = (String) comboEvento.getSelectedItem();
-        String edicion = (String) comboEdicion.getSelectedItem();
-        String institucion = (String) comboInstitucion.getSelectedItem();
-        String tipoRegistro = (String) comboTipoRegistro.getSelectedItem();
-        LocalDate fecha = LocalDate.now();
-        String aporteTexto = txtAporte.getText().trim();
-        String cantidadTexto = txtCantidadRegistros.getText().trim();
-        String codigo = txtCodigo.getText().trim();
-        String nivel = (String) comboNivel.getSelectedItem();
+        String evento =
+                (String) comboEvento.getSelectedItem();
 
-        if (evento == null || edicion == null || institucion == null || tipoRegistro == null || nivel == null) {
+        String edicion =
+                (String) comboEdicion.getSelectedItem();
+
+        String institucion =
+                (String) comboInstitucion.getSelectedItem();
+
+        String tipoRegistro =
+                (String) comboTipoRegistro.getSelectedItem();
+
+        String nivel =
+                (String) comboNivel.getSelectedItem();
+
+        String aporteTexto =
+                txtAporte.getText().trim();
+
+        String cantidadTexto =
+                txtCantidadRegistros
+                        .getText()
+                        .trim();
+
+        String codigo =
+                txtCodigo.getText().trim();
+
+        LocalDate fecha =
+                LocalDate.now();
+
+        // =================================================
+        // VALIDAR COMBOS
+        // =================================================
+
+        if (evento == null
+                || edicion == null
+                || institucion == null
+                || tipoRegistro == null
+                || nivel == null) {
+
             JOptionPane.showMessageDialog(
                     mainPanel,
                     "Debe seleccionar evento, edición, institución, tipo de registro y nivel.",
                     "Alta Patrocinio",
                     JOptionPane.WARNING_MESSAGE
             );
+
             return;
         }
+
+        // =================================================
+        // VALIDAR CÓDIGO
+        // =================================================
 
         if (codigo.isEmpty()) {
 
@@ -87,6 +268,9 @@ public class AltaPatrocinioPanel {
             return;
         }
 
+        // =================================================
+        // VALIDAR APORTE
+        // =================================================
 
         if (aporteTexto.isEmpty()) {
 
@@ -99,7 +283,13 @@ public class AltaPatrocinioPanel {
 
             return;
         }
+
+        // =================================================
+        // VALIDAR CANTIDAD
+        // =================================================
+
         if (cantidadTexto.isEmpty()) {
+
             JOptionPane.showMessageDialog(
                     mainPanel,
                     "La cantidad de registros gratuitos es obligatoria.",
@@ -110,11 +300,21 @@ public class AltaPatrocinioPanel {
             return;
         }
 
+        // =================================================
+        // CONVERTIR APORTE
+        // =================================================
 
         float aporte;
+
         try {
-            aporte = Float.parseFloat(aporteTexto);
+
+            aporte =
+                    Float.parseFloat(
+                            aporteTexto
+                    );
+
             if (aporte <= 0) {
+
                 throw new NumberFormatException();
             }
 
@@ -126,59 +326,123 @@ public class AltaPatrocinioPanel {
                     "Alta Patrocinio",
                     JOptionPane.ERROR_MESSAGE
             );
+
             return;
         }
-            int cantidadRegistros;
-            try {
-                cantidadRegistros =
-                        Integer.parseInt(cantidadTexto);
 
-                if (cantidadRegistros < 0) {
-                    throw new NumberFormatException();
-                }
+        // =================================================
+        // CONVERTIR CANTIDAD
+        // =================================================
 
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(
-                        mainPanel,
-                        "La cantidad de registros gratuitos debe ser un número entero mayor o igual a 0.",
-                        "Alta Patrocinio",
-                        JOptionPane.ERROR_MESSAGE
-                );
+        int cantidadRegistros;
 
-                return;
-            }
+        try {
 
-            NivelPatrocinio nivelSeleccionado =
-                    NivelPatrocinio.valueOf(nivel);
-
-            DtPatrocinio dt =
-                    new DtPatrocinio(
-                            fecha,
-                            aporte,
-                            cantidadRegistros,
-                            codigo,
-                            nivelSeleccionado,
-                            institucion,
-                            edicion,
-                            tipoRegistro
+            cantidadRegistros =
+                    Integer.parseInt(
+                            cantidadTexto
                     );
 
-            boolean agregado = sistema.altaPatrocinio(dt);
+            if (cantidadRegistros < 0) {
 
-        if (!agregado) {
+                throw new NumberFormatException();
+            }
+
+        } catch (NumberFormatException e) {
+
             JOptionPane.showMessageDialog(
                     mainPanel,
-                    "No se pudo crear el patrocinio.",
+                    "La cantidad de registros gratuitos debe ser un número entero mayor o igual a 0.",
                     "Alta Patrocinio",
                     JOptionPane.ERROR_MESSAGE
             );
+
             return;
         }
-        mostrarExito();
-        limpiarFormulario();
-        accionCerrar.run();
+
+        // =================================================
+        // NIVEL
+        // =================================================
+
+        NivelPatrocinio nivelSeleccionado;
+
+        try {
+
+            nivelSeleccionado =
+                    NivelPatrocinio.valueOf(
+                            nivel
+                    );
+
+        } catch (IllegalArgumentException e) {
+
+            JOptionPane.showMessageDialog(
+                    mainPanel,
+                    "El nivel de patrocinio seleccionado no es válido.",
+                    "Alta Patrocinio",
+                    JOptionPane.ERROR_MESSAGE
+            );
+
+            return;
+        }
+
+        // =================================================
+        // CREAR DTO
+        // =================================================
+
+        DtPatrocinio dt =
+                new DtPatrocinio(
+                        fecha,
+                        aporte,
+                        cantidadRegistros,
+                        codigo,
+                        nivelSeleccionado,
+                        institucion,
+                        edicion,
+                        tipoRegistro
+                );
+
+        // =================================================
+        // ALTA
+        // =================================================
+
+        try {
+
+            sistema.altaPatrocinio(dt);
+
+            JOptionPane.showMessageDialog(
+                    mainPanel,
+                    "Patrocinio creado correctamente.",
+                    "Alta Patrocinio",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+
+            limpiarFormulario();
+            accionCerrar.run();
+
+        } catch (IllegalArgumentException e) {
+
+            JOptionPane.showMessageDialog(
+                    mainPanel,
+                    e.getMessage(),
+                    "Alta Patrocinio",
+                    JOptionPane.WARNING_MESSAGE
+            );
+
+        } catch (Exception e) {
+
+            JOptionPane.showMessageDialog(
+                    mainPanel,
+                    "Ocurrió un error inesperado al crear el patrocinio:\n"
+                            + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
     }
 
+    // =====================================================
+    // MENSAJE DE ÉXITO
+    // =====================================================
 
     private void mostrarExito() {
 
@@ -190,6 +454,9 @@ public class AltaPatrocinioPanel {
         );
     }
 
+    // =====================================================
+    // LIMPIAR FORMULARIO
+    // =====================================================
 
     private void limpiarFormulario() {
 
@@ -198,43 +465,21 @@ public class AltaPatrocinioPanel {
         txtCodigo.setText("");
 
         comboEvento.setSelectedIndex(-1);
-        comboEdicion.setSelectedIndex(-1);
+
+        comboEdicion.removeAllItems();
+        comboTipoRegistro.removeAllItems();
+
         comboInstitucion.setSelectedIndex(-1);
-        comboTipoRegistro.setSelectedIndex(-1);
         comboNivel.setSelectedIndex(-1);
     }
 
-
-    public JPanel getMainPanel() {
-        return mainPanel;
-    }
-
-
-    public void setAccionCerrar(Runnable accionCerrar) {
-        this.accionCerrar = accionCerrar;
-    }
-
-    public void cargarNiveles(){
-        comboNivel.removeAllItems();
-        for (NivelPatrocinio nivel : NivelPatrocinio.values()) {
-            comboNivel.addItem(nivel.name());
-        }
-        comboNivel.setSelectedIndex(-1);
-    }
-
-    private void cargarInstituciones() {
-
-        comboInstitucion.removeAllItems();
-
-        for (DtInstitucion institucion : sistema.listarInstituciones()) {
-            comboInstitucion.addItem(institucion.getNombre());
-        }
-
-        comboInstitucion.setSelectedIndex(-1);
-    }
+    // =====================================================
+    // REFRESCAR DATOS
+    // =====================================================
 
     public void refrescarDatos() {
 
+        cargarEventos();
         cargarInstituciones();
         cargarNiveles();
 
@@ -246,5 +491,22 @@ public class AltaPatrocinioPanel {
         comboInstitucion.setSelectedIndex(-1);
         comboTipoRegistro.setSelectedIndex(-1);
         comboNivel.setSelectedIndex(-1);
+    }
+
+    // =====================================================
+    // GETTERS / CIERRE
+    // =====================================================
+
+    public JPanel getMainPanel() {
+
+        return mainPanel;
+    }
+
+    public void setAccionCerrar(
+            Runnable accionCerrar
+    ) {
+
+        this.accionCerrar =
+                accionCerrar;
     }
 }
