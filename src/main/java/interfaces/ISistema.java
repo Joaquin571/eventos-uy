@@ -64,10 +64,10 @@ public interface ISistema {
             String nombreEvento
     );
 
-    boolean altaTipoRegistro(
-            DtTipoRegistro dtTipoRegistro,
-            String nombreEdicion
-    );
+    void altaTipoRegistro(
+            DtAltaTipoRegistro dtTipoRegistro
+
+    )throws Exception;
 
     Collection<DtTipoRegistro> obtenerTiposRegistroEdicion(
             String nombreEdicion
@@ -81,4 +81,6 @@ public interface ISistema {
             DtEdicion dtEdicion,
             String nombreEvento
     );
+
+
 }
