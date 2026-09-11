@@ -22,8 +22,9 @@ public class principal {
     private JInternalFrame internoConsultaPatrocinio;
     private JInternalFrame internoAltaEdicion;
     private JInternalFrame internoConsultaTipoRegistro;
+    private JInternalFrame internoAltaTipoRegistro;
     private JInternalFrame internoRegistroEdicion;
-    private JInternalFrame internoConsultaEdicion;
+    private JInternalFrame internoConsultaEdicion;;
 
     private JInternalFrame internoAltaCategoria;
     private AltaCategoriaPanel panelAltaCategoria;
@@ -37,6 +38,7 @@ public class principal {
     private ConsultaTipoRegistroPanel panelConsultaTipoRegistro;
     private RegistroEdicionEventoPanel panelRegistroEdicion;
     private ConsultaEdicionEventoPanel panelConsultaEdicion;
+    private AltaTipoRegistro panelAltaTipoRegistro;
 
     public principal() {
 
@@ -260,6 +262,36 @@ public class principal {
         );
         desktopPane.add(internoConsultaEdicion);
 
+        // =========================
+        // ALTA TIPO DE REGISTRO
+        // =========================
+
+                panelAltaTipoRegistro =
+                        new AltaTipoRegistro();
+
+                internoAltaTipoRegistro =
+                        crearInterno(
+                                "Alta Tipo de Registro",
+                                panelAltaTipoRegistro.getMainPanel(),
+                                90,
+                                90
+                        );
+
+        // Evitamos que el tamaño enorme del .form
+        // determine el tamaño mínimo de la ventana
+                internoAltaTipoRegistro.setMinimumSize(
+                        new Dimension(500, 350)
+                );
+
+                internoAltaTipoRegistro.setSize(
+                        650,
+                        450
+                );
+
+                desktopPane.add(
+                        internoAltaTipoRegistro
+                );
+
     }
 
 
@@ -350,6 +382,10 @@ public class principal {
         consultaTipoRegistro.addActionListener(e -> {
             panelConsultaTipoRegistro.cargarEventos();
             mostrar(internoConsultaTipoRegistro);
+        });
+        altaTipoRegistro.addActionListener(e -> {
+            panelAltaTipoRegistro.refrescarDatos();
+            mostrar(internoAltaTipoRegistro);
         });
 
         consultaEdicion.addActionListener(e -> {

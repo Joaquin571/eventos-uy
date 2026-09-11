@@ -558,37 +558,39 @@ public class Sistema implements ISistema {
     // =====================================================
 
     @Override
-    public void altaTipoRegistro(
-            DtAltaTipoRegistro dt
-    )throws Exception {
+    public boolean altaTipoRegistro(
+            DtTipoRegistro dt,
+            String nombreEdicion
+    ) {
 
         Edicion edicion =
-                manejadorEventos.obtenerEdicion(dt.getNombreEdicion());
+                manejadorEventos.obtenerEdicion(
+                        nombreEdicion
+                );
 
         if (edicion == null) {
-
-           throw new Exception("No existe la edicion");
+            return false;
         }
 
-        TipoRegistro tipoRegistro = new TipoRegistro(
-                dt.getIdNombre(),
-                dt.getDescripcion(),
-                dt.getCosto(),
-                dt.getCupo()
-        );
+        if (manejadorEventos.existeTipoRegistro(
+                dt.getIdNombre()
+        )) {
+            return false;
+        }
+
+        TipoRegistro tipoRegistro =
+                new TipoRegistro(
+                        dt.getIdNombre(),
+                        dt.getDescripcion(),
+                        dt.getCosto(),
+                        dt.getCupo()
+                );
 
         tipoRegistro.setEdicion(edicion);
 
-
-        if(manejadorEventos.addTipoRegistro(tipoRegistro)) {
-            edicion.agregarTipoRegistro(tipoRegistro);
-        }
-        else {
-            throw new Exception("Ya existe el tipo");
-        }
-
-        manejadorEventos.addTipoRegistro(tipoRegistro);
-
+        return manejadorEventos.addTipoRegistro(
+                tipoRegistro
+        );
     }
 
     @Override
