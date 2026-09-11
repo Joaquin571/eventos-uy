@@ -6,6 +6,7 @@ import interfaces.ISistema;
 import manejadores.ManejadorEventos;
 import manejadores.ManejadorInstituciones;
 import manejadores.ManejadorPatrocinios;
+import manejadores.ManejadorRegistros;
 import manejadores.ManejadorUsuarios;
 
 import java.time.LocalDate;
@@ -21,12 +22,14 @@ public class Sistema implements ISistema {
     private final ManejadorInstituciones manejadorInstituciones;
     private final ManejadorEventos manejadorEventos;
     private final ManejadorPatrocinios manejadorPatrocinios;
+    private final ManejadorRegistros manejadorRegistros;
 
     public Sistema() {
         manejadorUsuarios = ManejadorUsuarios.getInstance();
         manejadorInstituciones = ManejadorInstituciones.getInstance();
         manejadorEventos = ManejadorEventos.getInstance();
         manejadorPatrocinios = ManejadorPatrocinios.getInstance();
+        manejadorRegistros = ManejadorRegistros.getInstance();
 
         cargarDatosPrueba();
     }
@@ -320,10 +323,6 @@ public class Sistema implements ISistema {
         Categoria nuevaCategoria =
                 new Categoria(nombre, categoriaPadre);
 
-        if (categoriaPadre != null) {
-            categoriaPadre.agregarSubcategoria(nuevaCategoria);
-        }
-
         manejadorEventos.addCategoria(nuevaCategoria);
     }
 
@@ -517,9 +516,6 @@ public class Sistema implements ISistema {
         edicion.setEvento(evento);
 
         manejadorEventos.addEdicion(edicion);
-        evento.agregarEdicion(edicion);
-        organizador.agregarEdicion(edicion);
-
         return true;
     }
 
@@ -583,12 +579,16 @@ public class Sistema implements ISistema {
 
         tipoRegistro.setEdicion(edicion);
 
+
         if(manejadorEventos.addTipoRegistro(tipoRegistro)) {
             edicion.agregarTipoRegistro(tipoRegistro);
         }
         else {
             throw new Exception("Ya existe el tipo");
         }
+
+        manejadorEventos.addTipoRegistro(tipoRegistro);
+
     }
 
     @Override
@@ -645,8 +645,7 @@ public class Sistema implements ISistema {
             String nicknameAsistente,
             String nombreEdicion
     ) {
-
-        return manejadorUsuarios.estaRegistradoAEdicion(
+        return manejadorRegistros.existeRegistroAsistenteEdicion(
                 nicknameAsistente,
                 nombreEdicion
         );
@@ -660,31 +659,91 @@ public class Sistema implements ISistema {
             DtRegistro dt
     ) {
 
+        if (nicknameAsistente == null || nicknameAsistente.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Debe seleccionar un asistente."
+            );
+        }
+
+        if (nombreEdicion == null || nombreEdicion.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Debe seleccionar una edición."
+            );
+        }
+
+        if (nombreTipoRegistro == null || nombreTipoRegistro.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Debe seleccionar un tipo de registro."
+            );
+        }
+
+        if (dt == null || dt.getFechaRegistro() == null) {
+            throw new IllegalArgumentException(
+                    "Los datos del registro no son válidos."
+            );
+        }
+
         Usuario usuario =
-                manejadorUsuarios.obtenerUsuario(
-                        nicknameAsistente
-                );
+                manejadorUsuarios.obtenerUsuario(nicknameAsistente);
 
         if (!(usuario instanceof Asistente asistente)) {
-            return false;
+            throw new IllegalArgumentException(
+                    "El usuario seleccionado no es un asistente válido."
+            );
         }
 
         Edicion edicion =
-                manejadorEventos.obtenerEdicion(
-                        nombreEdicion
-                );
+                manejadorEventos.obtenerEdicion(nombreEdicion);
 
         if (edicion == null) {
-            return false;
+            throw new IllegalArgumentException(
+                    "La edición seleccionada no existe."
+            );
         }
 
         TipoRegistro tipoRegistro =
-                edicion.obtenerTipoRegistro(
-                        nombreTipoRegistro
-                );
+                manejadorEventos.obtenerTipoRegistro(nombreTipoRegistro);
 
         if (tipoRegistro == null) {
-            return false;
+            throw new IllegalArgumentException(
+                    "El tipo de registro seleccionado no existe."
+            );
+        }
+
+        boolean pertenece =
+                manejadorEventos
+                        .obtenerTiposRegistroEdicion(nombreEdicion)
+                        .stream()
+                        .anyMatch(
+                                tipo -> tipo.getIdNombre()
+                                        .equalsIgnoreCase(nombreTipoRegistro)
+                        );
+
+        if (!pertenece) {
+            throw new IllegalArgumentException(
+                    "El tipo de registro seleccionado no pertenece a esta edición."
+            );
+        }
+
+        if (manejadorRegistros.existeRegistroAsistenteEdicion(
+                nicknameAsistente,
+                nombreEdicion
+        )) {
+            throw new IllegalArgumentException(
+                    "El asistente '" + nicknameAsistente
+                            + "' ya está registrado a la edición '"
+                            + nombreEdicion + "'."
+            );
+        }
+
+        long cantidadActual =
+                manejadorRegistros.contarRegistrosTipo(nombreTipoRegistro);
+
+        if (cantidadActual >= tipoRegistro.getCupo()) {
+            throw new IllegalArgumentException(
+                    "Se alcanzó el cupo máximo del tipo de registro '"
+                            + nombreTipoRegistro + "'."
+            );
         }
 
         Registro registro = new Registro(
@@ -696,9 +755,14 @@ public class Sistema implements ISistema {
 
         registro.setAsistente(asistente);
 
-        asistente.agregarRegistro(registro);
-        edicion.agregarRegistro(registro);
-        tipoRegistro.agregarRegistro(registro);
+        boolean agregado =
+                manejadorRegistros.addRegistro(registro);
+
+        if (!agregado) {
+            throw new IllegalArgumentException(
+                    "No fue posible completar el registro."
+            );
+        }
 
         return true;
     }
@@ -710,43 +774,230 @@ public class Sistema implements ISistema {
     @Override
     public boolean altaPatrocinio(DtPatrocinio dt) {
 
+        // =====================================================
+        // VALIDACIONES BÁSICAS
+        // =====================================================
+
+        if (dt == null) {
+            throw new IllegalArgumentException(
+                    "Los datos del patrocinio no pueden ser nulos."
+            );
+        }
+
+        if (dt.getCodigoPatrocinio() == null
+                || dt.getCodigoPatrocinio().isBlank()) {
+
+            throw new IllegalArgumentException(
+                    "El código del patrocinio es obligatorio."
+            );
+        }
+
+        if (dt.getNombreInstituto() == null
+                || dt.getNombreInstituto().isBlank()) {
+
+            throw new IllegalArgumentException(
+                    "Debe seleccionar una institución."
+            );
+        }
+
+        if (dt.getNombreEdicion() == null
+                || dt.getNombreEdicion().isBlank()) {
+
+            throw new IllegalArgumentException(
+                    "Debe seleccionar una edición."
+            );
+        }
+
+        if (dt.getNombreTipoRegistro() == null
+                || dt.getNombreTipoRegistro().isBlank()) {
+
+            throw new IllegalArgumentException(
+                    "Debe seleccionar un tipo de registro."
+            );
+        }
+
+        if (dt.getNivel() == null) {
+
+            throw new IllegalArgumentException(
+                    "Debe seleccionar un nivel de patrocinio."
+            );
+        }
+
+        if (dt.getMontoAporte() <= 0) {
+
+            throw new IllegalArgumentException(
+                    "El aporte económico debe ser mayor que 0."
+            );
+        }
+
+        if (dt.getCantRegistrosGrat() < 0) {
+
+            throw new IllegalArgumentException(
+                    "La cantidad de registros gratuitos no puede ser negativa."
+            );
+        }
+
+        // =====================================================
+        // CÓDIGO DE PATROCINIO ÚNICO
+        // =====================================================
+
+        if (manejadorPatrocinios.existePatrocinio(
+                dt.getCodigoPatrocinio()
+        )) {
+
+            throw new IllegalArgumentException(
+                    "Ya existe un patrocinio con el código '"
+                            + dt.getCodigoPatrocinio()
+                            + "'."
+            );
+        }
+
+        // =====================================================
+        // RECUPERAR INSTITUCIÓN
+        // =====================================================
+
         Institucion institucion =
                 manejadorInstituciones.obtenerInstitucion(
                         dt.getNombreInstituto()
                 );
+
+        if (institucion == null) {
+
+            throw new IllegalArgumentException(
+                    "La institución seleccionada no existe."
+            );
+        }
+
+        // =====================================================
+        // RECUPERAR EDICIÓN
+        // =====================================================
 
         Edicion edicion =
                 manejadorEventos.obtenerEdicion(
                         dt.getNombreEdicion()
                 );
 
+        if (edicion == null) {
+
+            throw new IllegalArgumentException(
+                    "La edición seleccionada no existe."
+            );
+        }
+
+        // =====================================================
+        // RECUPERAR TIPO DE REGISTRO
+        // =====================================================
+
         TipoRegistro tipoRegistro =
                 manejadorEventos.obtenerTipoRegistro(
                         dt.getNombreTipoRegistro()
                 );
 
-        if (institucion == null ||
-                edicion == null ||
-                tipoRegistro == null) {
+        if (tipoRegistro == null) {
 
-            return false;
+            throw new IllegalArgumentException(
+                    "El tipo de registro seleccionado no existe."
+            );
         }
 
-        Patrocinio patrocinio = new Patrocinio(
-                dt.getFecha(),
-                dt.getMontoAporte(),
-                dt.getCantRegistrosGrat(),
-                dt.getCodigoPatrocinio(),
-                dt.getNivel(),
-                institucion
-        );
+        // =====================================================
+        // VALIDAR QUE EL TIPO PERTENEZCA A LA EDICIÓN
+        // =====================================================
+
+        boolean pertenece =
+                manejadorEventos
+                        .obtenerTiposRegistroEdicion(
+                                edicion.getIdNombre()
+                        )
+                        .stream()
+                        .anyMatch(
+                                tipo ->
+                                        tipo.getIdNombre()
+                                                .equalsIgnoreCase(
+                                                        tipoRegistro.getIdNombre()
+                                                )
+                        );
+
+        if (!pertenece) {
+
+            throw new IllegalArgumentException(
+                    "El tipo de registro seleccionado no pertenece a la edición."
+            );
+        }
+
+        // =====================================================
+        // RESTRICCIÓN DE LA LETRA:
+        // UNA INSTITUCIÓN NO PUEDE TENER DOS PATROCINIOS
+        // EN LA MISMA EDICIÓN
+        // =====================================================
+
+        if (manejadorPatrocinios
+                .existePatrocinioInstitucionEdicion(
+                        institucion.getNombre(),
+                        edicion.getIdNombre()
+                )) {
+
+            throw new IllegalArgumentException(
+                    "La institución '"
+                            + institucion.getNombre()
+                            + "' ya posee un patrocinio para la edición '"
+                            + edicion.getIdNombre()
+                            + "'."
+            );
+        }
+
+        // =====================================================
+        // RESTRICCIÓN DEL 20 %
+        // =====================================================
+
+        float costoRegistros =
+                tipoRegistro.getCosto()
+                        * dt.getCantRegistrosGrat();
+
+        float maximoPermitido =
+                dt.getMontoAporte() * 0.20f;
+
+        if (costoRegistros > maximoPermitido) {
+
+            throw new IllegalArgumentException(
+                    "El costo de los registros gratuitos ($"
+                            + costoRegistros
+                            + ") supera el 20% del aporte económico ($"
+                            + maximoPermitido
+                            + ")."
+            );
+        }
+
+        // =====================================================
+        // CREAR PATROCINIO
+        // =====================================================
+
+        Patrocinio patrocinio =
+                new Patrocinio(
+                        dt.getFecha(),
+                        dt.getMontoAporte(),
+                        dt.getCantRegistrosGrat(),
+                        dt.getCodigoPatrocinio(),
+                        dt.getNivel(),
+                        institucion
+                );
 
         patrocinio.setEdicion(edicion);
         patrocinio.setTipoRegistro(tipoRegistro);
 
-        return manejadorPatrocinios.addPatrocinio(
-                patrocinio
-        );
+        boolean agregado =
+                manejadorPatrocinios.addPatrocinio(
+                        patrocinio
+                );
+
+        if (!agregado) {
+
+            throw new IllegalArgumentException(
+                    "No fue posible registrar el patrocinio."
+            );
+        }
+
+        return true;
     }
 
     @Override
@@ -817,5 +1068,53 @@ public class Sistema implements ISistema {
                         ? patrocinio.getTipoRegistro().getIdNombre()
                         : null
         );
+    }
+    @Override
+    public Collection<DtPatrocinio> obtenerPatrociniosEdicion(
+            String nombreEdicion
+    ) {
+
+        Collection<DtPatrocinio> resultado =
+                new ArrayList<>();
+
+        for (Patrocinio patrocinio :
+                manejadorPatrocinios
+                        .obtenerPatrociniosEdicion(
+                                nombreEdicion
+                        )) {
+
+            String nombreInstitucion = null;
+
+            if (patrocinio.getInstitucion() != null) {
+
+                nombreInstitucion =
+                        patrocinio
+                                .getInstitucion()
+                                .getNombre();
+            }
+
+            resultado.add(
+                    new DtPatrocinio(
+                            patrocinio.getFecha(),
+                            patrocinio.getMontoAporte(),
+                            patrocinio.getCantRegistrosGrat(),
+                            patrocinio.getCodigoPatrocinio(),
+                            patrocinio.getNivel(),
+                            nombreInstitucion,
+                            patrocinio.getEdicion() != null
+                                    ? patrocinio
+                                    .getEdicion()
+                                    .getIdNombre()
+                                    : null,
+                            patrocinio.getTipoRegistro() != null
+                                    ? patrocinio
+                                    .getTipoRegistro()
+                                    .getIdNombre()
+                                    : null
+                    )
+            );
+        }
+
+        return resultado;
     }
 }
