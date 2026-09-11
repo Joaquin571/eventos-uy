@@ -162,7 +162,9 @@
                 <preferred-size width="150" height="-1"/>
               </grid>
             </constraints>
-            <properties/>
+            <properties>
+              <text value=""/>
+            </properties>
           </component>
           <component id="a43f8" class="javax.swing.JTextField" binding="txtInstitución">
             <constraints>
