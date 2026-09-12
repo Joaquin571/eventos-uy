@@ -193,7 +193,7 @@ public class principal {
         // =========================
         // CONSULTA EVENTO
         // =========================
-        panelConsultaEvento = new ConsultaEventoPanel();
+        panelConsultaEvento = new ConsultaEventoPanel(this);
         internoConsultaEvento = crearInterno(
                 "Consulta Evento",
                 panelConsultaEvento, // O panelConsultaEvento.getMainPanel() si creaste un método contenedor
@@ -524,6 +524,12 @@ public class principal {
         interno.setVisible(false);
 
         return interno;
+    }
+
+    // Redirige desde Consulta Evento a Consulta Edición de Evento seleccionando los datos correspondientes
+    public void navegarAConsultaEdicion(String nombreEvento, String nombreEdicion) {
+        panelConsultaEdicion.seleccionarEventoYEdicion(nombreEvento, nombreEdicion);
+        mostrar(internoConsultaEdicion);
     }
 
     // MAIN

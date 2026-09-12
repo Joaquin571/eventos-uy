@@ -35,6 +35,7 @@ public interface ISistema {
     // CONSULTA EVENTO
     DtEvento obtenerInformacionEvento(String nombreEvento);
 
+
     // PATROCINIOS
     boolean altaPatrocinio(DtPatrocinio patrocinio);
     Collection<DtPatrocinio> listarPatrocinios();
