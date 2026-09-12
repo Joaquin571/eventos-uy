@@ -108,4 +108,12 @@ public class ConsultaEdicionEventoPanel extends JPanel {
             areaDetalles.setText(sb.toString());
         }
     }
+
+    public void seleccionarEventoYEdicion(String nombreEvento, String nombreEdicion) {
+        cargarEventos();
+        comboEventos.setSelectedItem(nombreEvento);
+        cargarEdiciones();
+        comboEdiciones.setSelectedItem(nombreEdicion);
+        mostrarDetalles();
+    }
 }

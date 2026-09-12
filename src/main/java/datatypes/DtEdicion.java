@@ -67,6 +67,6 @@ public class DtEdicion {
 
     @Override
     public String toString() {
-        return idNombre;
+        return this.getIdNombre();
     }
 }
