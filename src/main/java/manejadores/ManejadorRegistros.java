@@ -18,88 +18,160 @@ public class ManejadorRegistros {
     }
 
     public static ManejadorRegistros getInstance() {
+
         if (instancia == null) {
             instancia = new ManejadorRegistros();
         }
+
         return instancia;
     }
+
+    // =====================================================
+    // EXISTE REGISTRO DEL ASISTENTE EN ESA EDICIÓN
+    // =====================================================
 
     public boolean existeRegistroAsistenteEdicion(
             String nickname,
             String nombreEdicion
     ) {
 
-        EntityManager em = BaseDeDatos.getEntityManager();
+        EntityManager em =
+                BaseDeDatos.getEntityManager();
 
         try {
-            Long cantidad = em.createQuery(
-                            """
-                            SELECT COUNT(r)
-                            FROM Registro r
-                            WHERE r.asistente.nickname = :nickname
-                              AND r.edicion.idNombre = :edicion
-                            """,
-                            Long.class
-                    )
-                    .setParameter("nickname", nickname)
-                    .setParameter("edicion", nombreEdicion)
-                    .getSingleResult();
+
+            Long cantidad =
+                    em.createQuery(
+                                    """
+                                    SELECT COUNT(r)
+                                    FROM Registro r
+                                    WHERE r.asistente.nickname = :nickname
+                                      AND r.edicion.idNombre = :edicion
+                                    """,
+                                    Long.class
+                            )
+                            .setParameter(
+                                    "nickname",
+                                    nickname
+                            )
+                            .setParameter(
+                                    "edicion",
+                                    nombreEdicion
+                            )
+                            .getSingleResult();
 
             return cantidad > 0;
 
         } finally {
+
             em.close();
         }
     }
 
+    // =====================================================
+    // CONTAR REGISTROS DE UN TIPO EN UNA EDICIÓN
+    // =====================================================
+
     public long contarRegistrosTipo(
+            String nombreEdicion,
             String nombreTipoRegistro
     ) {
 
-        EntityManager em = BaseDeDatos.getEntityManager();
+        EntityManager em =
+                BaseDeDatos.getEntityManager();
 
         try {
+
             return em.createQuery(
                             """
                             SELECT COUNT(r)
                             FROM Registro r
-                            WHERE r.tipoRegistro.idNombre = :tipo
+                            WHERE r.edicion.idNombre = :edicion
+                              AND LOWER(r.tipoRegistro.idNombre)
+                                  = LOWER(:tipo)
                             """,
                             Long.class
                     )
-                    .setParameter("tipo", nombreTipoRegistro)
+                    .setParameter(
+                            "edicion",
+                            nombreEdicion
+                    )
+                    .setParameter(
+                            "tipo",
+                            nombreTipoRegistro
+                    )
                     .getSingleResult();
 
         } finally {
+
             em.close();
         }
     }
 
-    public boolean addRegistro(Registro registro) {
+    // =====================================================
+    // ALTA REGISTRO
+    // =====================================================
 
-        EntityManager em = BaseDeDatos.getEntityManager();
-        EntityTransaction tx = em.getTransaction();
+    public boolean addRegistro(
+            Registro registro
+    ) {
+
+        EntityManager em =
+                BaseDeDatos.getEntityManager();
+
+        EntityTransaction tx =
+                em.getTransaction();
 
         try {
+
             tx.begin();
+
+            // =================================================
+            // ASISTENTE MANAGED
+            // =================================================
 
             Asistente asistenteGestionado =
                     em.find(
                             Asistente.class,
-                            registro.getAsistente().getNickname()
+                            registro
+                                    .getAsistente()
+                                    .getNickname()
                     );
+
+            // =================================================
+            // EDICIÓN MANAGED
+            // =================================================
 
             Edicion edicionGestionada =
                     em.find(
                             Edicion.class,
-                            registro.getEdicion().getIdNombre()
+                            registro
+                                    .getEdicion()
+                                    .getIdNombre()
                     );
 
-            TipoRegistro tipoGestionado =
-                    em.find(
-                            TipoRegistro.class,
-                            registro.getTipoRegistro().getIdNombre()
-                    );
+            // =================================================
+            // TIPO DE REGISTRO MANAGED
+            // =================================================
+
+            TipoRegistro tipoGestionado = null;
+
+            if (registro.getTipoRegistro() != null) {
+
+                Long idTipoRegistro =
+                        registro
+                                .getTipoRegistro()
+                                .getId();
+
+                if (idTipoRegistro != null) {
+
+                    tipoGestionado =
+                            em.find(
+                                    TipoRegistro.class,
+                                    idTipoRegistro
+                            );
+                }
+            }
 
             if (asistenteGestionado == null
                     || edicionGestionada == null
@@ -109,11 +181,42 @@ public class ManejadorRegistros {
                 return false;
             }
 
-            registro.setAsistente(asistenteGestionado);
-            registro.setEdicion(edicionGestionada);
-            registro.setTipoRegistro(tipoGestionado);
+            // =================================================
+            // VALIDAR QUE EL TIPO PERTENECE A ESA EDICIÓN
+            // =================================================
 
-            em.persist(registro);
+            if (tipoGestionado.getEdicion() == null
+                    || !tipoGestionado
+                    .getEdicion()
+                    .getIdNombre()
+                    .equals(
+                            edicionGestionada
+                                    .getIdNombre()
+                    )) {
+
+                tx.rollback();
+                return false;
+            }
+
+            // =================================================
+            // ASIGNAMOS ENTIDADES MANAGED
+            // =================================================
+
+            registro.setAsistente(
+                    asistenteGestionado
+            );
+
+            registro.setEdicion(
+                    edicionGestionada
+            );
+
+            registro.setTipoRegistro(
+                    tipoGestionado
+            );
+
+            em.persist(
+                    registro
+            );
 
             tx.commit();
 
@@ -128,6 +231,7 @@ public class ManejadorRegistros {
             throw e;
 
         } finally {
+
             em.close();
         }
     }

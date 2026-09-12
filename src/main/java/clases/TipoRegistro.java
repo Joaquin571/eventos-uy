@@ -6,25 +6,47 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "tipo_registro")
+@Table(
+        name = "tipo_registro",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "UK_TIPO_REGISTRO_EDICION_NOMBRE",
+                        columnNames = {
+                                "EDICION_ID",
+                                "NOMBRE"
+                        }
+                )
+        }
+)
 public class TipoRegistro {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "NOMBRE", nullable = false)
     private String idNombre;
 
     private String descripcion;
+
     private float costo;
+
     private int cupo;
 
     @ManyToOne
-    @JoinColumn(name = "EDICION_ID")
+    @JoinColumn(
+            name = "EDICION_ID",
+            nullable = false
+    )
     private Edicion edicion;
 
     @OneToMany(mappedBy = "tipoRegistro")
-    private Set<Registro> registros = new HashSet<>();
+    private Set<Registro> registros =
+            new HashSet<>();
 
     @OneToMany(mappedBy = "tipoRegistro")
-    private Set<Patrocinio> patrocinios = new HashSet<>();
+    private Set<Patrocinio> patrocinios =
+            new HashSet<>();
 
     protected TipoRegistro() {
     }
@@ -39,6 +61,10 @@ public class TipoRegistro {
         this.descripcion = descripcion;
         this.costo = costo;
         this.cupo = cupo;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public String getIdNombre() {
@@ -88,7 +114,16 @@ public class TipoRegistro {
     public Set<Patrocinio> getPatrocinios() {
         return patrocinios;
     }
-    public void agregarRegistro(Registro registro) {
+
+    public void agregarRegistro(
+            Registro registro
+    ) {
         registros.add(registro);
+    }
+
+    public void agregarPatrocinio(
+            Patrocinio patrocinio
+    ) {
+        patrocinios.add(patrocinio);
     }
 }

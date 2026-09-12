@@ -24,7 +24,7 @@ public class principal {
     private JInternalFrame internoConsultaTipoRegistro;
     private JInternalFrame internoAltaTipoRegistro;
     private JInternalFrame internoRegistroEdicion;
-    private JInternalFrame internoConsultaEdicion;;
+    private JInternalFrame internoConsultaEdicion;
 
     private JInternalFrame internoAltaCategoria;
     private AltaCategoriaPanel panelAltaCategoria;
@@ -129,6 +129,9 @@ public class principal {
         panelAltaInstitucion.setAccionCerrar(
                 () -> internoAltaInstitucion.setVisible(false)
         );
+
+        internoAltaInstitucion.setSize(600, 420);
+        internoAltaInstitucion.setMinimumSize(new Dimension(500, 350));
 
         desktopPane.add(internoAltaInstitucion);
 
@@ -266,31 +269,23 @@ public class principal {
         // ALTA TIPO DE REGISTRO
         // =========================
 
-                panelAltaTipoRegistro =
-                        new AltaTipoRegistro();
+        panelAltaTipoRegistro = new AltaTipoRegistro();
 
-                internoAltaTipoRegistro =
-                        crearInterno(
-                                "Alta Tipo de Registro",
-                                panelAltaTipoRegistro.getMainPanel(),
-                                90,
-                                90
-                        );
+        internoAltaTipoRegistro = crearInterno(
+                "Alta Tipo de Registro",
+                panelAltaTipoRegistro.getMainPanel(),
+                90,
+                90
+        );
 
-        // Evitamos que el tamaño enorme del .form
-        // determine el tamaño mínimo de la ventana
-                internoAltaTipoRegistro.setMinimumSize(
-                        new Dimension(500, 350)
-                );
+        internoAltaTipoRegistro.setSize(650, 450);
+        internoAltaTipoRegistro.setMinimumSize(new Dimension(520, 360));
 
-                internoAltaTipoRegistro.setSize(
-                        650,
-                        450
-                );
+        panelAltaTipoRegistro.setAccionCerrar(
+                () -> internoAltaTipoRegistro.setVisible(false)
+        );
 
-                desktopPane.add(
-                        internoAltaTipoRegistro
-                );
+        desktopPane.add(internoAltaTipoRegistro);
 
     }
 
@@ -454,16 +449,26 @@ public class principal {
             JInternalFrame interno
     ) {
 
+        int x = Math.max(
+                0,
+                (desktopPane.getWidth() - interno.getWidth()) / 2
+        );
+
+        int y = Math.max(
+                0,
+                (desktopPane.getHeight() - interno.getHeight()) / 2
+        );
+
+        interno.setLocation(x, y);
         interno.setVisible(true);
         interno.toFront();
 
         try {
-
             interno.setSelected(true);
-
         } catch (PropertyVetoException ignored) {
         }
     }
+
 
     // CREAR INTERNAL FRAME
     private JInternalFrame crearInterno(
@@ -494,8 +499,21 @@ public class principal {
 
         interno.pack();
 
+        Dimension actual = interno.getSize();
+
+        int ancho = Math.max(
+                400,
+                Math.min(actual.width, 850)
+        );
+
+        int alto = Math.max(
+                300,
+                Math.min(actual.height, 650)
+        );
+
+        interno.setSize(ancho, alto);
         interno.setMinimumSize(
-                interno.getSize()
+                new Dimension(380, 280)
         );
 
         interno.setLocation(

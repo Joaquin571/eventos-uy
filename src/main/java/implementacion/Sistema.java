@@ -572,7 +572,9 @@ public class Sistema implements ISistema {
             return false;
         }
 
+        // El nombre solo debe ser único DENTRO de esta edición.
         if (manejadorEventos.existeTipoRegistro(
+                nombreEdicion,
                 dt.getIdNombre()
         )) {
             return false;
@@ -594,8 +596,7 @@ public class Sistema implements ISistema {
     }
 
     @Override
-    public Collection<DtTipoRegistro>
-    obtenerTiposRegistroEdicion(
+    public Collection<DtTipoRegistro> obtenerTiposRegistroEdicion(
             String nombreEdicion
     ) {
 
@@ -619,12 +620,15 @@ public class Sistema implements ISistema {
 
     @Override
     public DtTipoRegistro consultarTipoRegistro(
+            String nombreEdicion,
             String nombreTipoRegistro
     ) {
 
         TipoRegistro tipoRegistro =
                 manejadorEventos.obtenerTipoRegistro(
-                        nombreTipoRegistro);
+                        nombreEdicion,
+                        nombreTipoRegistro
+                );
 
         if (tipoRegistro == null) {
             return null;
@@ -661,106 +665,152 @@ public class Sistema implements ISistema {
             DtRegistro dt
     ) {
 
-        if (nicknameAsistente == null || nicknameAsistente.isBlank()) {
+        // =====================================================
+        // VALIDACIONES BÁSICAS
+        // =====================================================
+
+        if (nicknameAsistente == null
+                || nicknameAsistente.isBlank()) {
+
             throw new IllegalArgumentException(
                     "Debe seleccionar un asistente."
             );
         }
 
-        if (nombreEdicion == null || nombreEdicion.isBlank()) {
+        if (nombreEdicion == null
+                || nombreEdicion.isBlank()) {
+
             throw new IllegalArgumentException(
                     "Debe seleccionar una edición."
             );
         }
 
-        if (nombreTipoRegistro == null || nombreTipoRegistro.isBlank()) {
+        if (nombreTipoRegistro == null
+                || nombreTipoRegistro.isBlank()) {
+
             throw new IllegalArgumentException(
                     "Debe seleccionar un tipo de registro."
             );
         }
 
-        if (dt == null || dt.getFechaRegistro() == null) {
+        if (dt == null
+                || dt.getFechaRegistro() == null) {
+
             throw new IllegalArgumentException(
                     "Los datos del registro no son válidos."
             );
         }
 
+        // =====================================================
+        // ASISTENTE
+        // =====================================================
+
         Usuario usuario =
-                manejadorUsuarios.obtenerUsuario(nicknameAsistente);
+                manejadorUsuarios.obtenerUsuario(
+                        nicknameAsistente
+                );
 
         if (!(usuario instanceof Asistente asistente)) {
+
             throw new IllegalArgumentException(
                     "El usuario seleccionado no es un asistente válido."
             );
         }
 
+        // =====================================================
+        // EDICIÓN
+        // =====================================================
+
         Edicion edicion =
-                manejadorEventos.obtenerEdicion(nombreEdicion);
+                manejadorEventos.obtenerEdicion(
+                        nombreEdicion
+                );
 
         if (edicion == null) {
+
             throw new IllegalArgumentException(
                     "La edición seleccionada no existe."
             );
         }
 
+        // =====================================================
+        // TIPO DE REGISTRO
+        // Se identifica por EDICIÓN + NOMBRE
+        // =====================================================
+
         TipoRegistro tipoRegistro =
-                manejadorEventos.obtenerTipoRegistro(nombreTipoRegistro);
+                manejadorEventos.obtenerTipoRegistro(
+                        nombreEdicion,
+                        nombreTipoRegistro
+                );
 
         if (tipoRegistro == null) {
+
             throw new IllegalArgumentException(
-                    "El tipo de registro seleccionado no existe."
+                    "El tipo de registro seleccionado no existe para esta edición."
             );
         }
 
-        boolean pertenece =
-                manejadorEventos
-                        .obtenerTiposRegistroEdicion(nombreEdicion)
-                        .stream()
-                        .anyMatch(
-                                tipo -> tipo.getIdNombre()
-                                        .equalsIgnoreCase(nombreTipoRegistro)
-                        );
+        // =====================================================
+        // EVITAR DOBLE REGISTRO A LA MISMA EDICIÓN
+        // =====================================================
 
-        if (!pertenece) {
-            throw new IllegalArgumentException(
-                    "El tipo de registro seleccionado no pertenece a esta edición."
-            );
-        }
+        if (manejadorRegistros
+                .existeRegistroAsistenteEdicion(
+                        nicknameAsistente,
+                        nombreEdicion
+                )) {
 
-        if (manejadorRegistros.existeRegistroAsistenteEdicion(
-                nicknameAsistente,
-                nombreEdicion
-        )) {
             throw new IllegalArgumentException(
-                    "El asistente '" + nicknameAsistente
+                    "El asistente '"
+                            + nicknameAsistente
                             + "' ya está registrado a la edición '"
-                            + nombreEdicion + "'."
+                            + nombreEdicion
+                            + "'."
             );
         }
+
+        // =====================================================
+        // VALIDAR CUPO
+        // Ahora se cuenta por EDICIÓN + TIPO
+        // =====================================================
 
         long cantidadActual =
-                manejadorRegistros.contarRegistrosTipo(nombreTipoRegistro);
+                manejadorRegistros.contarRegistrosTipo(
+                        nombreEdicion,
+                        nombreTipoRegistro
+                );
 
         if (cantidadActual >= tipoRegistro.getCupo()) {
+
             throw new IllegalArgumentException(
                     "Se alcanzó el cupo máximo del tipo de registro '"
-                            + nombreTipoRegistro + "'."
+                            + nombreTipoRegistro
+                            + "'."
             );
         }
 
-        Registro registro = new Registro(
-                dt.getFechaRegistro(),
-                tipoRegistro.getCosto(),
-                tipoRegistro,
-                edicion
-        );
+        // =====================================================
+        // CREAR REGISTRO
+        // =====================================================
+
+        Registro registro =
+                new Registro(
+                        dt.getFechaRegistro(),
+                        tipoRegistro.getCosto(),
+                        tipoRegistro,
+                        edicion
+                );
 
         registro.setAsistente(asistente);
 
         boolean agregado =
-                manejadorRegistros.addRegistro(registro);
+                manejadorRegistros.addRegistro(
+                        registro
+                );
 
         if (!agregado) {
+
             throw new IllegalArgumentException(
                     "No fue posible completar el registro."
             );
@@ -890,43 +940,12 @@ public class Sistema implements ISistema {
         // RECUPERAR TIPO DE REGISTRO
         // =====================================================
 
-        TipoRegistro tipoRegistro =
-                manejadorEventos.obtenerTipoRegistro(
-                        dt.getNombreTipoRegistro()
-                );
-
+        TipoRegistro tipoRegistro = manejadorEventos.obtenerTipoRegistro(dt.getNombreEdicion(), dt.getNombreTipoRegistro());
         if (tipoRegistro == null) {
-
             throw new IllegalArgumentException(
                     "El tipo de registro seleccionado no existe."
             );
         }
-
-        // =====================================================
-        // VALIDAR QUE EL TIPO PERTENEZCA A LA EDICIÓN
-        // =====================================================
-
-        boolean pertenece =
-                manejadorEventos
-                        .obtenerTiposRegistroEdicion(
-                                edicion.getIdNombre()
-                        )
-                        .stream()
-                        .anyMatch(
-                                tipo ->
-                                        tipo.getIdNombre()
-                                                .equalsIgnoreCase(
-                                                        tipoRegistro.getIdNombre()
-                                                )
-                        );
-
-        if (!pertenece) {
-
-            throw new IllegalArgumentException(
-                    "El tipo de registro seleccionado no pertenece a la edición."
-            );
-        }
-
         // =====================================================
         // RESTRICCIÓN DE LA LETRA:
         // UNA INSTITUCIÓN NO PUEDE TENER DOS PATROCINIOS

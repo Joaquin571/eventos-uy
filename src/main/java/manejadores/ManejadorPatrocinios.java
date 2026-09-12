@@ -33,16 +33,24 @@ public class ManejadorPatrocinios {
     // ALTA PATROCINIO
     // =====================================================
 
-    public boolean addPatrocinio(Patrocinio patrocinio) {
+    public boolean addPatrocinio(
+            Patrocinio patrocinio
+    ) {
 
-        EntityManager em = BaseDeDatos.getEntityManager();
-        EntityTransaction tx = em.getTransaction();
+        EntityManager em =
+                BaseDeDatos.getEntityManager();
+
+        EntityTransaction tx =
+                em.getTransaction();
 
         try {
 
             tx.begin();
 
-            // Verificamos código único
+            // =================================================
+            // CÓDIGO DE PATROCINIO ÚNICO
+            // =================================================
+
             if (em.find(
                     Patrocinio.class,
                     patrocinio.getCodigoPatrocinio()
@@ -53,8 +61,7 @@ public class ManejadorPatrocinios {
             }
 
             // =================================================
-            // Recuperamos las relaciones dentro de ESTE
-            // EntityManager para trabajar con entidades managed
+            // INSTITUCIÓN MANAGED
             // =================================================
 
             Institucion institucionGestionada = null;
@@ -70,10 +77,15 @@ public class ManejadorPatrocinios {
                         );
 
                 if (institucionGestionada == null) {
+
                     tx.rollback();
                     return false;
                 }
             }
+
+            // =================================================
+            // EDICIÓN MANAGED
+            // =================================================
 
             Edicion edicionGestionada = null;
 
@@ -88,33 +100,68 @@ public class ManejadorPatrocinios {
                         );
 
                 if (edicionGestionada == null) {
+
                     tx.rollback();
                     return false;
                 }
             }
+
+            // =================================================
+            // TIPO DE REGISTRO MANAGED
+            // =================================================
 
             TipoRegistro tipoRegistroGestionado = null;
 
             if (patrocinio.getTipoRegistro() != null) {
 
+                Long idTipoRegistro =
+                        patrocinio
+                                .getTipoRegistro()
+                                .getId();
+
+                if (idTipoRegistro == null) {
+
+                    tx.rollback();
+                    return false;
+                }
+
                 tipoRegistroGestionado =
                         em.find(
                                 TipoRegistro.class,
-                                patrocinio
-                                        .getTipoRegistro()
-                                        .getIdNombre()
+                                idTipoRegistro
                         );
 
                 if (tipoRegistroGestionado == null) {
+
                     tx.rollback();
                     return false;
                 }
             }
 
-            /*
-             * Creamos una nueva instancia utilizando
-             * las entidades gestionadas por este EntityManager.
-             */
+            // =================================================
+            // VALIDAR QUE EL TIPO PERTENEZCA A LA EDICIÓN
+            // =================================================
+
+            if (edicionGestionada != null
+                    && tipoRegistroGestionado != null) {
+
+                if (tipoRegistroGestionado.getEdicion() == null
+                        || !tipoRegistroGestionado
+                        .getEdicion()
+                        .getIdNombre()
+                        .equals(
+                                edicionGestionada
+                                        .getIdNombre()
+                        )) {
+
+                    tx.rollback();
+                    return false;
+                }
+            }
+
+            // =================================================
+            // CREAR PATROCINIO CON ENTIDADES MANAGED
+            // =================================================
 
             Patrocinio patrocinioGestionado =
                     new Patrocinio(
@@ -134,7 +181,9 @@ public class ManejadorPatrocinios {
                     tipoRegistroGestionado
             );
 
-            em.persist(patrocinioGestionado);
+            em.persist(
+                    patrocinioGestionado
+            );
 
             tx.commit();
 
@@ -158,9 +207,12 @@ public class ManejadorPatrocinios {
     // EXISTE PATROCINIO
     // =====================================================
 
-    public boolean existePatrocinio(String codigo) {
+    public boolean existePatrocinio(
+            String codigo
+    ) {
 
-        EntityManager em = BaseDeDatos.getEntityManager();
+        EntityManager em =
+                BaseDeDatos.getEntityManager();
 
         try {
 
@@ -179,9 +231,12 @@ public class ManejadorPatrocinios {
     // OBTENER PATROCINIO
     // =====================================================
 
-    public Patrocinio obtenerPatrocinio(String codigo) {
+    public Patrocinio obtenerPatrocinio(
+            String codigo
+    ) {
 
-        EntityManager em = BaseDeDatos.getEntityManager();
+        EntityManager em =
+                BaseDeDatos.getEntityManager();
 
         try {
 
@@ -219,30 +274,39 @@ public class ManejadorPatrocinios {
     // LISTAR PATROCINIOS
     // =====================================================
 
-    public Collection<Patrocinio> listarPatrocinios() {
+    public Collection<Patrocinio>
+    listarPatrocinios() {
 
-        EntityManager em = BaseDeDatos.getEntityManager();
+        EntityManager em =
+                BaseDeDatos.getEntityManager();
 
         try {
 
             return em.createQuery(
-                    """
-                    SELECT p
-                    FROM Patrocinio p
-                    LEFT JOIN FETCH p.institucion
-                    LEFT JOIN FETCH p.edicion
-                    LEFT JOIN FETCH p.tipoRegistro
-                    ORDER BY p.codigoPatrocinio
-                    """,
-                    Patrocinio.class
-            ).getResultList();
+                            """
+                            SELECT p
+                            FROM Patrocinio p
+                            LEFT JOIN FETCH p.institucion
+                            LEFT JOIN FETCH p.edicion
+                            LEFT JOIN FETCH p.tipoRegistro
+                            ORDER BY p.codigoPatrocinio
+                            """,
+                            Patrocinio.class
+                    )
+                    .getResultList();
 
         } finally {
 
             em.close();
         }
     }
-    public Collection<Patrocinio> obtenerPatrociniosEdicion(
+
+    // =====================================================
+    // PATROCINIOS DE UNA EDICIÓN
+    // =====================================================
+
+    public Collection<Patrocinio>
+    obtenerPatrociniosEdicion(
             String nombreEdicion
     ) {
 
@@ -274,6 +338,11 @@ public class ManejadorPatrocinios {
             em.close();
         }
     }
+
+    // =====================================================
+    // INSTITUCIÓN YA PATROCINA ESA EDICIÓN
+    // =====================================================
+
     public boolean existePatrocinioInstitucionEdicion(
             String nombreInstitucion,
             String nombreEdicion
@@ -284,24 +353,27 @@ public class ManejadorPatrocinios {
 
         try {
 
-            Long cantidad = em.createQuery(
-                            """
-                            SELECT COUNT(p)
-                            FROM Patrocinio p
-                            WHERE LOWER(p.institucion.nombre) = LOWER(:institucion)
-                              AND LOWER(p.edicion.idNombre) = LOWER(:edicion)
-                            """,
-                            Long.class
-                    )
-                    .setParameter(
-                            "institucion",
-                            nombreInstitucion
-                    )
-                    .setParameter(
-                            "edicion",
-                            nombreEdicion
-                    )
-                    .getSingleResult();
+            Long cantidad =
+                    em.createQuery(
+                                    """
+                                    SELECT COUNT(p)
+                                    FROM Patrocinio p
+                                    WHERE LOWER(p.institucion.nombre)
+                                          = LOWER(:institucion)
+                                      AND LOWER(p.edicion.idNombre)
+                                          = LOWER(:edicion)
+                                    """,
+                                    Long.class
+                            )
+                            .setParameter(
+                                    "institucion",
+                                    nombreInstitucion
+                            )
+                            .setParameter(
+                                    "edicion",
+                                    nombreEdicion
+                            )
+                            .getSingleResult();
 
             return cantidad > 0;
 

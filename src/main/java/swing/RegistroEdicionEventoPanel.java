@@ -249,6 +249,7 @@ public class RegistroEdicionEventoPanel extends JPanel {
 
             DtTipoRegistro tipoRegistro =
                     sistema.consultarTipoRegistro(
+                            edicionSeleccionada,
                             tipoRegistroSeleccionado
                     );
 

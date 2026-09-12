@@ -7,8 +7,8 @@ import implementacion.Fabrica;
 import interfaces.ISistema;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ItemEvent;
+import java.awt.*;
+import java.text.ParseException;
 import java.util.Collection;
 
 public class AltaTipoRegistro {
@@ -28,29 +28,34 @@ public class AltaTipoRegistro {
     private JComboBox<String> cbxEdicion;
     private JTextField txtNombre;
 
+    private Runnable accionCerrar = () -> {};
+
     public AltaTipoRegistro() {
 
         sistema =
                 Fabrica.getInstance()
                         .getISistema();
 
-        configurarSpinners();
+        configurarComponentes();
         configurarEventos();
-        cargarEventos();
+        refrescarDatos();
     }
 
-    // =====================================================
-    // SPINNERS
-    // =====================================================
-
-    private void configurarSpinners() {
+    private void configurarComponentes() {
 
         snrCosto.setModel(
                 new SpinnerNumberModel(
                         0.0,
                         0.0,
-                        Double.MAX_VALUE,
+                        999999999.0,
                         1.0
+                )
+        );
+
+        snrCosto.setEditor(
+                new JSpinner.NumberEditor(
+                        snrCosto,
+                        "0.00"
                 )
         );
 
@@ -62,40 +67,72 @@ public class AltaTipoRegistro {
                         1
                 )
         );
-    }
 
-    // =====================================================
-    // EVENTOS DE LA INTERFAZ
-    // =====================================================
+        snrCupos.setEditor(
+                new JSpinner.NumberEditor(
+                        snrCupos,
+                        "0"
+                )
+        );
+
+        Dimension comboSize =
+                new Dimension(320, 28);
+
+        cbxEvento.setPreferredSize(comboSize);
+        cbxEvento.setMinimumSize(
+                new Dimension(180, 28)
+        );
+        cbxEvento.setMaximumSize(
+                new Dimension(600, 28)
+        );
+        cbxEvento.setMaximumRowCount(10);
+
+        cbxEdicion.setPreferredSize(comboSize);
+        cbxEdicion.setMinimumSize(
+                new Dimension(180, 28)
+        );
+        cbxEdicion.setMaximumSize(
+                new Dimension(600, 28)
+        );
+        cbxEdicion.setMaximumRowCount(10);
+
+        txtDescripcion.setLineWrap(true);
+        txtDescripcion.setWrapStyleWord(true);
+    }
 
     private void configurarEventos() {
 
-        cbxEvento.addItemListener(e -> {
-
-            if (e.getStateChange()
-                    == ItemEvent.SELECTED) {
-
-                cargarEdiciones();
-            }
-        });
+        cbxEvento.addActionListener(
+                e -> cargarEdiciones()
+        );
 
         btnAceptar.addActionListener(
-                (ActionEvent e) ->
-                        altaTipoRegistro()
+                e -> altaTipoRegistro()
         );
 
         btnCancelar.addActionListener(
-                e -> limpiarFormulario()
+                e -> {
+                    limpiarFormulario();
+                    accionCerrar.run();
+                }
         );
     }
 
-    // =====================================================
-    // CARGAR EVENTOS
-    // =====================================================
+    public void refrescarDatos() {
+
+        cargarEventos();
+
+        txtNombre.setText("");
+        txtDescripcion.setText("");
+
+        snrCosto.setValue(0.0);
+        snrCupos.setValue(1);
+    }
 
     private void cargarEventos() {
 
         cbxEvento.removeAllItems();
+        cbxEdicion.removeAllItems();
 
         Collection<DtEvento> eventos =
                 sistema.listarEventos();
@@ -107,7 +144,6 @@ public class AltaTipoRegistro {
             );
         }
 
-        // Si no hay eventos no intentamos buscar ediciones
         if (cbxEvento.getItemCount() > 0) {
 
             cbxEvento.setSelectedIndex(0);
@@ -115,13 +151,10 @@ public class AltaTipoRegistro {
 
         } else {
 
-            cbxEdicion.removeAllItems();
+            cbxEvento.setSelectedIndex(-1);
+            cbxEdicion.setSelectedIndex(-1);
         }
     }
-
-    // =====================================================
-    // CARGAR EDICIONES
-    // =====================================================
 
     private void cargarEdiciones() {
 
@@ -149,13 +182,14 @@ public class AltaTipoRegistro {
         }
 
         if (cbxEdicion.getItemCount() > 0) {
+
             cbxEdicion.setSelectedIndex(0);
+
+        } else {
+
+            cbxEdicion.setSelectedIndex(-1);
         }
     }
-
-    // =====================================================
-    // ALTA TIPO REGISTRO
-    // =====================================================
 
     private void altaTipoRegistro() {
 
@@ -171,17 +205,10 @@ public class AltaTipoRegistro {
         String descripcion =
                 txtDescripcion.getText().trim();
 
-        // -------------------------------------------------
-        // VALIDACIONES DE INTERFAZ
-        // -------------------------------------------------
-
         if (nombreEvento == null) {
 
-            JOptionPane.showMessageDialog(
-                    principalPanel,
-                    "Debe seleccionar un evento.",
-                    "Alta Tipo de Registro",
-                    JOptionPane.WARNING_MESSAGE
+            mostrarAdvertencia(
+                    "Debe seleccionar un evento."
             );
 
             return;
@@ -189,11 +216,8 @@ public class AltaTipoRegistro {
 
         if (nombreEdicion == null) {
 
-            JOptionPane.showMessageDialog(
-                    principalPanel,
-                    "Debe seleccionar una edición.",
-                    "Alta Tipo de Registro",
-                    JOptionPane.WARNING_MESSAGE
+            mostrarAdvertencia(
+                    "Debe seleccionar una edición."
             );
 
             return;
@@ -201,19 +225,26 @@ public class AltaTipoRegistro {
 
         if (nombre.isBlank()) {
 
-            JOptionPane.showMessageDialog(
-                    principalPanel,
-                    "Debe ingresar un nombre para el tipo de registro.",
-                    "Alta Tipo de Registro",
-                    JOptionPane.WARNING_MESSAGE
+            mostrarAdvertencia(
+                    "Debe ingresar un nombre para el tipo de registro."
             );
 
             return;
         }
 
-        // -------------------------------------------------
-        // OBTENER COSTO Y CUPO
-        // -------------------------------------------------
+        try {
+
+            snrCosto.commitEdit();
+            snrCupos.commitEdit();
+
+        } catch (ParseException e) {
+
+            mostrarAdvertencia(
+                    "Costo o cupo tienen un formato inválido."
+            );
+
+            return;
+        }
 
         float costo =
                 ((Number) snrCosto.getValue())
@@ -223,9 +254,23 @@ public class AltaTipoRegistro {
                 ((Number) snrCupos.getValue())
                         .intValue();
 
-        // -------------------------------------------------
-        // CREAR DTO
-        // -------------------------------------------------
+        if (costo < 0) {
+
+            mostrarAdvertencia(
+                    "El costo no puede ser negativo."
+            );
+
+            return;
+        }
+
+        if (cupo <= 0) {
+
+            mostrarAdvertencia(
+                    "El cupo debe ser mayor que 0."
+            );
+
+            return;
+        }
 
         DtTipoRegistro dtTipoRegistro =
                 new DtTipoRegistro(
@@ -234,10 +279,6 @@ public class AltaTipoRegistro {
                         costo,
                         cupo
                 );
-
-        // -------------------------------------------------
-        // LLAMAR AL SISTEMA
-        // -------------------------------------------------
 
         try {
 
@@ -279,9 +320,17 @@ public class AltaTipoRegistro {
         }
     }
 
-    // =====================================================
-    // LIMPIAR
-    // =====================================================
+    private void mostrarAdvertencia(
+            String mensaje
+    ) {
+
+        JOptionPane.showMessageDialog(
+                principalPanel,
+                mensaje,
+                "Alta Tipo de Registro",
+                JOptionPane.WARNING_MESSAGE
+        );
+    }
 
     private void limpiarFormulario() {
 
@@ -298,19 +347,15 @@ public class AltaTipoRegistro {
         cargarEdiciones();
     }
 
-    public void refrescarDatos() {
-        cargarEventos();
+    public void setAccionCerrar(
+            Runnable accionCerrar
+    ) {
 
-        txtNombre.setText("");
-        txtDescripcion.setText("");
-
-        snrCosto.setValue(0.0);
-        snrCupos.setValue(1);
+        this.accionCerrar =
+                accionCerrar != null
+                        ? accionCerrar
+                        : () -> {};
     }
-
-    // =====================================================
-    // PANEL PARA PRINCIPAL
-    // =====================================================
 
     public JPanel getMainPanel() {
         return mainPanel;

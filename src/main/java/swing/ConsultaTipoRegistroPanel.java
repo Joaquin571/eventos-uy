@@ -110,19 +110,46 @@ public class ConsultaTipoRegistroPanel extends JPanel {
     }
 
     private void mostrarDatosTipoRegistro() {
-        String tipoSel = (String) comboTiposRegistro.getSelectedItem();
-        if (tipoSel == null) {
+
+        String edicionSel =
+                (String) comboEdiciones.getSelectedItem();
+
+        String tipoSel =
+                (String) comboTiposRegistro.getSelectedItem();
+
+        if (edicionSel == null || tipoSel == null) {
             limpiarCampos();
             return;
         }
 
-        DtTipoRegistro dtTR = sistema.consultarTipoRegistro(tipoSel);
+        DtTipoRegistro dtTR =
+                sistema.consultarTipoRegistro(
+                        edicionSel,
+                        tipoSel
+                );
+
         if (dtTR != null) {
-            lblNombre.setText(dtTR.getIdNombre());
-            lblDescripcion.setText(dtTR.getDescripcion());
-            lblCosto.setText("$" + dtTR.getCosto());
-            lblCupo.setText(String.valueOf(dtTR.getCupo()));
+
+            lblNombre.setText(
+                    dtTR.getIdNombre()
+            );
+
+            lblDescripcion.setText(
+                    dtTR.getDescripcion()
+            );
+
+            lblCosto.setText(
+                    "$" + dtTR.getCosto()
+            );
+
+            lblCupo.setText(
+                    String.valueOf(
+                            dtTR.getCupo()
+                    )
+            );
+
         } else {
+
             limpiarCampos();
         }
     }

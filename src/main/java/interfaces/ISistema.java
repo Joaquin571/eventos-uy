@@ -70,9 +70,7 @@ public interface ISistema {
     );
 
     Collection<DtTipoRegistro> obtenerTiposRegistroEdicion(String nombreEdicion);
-
-    DtTipoRegistro consultarTipoRegistro(String nombreTipoRegistro);
-
+    DtTipoRegistro consultarTipoRegistro(String nombreEdicion, String nombreTipoRegistro);
     boolean altaEdicion(DtEdicion dtEdicion, String nombreEvento);
 
     Collection<DtPatrocinio> obtenerPatrociniosEdicion(
