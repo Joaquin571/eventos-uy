@@ -16,74 +16,39 @@ import java.util.List;
 public class ManejadorEventos {
 
     private static ManejadorEventos instancia = null;
-
-    private ManejadorEventos() {
-    }
-
+    private ManejadorEventos() {}
     public static ManejadorEventos getInstance() {
-
-        if (instancia == null) {
-            instancia = new ManejadorEventos();
-        }
-
+        if (instancia == null) {instancia = new ManejadorEventos();}
         return instancia;
     }
 
-    // =====================================================
-    // EVENTOS
-    // =====================================================
-
     public boolean addEvento(Evento evento) {
-
-        EntityManager em =
-                BaseDeDatos.getEntityManager();
-
-        EntityTransaction tx =
-                em.getTransaction();
-
+        EntityManager em = BaseDeDatos.getEntityManager();
+        EntityTransaction tx = em.getTransaction();
         try {
-
             tx.begin();
-
-            if (em.find(
-                    Evento.class,
-                    evento.getNombre()
-            ) != null) {
-
+            if (em.find(Evento.class, evento.getNombre()) != null) {
                 tx.rollback();
                 return false;
             }
-
             em.persist(evento);
-
             tx.commit();
             return true;
 
         } catch (Exception e) {
-
             if (tx.isActive()) {
                 tx.rollback();
             }
-
             throw e;
-
         } finally {
-
             em.close();
         }
     }
 
-    public Evento obtenerEvento(
-            String nombre
-    ) {
-
-        EntityManager em =
-                BaseDeDatos.getEntityManager();
-
+    public Evento obtenerEvento(String nombre) {
+        EntityManager em = BaseDeDatos.getEntityManager();
         try {
-
-            List<Evento> resultado =
-                    em.createQuery(
+            List<Evento> resultado = em.createQuery(
                                     """
                                     SELECT DISTINCT e
                                     FROM Evento e
@@ -91,52 +56,28 @@ public class ManejadorEventos {
                                     WHERE e.nombre = :nombre
                                     """,
                                     Evento.class
-                            )
-                            .setParameter(
+                            ).setParameter(
                                     "nombre",
                                     nombre
-                            )
-                            .getResultList();
-
-            if (resultado.isEmpty()) {
-                return null;
-            }
-
+                            ).getResultList();
+            if (resultado.isEmpty()) {return null;}
             return resultado.getFirst();
-
         } finally {
-
             em.close();
         }
     }
-
-    public boolean existeEvento(
-            String nombre
-    ) {
-
-        EntityManager em =
-                BaseDeDatos.getEntityManager();
-
+    public boolean existeEvento(String nombre) {
+        EntityManager em = BaseDeDatos.getEntityManager();
         try {
-
-            return em.find(
-                    Evento.class,
-                    nombre
-            ) != null;
-
+            return em.find(Evento.class, nombre) != null;
         } finally {
-
             em.close();
         }
     }
 
     public Collection<Evento> obtenerEventos() {
-
-        EntityManager em =
-                BaseDeDatos.getEntityManager();
-
+        EntityManager em = BaseDeDatos.getEntityManager();
         try {
-
             return em.createQuery(
                     """
                     SELECT DISTINCT e
@@ -146,70 +87,40 @@ public class ManejadorEventos {
                     """,
                     Evento.class
             ).getResultList();
-
         } finally {
-
             em.close();
         }
     }
 
-    // =====================================================
-    // EDICIONES
-    // =====================================================
-
-    public boolean addEdicion(
-            Edicion edicion
-    ) {
-
-        EntityManager em =
-                BaseDeDatos.getEntityManager();
-
-        EntityTransaction tx =
-                em.getTransaction();
+    public boolean addEdicion(Edicion edicion) {
+        EntityManager em = BaseDeDatos.getEntityManager();
+        EntityTransaction tx = em.getTransaction();
 
         try {
-
             tx.begin();
-
-            if (em.find(
-                    Edicion.class,
-                    edicion.getIdNombre()
-            ) != null) {
-
+            if (em.find(Edicion.class, edicion.getIdNombre()) != null) {
                 tx.rollback();
                 return false;
             }
 
             em.persist(edicion);
-
             tx.commit();
             return true;
 
         } catch (Exception e) {
-
             if (tx.isActive()) {
                 tx.rollback();
             }
-
             throw e;
-
         } finally {
-
             em.close();
         }
     }
 
-    public Edicion obtenerEdicion(
-            String nombre
-    ) {
-
-        EntityManager em =
-                BaseDeDatos.getEntityManager();
-
+    public Edicion obtenerEdicion(String nombre) {
+        EntityManager em = BaseDeDatos.getEntityManager();
         try {
-
-            List<Edicion> resultado =
-                    em.createQuery(
+            List<Edicion> resultado = em.createQuery(
                                     """
                                     SELECT DISTINCT e
                                     FROM Edicion e
@@ -218,77 +129,30 @@ public class ManejadorEventos {
                                     WHERE e.idNombre = :nombre
                                     """,
                                     Edicion.class
-                            )
-                            .setParameter(
+                            ).setParameter(
                                     "nombre",
                                     nombre
-                            )
-                            .getResultList();
-
-            if (resultado.isEmpty()) {
-                return null;
-            }
-
+                            ).getResultList();
+            if (resultado.isEmpty()) {return null;}
             return resultado.getFirst();
 
         } finally {
-
             em.close();
         }
     }
 
-    public boolean existeEdicion(
-            String nombre
-    ) {
-
-        EntityManager em =
-                BaseDeDatos.getEntityManager();
-
+    public boolean existeEdicion(String nombre) {
+        EntityManager em = BaseDeDatos.getEntityManager();
         try {
-
-            return em.find(
-                    Edicion.class,
-                    nombre
-            ) != null;
-
+            return em.find(Edicion.class, nombre) != null;
         } finally {
-
             em.close();
         }
     }
 
-    public Collection<Edicion> obtenerEdiciones() {
-
-        EntityManager em =
-                BaseDeDatos.getEntityManager();
-
+    public Collection<Edicion> obtenerEdicionesEvento(String nombreEvento) {
+        EntityManager em = BaseDeDatos.getEntityManager();
         try {
-
-            return em.createQuery(
-                    """
-                    SELECT DISTINCT e
-                    FROM Edicion e
-                    LEFT JOIN FETCH e.organizador
-                    ORDER BY e.idNombre
-                    """,
-                    Edicion.class
-            ).getResultList();
-
-        } finally {
-
-            em.close();
-        }
-    }
-
-    public Collection<Edicion> obtenerEdicionesEvento(
-            String nombreEvento
-    ) {
-
-        EntityManager em =
-                BaseDeDatos.getEntityManager();
-
-        try {
-
             return em.createQuery(
                             """
                             SELECT DISTINCT e
@@ -298,27 +162,19 @@ public class ManejadorEventos {
                             ORDER BY e.idNombre
                             """,
                             Edicion.class
-                    )
-                    .setParameter(
+                    ).setParameter(
                             "nombreEvento",
                             nombreEvento
-                    )
-                    .getResultList();
-
+                    ).getResultList();
         } finally {
-
             em.close();
         }
     }
     public Collection<Edicion> obtenerEdicionesOrganizador(
             String nicknameOrganizador
     ) {
-
-        EntityManager em =
-                BaseDeDatos.getEntityManager();
-
+        EntityManager em = BaseDeDatos.getEntityManager();
         try {
-
             return em.createQuery(
                             """
                             SELECT e
@@ -328,76 +184,43 @@ public class ManejadorEventos {
                             ORDER BY e.idNombre
                             """,
                             Edicion.class
-                    )
-                    .setParameter(
+                    ).setParameter(
                             "nickname",
                             nicknameOrganizador
-                    )
-                    .getResultList();
-
+                    ).getResultList();
         } finally {
-
             em.close();
         }
     }
 
-    // =====================================================
-    // CATEGORÍAS
-    // =====================================================
-
-    public boolean addCategoria(
-            Categoria categoria
-    ) {
-
-        EntityManager em =
-                BaseDeDatos.getEntityManager();
-
-        EntityTransaction tx =
-                em.getTransaction();
-
+    public boolean addCategoria(Categoria categoria) {
+        EntityManager em = BaseDeDatos.getEntityManager();
+        EntityTransaction tx = em.getTransaction();
         try {
-
             tx.begin();
-
-            if (em.find(
-                    Categoria.class,
-                    categoria.getNombre()
-            ) != null) {
-
+            if (em.find(Categoria.class, categoria.getNombre()) != null) {
                 tx.rollback();
                 return false;
             }
-
             em.persist(categoria);
-
             tx.commit();
             return true;
 
         } catch (Exception e) {
-
             if (tx.isActive()) {
                 tx.rollback();
             }
-
             throw e;
 
         } finally {
-
             em.close();
         }
     }
 
-    public Categoria obtenerCategoria(
-            String nombre
-    ) {
-
-        EntityManager em =
-                BaseDeDatos.getEntityManager();
-
+    public Categoria obtenerCategoria(String nombre) {
+        EntityManager em = BaseDeDatos.getEntityManager();
         try {
-
-            List<Categoria> resultado =
-                    em.createQuery(
+            List<Categoria> resultado = em.createQuery(
                                     """
                                     SELECT DISTINCT c
                                     FROM Categoria c
@@ -406,54 +229,22 @@ public class ManejadorEventos {
                                     WHERE c.nombre = :nombre
                                     """,
                                     Categoria.class
-                            )
-                            .setParameter(
+                            ).setParameter(
                                     "nombre",
                                     nombre
-                            )
-                            .getResultList();
+                            ).getResultList();
 
-            if (resultado.isEmpty()) {
-                return null;
-            }
-
+            if (resultado.isEmpty()) {return null;}
             return resultado.getFirst();
-
         } finally {
-
-            em.close();
-        }
-    }
-
-    public boolean existeCategoria(
-            String nombre
-    ) {
-
-        EntityManager em =
-                BaseDeDatos.getEntityManager();
-
-        try {
-
-            return em.find(
-                    Categoria.class,
-                    nombre
-            ) != null;
-
-        } finally {
-
             em.close();
         }
     }
 
     public Collection<Categoria> obtenerCategorias() {
-
-        EntityManager em =
-                BaseDeDatos.getEntityManager();
-
+        EntityManager em = BaseDeDatos.getEntityManager();
         try {
-
-            List<Categoria> categorias =
-                    em.createQuery(
+            List<Categoria> categorias = em.createQuery(
                                     """
                                     SELECT DISTINCT c
                                     FROM Categoria c
@@ -462,77 +253,37 @@ public class ManejadorEventos {
                                     ORDER BY c.nombre
                                     """,
                                     Categoria.class
-                            )
-                            .getResultList();
+                            ).getResultList();
 
             for (Categoria categoria : categorias) {
-                inicializarSubcategorias(
-                        categoria
-                );
+                inicializarSubcategorias(categoria);
             }
-
             return categorias;
-
         } finally {
-
             em.close();
         }
     }
 
-    private void inicializarSubcategorias(
-            Categoria categoria
-    ) {
-
-        categoria
-                .getSubcategorias()
-                .size();
-
-        for (Categoria hija :
-                categoria.getSubcategorias()) {
-
-            inicializarSubcategorias(
-                    hija
-            );
+    private void inicializarSubcategorias(Categoria categoria) {
+        categoria.getSubcategorias().size();
+        for (Categoria hija : categoria.getSubcategorias()) {
+            inicializarSubcategorias(hija);
         }
     }
 
-    // =====================================================
-    // TIPOS DE REGISTRO
-    // =====================================================
-
-    public boolean addTipoRegistro(
-            TipoRegistro tipoRegistro
-    ) {
-
-        EntityManager em =
-                BaseDeDatos.getEntityManager();
-
-        EntityTransaction tx =
-                em.getTransaction();
-
+    public boolean addTipoRegistro(TipoRegistro tipoRegistro) {
+        EntityManager em = BaseDeDatos.getEntityManager();
+        EntityTransaction tx = em.getTransaction();
         try {
-
             tx.begin();
-
-            if (tipoRegistro.getEdicion() == null
-                    || tipoRegistro.getEdicion().getIdNombre() == null) {
-
+            if (tipoRegistro.getEdicion() == null || tipoRegistro.getEdicion().getIdNombre() == null) {
                 tx.rollback();
                 return false;
             }
 
-            String nombreEdicion =
-                    tipoRegistro
-                            .getEdicion()
-                            .getIdNombre();
+            String nombreEdicion = tipoRegistro.getEdicion().getIdNombre();
 
-            // ---------------------------------------------
-            // Unicidad:
-            // misma edición + mismo nombre
-            // ---------------------------------------------
-
-            Long cantidad =
-                    em.createQuery(
+            Long cantidad = em.createQuery(
                                     """
                                     SELECT COUNT(t)
                                     FROM TipoRegistro t
@@ -540,79 +291,42 @@ public class ManejadorEventos {
                                       AND t.edicion.idNombre = :edicion
                                     """,
                                     Long.class
-                            )
-                            .setParameter(
+                            ).setParameter(
                                     "nombre",
                                     tipoRegistro.getIdNombre()
-                            )
-                            .setParameter(
+                            ).setParameter(
                                     "edicion",
                                     nombreEdicion
-                            )
-                            .getSingleResult();
-
+                            ).getSingleResult();
             if (cantidad > 0) {
-
                 tx.rollback();
                 return false;
             }
 
-            // ---------------------------------------------
-            // Recuperamos la edición managed
-            // ---------------------------------------------
-
-            Edicion edicionGestionada =
-                    em.find(
-                            Edicion.class,
-                            nombreEdicion
-                    );
-
+            Edicion edicionGestionada = em.find(Edicion.class, nombreEdicion);
             if (edicionGestionada == null) {
-
                 tx.rollback();
                 return false;
             }
+            tipoRegistro.setEdicion(edicionGestionada);
 
-            tipoRegistro.setEdicion(
-                    edicionGestionada
-            );
-
-            em.persist(
-                    tipoRegistro
-            );
-
+            em.persist(tipoRegistro);
             tx.commit();
-
             return true;
 
         } catch (Exception e) {
-
             if (tx.isActive()) {
                 tx.rollback();
             }
-
             throw e;
-
         } finally {
-
             em.close();
         }
     }
 
-    // =====================================================
-    // OBTENER TIPO POR EDICIÓN + NOMBRE
-    // =====================================================
-
-    public TipoRegistro obtenerTipoRegistro(
-            String nombreEdicion,
-            String nombreTipoRegistro
-    ) {
-
-        EntityManager em =
-                BaseDeDatos.getEntityManager();
-
+    public TipoRegistro obtenerTipoRegistro(String nombreEdicion, String nombreTipoRegistro) {
+        EntityManager em = BaseDeDatos.getEntityManager();
         try {
-
             return em.createQuery(
                             """
                             SELECT t
@@ -621,82 +335,26 @@ public class ManejadorEventos {
                               AND LOWER(t.idNombre) = LOWER(:nombre)
                             """,
                             TipoRegistro.class
-                    )
-                    .setParameter(
+                    ).setParameter(
                             "edicion",
                             nombreEdicion
-                    )
-                    .setParameter(
+                    ).setParameter(
                             "nombre",
                             nombreTipoRegistro
-                    )
-                    .getResultStream()
-                    .findFirst()
-                    .orElse(null);
-
+                    ).getResultStream().findFirst().orElse(null);
         } finally {
-
             em.close();
         }
     }
 
-    // =====================================================
-    // EXISTE TIPO POR EDICIÓN + NOMBRE
-    // =====================================================
-
-    public boolean existeTipoRegistro(
-            String nombreEdicion,
-            String nombreTipoRegistro
-    ) {
-
-        return obtenerTipoRegistro(
-                nombreEdicion,
-                nombreTipoRegistro
-        ) != null;
+    public boolean existeTipoRegistro(String nombreEdicion, String nombreTipoRegistro) {
+        return obtenerTipoRegistro(nombreEdicion, nombreTipoRegistro) != null;
     }
 
-    // =====================================================
-    // LISTAR TODOS LOS TIPOS
-    // =====================================================
-
-    public Collection<TipoRegistro> obtenerTiposRegistro() {
-
-        EntityManager em =
-                BaseDeDatos.getEntityManager();
-
-        try {
-
-            return em.createQuery(
-                            """
-                            SELECT t
-                            FROM TipoRegistro t
-                            ORDER BY t.edicion.idNombre,
-                                     t.idNombre
-                            """,
-                            TipoRegistro.class
-                    )
-                    .getResultList();
-
-        } finally {
-
-            em.close();
-        }
-    }
-
-    // =====================================================
-    // TIPOS DE UNA EDICIÓN
-    // =====================================================
-
-    public Collection<TipoRegistro>
-    obtenerTiposRegistroEdicion(
-            String nombreEdicion
+    public Collection<TipoRegistro> obtenerTiposRegistroEdicion(String nombreEdicion
     ) {
-
-        EntityManager em =
-                BaseDeDatos.getEntityManager();
-
+        EntityManager em = BaseDeDatos.getEntityManager();
         try {
-
             return em.createQuery(
                             """
                             SELECT t
@@ -705,15 +363,12 @@ public class ManejadorEventos {
                             ORDER BY t.idNombre
                             """,
                             TipoRegistro.class
-                    )
-                    .setParameter(
+                    ).setParameter(
                             "nombreEdicion",
                             nombreEdicion
-                    )
-                    .getResultList();
+                    ).getResultList();
 
         } finally {
-
             em.close();
         }
     }

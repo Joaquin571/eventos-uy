@@ -11,25 +11,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class BaseDeDatos {
-
-    // =====================================================
-    // CONFIGURACIÓN
-    // =====================================================
-
-    private static final String HOST =
-            env("EVENTOS_DB_HOST", "localhost");
-
-    private static final String PORT =
-            env("EVENTOS_DB_PORT", "5432");
-
-    private static final String NAME =
-            env("EVENTOS_DB_NAME", "eventosuy");
-
-    private static final String USER =
-            env("EVENTOS_DB_USER", "postgres");
-
-    private static final String PASSWORD =
-            env("EVENTOS_DB_PASSWORD", "root");
+    private static final String HOST = env("EVENTOS_DB_HOST", "localhost");
+    private static final String PORT = env("EVENTOS_DB_PORT", "5432");
+    private static final String NAME = env("EVENTOS_DB_NAME", "eventosuy");
+    private static final String USER = env("EVENTOS_DB_USER", "postgres");
+    private static final String PASSWORD = env("EVENTOS_DB_PASSWORD", "root");
 
     private static final String JDBC_URL =
             "jdbc:postgresql://" +
@@ -42,10 +28,6 @@ public final class BaseDeDatos {
     private BaseDeDatos() {
     }
 
-    // =====================================================
-    // VARIABLES DE ENTORNO
-    // =====================================================
-
     private static String env(
             String key,
             String valorPorDefecto
@@ -56,45 +38,20 @@ public final class BaseDeDatos {
         if (valor != null && !valor.isBlank()) {
             return valor;
         }
-
         return valorPorDefecto;
     }
 
-    // =====================================================
-    // PROPIEDADES JPA
-    // =====================================================
-
     public static Map<String, String> propiedadesJpa() {
 
-        Map<String, String> props =
-                new HashMap<>();
+        Map<String, String> props = new HashMap<>();
 
-        props.put(
-                "jakarta.persistence.jdbc.driver",
-                "org.postgresql.Driver"
-        );
-
-        props.put(
-                "jakarta.persistence.jdbc.url",
-                JDBC_URL
-        );
-
-        props.put(
-                "jakarta.persistence.jdbc.user",
-                USER
-        );
-
-        props.put(
-                "jakarta.persistence.jdbc.password",
-                PASSWORD
-        );
+        props.put("jakarta.persistence.jdbc.driver", "org.postgresql.Driver");
+        props.put("jakarta.persistence.jdbc.url", JDBC_URL);
+        props.put("jakarta.persistence.jdbc.user", USER);
+        props.put("jakarta.persistence.jdbc.password", PASSWORD);
 
         return props;
     }
-
-    // =====================================================
-    // COMPROBAR POSTGRESQL
-    // =====================================================
 
     public static void asegurarDisponible() {
 
@@ -132,12 +89,7 @@ public final class BaseDeDatos {
         }
     }
 
-    // =====================================================
-    // INICIALIZAR JPA
-    // =====================================================
-
     public static void inicializar() {
-
         if (emf != null && emf.isOpen()) {
             return;
         }
@@ -149,35 +101,21 @@ public final class BaseDeDatos {
                         "postgres",
                         propiedadesJpa()
                 );
-
         System.out.println(
                 "[JPA] EntityManagerFactory inicializado."
         );
     }
 
-    // =====================================================
-    // ENTITY MANAGER
-    // =====================================================
-
     public static EntityManager getEntityManager() {
-
         if (emf == null || !emf.isOpen()) {
             inicializar();
         }
-
         return emf.createEntityManager();
     }
 
-    // =====================================================
-    // CERRAR JPA
-    // =====================================================
-
     public static void cerrar() {
-
         if (emf != null && emf.isOpen()) {
-
             emf.close();
-
             System.out.println(
                     "[JPA] EntityManagerFactory cerrado."
             );

@@ -241,7 +241,6 @@ public class Sistema implements ISistema {
                     "El nombre de la categoría no puede estar vacío."
             );
         }
-
         if (manejadorEventos.obtenerCategoria(nombre) != null) {
             throw new Exception(
                     "Ya existe una categoría con el nombre '" +
@@ -250,7 +249,6 @@ public class Sistema implements ISistema {
         }
 
         Categoria categoriaPadre = null;
-
         if (nombrePadre != null && !nombrePadre.trim().isEmpty()) {
             categoriaPadre = manejadorEventos.obtenerCategoria(nombrePadre);
             if (categoriaPadre == null) {
@@ -259,7 +257,6 @@ public class Sistema implements ISistema {
                 );
             }
         }
-
         Categoria nuevaCategoria = new Categoria(nombre, categoriaPadre);
         manejadorEventos.addCategoria(nuevaCategoria);
     }
@@ -338,7 +335,6 @@ public class Sistema implements ISistema {
             for (Categoria categoria : evento.getCategorias()) {
                 categorias.add(categoria.getNombre());
             }
-
             resultado.add(new DtEvento(
                     evento.getNombre(),
                     evento.getSigla(),
@@ -692,41 +688,18 @@ public class Sistema implements ISistema {
     }
 
     @Override
-    public Collection<DtRegistro> obtenerRegistrosEdicion(
-            String nombreEdicion
-    ) {
-
-        Collection<DtRegistro> resultado =
-                new ArrayList<>();
-
-        for (Registro registro :
-                manejadorRegistros
-                        .obtenerRegistrosEdicion(
-                                nombreEdicion
-                        )) {
-
+    public Collection<DtRegistro> obtenerRegistrosEdicion(String nombreEdicion) {
+        Collection<DtRegistro> resultado = new ArrayList<>();
+        for (Registro registro : manejadorRegistros.obtenerRegistrosEdicion(nombreEdicion)) {
             String nombreTipoRegistro = null;
-
             if (registro.getTipoRegistro() != null) {
-
-                nombreTipoRegistro =
-                        registro
-                                .getTipoRegistro()
-                                .getIdNombre();
+                nombreTipoRegistro = registro.getTipoRegistro().getIdNombre();
             }
-
             String nombreEd = null;
-
             if (registro.getEdicion() != null) {
-
-                nombreEd =
-                        registro
-                                .getEdicion()
-                                .getIdNombre();
+                nombreEd = registro.getEdicion().getIdNombre();
             }
-
-            resultado.add(
-                    new DtRegistro(
+            resultado.add(new DtRegistro(
                             registro.getFechaRegistro(),
                             registro.getCosto(),
                             nombreTipoRegistro,
@@ -734,7 +707,6 @@ public class Sistema implements ISistema {
                     )
             );
         }
-
         return resultado;
     }
 }
