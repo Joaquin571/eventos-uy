@@ -766,4 +766,7 @@ public class AltaUsuarioPanel {
                 BorderLayout.SOUTH
         );
     }
+    public void refrescarDatos() {
+        cargarInstituciones();
+    }
 }

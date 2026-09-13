@@ -31,6 +31,7 @@ public class principal {
     private AltaCategoriaPanel panelAltaCategoria;
 
     //PARA REFRESCAR
+    private AltaUsuarioPanel panelAltaUsuario;
     private ModificarUsuarioPanel panelModificarUsuario;
     private ConsultaUsuarioPanel panelConsultaUsuario;
     private AltaPatrocinioPanel panelAltaPatrocinio;
@@ -62,7 +63,7 @@ public class principal {
         // ALTA USUARIO
         // =========================
 
-        AltaUsuarioPanel panelAltaUsuario = new AltaUsuarioPanel();
+        panelAltaUsuario = new AltaUsuarioPanel();
         internoAltaUsuario =
                 crearInterno(
                         "Alta Usuario",
@@ -341,6 +342,7 @@ public class principal {
                 new JMenuItem("Salir");
 
         altaUsuario.addActionListener(e -> {
+            panelAltaUsuario.refrescarDatos();
             mostrar(internoAltaUsuario);
         });
 
