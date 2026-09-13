@@ -225,7 +225,6 @@ public class ManejadorUsuarios {
     public boolean modificarAsistente(
             String nickname,
             String nombre,
-            String correo,
             String apellido,
             LocalDate fechaNacimiento,
             Institucion institucion
@@ -251,7 +250,6 @@ public class ManejadorUsuarios {
             }
 
             asistente.setNombre(nombre);
-            asistente.setCorreoElectronico(correo);
             asistente.setApellido(apellido);
             asistente.setFechaNacimiento(fechaNacimiento);
 
@@ -293,7 +291,6 @@ public class ManejadorUsuarios {
     public boolean modificarOrganizador(
             String nickname,
             String nombre,
-            String correo,
             String descripcion,
             String sitioWeb
     ) {
@@ -318,7 +315,6 @@ public class ManejadorUsuarios {
             }
 
             organizador.setNombre(nombre);
-            organizador.setCorreoElectronico(correo);
             organizador.setDescripcion(descripcion);
             organizador.setSitioWeb(sitioWeb);
 
