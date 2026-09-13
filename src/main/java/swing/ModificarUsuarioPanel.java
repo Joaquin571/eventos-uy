@@ -82,11 +82,6 @@ public class ModificarUsuarioPanel {
         comboTipoUsuario.addItem("Organizador");
         comboTipoUsuario.setEnabled(false);
     }
-
-
-    /**
-     * Carga en el combo todas las instituciones existentes.
-     */
     public void cargarInstituciones() {
         inicializarComponentesSeguros();
 
@@ -208,6 +203,7 @@ public class ModificarUsuarioPanel {
         txtCorreo.setText(correo);
 
         txtNickname.setEditable(false);
+        txtCorreo.setEditable(false);
     }
 
 
