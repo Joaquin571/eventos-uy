@@ -43,71 +43,42 @@ public class Evento {
         this.fechaAlta = fechaAlta;
     }
 
-    // =========================
-    // CATEGORÍAS
-    // =========================
-
     public void agregarCategoria(Categoria categoria) {
         categorias.add(categoria);
     }
-
     public Set<Categoria> getCategorias() {
         return categorias;
     }
-
     public void setCategorias(Set<Categoria> categorias) {
         this.categorias = categorias;
     }
 
-    // =========================
-    // EDICIONES
-    // =========================
-
     public void agregarEdicion(Edicion edicion) {
         ediciones.add(edicion);
     }
-
     public Set<Edicion> getEdiciones() {
         return ediciones;
     }
-
     public void setEdiciones(Set<Edicion> ediciones) {
         this.ediciones = ediciones;
     }
-
-    // =========================
-    // DATOS EVENTO
-    // =========================
-
     public String getNombre() {
         return nombre;
     }
-
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
-
     public String getSigla() {
         return sigla;
     }
-
-    public void setSigla(String sigla) {
-        this.sigla = sigla;
-    }
-
     public String getDescripcion() {
         return descripcion;
     }
-
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
     }
-
     public LocalDate getFechaAlta() {
         return fechaAlta;
     }
 
-    public void setFechaAlta(LocalDate fechaAlta) {
-        this.fechaAlta = fechaAlta;
-    }
 }

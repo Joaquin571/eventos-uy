@@ -22,44 +22,17 @@ public class Categoria {
     @ManyToMany(mappedBy = "categorias")
     private Set<Evento> eventos = new HashSet<>();
 
-    protected Categoria() {
-    }
-
-    public Categoria(String nombre) {
-        this(nombre, null);
-    }
-
-    public Categoria(String nombre, Categoria padre) {
-        this.nombre = nombre;
-        this.padre = padre;
-    }
-
+    protected Categoria() {}
+    public Categoria(String nombre) {this(nombre, null);}
+    public Categoria(String nombre, Categoria padre) {this.nombre = nombre;this.padre = padre;}
     public void agregarSubcategoria(Categoria subcategoria) {
         subcategorias.add(subcategoria);
         subcategoria.setPadre(this);
     }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public Categoria getPadre() {
-        return padre;
-    }
-
-    public void setPadre(Categoria padre) {
-        this.padre = padre;
-    }
-
-    public Set<Categoria> getSubcategorias() {
-        return subcategorias;
-    }
-
-    public Set<Evento> getEventos() {
-        return eventos;
-    }
+    public String getNombre() {return nombre;}
+    public void setNombre(String nombre) {this.nombre = nombre;}
+    public Categoria getPadre() {return padre;}
+    public void setPadre(Categoria padre) {this.padre = padre;}
+    public Set<Categoria> getSubcategorias() {return subcategorias;}
+    public Set<Evento> getEventos() {return eventos;}
 }

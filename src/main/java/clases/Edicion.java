@@ -60,155 +60,54 @@ public class Edicion {
         this.organizador = organizador;
     }
 
+    public Set<TipoRegistro> getTiposRegistro() {return tiposRegistros;}
+    public void setTiposRegistro(Set<TipoRegistro> tiposRegistros) {this.tiposRegistros = tiposRegistros;}
 
-    // =========================
-    // TIPOS DE REGISTRO
-    // =========================
-
-    public Set<TipoRegistro> getTiposRegistro() {
-        return tiposRegistros;
-    }
-
-    public void setTiposRegistro(Set<TipoRegistro> tiposRegistros) {
-        this.tiposRegistros = tiposRegistros;
-    }
-
-    public void agregarTipoRegistro(TipoRegistro tipoRegistro) {
-        tiposRegistros.add(tipoRegistro);
-    }
-
+    public void agregarTipoRegistro(TipoRegistro tipoRegistro) {tiposRegistros.add(tipoRegistro);}
     public TipoRegistro obtenerTipoRegistro(String nombreTipoRegistro) {
-
         for (TipoRegistro tipoRegistro : tiposRegistros) {
-
-            if (tipoRegistro.getIdNombre()
-                    .equalsIgnoreCase(nombreTipoRegistro)) {
-
+            if (tipoRegistro.getIdNombre().equalsIgnoreCase(nombreTipoRegistro)) {
                 return tipoRegistro;
             }
         }
-
         return null;
     }
 
+    public Set<Patrocinio> getPatrocinios() {return patrocinios;}
+    public void setPatrocinios(Set<Patrocinio> patrocinios) {this.patrocinios = patrocinios;}
+    public void agregarPatrocinio(Patrocinio patrocinio) {patrocinios.add(patrocinio);}
 
-    // =========================
-    // PATROCINIOS
-    // =========================
+    public Set<Registro> getRegistros() {return registros;}
+    public void setRegistros(Set<Registro> registros) {this.registros = registros;}
 
-    public Set<Patrocinio> getPatrocinios() {
-        return patrocinios;
-    }
+    public Organizador getOrganizador() {return organizador;}
+    public void setOrganizador(Organizador organizador) {this.organizador = organizador;}
 
-    public void setPatrocinios(Set<Patrocinio> patrocinios) {
-        this.patrocinios = patrocinios;
-    }
-
-    public void agregarPatrocinio(Patrocinio patrocinio) {
-        patrocinios.add(patrocinio);
-    }
-
-
-    // =========================
-    // REGISTROS
-    // =========================
-
-    public Set<Registro> getRegistros() {
-        return registros;
-    }
-
-    public void setRegistros(Set<Registro> registros) {
-        this.registros = registros;
-    }
-
-    public void agregarRegistro(Registro registro) {
-        registros.add(registro);
-    }
-
-
-    // =========================
-    // ORGANIZADOR
-    // =========================
-
-    public Organizador getOrganizador() {
-        return organizador;
-    }
-
-    public void setOrganizador(Organizador organizador) {
-        this.organizador = organizador;
-    }
-
-
-    // =========================
-    // EVENTO
-    // =========================
-
-    public Evento getEvento() {
-        return evento;
-    }
-
-    public void setEvento(Evento evento) {
-        this.evento = evento;
-    }
-
-
-    // =========================
-    // DATOS EDICIÓN
-    // =========================
+    public Evento getEvento() {return evento;}
+    public void setEvento(Evento evento) {this.evento = evento;}
 
     public String getIdNombre() {
         return idNombre;
     }
-
     public void setIdNombre(String idNombre) {
         this.idNombre = idNombre;
     }
-
     public String getSigla() {
         return sigla;
     }
-
-    public void setSigla(String sigla) {
-        this.sigla = sigla;
-    }
-
     public LocalDate getFechaInicio() {
         return fechaInicio;
     }
-
-    public void setFechaInicio(LocalDate fechaInicio) {
-        this.fechaInicio = fechaInicio;
-    }
-
     public LocalDate getFechaFin() {
         return fechaFin;
     }
-
-    public void setFechaFin(LocalDate fechaFin) {
-        this.fechaFin = fechaFin;
-    }
-
     public LocalDate getFechaAlta() {
         return fechaAlta;
     }
-
-    public void setFechaAlta(LocalDate fechaAlta) {
-        this.fechaAlta = fechaAlta;
-    }
-
     public String getCiudad() {
         return ciudad;
     }
-
-    public void setCiudad(String ciudad) {
-        this.ciudad = ciudad;
-    }
-
     public String getPais() {
         return pais;
-    }
-
-    public void setPais(String pais) {
-        this.pais = pais;
     }
 }

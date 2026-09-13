@@ -26,5 +26,4 @@ public class Institucion {
     public String getDescripcion() {return descripcion;}
     public void setDescripcion(String descripcion) {this.descripcion = descripcion;}
     public String getSitioWeb() {return sitioWeb;}
-    public void setSitioWeb(String sitioWeb) {this.sitioWeb = sitioWeb;}
 }

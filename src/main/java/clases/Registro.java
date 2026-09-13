@@ -42,47 +42,14 @@ public class Registro {
         this.edicion = edicion;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public LocalDate getFechaRegistro() {
-        return fechaRegistro;
-    }
-
-    public void setFechaRegistro(LocalDate fechaRegistro) {
-        this.fechaRegistro = fechaRegistro;
-    }
-
-    public float getCosto() {
-        return costo;
-    }
-
-    public void setCosto(float costo) {
-        this.costo = costo;
-    }
-
-    public TipoRegistro getTipoRegistro() {
-        return tipoRegistro;
-    }
-
-    public void setTipoRegistro(TipoRegistro tipoRegistro) {
-        this.tipoRegistro = tipoRegistro;
-    }
-
-    public Edicion getEdicion() {
-        return edicion;
-    }
-
-    public void setEdicion(Edicion edicion) {
-        this.edicion = edicion;
-    }
-
-    public Asistente getAsistente() {
-        return asistente;
-    }
-
-    public void setAsistente(Asistente asistente) {
-        this.asistente = asistente;
-    }
+    public Long getId() {return id;}
+    public LocalDate getFechaRegistro() {return fechaRegistro;}
+    public float getCosto() {return costo;}
+    public void setCosto(float costo) {this.costo = costo;}
+    public TipoRegistro getTipoRegistro() {return tipoRegistro;}
+    public void setTipoRegistro(TipoRegistro tipoRegistro) {this.tipoRegistro = tipoRegistro;}
+    public Edicion getEdicion() {return edicion;}
+    public void setEdicion(Edicion edicion) {this.edicion = edicion;}
+    public Asistente getAsistente() {return asistente;}
+    public void setAsistente(Asistente asistente) {this.asistente = asistente;}
 }

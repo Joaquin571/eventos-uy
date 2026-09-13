@@ -48,67 +48,17 @@ public class Patrocinio {
         this.institucion = institucion;
     }
 
-    public LocalDate getFecha() {
-        return fecha;
-    }
+    public LocalDate getFecha() {return fecha;}
+    public void setFecha(LocalDate fecha) {this.fecha = fecha;}
+    public float getMontoAporte() {return montoAporte;}
+    public int getCantRegistrosGrat() {return cantRegistrosGrat;}
+    public String getCodigoPatrocinio() {return codigoPatrocinio;}
+    public NivelPatrocinio getNivel() {return nivel;}
 
-    public void setFecha(LocalDate fecha) {
-        this.fecha = fecha;
-    }
-
-    public float getMontoAporte() {
-        return montoAporte;
-    }
-
-    public void setMontoAporte(float montoAporte) {
-        this.montoAporte = montoAporte;
-    }
-
-    public int getCantRegistrosGrat() {
-        return cantRegistrosGrat;
-    }
-
-    public void setCantRegistrosGrat(int cantRegistrosGrat) {
-        this.cantRegistrosGrat = cantRegistrosGrat;
-    }
-
-    public String getCodigoPatrocinio() {
-        return codigoPatrocinio;
-    }
-
-    public void setCodigoPatrocinio(String codigoPatrocinio) {
-        this.codigoPatrocinio = codigoPatrocinio;
-    }
-
-    public NivelPatrocinio getNivel() {
-        return nivel;
-    }
-
-    public void setNivel(NivelPatrocinio nivel) {
-        this.nivel = nivel;
-    }
-
-    public Institucion getInstitucion() {
-        return institucion;
-    }
-
-    public void setInstitucion(Institucion institucion) {
-        this.institucion = institucion;
-    }
-
-    public Edicion getEdicion() {
-        return edicion;
-    }
-
-    public void setEdicion(Edicion edicion) {
-        this.edicion = edicion;
-    }
-
-    public TipoRegistro getTipoRegistro() {
-        return tipoRegistro;
-    }
-
-    public void setTipoRegistro(TipoRegistro tipoRegistro) {
-        this.tipoRegistro = tipoRegistro;
-    }
+    public Institucion getInstitucion() {return institucion;}
+    public void setInstitucion(Institucion institucion) {this.institucion = institucion;}
+    public Edicion getEdicion() {return edicion;}
+    public void setEdicion(Edicion edicion) {this.edicion = edicion;}
+    public TipoRegistro getTipoRegistro() {return tipoRegistro;}
+    public void setTipoRegistro(TipoRegistro tipoRegistro) {this.tipoRegistro = tipoRegistro;}
 }
