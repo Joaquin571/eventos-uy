@@ -140,7 +140,7 @@ public class AltaEdicionEventoPanel extends JPanel {
     // CARGAR ORGANIZADORES
     // =====================================================
 
-    private void cargarOrganizadores() {
+    public void cargarOrganizadores() {
 
         comboOrganizadores.removeAllItems();
 

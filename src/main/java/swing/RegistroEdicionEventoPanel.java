@@ -268,7 +268,9 @@ public class RegistroEdicionEventoPanel extends JPanel {
             DtRegistro dtRegistro =
                     new DtRegistro(
                             LocalDate.now(),
-                            tipoRegistro.getCosto()
+                            tipoRegistro.getCosto(),
+                            tipoRegistro.getIdNombre(),
+                            edicionSeleccionada
                     );
 
             sistema.registroAEdicion(

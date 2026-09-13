@@ -9,7 +9,11 @@ public class DtRegistro {
     private String nombreTipoRegistro;
     private String nombreEdicion;
 
-    public DtRegistro(LocalDate fechaRegistro, float costo
+    public DtRegistro(
+            LocalDate fechaRegistro,
+            float costo,
+            String nombreTipoRegistro,
+            String nombreEdicion
     ) {
         this.fechaRegistro = fechaRegistro;
         this.costo = costo;
@@ -17,17 +21,25 @@ public class DtRegistro {
         this.nombreEdicion = nombreEdicion;
     }
 
-    public String getNombreTipoRegistro(){return nombreTipoRegistro;}
+    public String getNombreTipoRegistro() {
+        return nombreTipoRegistro;
+    }
+
     public LocalDate getFechaRegistro() {
         return fechaRegistro;
     }
-    public String getNombreEdicion(){return nombreEdicion;}
+
+    public String getNombreEdicion() {
+        return nombreEdicion;
+    }
+
     public float getCosto() {
         return costo;
     }
 
     @Override
-    public String toString(){
-        return nombreEdicion + "-" + nombreTipoRegistro + " (" + fechaRegistro + ")";
+    public String toString() {
+        return nombreEdicion + " - " + nombreTipoRegistro +
+                " (" + fechaRegistro + ") - $" + costo;
     }
 }

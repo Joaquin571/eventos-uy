@@ -192,6 +192,70 @@ public class Sistema implements ISistema {
 
         return null;
     }
+    @Override
+    public Collection<DtRegistro> obtenerRegistrosAsistente(String nickname) {
+
+        Collection<DtRegistro> resultado = new ArrayList<>();
+
+        for (Registro registro :
+                manejadorRegistros.obtenerRegistrosAsistente(nickname)) {
+
+            String nombreTipoRegistro = null;
+            String nombreEdicion = null;
+
+            if (registro.getTipoRegistro() != null) {
+                nombreTipoRegistro =
+                        registro.getTipoRegistro().getIdNombre();
+            }
+
+            if (registro.getEdicion() != null) {
+                nombreEdicion =
+                        registro.getEdicion().getIdNombre();
+            }
+
+            resultado.add(
+                    new DtRegistro(
+                            registro.getFechaRegistro(),
+                            registro.getCosto(),
+                            nombreTipoRegistro,
+                            nombreEdicion
+                    )
+            );
+        }
+
+        return resultado;
+    }
+    @Override
+    public Collection<DtEdicion> obtenerEdicionesOrganizador(String nickname) {
+
+        Collection<DtEdicion> resultado = new ArrayList<>();
+
+        for (Edicion edicion :
+                manejadorEventos.obtenerEdicionesOrganizador(nickname)) {
+
+            String nombreOrganizador = null;
+
+            if (edicion.getOrganizador() != null) {
+                nombreOrganizador =
+                        edicion.getOrganizador().getNickname();
+            }
+
+            resultado.add(
+                    new DtEdicion(
+                            edicion.getIdNombre(),
+                            edicion.getSigla(),
+                            edicion.getFechaInicio(),
+                            edicion.getFechaFin(),
+                            edicion.getFechaAlta(),
+                            edicion.getCiudad(),
+                            edicion.getPais(),
+                            nombreOrganizador
+                    )
+            );
+        }
+
+        return resultado;
+    }
 
     // =====================================================
     // MODIFICAR USUARIO
