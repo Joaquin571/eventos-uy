@@ -101,7 +101,7 @@ public class principal {
         // CONSULTA USUARIO
         // =========================
 
-        panelConsultaUsuario = new ConsultaUsuarioPanel();
+        panelConsultaUsuario = new ConsultaUsuarioPanel(this);
         internoConsultaUsuario =
                 crearInterno(
                         "Consulta Usuario",
@@ -552,6 +552,18 @@ public class principal {
     public void navegarAConsultaEdicion(String nombreEvento, String nombreEdicion) {
         panelConsultaEdicion.seleccionarEventoYEdicion(nombreEvento, nombreEdicion);
         mostrar(internoConsultaEdicion);
+    }
+    public void navegarAConsultaRegistro(
+            String nicknameAsistente,
+            String nombreEdicion
+    ) {
+
+        panelConsultaRegistro.seleccionarRegistro(
+                nicknameAsistente,
+                nombreEdicion
+        );
+
+        mostrar(internoConsultaRegistro);
     }
 
     // MAIN
