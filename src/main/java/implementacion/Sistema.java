@@ -226,15 +226,6 @@ public class Sistema implements ISistema {
 
     // CATEGORÍAS
     @Override
-    public Collection<String> listarCategorias() {
-        Collection<String> resultado = new ArrayList<>();
-        for (Categoria categoria : manejadorEventos.obtenerCategorias()) {
-            resultado.add(categoria.getNombre());
-        }
-        return resultado;
-    }
-
-    @Override
     public void altaCategoria(String nombre, String nombrePadre) throws Exception {
         if (nombre == null || nombre.trim().isEmpty()) {
             throw new Exception(
@@ -290,8 +281,6 @@ public class Sistema implements ISistema {
 
     // EVENTOS
     @Override
-    public boolean existeEvento(String nombre) {return manejadorEventos.existeEvento(nombre);}
-    @Override
     public boolean altaEvento(DtEvento dt) throws Exception {
         if (manejadorEventos.existeEvento(dt.getNombre())) {
             throw new Exception(
@@ -346,23 +335,7 @@ public class Sistema implements ISistema {
         return resultado;
     }
 
-    @Override
-    public DtEvento obtenerInformacionEvento(String nombreEvento) {
-        Evento evento = manejadorEventos.obtenerEvento(nombreEvento);
-        if (evento == null) {return null;}
 
-        Collection<String> categorias = new ArrayList<>();
-        for (Categoria categoria : evento.getCategorias()) {
-            categorias.add(categoria.getNombre());
-        }
-        return new DtEvento(
-                evento.getNombre(),
-                evento.getSigla(),
-                evento.getDescripcion(),
-                evento.getFechaAlta(),
-                categorias
-        );
-    }
 
 
     // EDICIONES
@@ -461,11 +434,6 @@ public class Sistema implements ISistema {
 
     // REGISTRO A EDICIÓN
     @Override
-    public boolean estaRegistradoAEdicion(String nicknameAsistente, String nombreEdicion) {
-        return manejadorRegistros.existeRegistroAsistenteEdicion(nicknameAsistente, nombreEdicion);
-    }
-
-    @Override
     public boolean registroAEdicion(String nicknameAsistente, String nombreEdicion, String nombreTipoRegistro, DtRegistro dt) {
         if (nicknameAsistente == null || nicknameAsistente.isBlank()) {
             throw new IllegalArgumentException("Debe seleccionar un asistente.");
@@ -520,22 +488,6 @@ public class Sistema implements ISistema {
     }
 
     // CONSULTA DE REGISTRO
-    @Override
-    public DtRegistro obtenerDetalleRegistro(String nicknameAsistente, String nombreEdicion) {
-        if (nicknameAsistente == null || nicknameAsistente.isBlank()) {
-            throw new IllegalArgumentException("Debe seleccionar un asistente.");
-        }
-        if (nombreEdicion == null || nombreEdicion.isBlank()) {
-            throw new IllegalArgumentException("Debe seleccionar una edición.");
-        }
-
-        Registro r = manejadorRegistros.obtenerRegistro(nicknameAsistente, nombreEdicion);
-        if (r == null) {return null;}
-        String edicion = r.getEdicion() != null ? r.getEdicion().getIdNombre() : "";
-        String tipo = r.getTipoRegistro() != null ? r.getTipoRegistro().getIdNombre() : "";
-
-        return new DtRegistro(r.getFechaRegistro(), r.getCosto(), tipo, edicion);
-    }
 
     // PATROCINIOS
     @Override
@@ -618,30 +570,6 @@ public class Sistema implements ISistema {
         }
         return true;
     }
-
-    @Override
-    public Collection<DtPatrocinio> listarPatrocinios() {
-        Collection<DtPatrocinio> resultado = new ArrayList<>();
-        for (Patrocinio patrocinio : manejadorPatrocinios.listarPatrocinios()) {
-            String nombreInstitucion = null;
-            if (patrocinio.getInstitucion() != null) {
-                nombreInstitucion = patrocinio.getInstitucion().getNombre();
-            }
-
-            resultado.add(new DtPatrocinio(
-                    patrocinio.getFecha(),
-                    patrocinio.getMontoAporte(),
-                    patrocinio.getCantRegistrosGrat(),
-                    patrocinio.getCodigoPatrocinio(),
-                    patrocinio.getNivel(),
-                    nombreInstitucion,
-                    patrocinio.getEdicion() != null ? patrocinio.getEdicion().getIdNombre() : null,
-                    patrocinio.getTipoRegistro() != null ? patrocinio.getTipoRegistro().getIdNombre() : null
-            ));
-        }
-        return resultado;
-    }
-
     @Override
     public DtPatrocinio consultarPatrocinio(String codigo) {
         Patrocinio patrocinio = manejadorPatrocinios.obtenerPatrocinio(codigo);

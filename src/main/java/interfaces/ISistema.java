@@ -1,89 +1,50 @@
 package interfaces;
 
 import datatypes.*;
-
 import java.util.Collection;
 
 public interface ISistema {
 
-    // VALIDACIONES USUARIO
+    // USUARIOS
     boolean existeUsuario(String nickname);
     boolean existeCorreoElectronico(String correoElectronico);
-
-    // ALTA USUARIO
     boolean altaAsistente(DtAsistente asistente);
     boolean altaOrganizador(DtOrganizador organizador);
-
-    // CONSULTA USUARIO
+    void modificarAsistente(DtAsistente asistente);
+    void modificarOrganizador(DtOrganizador organizador);
     Collection<DtUsuario> listarUsuarios();
     DtUsuario consultarUsuario(String nickname);
     Collection<DtEdicion> obtenerEdicionesOrganizador(String nickname);
-
-    // MODIFICAR USUARIO
-    void modificarAsistente(DtAsistente asistente);
-    void modificarOrganizador(DtOrganizador organizador);
 
     // INSTITUCIONES
     boolean existeInstitucion(String nombre);
     boolean altaInstitucion(DtInstitucion institucion);
     Collection<DtInstitucion> listarInstituciones();
 
-    // ALTA EVENTO
-    Collection<String> listarCategorias();
-    boolean existeEvento(String nombre);
+    // EVENTOS
     boolean altaEvento(DtEvento dt) throws Exception;
+    Collection<DtEvento> listarEventos();
 
-    // CONSULTA EVENTO
-    DtEvento obtenerInformacionEvento(String nombreEvento);
+    // EDICIONES
+    boolean altaEdicion(DtEdicion dtEdicion, String nombreEvento);
+    Collection<DtEdicion> obtenerEdicionesEvento(String nombreEvento);
 
-
-    // PATROCINIOS
-    boolean altaPatrocinio(DtPatrocinio patrocinio);
-    Collection<DtPatrocinio> listarPatrocinios();
-    DtPatrocinio consultarPatrocinio(String codigo);
-
-    // ALTA CATEGORIA
+    // CATEGORÍAS
     void altaCategoria(String nombre, String nombrePadre) throws Exception;
     Collection<String> listarCategoriasFormateadas();
 
-    // REGISTRO
-    boolean estaRegistradoAEdicion(
-            String nicknameAsistente,
-            String nombreEdicion
-    );
-
-    boolean registroAEdicion(
-            String nicknameAsistente,
-            String nombreEdicion,
-            String nombreTipoRegistro,
-            DtRegistro dtRegistro
-    );
-
-    // CONSULTA DE REGISTRO
-    Collection<DtRegistro> obtenerRegistrosAsistente(String nickname);
-    DtRegistro obtenerDetalleRegistro(String nicknameAsistente, String nombreEdicion);
-
-    // EVENTOS / EDICIONES
-    Collection<DtEvento> listarEventos();
-
-    Collection<DtEdicion> obtenerEdicionesEvento(
-            String nombreEvento
-    );
-
-    boolean altaTipoRegistro(
-            DtTipoRegistro dtTipoRegistro,
-            String nombreEdicion
-    );
-
+    // TIPOS DE REGISTRO
+    boolean altaTipoRegistro(DtTipoRegistro dtTipoRegistro, String nombreEdicion);
     Collection<DtTipoRegistro> obtenerTiposRegistroEdicion(String nombreEdicion);
     DtTipoRegistro consultarTipoRegistro(String nombreEdicion, String nombreTipoRegistro);
-    boolean altaEdicion(DtEdicion dtEdicion, String nombreEvento);
 
-    Collection<DtPatrocinio> obtenerPatrociniosEdicion(
-            String nombreEdicion
-    );
+    // REGISTROS
+    boolean registroAEdicion(String nicknameAsistente, String nombreEdicion, String nombreTipoRegistro, DtRegistro dtRegistro);
+    Collection<DtRegistro> obtenerRegistrosAsistente(String nickname);
+    Collection<DtRegistro> obtenerRegistrosEdicion(String nombreEdicion);
 
-    Collection<DtRegistro> obtenerRegistrosEdicion(
-            String nombreEdicion
-    );
+    // PATROCINIOS
+    boolean altaPatrocinio(DtPatrocinio patrocinio);
+    Collection<DtPatrocinio> obtenerPatrociniosEdicion(String nombreEdicion);
+    DtPatrocinio consultarPatrocinio(String codigo);
 }
