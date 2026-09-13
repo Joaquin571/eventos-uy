@@ -4,6 +4,7 @@ import clases.Asistente;
 import clases.Edicion;
 import clases.Registro;
 import clases.TipoRegistro;
+import java.util.Collection;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
@@ -229,6 +230,37 @@ public class ManejadorRegistros {
             }
 
             throw e;
+
+        } finally {
+
+            em.close();
+        }
+    }
+    public Collection<Registro> obtenerRegistrosAsistente(
+            String nickname
+    ) {
+
+        EntityManager em =
+                BaseDeDatos.getEntityManager();
+
+        try {
+
+            return em.createQuery(
+                            """
+                            SELECT r
+                            FROM Registro r
+                            LEFT JOIN FETCH r.tipoRegistro
+                            LEFT JOIN FETCH r.edicion
+                            WHERE r.asistente.nickname = :nickname
+                            ORDER BY r.fechaRegistro
+                            """,
+                            Registro.class
+                    )
+                    .setParameter(
+                            "nickname",
+                            nickname
+                    )
+                    .getResultList();
 
         } finally {
 

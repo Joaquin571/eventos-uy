@@ -310,6 +310,36 @@ public class ManejadorEventos {
             em.close();
         }
     }
+    public Collection<Edicion> obtenerEdicionesOrganizador(
+            String nicknameOrganizador
+    ) {
+
+        EntityManager em =
+                BaseDeDatos.getEntityManager();
+
+        try {
+
+            return em.createQuery(
+                            """
+                            SELECT e
+                            FROM Edicion e
+                            LEFT JOIN FETCH e.organizador
+                            WHERE e.organizador.nickname = :nickname
+                            ORDER BY e.idNombre
+                            """,
+                            Edicion.class
+                    )
+                    .setParameter(
+                            "nickname",
+                            nicknameOrganizador
+                    )
+                    .getResultList();
+
+        } finally {
+
+            em.close();
+        }
+    }
 
     // =====================================================
     // CATEGORÍAS

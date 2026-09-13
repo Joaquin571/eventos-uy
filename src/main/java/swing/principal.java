@@ -371,6 +371,7 @@ public class principal {
 
         altaEdicion.addActionListener(e -> {
             panelAltaEdicion.cargarEventos();
+            panelAltaEdicion.cargarOrganizadores();
             mostrar(internoAltaEdicion);
         });
 

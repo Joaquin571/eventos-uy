@@ -5,6 +5,8 @@ import datatypes.DtOrganizador;
 import datatypes.DtUsuario;
 import implementacion.Fabrica;
 import interfaces.ISistema;
+import datatypes.DtEdicion;
+import datatypes.DtRegistro;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,6 +22,9 @@ public class ConsultaUsuarioPanel {
     private JLabel lblCorreo;
     private JLabel lblEspecial1;
     private JLabel lblEspecial2;
+    private JList<Object> listaAsociados;
+    private DefaultListModel<Object> modeloAsociados;
+    private JLabel lblAsociados;
 
     private JButton btnCerrar;
 
@@ -104,6 +109,18 @@ public class ConsultaUsuarioPanel {
                                             : "-"
                             )
             );
+            lblAsociados.setText("Registros asociados:");
+
+            modeloAsociados.clear();
+
+            Collection<DtRegistro> registros =
+                    sistema.obtenerRegistrosAsistente(
+                            asistente.getNickname()
+                    );
+
+            for (DtRegistro registro : registros) {
+                modeloAsociados.addElement(registro);
+            }
 
         } else if (completo instanceof DtOrganizador) {
 
@@ -129,6 +146,18 @@ public class ConsultaUsuarioPanel {
                                             : "-"
                             )
             );
+            lblAsociados.setText("Ediciones organizadas:");
+
+            modeloAsociados.clear();
+
+            Collection<DtEdicion> ediciones =
+                    sistema.obtenerEdicionesOrganizador(
+                            organizador.getNickname()
+                    );
+
+            for (DtEdicion edicion : ediciones) {
+                modeloAsociados.addElement(edicion);
+            }
         }
     }
 
@@ -140,6 +169,8 @@ public class ConsultaUsuarioPanel {
         lblCorreo.setText("-");
         lblEspecial1.setText("-");
         lblEspecial2.setText("-");
+        lblAsociados.setText("Asociados:");
+        modeloAsociados.clear();
     }
 
     private void armarUI() {
@@ -247,6 +278,43 @@ public class ConsultaUsuarioPanel {
         lblEspecial2 = new JLabel("-");
         detailPanel.add(lblEspecial2);
 
+        JPanel asociadosPanel =
+                new JPanel(
+                        new BorderLayout(5, 5)
+                );
+
+        asociadosPanel.setBorder(
+                BorderFactory.createTitledBorder(
+                        "Información asociada"
+                )
+        );
+
+        lblAsociados =
+                new JLabel("Asociados:");
+
+        modeloAsociados =
+                new DefaultListModel<>();
+
+        listaAsociados =
+                new JList<>(modeloAsociados);
+
+        JScrollPane scrollAsociados =
+                new JScrollPane(listaAsociados);
+
+        scrollAsociados.setPreferredSize(
+                new Dimension(500, 150)
+        );
+
+        asociadosPanel.add(
+                lblAsociados,
+                BorderLayout.NORTH
+        );
+
+        asociadosPanel.add(
+                scrollAsociados,
+                BorderLayout.CENTER
+        );
+
         // =========================
         // BOTÓN CERRAR
         // =========================
@@ -272,8 +340,23 @@ public class ConsultaUsuarioPanel {
                 BorderLayout.NORTH
         );
 
-        mainPanel.add(
+        JPanel centroPanel =
+                new JPanel(
+                        new BorderLayout(10, 10)
+                );
+
+        centroPanel.add(
                 detailPanel,
+                BorderLayout.NORTH
+        );
+
+        centroPanel.add(
+                asociadosPanel,
+                BorderLayout.CENTER
+        );
+
+        mainPanel.add(
+                centroPanel,
                 BorderLayout.CENTER
         );
 

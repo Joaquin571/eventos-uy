@@ -17,6 +17,8 @@ public interface ISistema {
     // CONSULTA USUARIO
     Collection<DtUsuario> listarUsuarios();
     DtUsuario consultarUsuario(String nickname);
+    Collection<DtRegistro> obtenerRegistrosAsistente(String nickname);
+    Collection<DtEdicion> obtenerEdicionesOrganizador(String nickname);
 
     // MODIFICAR USUARIO
     void modificarAsistente(DtAsistente asistente);

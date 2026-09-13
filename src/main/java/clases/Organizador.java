@@ -27,6 +27,9 @@ public class Organizador extends Usuario{
     }
     public void setDescripcion(String descripcion) {this.descripcion = descripcion;}
     public void setSitioWeb(String sitioWeb) {this.sitioWeb = sitioWeb;}
+    public Set<Edicion> getEdiciones() {
+        return ediciones;
+    }
     public void agregarEdicion(Edicion edicion) {
         ediciones.add(edicion);
         edicion.setOrganizador(this);
