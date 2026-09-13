@@ -24,6 +24,7 @@ public class principal {
     private JInternalFrame internoConsultaTipoRegistro;
     private JInternalFrame internoAltaTipoRegistro;
     private JInternalFrame internoRegistroEdicion;
+    private JInternalFrame internoConsultaRegistro;
     private JInternalFrame internoConsultaEdicion;
 
     private JInternalFrame internoAltaCategoria;
@@ -37,6 +38,7 @@ public class principal {
     private AltaEdicionEventoPanel panelAltaEdicion;
     private ConsultaTipoRegistroPanel panelConsultaTipoRegistro;
     private RegistroEdicionEventoPanel panelRegistroEdicion;
+    private ConsultaRegistroPanel panelConsultaRegistro;
     private ConsultaEdicionEventoPanel panelConsultaEdicion;
     private AltaTipoRegistro panelAltaTipoRegistro;
 
@@ -287,6 +289,18 @@ public class principal {
 
         desktopPane.add(internoAltaTipoRegistro);
 
+        // =========================
+        // CONSULTA DE REGISTRO DE EDICIÓN
+        // =========================
+        panelConsultaRegistro = new ConsultaRegistroPanel();
+        internoConsultaRegistro = crearInterno(
+                "Consulta de Registro de Edición de Evento",
+                panelConsultaRegistro,
+                100,
+                100
+        );
+        desktopPane.add(internoConsultaRegistro);
+
     }
 
 
@@ -393,6 +407,11 @@ public class principal {
             panelRegistroEdicion.cargarAsistentes();
             panelRegistroEdicion.cargarEventos();
             mostrar(internoRegistroEdicion);
+        });
+
+        consultaRegistroEvento.addActionListener(e -> {
+            panelConsultaRegistro.refrescarDatos();
+            mostrar(internoConsultaRegistro);
         });
 
         itemSalir.addActionListener(

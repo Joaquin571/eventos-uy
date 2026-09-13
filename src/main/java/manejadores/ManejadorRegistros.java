@@ -11,6 +11,8 @@ import jakarta.persistence.EntityTransaction;
 
 import persistencia.BaseDeDatos;
 
+import java.util.List;
+
 public class ManejadorRegistros {
 
     private static ManejadorRegistros instancia = null;
@@ -236,6 +238,10 @@ public class ManejadorRegistros {
             em.close();
         }
     }
+    // =====================================================
+    // OBTENER REGISTROS DE UN ASISTENTE
+    // =====================================================
+
     public Collection<Registro> obtenerRegistrosAsistente(
             String nickname
     ) {
@@ -261,6 +267,51 @@ public class ManejadorRegistros {
                             nickname
                     )
                     .getResultList();
+
+        } finally {
+
+            em.close();
+        }
+    }
+
+    // =====================================================
+    // OBTENER REGISTRO POR NICKNAME Y EDICIÓN
+    // =====================================================
+
+    public Registro obtenerRegistro(
+            String nickname,
+            String nombreEdicion
+    ) {
+
+        EntityManager em =
+                BaseDeDatos.getEntityManager();
+
+        try {
+
+            return em.createQuery(
+                            """
+                            SELECT r
+                            FROM Registro r
+                            LEFT JOIN FETCH r.tipoRegistro
+                            LEFT JOIN FETCH r.edicion
+                            WHERE r.asistente.nickname = :nickname
+                              AND r.edicion.idNombre = :edicion
+                            """,
+                            Registro.class
+                    )
+                    .setParameter(
+                            "nickname",
+                            nickname
+                    )
+                    .setParameter(
+                            "edicion",
+                            nombreEdicion
+                    )
+                    .getSingleResult();
+
+        } catch (jakarta.persistence.NoResultException e) {
+
+            return null;
 
         } finally {
 

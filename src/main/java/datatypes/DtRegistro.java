@@ -11,6 +11,14 @@ public class DtRegistro {
 
     public DtRegistro(
             LocalDate fechaRegistro,
+            float costo
+    ) {
+        this.fechaRegistro = fechaRegistro;
+        this.costo = costo;
+    }
+
+    public DtRegistro(
+            LocalDate fechaRegistro,
             float costo,
             String nombreTipoRegistro,
             String nombreEdicion
@@ -39,7 +47,9 @@ public class DtRegistro {
 
     @Override
     public String toString() {
-        return nombreEdicion + " - " + nombreTipoRegistro +
-                " (" + fechaRegistro + ") - $" + costo;
+        return nombreEdicion + " - "
+                + nombreTipoRegistro
+                + " (" + fechaRegistro + ") - $"
+                + costo;
     }
 }

@@ -17,7 +17,6 @@ public interface ISistema {
     // CONSULTA USUARIO
     Collection<DtUsuario> listarUsuarios();
     DtUsuario consultarUsuario(String nickname);
-    Collection<DtRegistro> obtenerRegistrosAsistente(String nickname);
     Collection<DtEdicion> obtenerEdicionesOrganizador(String nickname);
 
     // MODIFICAR USUARIO
@@ -59,6 +58,10 @@ public interface ISistema {
             String nombreTipoRegistro,
             DtRegistro dtRegistro
     );
+
+    // CONSULTA DE REGISTRO
+    Collection<DtRegistro> obtenerRegistrosAsistente(String nickname);
+    DtRegistro obtenerDetalleRegistro(String nicknameAsistente, String nombreEdicion);
 
     // EVENTOS / EDICIONES
     Collection<DtEvento> listarEventos();
