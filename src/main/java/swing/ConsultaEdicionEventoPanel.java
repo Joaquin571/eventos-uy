@@ -92,7 +92,8 @@ public class ConsultaEdicionEventoPanel extends JPanel {
             sb.append("Fecha Fin: ").append(seleccionada.getFechaFin()).append("\n");
             sb.append("Fecha Alta: ").append(seleccionada.getFechaAlta()).append("\n");
             sb.append("Ciudad: ").append(seleccionada.getCiudad()).append("\n");
-            sb.append("País: ").append(seleccionada.getPais()).append("\n\n");
+            sb.append("País: ").append(seleccionada.getPais()).append("\n");
+            sb.append("Organizador: ").append(seleccionada.getNombreOrganizador()).append("\n\n");
 
             sb.append("--- Tipos de Registro Disponibles ---\n");
             Collection<DtTipoRegistro> tipos = sistema.obtenerTiposRegistroEdicion(edicionSel);
@@ -105,6 +106,35 @@ public class ConsultaEdicionEventoPanel extends JPanel {
                             .append(" | Cupo: ").append(tr.getCupo()).append("\n");
                 }
             }
+
+            sb.append("\n--- Patrocinios ---\n");
+            Collection<DtPatrocinio> patrocinios = sistema.obtenerPatrociniosEdicion(edicionSel);
+            if (patrocinios.isEmpty()) {
+                sb.append("No hay patrocinios para esta edición.\n");
+            } else {
+                for (DtPatrocinio p : patrocinios) {
+                    sb.append("- Código: ").append(p.getCodigoPatrocinio())
+                            .append(" | Instituto: ").append(p.getNombreInstituto())
+                            .append(" | Nivel: ").append(p.getNivel())
+                            .append(" | Monto: $").append(p.getMontoAporte())
+                            .append(" | Registros Gratuitos: ").append(p.getCantRegistrosGrat())
+                            .append("\n");
+                }
+            }
+
+            sb.append("\n--- Registros de la Edición ---\n");
+            Collection<DtRegistro> registros = sistema.obtenerRegistrosEdicion(edicionSel);
+            if (registros.isEmpty()) {
+                sb.append("No hay registros para esta edición.\n");
+            } else {
+                for (DtRegistro reg : registros) {
+                    sb.append("- Tipo: ").append(reg.getNombreTipoRegistro())
+                            .append(" | Fecha: ").append(reg.getFechaRegistro())
+                            .append(" | Costo: $").append(reg.getCosto())
+                            .append("\n");
+                }
+            }
+
             areaDetalles.setText(sb.toString());
         }
     }

@@ -318,4 +318,40 @@ public class ManejadorRegistros {
             em.close();
         }
     }
+
+    // =====================================================
+    // OBTENER REGISTROS DE UNA EDICIÓN
+    // =====================================================
+
+    public Collection<Registro> obtenerRegistrosEdicion(
+            String nombreEdicion
+    ) {
+
+        EntityManager em =
+                BaseDeDatos.getEntityManager();
+
+        try {
+
+            return em.createQuery(
+                            """
+                            SELECT r
+                            FROM Registro r
+                            LEFT JOIN FETCH r.tipoRegistro
+                            LEFT JOIN FETCH r.edicion
+                            WHERE r.edicion.idNombre = :edicion
+                            ORDER BY r.fechaRegistro
+                            """,
+                            Registro.class
+                    )
+                    .setParameter(
+                            "edicion",
+                            nombreEdicion
+                    )
+                    .getResultList();
+
+        } finally {
+
+            em.close();
+        }
+    }
 }

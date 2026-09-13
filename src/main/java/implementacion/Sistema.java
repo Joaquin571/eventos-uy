@@ -1227,4 +1227,51 @@ public class Sistema implements ISistema {
 
         return resultado;
     }
+
+    @Override
+    public Collection<DtRegistro> obtenerRegistrosEdicion(
+            String nombreEdicion
+    ) {
+
+        Collection<DtRegistro> resultado =
+                new ArrayList<>();
+
+        for (Registro registro :
+                manejadorRegistros
+                        .obtenerRegistrosEdicion(
+                                nombreEdicion
+                        )) {
+
+            String nombreTipoRegistro = null;
+
+            if (registro.getTipoRegistro() != null) {
+
+                nombreTipoRegistro =
+                        registro
+                                .getTipoRegistro()
+                                .getIdNombre();
+            }
+
+            String nombreEd = null;
+
+            if (registro.getEdicion() != null) {
+
+                nombreEd =
+                        registro
+                                .getEdicion()
+                                .getIdNombre();
+            }
+
+            resultado.add(
+                    new DtRegistro(
+                            registro.getFechaRegistro(),
+                            registro.getCosto(),
+                            nombreTipoRegistro,
+                            nombreEd
+                    )
+            );
+        }
+
+        return resultado;
+    }
 }
