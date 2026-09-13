@@ -58,6 +58,10 @@ public interface ISistema {
             DtRegistro dtRegistro
     );
 
+    // CONSULTA DE REGISTRO
+    Collection<DtRegistro> obtenerRegistrosAsistente(String nicknameAsistente);
+    DtRegistro obtenerDetalleRegistro(String nicknameAsistente, String nombreEdicion);
+
     // EVENTOS / EDICIONES
     Collection<DtEvento> listarEventos();
 

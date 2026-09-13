@@ -9,8 +9,13 @@ public class DtRegistro {
     private String nombreTipoRegistro;
     private String nombreEdicion;
 
-    public DtRegistro(LocalDate fechaRegistro, float costo
-    ) {
+    public DtRegistro(LocalDate fechaRegistro, float costo) {
+        this.fechaRegistro = fechaRegistro;
+        this.costo = costo;
+    }
+
+    // Se usa en "Consulta de Registro" para recibir edición y tipo
+    public DtRegistro(LocalDate fechaRegistro, float costo, String nombreTipoRegistro, String nombreEdicion) {
         this.fechaRegistro = fechaRegistro;
         this.costo = costo;
         this.nombreTipoRegistro = nombreTipoRegistro;

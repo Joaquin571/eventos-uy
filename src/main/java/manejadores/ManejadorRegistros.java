@@ -10,6 +10,8 @@ import jakarta.persistence.EntityTransaction;
 
 import persistencia.BaseDeDatos;
 
+import java.util.List;
+
 public class ManejadorRegistros {
 
     private static ManejadorRegistros instancia = null;
@@ -232,6 +234,52 @@ public class ManejadorRegistros {
 
         } finally {
 
+            em.close();
+        }
+    }
+
+    // =====================================================
+    // OBTENER REGISTROS DE UN ASISTENTE
+    // =====================================================
+    public List<Registro> obtenerRegistrosAsistente(String nickname) {
+        EntityManager em = BaseDeDatos.getEntityManager();
+        try {
+            return em.createQuery(
+                            """
+                            SELECT r
+                            FROM Registro r
+                            WHERE r.asistente.nickname = :nickname
+                            """,
+                            Registro.class
+                    )
+                    .setParameter("nickname", nickname)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    // =====================================================
+    // OBTENER REGISTRO POR NICKNAME Y EDICIÓN
+    // =====================================================
+    public Registro obtenerRegistro(String nickname, String nombreEdicion) {
+        EntityManager em = BaseDeDatos.getEntityManager();
+        try {
+            return em.createQuery(
+                            """
+                            SELECT r
+                            FROM Registro r
+                            WHERE r.asistente.nickname = :nickname
+                              AND r.edicion.idNombre = :edicion
+                            """,
+                            Registro.class
+                    )
+                    .setParameter("nickname", nickname)
+                    .setParameter("edicion", nombreEdicion)
+                    .getSingleResult();
+        } catch (jakarta.persistence.NoResultException e) {
+            return null;
+        } finally {
             em.close();
         }
     }

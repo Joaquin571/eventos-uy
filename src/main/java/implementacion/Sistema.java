@@ -818,6 +818,52 @@ public class Sistema implements ISistema {
 
         return true;
     }
+// =====================================================
+    // CONSULTA DE REGISTRO
+    // =====================================================
+
+    @Override
+    public Collection<DtRegistro> obtenerRegistrosAsistente(String nicknameAsistente) {
+        if (nicknameAsistente == null || nicknameAsistente.isBlank()) {
+            throw new IllegalArgumentException("Debe indicar un asistente.");
+        }
+
+        List<Registro> registros = manejadorRegistros.obtenerRegistrosAsistente(nicknameAsistente);
+        List<DtRegistro> dtRegistros = new ArrayList<>();
+
+        for (Registro r : registros) {
+            String edicion = r.getEdicion() != null ? r.getEdicion().getIdNombre() : "";
+            String tipo = r.getTipoRegistro() != null ? r.getTipoRegistro().getIdNombre() : "";
+
+            // Creamos el DtRegistro pasando los datos completos
+            DtRegistro dt = new DtRegistro(r.getFechaRegistro(), r.getCosto(), tipo, edicion);
+            dtRegistros.add(dt);
+        }
+
+        return dtRegistros;
+    }
+
+    @Override
+    public DtRegistro obtenerDetalleRegistro(String nicknameAsistente, String nombreEdicion) {
+        if (nicknameAsistente == null || nicknameAsistente.isBlank()) {
+            throw new IllegalArgumentException("Debe seleccionar un asistente.");
+        }
+
+        if (nombreEdicion == null || nombreEdicion.isBlank()) {
+            throw new IllegalArgumentException("Debe seleccionar una edición.");
+        }
+
+        Registro r = manejadorRegistros.obtenerRegistro(nicknameAsistente, nombreEdicion);
+        if (r == null) {
+            return null;
+        }
+
+        String edicion = r.getEdicion() != null ? r.getEdicion().getIdNombre() : "";
+        String tipo = r.getTipoRegistro() != null ? r.getTipoRegistro().getIdNombre() : "";
+
+        return new DtRegistro(r.getFechaRegistro(), r.getCosto(), tipo, edicion);
+    }
+
 
     // =====================================================
     // PATROCINIOS
