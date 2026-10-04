@@ -1,5 +1,160 @@
-<!doctype html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Alta de institución | eventos.uy</title><link rel="stylesheet" href="../css/styles.css"></head>
-<body data-root=".."><div id="site-header"></div><main class="container"><h1>Alta de institución</h1><form class="form" data-demo><div class="field"><label>Nombre</label><input type="text" required></div><div class="field"><label>Descripción</label><textarea required></textarea></div><div class="field"><label>Sitio web</label><input type="url" required></div><div class="field"><label>Imagen opcional</label><input type="file" ></div><div class="message"></div><button class="btn btn-primary">Confirmar</button></form></main>
-<script src="../js/datos.js"></script><script src="../js/app.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alta de Institución - eventos.uy</title>
+
+    <link rel="stylesheet" href="../vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header>
+    <nav class="navbar navbar-expand-lg bg-primary navbar-dark">
+        <div class="container">
+
+            <a class="navbar-brand fw-bold"
+               href="../index.html">
+                eventos.uy
+            </a>
+
+            <button class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarPrincipal">
+
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse"
+                 id="navbarPrincipal">
+
+                <ul class="navbar-nav me-auto">
+
+                    <li class="nav-item">
+                        <a class="nav-link"
+                           href="../index.html">
+                            Eventos
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link active"
+                           href="alta-institucion.html">
+                            Alta Institución
+                        </a>
+                    </li>
+
+                </ul>
+
+                <span class="navbar-text text-white">
+                    Organizador
+                </span>
+
+            </div>
+        </div>
+    </nav>
+</header>
+
+
+
+<main class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-12 col-md-8 col-lg-6">
+
+            <div class="card shadow-sm">
+
+                <div class="card-body p-4">
+
+                    <h1 class="h3 mb-4">
+                        Alta de Institución
+                    </h1>
+
+                    <form id="formAltaInstitucion">
+
+                        <div class="mb-3">
+                            <label for="nombre"
+                                   class="form-label">
+                                Nombre
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   id="nombre"
+                                   name="nombre"
+                                   required>
+                        </div>
+
+
+                        <div class="mb-3">
+                            <label for="descripcion"
+                                   class="form-label">
+                                Descripción
+                            </label>
+
+                            <textarea class="form-control"
+                                      id="descripcion"
+                                      name="descripcion"
+                                      rows="4"
+                                      required></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="sitioWeb"
+                                   class="form-label">
+                                Sitio web
+                            </label>
+
+                            <input type="url"
+                                   class="form-control"
+                                   id="sitioWeb"
+                                   name="sitioWeb"
+                                   placeholder="https://ejemplo.com"
+                                   required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="imagen" class="form-label">Imagen</label>
+                            <input type="file" class="form-control" id="imagen" name="imagen" accept="image/*">
+                            <div class="form-text">
+                                Opcional
+                            </div>
+                        </div>
+
+
+                        <div class="d-flex justify-content-end gap-2">
+
+                            <a href="../index.html"
+                               class="btn btn-secondary">
+                                Cancelar
+                            </a>
+
+                            <button type="submit"
+                                    class="btn btn-primary">
+                                Dar de alta
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</main>
+
+
+<script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>

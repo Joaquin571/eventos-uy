@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>eventos.uy</title>
+    <link rel="stylesheet"
+          href="vendor/bootstrap/css/bootstrap.min.css">
+
+    <link rel="stylesheet"
+          href="css/styles.css">
+</head>
+
+<body>
+
+<!-- =====================================================
+     HEADER
+     ===================================================== -->
+<header class="bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+
+            <a class="navbar-brand fw-bold" href="index.html">
+                eventos.uy
+            </a>
+
+            <button class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarPrincipal"
+                    aria-controls="navbarPrincipal"
+                    aria-expanded="false"
+                    aria-label="Abrir navegación">
+
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse"
+                 id="navbarPrincipal">
+
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                    <li class="nav-item">
+                        <a class="nav-link active"
+                           href="index.html">
+                            Eventos
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link"
+                           href="pages/usuarios.html">
+                            Usuarios
+                        </a>
+                    </li>
+
+                </ul>
+
+                <!-- Usuario no autenticado -->
+                <div class="d-flex gap-2"
+                     id="accionesUsuario">
+
+                    <a class="btn btn-outline-light"
+                       href="pages/login.html">
+                        Iniciar sesión
+                    </a>
+
+                    <a class="btn btn-light text-primary"
+                       href="pages/alta-usuario.html">
+                        Registrarse
+                    </a>
+
+                </div>
+
+            </div>
+        </div>
+    </nav>
+</header>
+
+
+<!-- =====================================================
+     CATEGORÍAS
+     ===================================================== -->
+<section class="bg-white border-bottom">
+    <div class="container py-3">
+
+        <div class="d-flex flex-wrap gap-2">
+
+            <a href="index.html"
+               class="btn btn-sm btn-outline-secondary">
+                Todos
+            </a>
+
+            <a href="index.html?categoria=Tecnología"
+               class="btn btn-sm btn-outline-secondary">
+                Tecnología
+            </a>
+
+            <a href="index.html?categoria=Cultura"
+               class="btn btn-sm btn-outline-secondary">
+                Cultura
+            </a>
+
+            <a href="index.html?categoria=Deporte"
+               class="btn btn-sm btn-outline-secondary">
+                Deporte
+            </a>
+
+            <a href="index.html?categoria=Música"
+               class="btn btn-sm btn-outline-secondary">
+                Música
+            </a>
+
+            <a href="index.html?categoria=Negocios"
+               class="btn btn-sm btn-outline-secondary">
+                Negocios
+            </a>
+
+        </div>
+    </div>
+</section>
+
+
+<!-- =====================================================
+     CONTENIDO PRINCIPAL
+     ===================================================== -->
+<main class="container py-5">
+
+    <div class="mb-4">
+
+        <h1 class="fw-bold">
+            Eventos
+        </h1>
+
+        <p class="text-secondary">
+            Descubrí los próximos eventos disponibles en eventos.uy
+        </p>
+
+    </div>
+
+
+    <!-- =================================================
+         LISTADO DE EVENTOS
+
+         Por ahora dejamos datos fijos.
+         Más adelante podemos generarlos desde datos.js.
+         ================================================= -->
+    <div class="row g-4"
+         id="event-list">
+
+
+        <!-- EVENTO 1 -->
+        <div class="col-12 col-md-6 col-lg-4">
+
+            <div class="card h-100 shadow-sm">
+
+                <div class="card-body">
+
+                    <span class="badge text-bg-primary mb-2">
+                        Deporte
+                    </span>
+
+                    <h5 class="card-title">
+                        Maratón de Montevideo
+                    </h5>
+
+                    <p class="card-text text-secondary">
+                        Competencia deportiva anual
+                        realizada en Montevideo.
+                    </p>
+
+                </div>
+
+                <div class="card-footer bg-white border-0 pb-3">
+
+                    <a href="pages/evento.html?id=1"
+                       class="btn btn-primary w-100">
+
+                        Ver evento
+
+                    </a>
+
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- EVENTO 2 -->
+        <div class="col-12 col-md-6 col-lg-4">
+
+            <div class="card h-100 shadow-sm">
+
+                <div class="card-body">
+
+                    <span class="badge text-bg-success mb-2">
+                        Cultura
+                    </span>
+
+                    <h5 class="card-title">
+                        Montevideo Comics
+                    </h5>
+
+                    <p class="card-text text-secondary">
+                        Convención de historietas,
+                        cine y cultura geek.
+                    </p>
+
+                </div>
+
+                <div class="card-footer bg-white border-0 pb-3">
+
+                    <a href="pages/evento.html?id=2"
+                       class="btn btn-primary w-100">
+
+                        Ver evento
+
+                    </a>
+
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- EVENTO 3 -->
+        <div class="col-12 col-md-6 col-lg-4">
+
+            <div class="card h-100 shadow-sm">
+
+                <div class="card-body">
+
+                    <span class="badge text-bg-warning mb-2">
+                        Música
+                    </span>
+
+                    <h5 class="card-title">
+                        Montevideo Rock
+                    </h5>
+
+                    <p class="card-text text-secondary">
+                        Festival musical con artistas
+                        nacionales e internacionales.
+                    </p>
+
+                </div>
+
+                <div class="card-footer bg-white border-0 pb-3">
+
+                    <a href="pages/evento.html?id=3"
+                       class="btn btn-primary w-100">
+
+                        Ver evento
+
+                    </a>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</main>
+
+
+<!-- =====================================================
+     FOOTER
+     ===================================================== -->
+<footer class="border-top bg-white mt-5">
+
+    <div class="container py-4 text-center text-secondary">
+
+        <small>
+            eventos.uy
+        </small>
+
+    </div>
+
+</footer>
+
+
+<!-- Bootstrap JS local -->
+<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+<!-- JavaScript del proyecto -->
+<script src="js/datos.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+
+</html>
