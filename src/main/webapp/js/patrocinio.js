@@ -1,102 +1,250 @@
 const organizadorActualId = 1;
 
-const selectEvento = document.getElementById("evento");
-const selectEdicion = document.getElementById("edicion");
-const selectInstitucion = document.getElementById("institucion");
-const selectTipoRegistro = document.getElementById("tipoRegistro");
+const formAltaPatrocinio = document.getElementById("formAltaPatrocinio");
+const detallePatrocinio = document.getElementById("detallePatrocinio");
 
-cargarSelect(selectEvento, Datos.eventos, "Seleccione un evento");
-cargarSelect(selectInstitucion, Datos.instituciones, "Seleccione una institución");
+if(formAltaPatrocinio){
+    const selectEvento = document.getElementById("evento");
+    const selectEdicion = document.getElementById("edicion");
+    const selectInstitucion = document.getElementById("institucion");
+    const selectTipoRegistro = document.getElementById("tipoRegistro");
 
-selectEvento.addEventListener("change", function () {
-    const eventoId = Number(selectEvento.value);
+    cargarSelect(selectEvento, Datos.eventos, "Seleccione un evento");
+    cargarSelect(selectInstitucion, Datos.instituciones, "Seleccione una institución");
 
-    const edicionesOrganizador = Datos.ediciones.filter(
-        edicion => edicion.eventoId === eventoId &&
-                   edicion.organizadorId === organizadorActualId
-    );
+    selectEvento.addEventListener("change", function () {
+        const eventoId = Number(selectEvento.value);
 
-    cargarSelect(selectEdicion, edicionesOrganizador, "Seleccione una edición");
-    cargarSelect(selectTipoRegistro, [], "Seleccione un tipo de registro");
-});
+        const edicionesOrganizador = Datos.ediciones.filter(
+            edicion => edicion.eventoId === eventoId &&
+                       edicion.organizadorId === organizadorActualId
+        );
 
-selectEdicion.addEventListener("change", function () {
-    const edicionId = Number(selectEdicion.value);
+        cargarSelect(selectEdicion, edicionesOrganizador, "Seleccione una edición");
+        cargarSelect(selectTipoRegistro, [], "Seleccione un tipo de registro");
+    });
 
-    const tiposDeLaEdicion = Datos.tiposRegistro.filter(
-        tipo => tipo.edicionId === edicionId
-    );
+    selectEdicion.addEventListener("change", function () {
+        const edicionId = Number(selectEdicion.value);
 
-    cargarSelect(selectTipoRegistro, tiposDeLaEdicion, "Seleccione un tipo de registro");
-});
+        const tiposDeLaEdicion = Datos.tiposRegistro.filter(
+            tipo => tipo.edicionId === edicionId
+        );
 
-const formPatrocinio = document.getElementById("formAltaPatrocinio");
+        cargarSelect(selectTipoRegistro, tiposDeLaEdicion, "Seleccione un tipo de registro");
+    });
 
-formPatrocinio.addEventListener("submit", function (event) {
-    event.preventDefault();
 
-    const edicionId = Number(selectEdicion.value);
-    const institucionId = Number(selectInstitucion.value);
-    const tipoRegistroId = Number(selectTipoRegistro.value);
+    formAltaPatrocinio.addEventListener("submit", function (event) {
+        event.preventDefault();
 
-    //saca valores
-    const nivel = document.getElementById("nivel").value;
-    const aporte = Number(document.getElementById("aporte").value);
-    const cantidadGratuitos = Number(document.getElementById("registrograt").value);
-    const codigo = document.getElementById("codigo").value.trim();
+        const edicionId = Number(selectEdicion.value);
+        const institucionId = Number(selectInstitucion.value);
+        const tipoRegistroId = Number(selectTipoRegistro.value);
 
-    //validaciones
-    const institucionYaPatrocina = Datos.patrocinios.some(
-        patrocinio => patrocinio.edicionId === edicionId &&
-                      patrocinio.institucionId === institucionId
-    );
+        //saca valores
+        const nivel = document.getElementById("nivel").value;
+        const aporte = Number(document.getElementById("aporte").value);
+        const cantidadGratuitos = Number(document.getElementById("registrograt").value);
+        const codigo = document.getElementById("codigo").value.trim();
 
-    if (institucionYaPatrocina) {
-        alert("La institución seleccionada ya patrocina esta edición.");
-        return;
-    }
+        //validaciones
+        const institucionYaPatrocina = Datos.patrocinios.some(
+            patrocinio => patrocinio.edicionId === edicionId &&
+                          patrocinio.institucionId === institucionId
+        );
 
-    const codigoYaExiste = Datos.patrocinios.some(
-        patrocinio => patrocinio.codigo.toLowerCase() === codigo.toLowerCase()
-    );
+        if (institucionYaPatrocina) {
+            alert("La institución seleccionada ya patrocina esta edición.");
+            return;
+        }
 
-    if (codigoYaExiste) {
-        alert("El código de patrocinio ingresado ya existe.");
-        return;
-    }
+        const codigoYaExiste = Datos.patrocinios.some(
+            patrocinio => patrocinio.codigo.toLowerCase() === codigo.toLowerCase()
+        );
 
-    const tipoRegistro = Datos.tiposRegistro.find(
-        tipo => tipo.id === tipoRegistroId
-    );
+        if (codigoYaExiste) {
+            alert("El código de patrocinio ingresado ya existe.");
+            return;
+        }
 
-    const costoRegistrosGratuitos = tipoRegistro.costo * cantidadGratuitos;
-    const limitePermitido = aporte * 0.20;
+        const tipoRegistro = Datos.tiposRegistro.find(
+            tipo => tipo.id === tipoRegistroId
+        );
 
-    if (costoRegistrosGratuitos > limitePermitido) {
-        alert("El costo de los registros gratuitos supera el 20% del aporte.");
-        return;
-    }
+        const costoRegistrosGratuitos = tipoRegistro.costo * cantidadGratuitos;
+        const limitePermitido = aporte * 0.20;
 
-    //guardar
-    const nuevoPatrocinio = {
-        id: Datos.patrocinios.length + 1,
-        edicionId: edicionId,
-        institucionId: institucionId,
-        nivel: nivel,
-        aporte: aporte,
-        tipoRegistroId: tipoRegistroId,
-        cantidadGratuitos: cantidadGratuitos,
-        codigo: codigo,
-        fechaAlta: new Date().toISOString().split("T")[0]
-    };
+        if (costoRegistrosGratuitos > limitePermitido) {
+            alert("El costo de los registros gratuitos supera el 20% del aporte.");
+            return;
+        }
 
-    Datos.patrocinios.push(nuevoPatrocinio);
+        //guardar
+        const nuevoPatrocinio = {
+            id: Datos.patrocinios.length + 1,
+            edicionId: edicionId,
+            institucionId: institucionId,
+            nivel: nivel,
+            aporte: aporte,
+            tipoRegistroId: tipoRegistroId,
+            cantidadGratuitos: cantidadGratuitos,
+            codigo: codigo,
+            fechaAlta: new Date().toISOString().split("T")[0]
+        };
 
-    alert("Patrocinio registrado correctamente.");
+        Datos.patrocinios.push(nuevoPatrocinio);
 
-    formPatrocinio.reset();
+        alert("Patrocinio registrado correctamente.");
 
-    cargarSelect(selectEdicion, [], "Seleccione una edición");
-    cargarSelect(selectTipoRegistro, [], "Seleccione un tipo de registro");
+        formAltaPatrocinio.reset();
 
-});
+        cargarSelect(selectEdicion, [], "Seleccione una edición");
+        cargarSelect(selectTipoRegistro, [], "Seleccione un tipo de registro");
+
+    });
+}
+
+if (detallePatrocinio) {
+    const selectEvento = document.getElementById("evento");
+    const selectEdicion = document.getElementById("edicion");
+    const selectPatrocinio = document.getElementById("patrocinio");
+
+    cargarSelect(selectEvento, Datos.eventos, "Seleccione un evento");
+
+    selectEvento.addEventListener("change", function () {
+        const eventoId = Number(selectEvento.value);
+
+        if (!eventoId) {
+            cargarSelect(selectEdicion, [], "Seleccione una edición");
+            cargarSelect(selectPatrocinio, [], "Seleccione un patrocinio");
+
+            selectEdicion.disabled = true;
+            selectPatrocinio.disabled = true;
+
+            detallePatrocinio.classList.add("d-none");
+            return;
+        }
+
+        const edicionesAceptadas = Datos.ediciones.filter(
+            edicion => edicion.eventoId === eventoId &&
+                       edicion.estado === "Aceptada"
+        );
+
+        cargarSelect(
+            selectEdicion,
+            edicionesAceptadas,
+            "Seleccione una edición"
+        );
+
+        selectEdicion.disabled = false;
+        selectPatrocinio.disabled = true;
+
+        cargarSelect(
+            selectPatrocinio,
+            [],
+            "Seleccione un patrocinio"
+        );
+
+        detallePatrocinio.classList.add("d-none");
+    });
+
+    selectEdicion.addEventListener("change", function () {
+        const edicionId = Number(selectEdicion.value);
+
+        if (!edicionId) {
+            cargarSelect(
+                selectPatrocinio,
+                [],
+                "Seleccione un patrocinio"
+            );
+
+            selectPatrocinio.disabled = true;
+            detallePatrocinio.classList.add("d-none");
+            return;
+        }
+
+        const patrociniosEdicion = Datos.patrocinios
+            .filter(patrocinio => patrocinio.edicionId === edicionId)
+            .map(patrocinio => {
+                const institucion = Datos.instituciones.find(
+                    institucion => institucion.id === patrocinio.institucionId
+                );
+
+                return {
+                    id: patrocinio.id,
+                    nombre: institucion.nombre
+                };
+            });
+
+        cargarSelect(
+            selectPatrocinio,
+            patrociniosEdicion,
+            "Seleccione un patrocinio"
+        );
+
+        selectPatrocinio.disabled = false;
+        detallePatrocinio.classList.add("d-none");
+    });
+
+    selectPatrocinio.addEventListener("change", function () {
+        const patrocinioId = Number(selectPatrocinio.value);
+
+        if (!patrocinioId) {
+            detallePatrocinio.classList.add("d-none");
+            return;
+        }
+
+        const patrocinio = Datos.patrocinios.find(
+            patrocinio => patrocinio.id === patrocinioId
+        );
+
+        const institucion = Datos.instituciones.find(
+            institucion => institucion.id === patrocinio.institucionId
+        );
+
+        const tipoRegistro = Datos.tiposRegistro.find(
+            tipo => tipo.id === patrocinio.tipoRegistroId
+        );
+
+        const edicion = Datos.ediciones.find(
+            edicion => edicion.id === patrocinio.edicionId
+        );
+
+
+        document.getElementById("institucion").textContent =
+            institucion.nombre;
+
+        document.getElementById("nivel").textContent =
+            patrocinio.nivel;
+
+        document.getElementById("aporte").textContent =
+            "$" + patrocinio.aporte;
+
+        document.getElementById("tipoRegistro").textContent =
+            tipoRegistro.nombre;
+
+        document.getElementById("registrograt").textContent =
+            patrocinio.cantidadGratuitos;
+
+        document.getElementById("fechaalta").textContent =
+            patrocinio.fechaAlta;
+
+
+        // Código visible solamente para el organizador de la edición
+        const contenedorCodigo =
+            document.getElementById("contenedorCodigo");
+
+        if (edicion.organizadorId === organizadorActualId) {
+            document.getElementById("codigo").textContent =
+                patrocinio.codigo;
+
+            contenedorCodigo.classList.remove("d-none");
+        } else {
+            contenedorCodigo.classList.add("d-none");
+        }
+
+
+        detallePatrocinio.classList.remove("d-none");
+    });
+}
