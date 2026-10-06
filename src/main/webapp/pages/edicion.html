@@ -1,5 +1,68 @@
 <!doctype html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Consulta de edición | eventos.uy</title><link rel="stylesheet" href="../css/styles.css"></head>
-<body data-root=".."><div id="site-header"></div><main class="container"><h1>Maratón 2025</h1><article class="card"><p>Montevideo · Uruguay</p><p>Organizador: imm</p><h2>Tipos de registro</h2><a href="tipo-registro.html">Corredor 10K</a><h2>Patrocinios</h2><a href="patrocinio.html">UTEC · Oro</a><p><a class="btn btn-primary" href="registro-edicion.html">Registrarme</a></p></article></main>
-<script src="../js/datos.js"></script><script src="../js/app.js"></script></body></html>
+<html lang="es">
+<head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Consulta de edición | eventos.uy</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body data-root="..">
+<div id="site-header">
+
+</div>
+<main class="container">
+    <h1 id="nombreEdicion">Maratón 2025</h1>
+    <article class="card">
+        <p>Ciudad: <span id="ciudadEdicion">Montevideo</span></p>
+        <p>País: <span id="paisEdicion">Uruguay</span></p>
+        <p>Organizador: <span id="organizadorEdicion">imm</span></p>
+        <p>Sigla: <span id="siglaEdicion">MAR25</span></p>
+        <p>Fecha de inicio: <span id="fechaInicioEdicion">10/05/2025</span></p>
+        <p>Fecha de fin: <span id="fechaFinEdicion">10/05/2025</span></p>
+        <div id="imagenEdicion">
+            <p>Imagen de la edición</p>
+        </div>
+        <h2>Tipos de registro</h2>
+
+        <div id="tiposRegistroEdicion">
+            <a href="tipo-registro.html">Corredor 10K</a>
+        </div>
+        <h2>Patrocinios</h2>
+
+        <div id="patrociniosEdicion">
+            <a href="patrocinio.html">UTEC · Oro</a>
+        </div>
+        <div id="zonaOrganizador" style="display: none;">
+            <h2>Registros de la edición</h2>
+            <a href="consulta-registro.html">Ver registros</a>
+        </div>
+        <div id="zonaAsistente" style="display: none;">
+            <h2>Mi registro</h2>
+            <a href="consulta-registro.html">Ver mi registro</a>
+        </div>
+
+        <p><a class="btn btn-primary" href="registro-edicion.html">Registrarme</a></p>
+    </article>
+</main>
+<script src="../js/datos.js"></script>
+<script src="../js/app.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const zonaOrganizador =
+            document.getElementById("zonaOrganizador");
+        const zonaAsistente =
+            document.getElementById("zonaAsistente");
+
+        if (App.rol === "organizador") {
+            zonaOrganizador.style.display = "block";
+        }
+        if (App.rol === "asistente") {
+            zonaAsistente.style.display = "block";
+        }
+
+
+    });
+</script>
+
+</body>
+</html>
