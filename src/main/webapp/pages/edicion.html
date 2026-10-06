@@ -40,7 +40,9 @@
             <a href="consulta-registro.html">Ver mi registro</a>
         </div>
 
-        <p><a class="btn btn-primary" href="registro-edicion.html">Registrarme</a></p>
+        <p id="zonaRegistro" style="display: none;">
+            <a class="btn btn-primary" href="registro-edicion.html">Registrarme</a>
+        </p>
     </article>
 </main>
 <script src="../js/datos.js"></script>
@@ -52,12 +54,15 @@
             document.getElementById("zonaOrganizador");
         const zonaAsistente =
             document.getElementById("zonaAsistente");
+        const zonaRegistro =
+            document.getElementById("zonaRegistro");
 
         if (App.rol === "organizador") {
             zonaOrganizador.style.display = "block";
         }
         if (App.rol === "asistente") {
             zonaAsistente.style.display = "block";
+            zonaRegistro.style.display = "block";
         }
 
 
