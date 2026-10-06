@@ -1,5 +1,89 @@
 <!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Alta de edición | eventos.uy</title><link rel="stylesheet" href="../css/styles.css"></head>
-<body data-root=".."><div id="site-header"></div><main class="container"><h1>Alta de edición</h1><form class="form" data-demo><div class="field"><label>Evento</label><input type="text" required></div><div class="field"><label>Nombre</label><input type="text" required></div><div class="field"><label>Sigla</label><input type="text" required></div><div class="field"><label>Ciudad</label><input type="text" required></div><div class="field"><label>País</label><input type="text" required></div><div class="field"><label>Fecha inicio</label><input type="date" required></div><div class="field"><label>Fecha fin</label><input type="date" required></div><div class="field"><label>Imagen opcional</label><input type="file" ></div><div class="message"></div><button class="btn btn-primary">Confirmar</button></form></main>
-<script src="../js/datos.js"></script><script src="../js/app.js"></script></body></html>
+<title>Alta de edición | eventos.uy</title>
+    <link rel="stylesheet" href="../css/styles.css"></head>
+<body data-root="..">
+<div id="site-header"></div>
+<main class="container">
+    <h1>Alta de edición</h1>
+    <form class="form" data-demo>
+        <div class="field">
+            <label for="evento">Evento</label>
+            <select id="evento" name="evento" required>
+                <option value="">Seleccione un evento</option>
+                <option value="Maraton de Montevideo">Maratón de Montevideo</option>
+                <option value="Montevideo Comics">Montevideo Comics</option>
+                <option value="Montevideo Rock">Montevideo Rock</option>
+            </select>
+        </div>
+        <div class="field">
+            <label for="nombre">Nombre</label>
+            <input type="text" id="nombre" name="nombre" required>
+        </div>
+        <div class="field">
+            <label for="sigla">Sigla</label>
+            <input type="text" id="sigla" name="sigla" required>
+        </div>
+        <div class="field">
+            <label for="ciudad">Ciudad</label>
+            <input type="text" id="ciudad" name="ciudad" required>
+        </div>
+        <div class="field">
+            <label for="pais">País</label>
+            <input type="text" id="pais" name="pais" required>
+        </div>
+        <div class="field">
+            <label for="fechaInicio">Fecha inicio</label>
+            <input type="date" id="fechaInicio" name="fechaInicio" required>
+        </div>
+        <div class="field">
+            <label for="fechaFin">Fecha fin</label>
+            <input type="date" id="fechaFin" name="fechaFin" required>
+        </div>
+        <div class="field">
+            <label for="imagen">Imagen opcional</label>
+            <input type="file" id="imagen" name="imagen">
+        </div>
+        <div class="message"></div>
+        <button class="btn btn-primary" type="submit">Confirmar</button>
+        <button class="btn" type="reset">Cancelar</button>
+    </form>
+</main>
+<script src="../js/datos.js"></script><script src="../js/app.js"></script>
+<script>
+    const fechaInicio = document.getElementById("fechaInicio");
+    const fechaFin = document.getElementById("fechaFin");
+    const nombre = document.getElementById("nombre");
+    function validarNombre() {
+        const existe = App.datos.ediciones.some(function(edicion) {
+            return edicion.nombre.toLowerCase() === nombre.value.trim().toLowerCase();
+        });
+
+        if (existe) {
+            nombre.setCustomValidity("Ya existe una edición con ese nombre.");
+        } else {
+            nombre.setCustomValidity("");
+        }
+    }
+    function validarFechas() {
+        if (fechaInicio.value && fechaFin.value &&
+            fechaFin.value < fechaInicio.value) {
+
+            fechaFin.setCustomValidity(
+                "La fecha de fin no puede ser anterior a la fecha de inicio."
+            );
+
+        } else {
+            fechaFin.setCustomValidity("");
+        }
+    }
+    nombre.addEventListener("change", validarNombre);
+    fechaInicio.addEventListener("change", validarFechas);
+    fechaFin.addEventListener("change", validarFechas);
+    document.querySelector("form[data-demo]").addEventListener("reset", function () {
+        nombre.setCustomValidity("");
+        fechaFin.setCustomValidity("");
+    });
+</script>
+</body>
+</html>
