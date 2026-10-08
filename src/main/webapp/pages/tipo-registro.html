@@ -1,5 +1,148 @@
 <!doctype html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Consulta tipo registro | eventos.uy</title><link rel="stylesheet" href="../css/styles.css"></head>
-<body data-root=".."><div id="site-header"></div><main class="container"><h1>Corredor 10K</h1><article class="card"><p>Costo: $ 1.200</p><p>Cupo: 500</p></article></main>
-<script src="../js/datos.js"></script><script src="../js/app.js"></script></body></html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Consulta Tipo de Registro - eventos.uy</title>
+
+    <link rel="stylesheet" href="../vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body>
+
+<header>
+    <nav class="navbar navbar-expand-lg bg-primary navbar-dark">
+
+        <div class="container">
+
+            <a class="navbar-brand fw-bold"
+               href="../index.html">
+                eventos.uy
+            </a>
+
+            <button class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarPrincipal"
+                    aria-controls="navbarPrincipal"
+                    aria-expanded="false"
+                    aria-label="Abrir navegación">
+
+                <span class="navbar-toggler-icon"></span>
+
+            </button>
+
+            <div class="collapse navbar-collapse"
+                 id="navbarPrincipal">
+
+                <ul class="navbar-nav me-auto">
+
+                    <li class="nav-item">
+                        <a class="nav-link"
+                           href="../index.html">
+                            Eventos
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link active"
+                           href="tipo-registro.html">
+                            Consulta Tipo de Registro
+                        </a>
+                    </li>
+
+                </ul>
+
+                <span class="navbar-text text-white">
+                    Visitante, Asistente, Organizador
+                </span>
+
+            </div>
+
+        </div>
+
+    </nav>
+</header>
+
+<main class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-12 col-md-8 col-lg-6">
+
+            <div class="card shadow-sm">
+
+                <div class="card-body p-4">
+                    <h1 class="h3 mb-4">Consulta de Tipo de Registro</h1>
+
+                        <div class="mb-3">
+                            <label for="evento" class="form-label">Evento</label>
+                            <select class="form-select" id="evento" name="evento" required>
+                                <option value="">Seleccione un evento</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edicion" class="form-label">Edición</label>
+                            <select class="form-select" id="edicion" name="edicion" disabled required>
+                                <option value="">Seleccione una edición</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tipoRegistro" class="form-label">Tipo de registro</label>
+                            <select class="form-select" id="tipoRegistro" name="tipoRegistro" disabled required>
+                                <option value="">Seleccione un tipo de registro</option>
+                            </select>
+                        </div>
+
+                        <div id="detalleTipoRegistro" class="d-none">
+
+                            <hr class="my-4">
+
+                            <h2 class="h5 mb-3">Detalle del tipo de registro</h2>
+
+                            <div class="mb-3">
+                                <strong>Nombre:</strong>
+                                <span id="nombreTipo"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <strong>Descripción:</strong>
+                                <span id="descripcionTipo"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <strong>Costo:</strong>
+                                <span id="costoTipo"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <strong>Cupo:</strong>
+                                <span id="cupoTipo"></span>
+                            </div>
+
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="../index.html" class="btn btn-primary">Aceptar</a>
+                        </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</main>
+
+<script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="../js/datos.js"></script>
+<script src="../js/selects.js"></script>
+<script src="../js/tipoRegistro.js"></script>
+
+</body>
+
+</html>
