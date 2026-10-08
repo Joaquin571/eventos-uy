@@ -2,8 +2,9 @@ package swing;
 
 import interfaces.ISistema;
 import implementacion.Fabrica;
-import manejadores.ManejadorEventos;
-import clases.Categoria;
+import datatypes.DtCategoria;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -53,37 +54,45 @@ public class AltaCategoriaPanel extends JPanel {
         cargarArbolCategorias();
     }
 
-    public void cargarArbolCategorias() {
-        DefaultMutableTreeNode raiz = new DefaultMutableTreeNode("Categorías (Sin Padre)");
-        ManejadorEventos me = ManejadorEventos.getInstance();
-        Collection<Categoria> categorias = me.obtenerCategorias();
 
-        if (categorias != null) {
-            for (Categoria c : categorias) {
-                // Solo agregamos en la raíz las que no tienen padre
-                if (c.getPadre() == null) {
-                    DefaultMutableTreeNode nodoPadre = new DefaultMutableTreeNode(c.getNombre());
-                    armarNodosHijos(nodoPadre, c);
-                    raiz.add(nodoPadre);
+    public void cargarArbolCategorias() {
+        DefaultMutableTreeNode raiz =
+                new DefaultMutableTreeNode("Categorías (Sin Padre)");
+
+        Collection<DtCategoria> categorias = sistema.listarCategorias();
+        Map<String, DefaultMutableTreeNode> nodos = new HashMap<>();
+
+        for (DtCategoria categoria : categorias) {
+            nodos.put(
+                    categoria.getIdNombre(),
+                    new DefaultMutableTreeNode(categoria.getIdNombre())
+            );
+        }
+
+        for (DtCategoria categoria : categorias) {
+            DefaultMutableTreeNode nodo = nodos.get(categoria.getIdNombre());
+            String nombrePadre = categoria.getNombrePadre();
+
+            if (nombrePadre == null || nombrePadre.isBlank()) {
+                raiz.add(nodo);
+            } else {
+                DefaultMutableTreeNode padre = nodos.get(nombrePadre);
+
+                if (padre != null) {
+                    padre.add(nodo);
+                } else {
+                    raiz.add(nodo);
                 }
             }
         }
 
         treeCategorias.setModel(new DefaultTreeModel(raiz));
 
-        // Expandir todos los nodos para visualización completa
         for (int i = 0; i < treeCategorias.getRowCount(); i++) {
             treeCategorias.expandRow(i);
         }
     }
 
-    private void armarNodosHijos(DefaultMutableTreeNode nodoPadre, Categoria categoriaPadre) {
-        for (Categoria hija : categoriaPadre.getSubcategorias()) {
-            DefaultMutableTreeNode nodoHijo = new DefaultMutableTreeNode(hija.getNombre());
-            armarNodosHijos(nodoHijo, hija);
-            nodoPadre.add(nodoHijo);
-        }
-    }
 
     private void guardarCategoria() {
         String nombre = txtNombre.getText().trim();

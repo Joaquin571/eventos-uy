@@ -1,3 +1,4 @@
+
 package swing;
 
 import datatypes.DtAsistente;
@@ -22,6 +23,7 @@ public class RegistroEdicionEventoPanel extends JPanel {
     private JComboBox<String> comboEventos;
     private JComboBox<String> comboEdiciones;
     private JComboBox<String> comboTiposRegistro;
+    private JTextField txtCodigoPatrocinio;
     private JButton btnRegistrar;
 
     public RegistroEdicionEventoPanel() {
@@ -29,31 +31,14 @@ public class RegistroEdicionEventoPanel extends JPanel {
 
         armarUI();
         configurarEventos();
-
         refrescarDatos();
     }
 
     private void armarUI() {
-
         setLayout(new BorderLayout(10, 10));
-        setBorder(
-                BorderFactory.createEmptyBorder(
-                        15,
-                        15,
-                        15,
-                        15
-                )
-        );
+        setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        JPanel panelForm =
-                new JPanel(
-                        new GridLayout(
-                                4,
-                                2,
-                                10,
-                                10
-                        )
-                );
+        JPanel panelForm = new JPanel(new GridLayout(5, 2, 10, 10));
 
         panelForm.add(new JLabel("Asistente:"));
         comboAsistentes = new JComboBox<>();
@@ -71,17 +56,15 @@ public class RegistroEdicionEventoPanel extends JPanel {
         comboTiposRegistro = new JComboBox<>();
         panelForm.add(comboTiposRegistro);
 
-        btnRegistrar =
-                new JButton(
-                        "Confirmar Registro"
-                );
+        panelForm.add(new JLabel("Código de patrocinio (opcional):"));
+        txtCodigoPatrocinio = new JTextField();
+        panelForm.add(txtCodigoPatrocinio);
 
-        JPanel panelBoton =
-                new JPanel(
-                        new FlowLayout(
-                                FlowLayout.RIGHT
-                        )
-                );
+        btnRegistrar = new JButton("Confirmar Registro");
+
+        JPanel panelBoton = new JPanel(
+                new FlowLayout(FlowLayout.RIGHT)
+        );
 
         panelBoton.add(btnRegistrar);
 
@@ -90,22 +73,12 @@ public class RegistroEdicionEventoPanel extends JPanel {
     }
 
     private void configurarEventos() {
-
-        comboEventos.addActionListener(
-                e -> cargarEdiciones()
-        );
-
-        comboEdiciones.addActionListener(
-                e -> cargarTiposRegistro()
-        );
-
-        btnRegistrar.addActionListener(
-                e -> ejecutarRegistro()
-        );
+        comboEventos.addActionListener(e -> cargarEdiciones());
+        comboEdiciones.addActionListener(e -> cargarTiposRegistro());
+        btnRegistrar.addActionListener(e -> ejecutarRegistro());
     }
 
     public void refrescarDatos() {
-
         cargarAsistentes();
         cargarEventos();
 
@@ -116,22 +89,18 @@ public class RegistroEdicionEventoPanel extends JPanel {
         comboEventos.setSelectedIndex(-1);
         comboEdiciones.setSelectedIndex(-1);
         comboTiposRegistro.setSelectedIndex(-1);
+
+        txtCodigoPatrocinio.setText("");
     }
 
     public void cargarAsistentes() {
-
         comboAsistentes.removeAllItems();
 
-        Collection<DtUsuario> usuarios =
-                sistema.listarUsuarios();
+        Collection<DtUsuario> usuarios = sistema.listarUsuarios();
 
         for (DtUsuario usuario : usuarios) {
-
             if (usuario instanceof DtAsistente) {
-
-                comboAsistentes.addItem(
-                        usuario.getNickname()
-                );
+                comboAsistentes.addItem(usuario.getNickname());
             }
         }
 
@@ -139,24 +108,18 @@ public class RegistroEdicionEventoPanel extends JPanel {
     }
 
     public void cargarEventos() {
-
         comboEventos.removeAllItems();
 
-        Collection<DtEvento> eventos =
-                sistema.listarEventos();
+        Collection<DtEvento> eventos = sistema.listarEventos();
 
         for (DtEvento evento : eventos) {
-
-            comboEventos.addItem(
-                    evento.getNombre()
-            );
+            comboEventos.addItem(evento.getNombre());
         }
 
         comboEventos.setSelectedIndex(-1);
     }
 
     private void cargarEdiciones() {
-
         comboEdiciones.removeAllItems();
         comboTiposRegistro.removeAllItems();
 
@@ -164,23 +127,16 @@ public class RegistroEdicionEventoPanel extends JPanel {
                 (String) comboEventos.getSelectedItem();
 
         if (eventoSeleccionado == null) {
-
             comboEdiciones.setSelectedIndex(-1);
             comboTiposRegistro.setSelectedIndex(-1);
-
             return;
         }
 
         Collection<DtEdicion> ediciones =
-                sistema.obtenerEdicionesEvento(
-                        eventoSeleccionado
-                );
+                sistema.obtenerEdicionesEvento(eventoSeleccionado);
 
         for (DtEdicion edicion : ediciones) {
-
-            comboEdiciones.addItem(
-                    edicion.getIdNombre()
-            );
+            comboEdiciones.addItem(edicion.getIdNombre());
         }
 
         comboEdiciones.setSelectedIndex(-1);
@@ -188,36 +144,27 @@ public class RegistroEdicionEventoPanel extends JPanel {
     }
 
     private void cargarTiposRegistro() {
-
         comboTiposRegistro.removeAllItems();
 
         String edicionSeleccionada =
                 (String) comboEdiciones.getSelectedItem();
 
         if (edicionSeleccionada == null) {
-
             comboTiposRegistro.setSelectedIndex(-1);
-
             return;
         }
 
         Collection<DtTipoRegistro> tipos =
-                sistema.obtenerTiposRegistroEdicion(
-                        edicionSeleccionada
-                );
+                sistema.obtenerTiposRegistroEdicion(edicionSeleccionada);
 
         for (DtTipoRegistro tipo : tipos) {
-
-            comboTiposRegistro.addItem(
-                    tipo.getIdNombre()
-            );
+            comboTiposRegistro.addItem(tipo.getIdNombre());
         }
 
         comboTiposRegistro.setSelectedIndex(-1);
     }
 
     private void ejecutarRegistro() {
-
         String nickname =
                 (String) comboAsistentes.getSelectedItem();
 
@@ -241,43 +188,26 @@ public class RegistroEdicionEventoPanel extends JPanel {
                     "Registro a Edición",
                     JOptionPane.WARNING_MESSAGE
             );
-
             return;
         }
 
         try {
+            String codigoPatrocinio =
+                    txtCodigoPatrocinio.getText().trim();
 
-            DtTipoRegistro tipoRegistro =
-                    sistema.consultarTipoRegistro(
-                            edicionSeleccionada,
-                            tipoRegistroSeleccionado
-                    );
-
-            if (tipoRegistro == null) {
-
-                JOptionPane.showMessageDialog(
-                        this,
-                        "El tipo de registro seleccionado no existe.",
-                        "Registro a Edición",
-                        JOptionPane.WARNING_MESSAGE
-                );
-
-                return;
-            }
-
-            DtRegistro dtRegistro =
-                    new DtRegistro(
-                            LocalDate.now(),
-                            tipoRegistro.getCosto(),
-                            tipoRegistro.getIdNombre(),
-                            edicionSeleccionada
-                    );
+            DtRegistro dtRegistro = new DtRegistro(
+                    LocalDate.now(),
+                    0,
+                    tipoRegistroSeleccionado,
+                    edicionSeleccionada
+            );
 
             sistema.registroAEdicion(
                     nickname,
                     edicionSeleccionada,
                     tipoRegistroSeleccionado,
-                    dtRegistro
+                    dtRegistro,
+                    codigoPatrocinio
             );
 
             JOptionPane.showMessageDialog(
@@ -290,7 +220,6 @@ public class RegistroEdicionEventoPanel extends JPanel {
             refrescarDatos();
 
         } catch (IllegalArgumentException e) {
-
             JOptionPane.showMessageDialog(
                     this,
                     e.getMessage(),
@@ -299,11 +228,9 @@ public class RegistroEdicionEventoPanel extends JPanel {
             );
 
         } catch (Exception e) {
-
             JOptionPane.showMessageDialog(
                     this,
-                    "Ocurrió un error inesperado:\n"
-                            + e.getMessage(),
+                    "Ocurrió un error inesperado:\n" + e.getMessage(),
                     "Error",
                     JOptionPane.ERROR_MESSAGE
             );

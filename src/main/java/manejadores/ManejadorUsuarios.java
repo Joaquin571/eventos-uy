@@ -39,6 +39,19 @@ public class ManejadorUsuarios {
                 }
                 asistente.setInstitucion(institucionGestionada);
             }
+            Long correosExistentes = em.createQuery(
+                    """
+                    SELECT COUNT(u)
+                    FROM Usuario u
+                    WHERE LOWER(u.correoElectronico) = LOWER(:correo)
+                    """,
+                    Long.class
+            ).setParameter("correo", usuario.getCorreoElectronico()).getSingleResult();
+
+            if (correosExistentes > 0) {
+                tx.rollback();
+                return false;
+            }
             em.persist(usuario);
             tx.commit();
             return true;

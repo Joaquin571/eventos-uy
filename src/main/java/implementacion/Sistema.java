@@ -22,6 +22,27 @@ public class Sistema implements ISistema {
     private final ManejadorPatrocinios manejadorPatrocinios;
     private final ManejadorRegistros manejadorRegistros;
 
+    private void validarDatosUsuario(String nickname, String nombre, String correo) {
+        if (nickname == null || nickname.isBlank()) {
+            throw new IllegalArgumentException("El nickname es obligatorio.");
+        }
+
+        if (nombre == null || nombre.isBlank()) {
+            throw new IllegalArgumentException("El nombre es obligatorio.");
+        }
+
+        if (correo == null || !correo.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
+            throw new IllegalArgumentException("El correo electrónico no es válido.");
+        }
+
+        if (manejadorUsuarios.existeUsuario(nickname)) {
+            throw new IllegalArgumentException("Ya existe un usuario con ese nickname.");
+        }
+
+        if (manejadorUsuarios.existeCorreo(correo)) {
+            throw new IllegalArgumentException("Ya existe un usuario con ese correo electrónico.");
+        }
+    }
     public Sistema() {
         manejadorUsuarios = ManejadorUsuarios.getInstance();
         manejadorInstituciones = ManejadorInstituciones.getInstance();
@@ -39,11 +60,22 @@ public class Sistema implements ISistema {
     // ALTA USUARIO
     @Override
     public boolean altaAsistente(DtAsistente dt) {
+        if (dt == null) {
+            throw new IllegalArgumentException("Los datos del asistente son obligatorios.");
+        }
+
+        validarDatosUsuario(dt.getNickname(), dt.getNombre(), dt.getCorreoElectronico());
+
         Institucion institucion = null;
 
         if (dt.getNombreInstitucion() != null && !dt.getNombreInstitucion().isBlank()) {
             institucion = manejadorInstituciones.obtenerInstitucion(dt.getNombreInstitucion());
+
+            if (institucion == null) {
+                throw new IllegalArgumentException("La institución seleccionada no existe.");
+            }
         }
+
         Asistente asistente = new Asistente(
                 dt.getNickname(),
                 dt.getNombre(),
@@ -52,11 +84,18 @@ public class Sistema implements ISistema {
                 dt.getFechaNacimiento(),
                 institucion
         );
+
         return manejadorUsuarios.addUsuario(asistente);
     }
 
     @Override
     public boolean altaOrganizador(DtOrganizador dt) {
+        if (dt == null) {
+            throw new IllegalArgumentException("Los datos del organizador son obligatorios.");
+        }
+
+        validarDatosUsuario(dt.getNickname(), dt.getNombre(), dt.getCorreoElectronico());
+
         Organizador organizador = new Organizador(
                 dt.getNickname(),
                 dt.getNombre(),
@@ -64,6 +103,7 @@ public class Sistema implements ISistema {
                 dt.getDescripcion(),
                 dt.getSitioWeb()
         );
+
         return manejadorUsuarios.addUsuario(organizador);
     }
 
@@ -267,6 +307,25 @@ public class Sistema implements ISistema {
         }
         return resultado;
     }
+    @Override
+    public Collection<DtCategoria> listarCategorias() {
+        Collection<DtCategoria> resultado = new ArrayList<>();
+
+        for (Categoria categoria : manejadorEventos.obtenerCategorias()) {
+            String nombrePadre = null;
+
+            if (categoria.getPadre() != null) {
+                nombrePadre = categoria.getPadre().getNombre();
+            }
+
+            resultado.add(new DtCategoria(
+                    categoria.getNombre(),
+                    nombrePadre
+            ));
+        }
+
+        return resultado;
+    }
 
     private void agregarConIndentacion(Categoria categoria, String prefijo, List<String> resultado) {
         resultado.add(prefijo + categoria.getNombre());
@@ -434,57 +493,40 @@ public class Sistema implements ISistema {
 
     // REGISTRO A EDICIÓN
     @Override
-    public boolean registroAEdicion(String nicknameAsistente, String nombreEdicion, String nombreTipoRegistro, DtRegistro dt) {
-        if (nicknameAsistente == null || nicknameAsistente.isBlank()) {
-            throw new IllegalArgumentException("Debe seleccionar un asistente.");
-        }
-        if (nombreEdicion == null || nombreEdicion.isBlank()) {
-            throw new IllegalArgumentException("Debe seleccionar una edición.");
-        }
-        if (nombreTipoRegistro == null || nombreTipoRegistro.isBlank()) {
-            throw new IllegalArgumentException("Debe seleccionar un tipo de registro.");
-        }
+    public boolean registroAEdicion(
+            String nicknameAsistente,
+            String nombreEdicion,
+            String nombreTipoRegistro,
+            DtRegistro dt
+    ) {
+        return registroAEdicion(
+                nicknameAsistente,
+                nombreEdicion,
+                nombreTipoRegistro,
+                dt,
+                null
+        );
+    }
+
+    @Override
+    public boolean registroAEdicion(
+            String nicknameAsistente,
+            String nombreEdicion,
+            String nombreTipoRegistro,
+            DtRegistro dt,
+            String codigoPatrocinio
+    ) {
         if (dt == null || dt.getFechaRegistro() == null) {
             throw new IllegalArgumentException("Los datos del registro no son válidos.");
         }
 
-        Usuario usuario = manejadorUsuarios.obtenerUsuario(nicknameAsistente);
-        if (!(usuario instanceof Asistente asistente)) {
-            throw new IllegalArgumentException(
-                    "El usuario seleccionado no es un asistente válido."
-            );
-        }
-
-        Edicion edicion = manejadorEventos.obtenerEdicion(nombreEdicion);
-        if (edicion == null) {
-            throw new IllegalArgumentException("La edición seleccionada no existe.");
-        }
-
-        TipoRegistro tipoRegistro = manejadorEventos.obtenerTipoRegistro(nombreEdicion, nombreTipoRegistro);
-        if (tipoRegistro == null) {
-            throw new IllegalArgumentException("El tipo de registro seleccionado no existe para esta edición.");
-        }
-
-        if (manejadorRegistros.existeRegistroAsistenteEdicion(nicknameAsistente, nombreEdicion)) {
-            throw new IllegalArgumentException(
-                    "El asistente '" + nicknameAsistente + "' ya está registrado a la edición '" + nombreEdicion + "'."
-            );
-        }
-
-        long cantidadActual = manejadorRegistros.contarRegistrosTipo(nombreEdicion, nombreTipoRegistro);
-
-        if (cantidadActual >= tipoRegistro.getCupo()) {
-            throw new IllegalArgumentException("Se alcanzó el cupo máximo del tipo de registro '" + nombreTipoRegistro + "'.");
-        }
-
-        Registro registro = new Registro(dt.getFechaRegistro(), tipoRegistro.getCosto(), tipoRegistro, edicion);
-        registro.setAsistente(asistente);
-
-        boolean agregado = manejadorRegistros.addRegistro(registro);
-        if (!agregado) {
-            throw new IllegalArgumentException("No fue posible completar el registro.");
-        }
-        return true;
+        return manejadorRegistros.registrar(
+                nicknameAsistente,
+                nombreEdicion,
+                nombreTipoRegistro,
+                dt.getFechaRegistro(),
+                codigoPatrocinio
+        );
     }
 
     // CONSULTA DE REGISTRO
