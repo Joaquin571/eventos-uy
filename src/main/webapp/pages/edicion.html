@@ -1,70 +1,409 @@
+
 <!doctype html>
 <html lang="es">
 <head>
-    <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Consulta de edición | eventos.uy</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Consulta de edición | eventos.uy</title>
+
+    <link rel="stylesheet"
+          href="../vendor/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="../css/styles.css">
 </head>
+
 <body data-root="..">
-<div id="site-header">
 
-</div>
-<main class="container">
-    <h1 id="nombreEdicion">Maratón 2025</h1>
-    <article class="card">
-        <p>Ciudad: <span id="ciudadEdicion">Montevideo</span></p>
-        <p>País: <span id="paisEdicion">Uruguay</span></p>
-        <p>Organizador: <span id="organizadorEdicion">imm</span></p>
-        <p>Sigla: <span id="siglaEdicion">MAR25</span></p>
-        <p>Fecha de inicio: <span id="fechaInicioEdicion">10/05/2025</span></p>
-        <p>Fecha de fin: <span id="fechaFinEdicion">10/05/2025</span></p>
-        <div id="imagenEdicion">
-            <p>Imagen de la edición</p>
-        </div>
-        <h2>Tipos de registro</h2>
+<div id="site-header"></div>
 
-        <div id="tiposRegistroEdicion">
-            <a href="tipo-registro.html">Corredor 10K</a>
-        </div>
-        <h2>Patrocinios</h2>
+<main class="container py-4">
 
-        <div id="patrociniosEdicion">
-            <a href="patrocinio.html">UTEC · Oro</a>
-        </div>
-        <div id="zonaOrganizador" style="display: none;">
-            <h2>Registros de la edición</h2>
-            <a href="consulta-registro.html">Ver registros</a>
-        </div>
-        <div id="zonaAsistente" style="display: none;">
-            <h2>Mi registro</h2>
-            <a href="consulta-registro.html">Ver mi registro</a>
-        </div>
+    <h1 class="mb-4">Consulta de edición de evento</h1>
 
-        <p id="zonaRegistro" style="display: none;">
-            <a class="btn btn-primary" href="registro-edicion.html">Registrarme</a>
-        </p>
+    <div class="card mb-4">
+        <div class="card-body">
+            <label for="selectorEdicion" class="form-label">
+                Seleccionar edición
+            </label>
+
+            <select id="selectorEdicion" class="form-select">
+                <option value="">Seleccione una edición</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="mensaje" class="alert alert-info">
+        Seleccione una edición para consultar sus datos.
+    </div>
+
+    <article id="detalleEdicion" class="card d-none">
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between
+                        align-items-center flex-wrap gap-2 mb-3">
+                <h2 id="nombreEdicion" class="mb-0"></h2>
+                <span id="estadoEdicion" class="badge"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Evento:</strong>
+                        <span id="eventoEdicion"></span></p>
+
+                    <p><strong>Ciudad:</strong>
+                        <span id="ciudadEdicion"></span></p>
+
+                    <p><strong>País:</strong>
+                        <span id="paisEdicion"></span></p>
+
+                    <p><strong>Organizador:</strong>
+                        <span id="organizadorEdicion"></span></p>
+                </div>
+
+                <div class="col-md-6">
+                    <p><strong>Sigla:</strong>
+                        <span id="siglaEdicion"></span></p>
+
+                    <p><strong>Fecha de inicio:</strong>
+                        <span id="fechaInicioEdicion"></span></p>
+
+                    <p><strong>Fecha de fin:</strong>
+                        <span id="fechaFinEdicion"></span></p>
+
+                    <p><strong>Fecha de alta:</strong>
+                        <span id="fechaAltaEdicion"></span></p>
+                </div>
+            </div>
+
+            <div id="imagenEdicion" class="mb-4"></div>
+
+            <hr>
+
+            <h3 class="h5">Tipos de registro</h3>
+            <div id="tiposRegistroEdicion" class="mb-4"></div>
+
+            <h3 class="h5">Patrocinios</h3>
+            <div id="patrociniosEdicion" class="mb-4"></div>
+
+            <div id="zonaOrganizador" class="d-none">
+                <hr>
+                <h3 class="h5">Registros de la edición</h3>
+                <a id="enlaceRegistros" class="btn btn-outline-primary"
+                   href="consulta-registro.html">
+                    Ver registros
+                </a>
+            </div>
+
+            <div id="zonaAsistente" class="d-none">
+                <hr>
+                <h3 class="h5">Mi registro</h3>
+                <a id="enlaceMiRegistro" class="btn btn-outline-primary"
+                   href="consulta-registro.html">
+                    Ver mi registro
+                </a>
+            </div>
+
+            <div id="zonaRegistro" class="d-none mt-3">
+                <a id="enlaceRegistro" class="btn btn-primary"
+                   href="registro-edicion.html">
+                    Registrarme
+                </a>
+            </div>
+
+        </div>
     </article>
+
+    <a href="../index.html"
+       class="btn btn-outline-secondary mt-3">
+        Volver al inicio
+    </a>
+
 </main>
+
+<script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="../js/datos.js"></script>
 <script src="../js/app.js"></script>
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
 
+        const datos = App.datos;
+        const rol = App.rol;
+
+        const selector = document.getElementById("selectorEdicion");
+        const detalle = document.getElementById("detalleEdicion");
+        const mensaje = document.getElementById("mensaje");
+
         const zonaOrganizador =
             document.getElementById("zonaOrganizador");
+
         const zonaAsistente =
             document.getElementById("zonaAsistente");
+
         const zonaRegistro =
             document.getElementById("zonaRegistro");
 
-        if (App.rol === "organizador") {
-            zonaOrganizador.style.display = "block";
-        }
-        if (App.rol === "asistente") {
-            zonaAsistente.style.display = "block";
-            zonaRegistro.style.display = "block";
+        function escribir(id, valor) {
+            document.getElementById(id).textContent =
+                valor === undefined || valor === null || valor === ""
+                    ? "No disponible"
+                    : String(valor);
         }
 
+        function formatearFecha(fecha) {
+            if (!fecha) return "No disponible";
+
+            const partes = String(fecha).split("-");
+
+            if (partes.length === 3) {
+                return partes[2] + "/" + partes[1] + "/" + partes[0];
+            }
+
+            return fecha;
+        }
+
+        function buscarEvento(edicion) {
+            return datos.eventos.find(function (evento) {
+                return Number(evento.id) === Number(edicion.eventoId);
+            });
+        }
+
+        function puedeConsultar(edicion) {
+            // La consulta pública solo muestra ediciones aceptadas.
+            // La identificación del organizador queda pendiente
+            // de acordar con el equipo.
+            return edicion.estado === "Aceptada";
+        }
+
+        function cargarSelector() {
+            selector.innerHTML =
+                '<option value="">Seleccione una edición</option>';
+
+            datos.ediciones
+                .filter(puedeConsultar)
+                .forEach(function (edicion) {
+
+                    const opcion = document.createElement("option");
+                    opcion.value = edicion.id;
+                    opcion.textContent = edicion.nombre;
+
+                    selector.appendChild(opcion);
+                });
+        }
+
+        function mostrarTiposRegistro(edicion) {
+            const contenedor =
+                document.getElementById("tiposRegistroEdicion");
+
+            contenedor.innerHTML = "";
+
+            const tipos = datos.tiposRegistro.filter(function (tipo) {
+                return Number(tipo.edicionId) === Number(edicion.id);
+            });
+
+            if (tipos.length === 0) {
+                contenedor.textContent =
+                    "No hay tipos de registro disponibles.";
+                return;
+            }
+
+            tipos.forEach(function (tipo) {
+                const enlace = document.createElement("a");
+                enlace.className = "d-block mb-2";
+                enlace.href =
+                    "tipo-registro.html?id=" +
+                    encodeURIComponent(tipo.id);
+
+                enlace.textContent =
+                    tipo.nombre +
+                    " — Costo: $" + tipo.costo +
+                    " — Cupo: " + tipo.cupo;
+
+                contenedor.appendChild(enlace);
+            });
+        }
+
+        function mostrarPatrocinios(edicion) {
+            const contenedor =
+                document.getElementById("patrociniosEdicion");
+
+            contenedor.innerHTML = "";
+
+            const patrocinios = datos.patrocinios.filter(
+                function (patrocinio) {
+                    return Number(patrocinio.edicionId) ===
+                        Number(edicion.id);
+                }
+            );
+
+            if (patrocinios.length === 0) {
+                contenedor.textContent =
+                    "No hay patrocinios registrados.";
+                return;
+            }
+
+            patrocinios.forEach(function (patrocinio) {
+
+                const institucion = datos.instituciones.find(
+                    function (institucion) {
+                        return Number(institucion.id) ===
+                            Number(patrocinio.institucionId);
+                    }
+                );
+
+                const enlace = document.createElement("a");
+                enlace.className = "d-block mb-2";
+                enlace.href =
+                    "patrocinio.html?id=" +
+                    encodeURIComponent(patrocinio.id);
+
+                enlace.textContent =
+                    (institucion ? institucion.nombre : "Institución") +
+                    " — Nivel: " + patrocinio.nivel;
+
+                contenedor.appendChild(enlace);
+            });
+        }
+
+        function mostrarImagen(edicion) {
+            const contenedor =
+                document.getElementById("imagenEdicion");
+
+            contenedor.innerHTML = "";
+
+            if (!edicion.imagen) {
+                const texto = document.createElement("p");
+                texto.className = "text-muted";
+                texto.textContent =
+                    "Esta edición no tiene imagen asociada.";
+                contenedor.appendChild(texto);
+                return;
+            }
+
+            const imagen = document.createElement("img");
+            imagen.src = edicion.imagen;
+            imagen.alt = "Imagen de " + edicion.nombre;
+            imagen.className = "img-fluid rounded";
+            imagen.style.maxHeight = "350px";
+
+            contenedor.appendChild(imagen);
+        }
+
+        function mostrarAcciones(edicion) {
+
+            zonaOrganizador.classList.add("d-none");
+            zonaAsistente.classList.add("d-none");
+            zonaRegistro.classList.add("d-none");
+
+            // Pendiente: identificar al organizador autenticado
+            // y comprobar que la edición le pertenece.
+            // Por seguridad, no se habilita todavía esa opción.
+
+            // Pendiente: identificar registros del asistente.
+            // No mostramos "Mi registro" sin confirmarlo.
+
+            if (rol === "asistente" &&
+                edicion.estado === "Aceptada") {
+
+                document.getElementById("enlaceRegistro").href =
+                    "registro-edicion.html?edicion=" +
+                    encodeURIComponent(edicion.id);
+
+                zonaRegistro.classList.remove("d-none");
+            }
+        }
+
+        function mostrarEdicion(id) {
+
+            detalle.classList.add("d-none");
+
+            if (!id) {
+                mensaje.className = "alert alert-info";
+                mensaje.textContent =
+                    "Seleccione una edición para consultar sus datos.";
+                return;
+            }
+
+            const edicion = datos.ediciones.find(function (e) {
+                return String(e.id) === String(id);
+            });
+
+            if (!edicion || !puedeConsultar(edicion)) {
+                mensaje.className = "alert alert-warning";
+                mensaje.textContent =
+                    "La edición solicitada no está disponible.";
+                return;
+            }
+
+            const evento = buscarEvento(edicion);
+
+            escribir("nombreEdicion", edicion.nombre);
+            escribir(
+                "eventoEdicion",
+                evento ? evento.nombre : "No disponible"
+            );
+
+            escribir("ciudadEdicion", edicion.ciudad);
+            escribir("paisEdicion", edicion.pais);
+            escribir("organizadorEdicion",
+                edicion.nombreOrganizador);
+
+            escribir("siglaEdicion", edicion.sigla);
+
+            escribir(
+                "fechaInicioEdicion",
+                formatearFecha(edicion.fechaInicio)
+            );
+
+            escribir(
+                "fechaFinEdicion",
+                formatearFecha(edicion.fechaFin)
+            );
+
+            escribir(
+                "fechaAltaEdicion",
+                formatearFecha(edicion.fechaAlta)
+            );
+
+            const estado =
+                document.getElementById("estadoEdicion");
+
+            estado.textContent = edicion.estado;
+            estado.className = "badge bg-success";
+
+            mostrarImagen(edicion);
+            mostrarTiposRegistro(edicion);
+            mostrarPatrocinios(edicion);
+            mostrarAcciones(edicion);
+
+            mensaje.className = "d-none";
+            detalle.classList.remove("d-none");
+        }
+
+        cargarSelector();
+
+        selector.addEventListener("change", function () {
+            mostrarEdicion(selector.value);
+        });
+
+        const parametros = new URLSearchParams(
+            window.location.search
+        );
+
+        const idSolicitado = parametros.get("id");
+
+        if (idSolicitado) {
+            const opcion = Array.from(selector.options).find(
+                function (opcion) {
+                    return opcion.value === idSolicitado;
+                }
+            );
+
+            if (opcion) {
+                selector.value = idSolicitado;
+            }
+
+            mostrarEdicion(idSolicitado);
+        }
 
     });
 </script>

@@ -1,10 +1,11 @@
 const Datos = {
+
     categorias: [
-        { id: 1, nombre: "Tecnología" },
-        { id: 2, nombre: "Cultura" },
-        { id: 3, nombre: "Deporte" },
-        { id: 4, nombre: "Música" },
-        { id: 5, nombre: "Negocios" }
+        "Tecnología",
+        "Cultura",
+        "Deporte",
+        "Música",
+        "Negocios"
     ],
 
     eventos: [
@@ -28,6 +29,7 @@ const Datos = {
         }
     ],
 
+
     ediciones: [
         {
             id: 1,
@@ -35,11 +37,14 @@ const Datos = {
             nombre: "Montevideo Comics 2026",
             estado: "Aceptada",
             organizadorId: 1,
-            sigla: "MC26",
+            nombreOrganizador: "Organizador de prueba 1",
+            sigla: "MC2026",
             ciudad: "Montevideo",
             pais: "Uruguay",
-            fechaInicio: "2026-11-14",
-            fechaFin: "2026-11-16"
+            fechaInicio: "2026-11-10",
+            fechaFin: "2026-11-12",
+            fechaAlta: "2026-05-15",
+            imagen: ""
         },
         {
             id: 2,
@@ -47,11 +52,14 @@ const Datos = {
             nombre: "Montevideo Comics 2027",
             estado: "Ingresada",
             organizadorId: 1,
-            sigla: "MC27",
+            nombreOrganizador: "Organizador de prueba 1",
+            sigla: "MC2027",
             ciudad: "Montevideo",
             pais: "Uruguay",
-            fechaInicio: "2027-11-13",
-            fechaFin: "2027-11-15"
+            fechaInicio: "2027-11-10",
+            fechaFin: "2027-11-12",
+            fechaAlta: "2026-09-20",
+            imagen: ""
         },
         {
             id: 3,
@@ -59,13 +67,17 @@ const Datos = {
             nombre: "Maratón de Montevideo 2026",
             estado: "Aceptada",
             organizadorId: 2,
-            sigla: "MARATON26",
+            nombreOrganizador: "Organizador de prueba 2",
+            sigla: "MM2026",
             ciudad: "Montevideo",
             pais: "Uruguay",
-            fechaInicio: "2026-09-14",
-            fechaFin: "2026-09-16"
+            fechaInicio: "2026-11-22",
+            fechaFin: "2026-11-22",
+            fechaAlta: "2026-04-10",
+            imagen: ""
         }
     ],
+
     instituciones: [
         {
             id: 1,
@@ -160,3 +172,5 @@ const Datos = {
         }
     ]
 };
+window.App = window.App || {};
+App.datos = Datos;
