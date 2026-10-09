@@ -1,4 +1,13 @@
 const Datos = {
+
+    categorias: [
+        "Tecnología",
+        "Cultura",
+        "Deporte",
+        "Música",
+        "Negocios"
+    ],
+
     eventos: [
         {
             id: 1,
@@ -12,29 +21,55 @@ const Datos = {
         }
     ],
 
+
     ediciones: [
         {
             id: 1,
             eventoId: 1,
             nombre: "Montevideo Comics 2026",
             estado: "Aceptada",
-            organizadorId: 1
+            organizadorId: 1,
+            nombreOrganizador: "Organizador de prueba 1",
+            sigla: "MC2026",
+            ciudad: "Montevideo",
+            pais: "Uruguay",
+            fechaInicio: "2026-11-10",
+            fechaFin: "2026-11-12",
+            fechaAlta: "2026-05-15",
+            imagen: ""
         },
         {
             id: 2,
             eventoId: 1,
             nombre: "Montevideo Comics 2027",
             estado: "Ingresada",
-            organizadorId: 1
+            organizadorId: 1,
+            nombreOrganizador: "Organizador de prueba 1",
+            sigla: "MC2027",
+            ciudad: "Montevideo",
+            pais: "Uruguay",
+            fechaInicio: "2027-11-10",
+            fechaFin: "2027-11-12",
+            fechaAlta: "2026-09-20",
+            imagen: ""
         },
         {
             id: 3,
             eventoId: 2,
             nombre: "Maratón de Montevideo 2026",
             estado: "Aceptada",
-            organizadorId: 2
+            organizadorId: 2,
+            nombreOrganizador: "Organizador de prueba 2",
+            sigla: "MM2026",
+            ciudad: "Montevideo",
+            pais: "Uruguay",
+            fechaInicio: "2026-11-22",
+            fechaFin: "2026-11-22",
+            fechaAlta: "2026-04-10",
+            imagen: ""
         }
     ],
+
     instituciones: [
         {
             id: 1,
@@ -83,3 +118,5 @@ const Datos = {
         }
     ]
 };
+window.App = window.App || {};
+App.datos = Datos;
