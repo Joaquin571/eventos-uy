@@ -1,14 +1,30 @@
 const Datos = {
+    categorias: [
+        { id: 1, nombre: "Tecnología" },
+        { id: 2, nombre: "Cultura" },
+        { id: 3, nombre: "Deporte" },
+        { id: 4, nombre: "Música" },
+        { id: 5, nombre: "Negocios" }
+    ],
+
     eventos: [
         {
             id: 1,
             nombre: "Montevideo Comics",
-            descripcion: "Convención de historietas y cultura geek"
+            descripcion: "Convención de historietas y cultura geek",
+            sigla: "MVDCOMICS",
+            categorias: [2],
+            fechaAlta: "2026-03-12",
+            imagen: null
         },
         {
             id: 2,
             nombre: "Maratón de Montevideo",
-            descripcion: "Evento deportivo"
+            descripcion: "Evento deportivo",
+            sigla: "MARATON",
+            categorias: [1, 3],
+            fechaAlta: "2026-03-12",
+            imagen: null
         }
     ],
 

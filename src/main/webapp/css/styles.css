@@ -10,3 +10,5 @@ input,select,textarea{width:100%;padding:10px;border:1px solid #b9c4cf;border-ra
 .btn{display:inline-block;padding:9px 14px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer}
 .btn-primary{background:var(--primary);border-color:var(--primary);color:white}.muted{color:#6b7280}.message{display:none;padding:12px;background:#eef6fb;border-radius:8px;margin:12px 0}
 @media(max-width:700px){.topbar{align-items:flex-start;flex-direction:column;padding:12px 0}}
+.form-check-input { padding: 0; }
+.form-check-label { display: inline; margin-bottom: 0; }
