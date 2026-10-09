@@ -4,8 +4,13 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "patrocinio")
-public class Patrocinio {
+@Table(
+        name = "patrocinio",
+        uniqueConstraints = @UniqueConstraint(
+                name = "UK_PATROCINIO_INSTITUCION_EDICION",
+                columnNames = {"INSTITUCION_ID", "EDICION_ID"}
+        )
+)public class Patrocinio {
 
     @Id
     private String codigoPatrocinio;
