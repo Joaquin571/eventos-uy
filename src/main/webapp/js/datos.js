@@ -1,11 +1,11 @@
 const Datos = {
 
     categorias: [
-        "Tecnología",
-        "Cultura",
-        "Deporte",
-        "Música",
-        "Negocios"
+        { id: 1, nombre: "Tecnología" },
+        { id: 2, nombre: "Cultura" },
+        { id: 3, nombre: "Deporte" },
+        { id: 4, nombre: "Música" },
+        { id: 5, nombre: "Negocios" }
     ],
 
     eventos: [
