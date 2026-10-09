@@ -1,89 +1,249 @@
-<!doctype html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Alta de edición | eventos.uy</title>
-    <link rel="stylesheet" href="../css/styles.css"></head>
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alta de edición | eventos.uy</title>
+
+    <link rel="stylesheet" href="../vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+
 <body data-root="..">
+
 <div id="site-header"></div>
-<main class="container">
-    <h1>Alta de edición</h1>
-    <form class="form" data-demo>
-        <div class="field">
-            <label for="evento">Evento</label>
-            <select id="evento" name="evento" required>
-                <option value="">Seleccione un evento</option>
-                <option value="Maraton de Montevideo">Maratón de Montevideo</option>
-                <option value="Montevideo Comics">Montevideo Comics</option>
-                <option value="Montevideo Rock">Montevideo Rock</option>
-            </select>
+
+<main class="container py-4">
+
+    <h1 class="mb-4">Alta de edición de evento</h1>
+
+    <div class="card">
+        <div class="card-body">
+
+            <form id="formAltaEdicion">
+
+                <div class="mb-3">
+                    <label for="evento" class="form-label">Evento</label>
+                    <select id="evento" name="evento"
+                            class="form-select" required>
+                        <option value="">Seleccione un evento</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="nombre" class="form-label">
+                        Nombre de la edición
+                    </label>
+                    <input type="text" id="nombre" name="nombre"
+                           class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="sigla" class="form-label">Sigla</label>
+                    <input type="text" id="sigla" name="sigla"
+                           class="form-control" required>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="ciudad" class="form-label">Ciudad</label>
+                        <input type="text" id="ciudad" name="ciudad"
+                               class="form-control" required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="pais" class="form-label">País</label>
+                        <input type="text" id="pais" name="pais"
+                               class="form-control" required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="fechaInicio" class="form-label">
+                            Fecha de inicio
+                        </label>
+                        <input type="date" id="fechaInicio"
+                               name="fechaInicio" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="fechaFin" class="form-label">
+                            Fecha de finalización
+                        </label>
+                        <input type="date" id="fechaFin"
+                               name="fechaFin" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="imagen" class="form-label">
+                        Imagen (opcional)
+                    </label>
+                    <input type="file" id="imagen" name="imagen"
+                           class="form-control" accept="image/*">
+
+                    <img id="vistaImagen"
+                         class="img-fluid rounded mt-3 d-none"
+                         alt="Vista previa"
+                         style="max-height: 220px;">
+                </div>
+
+                <div id="mensaje" class="alert d-none" role="alert"></div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        Confirmar
+                    </button>
+
+                    <button type="reset" class="btn btn-secondary">
+                        Limpiar
+                    </button>
+
+                    <a href="../index.html" class="btn btn-outline-secondary">
+                        Cancelar
+                    </a>
+                </div>
+
+            </form>
         </div>
-        <div class="field">
-            <label for="nombre">Nombre</label>
-            <input type="text" id="nombre" name="nombre" required>
-        </div>
-        <div class="field">
-            <label for="sigla">Sigla</label>
-            <input type="text" id="sigla" name="sigla" required>
-        </div>
-        <div class="field">
-            <label for="ciudad">Ciudad</label>
-            <input type="text" id="ciudad" name="ciudad" required>
-        </div>
-        <div class="field">
-            <label for="pais">País</label>
-            <input type="text" id="pais" name="pais" required>
-        </div>
-        <div class="field">
-            <label for="fechaInicio">Fecha inicio</label>
-            <input type="date" id="fechaInicio" name="fechaInicio" required>
-        </div>
-        <div class="field">
-            <label for="fechaFin">Fecha fin</label>
-            <input type="date" id="fechaFin" name="fechaFin" required>
-        </div>
-        <div class="field">
-            <label for="imagen">Imagen opcional</label>
-            <input type="file" id="imagen" name="imagen">
-        </div>
-        <div class="message"></div>
-        <button class="btn btn-primary" type="submit">Confirmar</button>
-        <button class="btn" type="reset">Cancelar</button>
-    </form>
+    </div>
+
 </main>
-<script src="../js/datos.js"></script><script src="../js/app.js"></script>
+
+<script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="../js/datos.js"></script>
+<script src="../js/app.js"></script>
+
 <script>
-    const fechaInicio = document.getElementById("fechaInicio");
-    const fechaFin = document.getElementById("fechaFin");
-    const nombre = document.getElementById("nombre");
-    function validarNombre() {
-        const existe = App.datos.ediciones.some(function(edicion) {
-            return edicion.nombre.toLowerCase() === nombre.value.trim().toLowerCase();
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const form = document.getElementById("formAltaEdicion");
+        const evento = document.getElementById("evento");
+        const nombre = document.getElementById("nombre");
+        const fechaInicio = document.getElementById("fechaInicio");
+        const fechaFin = document.getElementById("fechaFin");
+        const imagen = document.getElementById("imagen");
+        const vistaImagen = document.getElementById("vistaImagen");
+        const mensaje = document.getElementById("mensaje");
+
+        const datos = App.datos;
+
+        // Cargar eventos existentes.
+        datos.eventos.forEach(function (e) {
+            const opcion = document.createElement("option");
+            opcion.value = e.id;
+            opcion.textContent = e.nombre;
+            evento.appendChild(opcion);
         });
 
-        if (existe) {
-            nombre.setCustomValidity("Ya existe una edición con ese nombre.");
-        } else {
+        // Verificar que el nombre no esté repetido.
+        function validarNombre() {
+            const nombreIngresado = nombre.value.trim().toLowerCase();
+
+            const existe = datos.ediciones.some(function (edicion) {
+                return edicion.nombre.trim().toLowerCase() === nombreIngresado;
+            });
+
+            if (existe) {
+                nombre.setCustomValidity(
+                    "Ya existe una edición con ese nombre."
+                );
+            } else {
+                nombre.setCustomValidity("");
+            }
+        }
+
+        // Verificar las fechas.
+        function validarFechas() {
+            if (fechaInicio.value && fechaFin.value &&
+                fechaFin.value < fechaInicio.value) {
+
+                fechaFin.setCustomValidity(
+                    "La fecha de finalización no puede ser anterior al inicio."
+                );
+            } else {
+                fechaFin.setCustomValidity("");
+            }
+        }
+
+        nombre.addEventListener("input", validarNombre);
+        fechaInicio.addEventListener("change", validarFechas);
+        fechaFin.addEventListener("change", validarFechas);
+
+        // Vista previa de imagen.
+        let urlImagen = null;
+
+        imagen.addEventListener("change", function () {
+            if (urlImagen) {
+                URL.revokeObjectURL(urlImagen);
+                urlImagen = null;
+            }
+
+            vistaImagen.classList.add("d-none");
+
+            if (imagen.files.length > 0 &&
+                imagen.files[0].type.startsWith("image/")) {
+
+                urlImagen = URL.createObjectURL(imagen.files[0]);
+                vistaImagen.src = urlImagen;
+                vistaImagen.classList.remove("d-none");
+            }
+        });
+
+        // Simulación del alta.
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            validarNombre();
+            validarFechas();
+
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const nuevaEdicion = {
+                id: Math.max(
+                    0,
+                    ...datos.ediciones.map(e => Number(e.id) || 0)
+                ) + 1,
+                eventoId: Number(evento.value),
+                nombre: nombre.value.trim(),
+                sigla: document.getElementById("sigla").value.trim(),
+                ciudad: document.getElementById("ciudad").value.trim(),
+                pais: document.getElementById("pais").value.trim(),
+                fechaInicio: fechaInicio.value,
+                fechaFin: fechaFin.value,
+                fechaAlta: new Date().toLocaleDateString("en-CA"),
+                estado: "Ingresada",
+                organizadorId: null
+            };
+
+            datos.ediciones.push(nuevaEdicion);
+
+            mensaje.className = "alert alert-success";
+            mensaje.textContent =
+                "Edición ingresada correctamente (simulación). Estado: Ingresada.";
+
+            form.reset();
+        });
+
+        // Limpiar validaciones.
+        form.addEventListener("reset", function () {
             nombre.setCustomValidity("");
-        }
-    }
-    function validarFechas() {
-        if (fechaInicio.value && fechaFin.value &&
-            fechaFin.value < fechaInicio.value) {
-
-            fechaFin.setCustomValidity(
-                "La fecha de fin no puede ser anterior a la fecha de inicio."
-            );
-
-        } else {
             fechaFin.setCustomValidity("");
-        }
-    }
-    nombre.addEventListener("change", validarNombre);
-    fechaInicio.addEventListener("change", validarFechas);
-    fechaFin.addEventListener("change", validarFechas);
-    document.querySelector("form[data-demo]").addEventListener("reset", function () {
-        nombre.setCustomValidity("");
-        fechaFin.setCustomValidity("");
+
+            if (urlImagen) {
+                URL.revokeObjectURL(urlImagen);
+                urlImagen = null;
+            }
+
+            vistaImagen.removeAttribute("src");
+            vistaImagen.classList.add("d-none");
+        });
+
     });
 </script>
+
 </body>
 </html>
