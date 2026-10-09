@@ -1,5 +1,80 @@
-<!doctype html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Consulta de evento | eventos.uy</title><link rel="stylesheet" href="../css/styles.css"></head>
-<body data-root=".."><div id="site-header"></div><main class="container"><h1>Maratón de Montevideo</h1><article class="card"><p>Competencia deportiva anual en la capital.</p><p>Deporte · MARATON</p><h2>Ediciones aceptadas</h2><a href="edicion.html">Maratón 2025</a></article></main>
-<script src="../js/datos.js"></script><script src="../js/app.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta de Evento - eventos.uy</title>
+
+    <link rel="stylesheet" href="../vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header class="bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+
+            <a class="navbar-brand fw-bold" href="../index.html">
+                eventos.uy
+            </a>
+
+            <button class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarPrincipal"
+                    aria-controls="navbarPrincipal"
+                    aria-expanded="false"
+                    aria-label="Abrir navegación">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarPrincipal">
+
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="../index.html">Eventos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="usuarios.html">Usuarios</a>
+                    </li>
+                </ul>
+
+                <div class="d-flex gap-2">
+                    <a class="btn btn-outline-light" href="login.html">Iniciar sesión</a>
+                    <a class="btn btn-light text-primary" href="alta-usuario.html">Registrarse</a>
+                </div>
+
+            </div>
+        </div>
+    </nav>
+</header>
+
+<!-- CATEGORÍAS -->
+<section class="bg-white border-bottom">
+    <div class="container py-3">
+        <div class="d-flex flex-wrap gap-2">
+            <a href="../index.html" class="btn btn-sm btn-outline-secondary">Todos</a>
+            <a href="../index.html?categoria=Tecnología" class="btn btn-sm btn-outline-secondary">Tecnología</a>
+            <a href="../index.html?categoria=Cultura" class="btn btn-sm btn-outline-secondary">Cultura</a>
+            <a href="../index.html?categoria=Deporte" class="btn btn-sm btn-outline-secondary">Deporte</a>
+            <a href="../index.html?categoria=Música" class="btn btn-sm btn-outline-secondary">Música</a>
+            <a href="../index.html?categoria=Negocios" class="btn btn-sm btn-outline-secondary">Negocios</a>
+        </div>
+    </div>
+</section>
+
+<!-- CONTENIDO -->
+<main class="container py-5">
+    <div id="detalleEvento"></div>
+    <a href="../index.html" class="btn btn-secondary mt-4">Volver al listado</a>
+</main>
+
+<script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="../js/datos.js"></script>
+<script src="../js/evento.js"></script>
+
+</body>
+</html>
