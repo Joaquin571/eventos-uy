@@ -32,6 +32,7 @@ public interface ISistema {
     // CATEGORÍAS
     void altaCategoria(String nombre, String nombrePadre) throws Exception;
     Collection<String> listarCategoriasFormateadas();
+    Collection<DtCategoria> listarCategorias();
 
     // TIPOS DE REGISTRO
     boolean altaTipoRegistro(DtTipoRegistro dtTipoRegistro, String nombreEdicion);
@@ -39,7 +40,22 @@ public interface ISistema {
     DtTipoRegistro consultarTipoRegistro(String nombreEdicion, String nombreTipoRegistro);
 
     // REGISTROS
-    boolean registroAEdicion(String nicknameAsistente, String nombreEdicion, String nombreTipoRegistro, DtRegistro dtRegistro);
+
+    boolean registroAEdicion(
+            String nicknameAsistente,
+            String nombreEdicion,
+            String nombreTipoRegistro,
+            DtRegistro dt
+    );
+
+    boolean registroAEdicion(
+            String nicknameAsistente,
+            String nombreEdicion,
+            String nombreTipoRegistro,
+            DtRegistro dt,
+            String codigoPatrocinio
+    );
+
     Collection<DtRegistro> obtenerRegistrosAsistente(String nickname);
     Collection<DtRegistro> obtenerRegistrosEdicion(String nombreEdicion);
 

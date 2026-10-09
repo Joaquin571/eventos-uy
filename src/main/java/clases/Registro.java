@@ -5,7 +5,13 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "registro")
+@Table(
+        name = "registro",
+        uniqueConstraints = @UniqueConstraint(
+                name = "UK_REGISTRO_ASISTENTE_EDICION",
+                columnNames = {"ASISTENTE_NICKNAME", "EDICION_ID"}
+        )
+)
 public class Registro {
 
     @Id
@@ -26,6 +32,11 @@ public class Registro {
     @ManyToOne
     @JoinColumn(name = "ASISTENTE_NICKNAME")
     private Asistente asistente;
+    @ManyToOne
+    @JoinColumn(name = "PATROCINIO_CODIGO")
+    private Patrocinio patrocinio;
+
+
 
     protected Registro() {
     }
@@ -52,4 +63,11 @@ public class Registro {
     public void setEdicion(Edicion edicion) {this.edicion = edicion;}
     public Asistente getAsistente() {return asistente;}
     public void setAsistente(Asistente asistente) {this.asistente = asistente;}
+    public Patrocinio getPatrocinio() {
+        return patrocinio;
+    }
+
+    public void setPatrocinio(Patrocinio patrocinio) {
+        this.patrocinio = patrocinio;
+    }
 }
