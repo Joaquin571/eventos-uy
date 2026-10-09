@@ -123,11 +123,45 @@ const Datos = {
             fechaAlta: "2026-10-01"
         }
     ],
+    organizadores: [
+        {
+            id: 1,
+            nickname: "imm",
+            nombre: "Intendencia de Montevideo",
+            correo: "imm@montevideo.gub.uy",
+            password: "1234",
+            descripcion: "Gobierno departamental de Montevideo",
+            sitioWeb: "https://montevideo.gub.uy",
+            imagen: null
+        },
+        {
+            id: 2,
+            nickname: "mvdcomics",
+            nombre: "Montevideo Comics SA",
+            correo: "info@mvdcomics.uy",
+            password: "1234",
+            descripcion: "Productora de eventos de cultura geek",
+            sitioWeb: "",
+            imagen: null
+        }
+    ],
 
     asistentes: [
-        { id: 1, nickname: "juan23", nombre: "Juan Pérez", institucionId: 1 },
-        { id: 2, nickname: "maria88", nombre: "María Gómez", institucionId: null },
-        { id: 3, nickname: "ana_utec", nombre: "Ana Silva", institucionId: 1 }
+        {
+            id: 1, nickname: "juan23", nombre: "Juan", apellido: "Pérez",
+            correo: "juan@mail.com", password: "1234",
+            fechaNacimiento: "1998-04-12", institucionId: 1, imagen: null
+        },
+        {
+            id: 2, nickname: "maria88", nombre: "María", apellido: "Gómez",
+            correo: "maria@mail.com", password: "1234",
+            fechaNacimiento: "1995-09-30", institucionId: null, imagen: null
+        },
+        {
+            id: 3, nickname: "ana_utec", nombre: "Ana", apellido: "Silva",
+            correo: "ana@mail.com", password: "1234",
+            fechaNacimiento: "2000-01-18", institucionId: 1, imagen: null
+        }
     ],
 
     registros: [

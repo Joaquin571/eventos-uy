@@ -1,5 +1,156 @@
-<!doctype html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Modificar usuario | eventos.uy</title><link rel="stylesheet" href="../css/styles.css"></head>
-<body data-root=".."><div id="site-header"></div><main class="container"><h1>Modificar datos</h1><form class="form" data-demo><div class="field"><label>Nombre</label><input required></div><div class="field"><label>Nueva contraseña</label><input name="password" type="password"></div><div class="field"><label>Confirmación</label><input name="confirmacion" type="password"></div><div class="field"><label>Imagen</label><input type="file"></div><div class="message"></div><button class="btn btn-primary">Guardar</button></form></main>
-<script src="../js/datos.js"></script><script src="../js/app.js"></script></body></html>
+!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modificar Datos de Usuario - eventos.uy</title>
+
+    <link rel="stylesheet" href="../vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header class="bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+
+            <a class="navbar-brand fw-bold" href="../index.html">
+                eventos.uy
+            </a>
+
+            <button class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarPrincipal"
+                    aria-controls="navbarPrincipal"
+                    aria-expanded="false"
+                    aria-label="Abrir navegación">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarPrincipal">
+
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="../index.html">Eventos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="usuarios.html">Usuarios</a>
+                    </li>
+                </ul>
+
+                <div class="d-flex align-items-center gap-3">
+                    <span class="navbar-text text-white" id="rolActual"></span>
+                    <a class="btn btn-outline-light" href="../index.html">Salir</a>
+                </div>
+
+            </div>
+        </div>
+    </nav>
+</header>
+
+<!-- CATEGORÍAS -->
+<section class="bg-white border-bottom">
+    <div class="container py-3">
+        <div class="d-flex flex-wrap gap-2">
+            <a href="../index.html" class="btn btn-sm btn-outline-secondary">Todos</a>
+            <a href="../index.html?categoria=Tecnología" class="btn btn-sm btn-outline-secondary">Tecnología</a>
+            <a href="../index.html?categoria=Cultura" class="btn btn-sm btn-outline-secondary">Cultura</a>
+            <a href="../index.html?categoria=Deporte" class="btn btn-sm btn-outline-secondary">Deporte</a>
+            <a href="../index.html?categoria=Música" class="btn btn-sm btn-outline-secondary">Música</a>
+            <a href="../index.html?categoria=Negocios" class="btn btn-sm btn-outline-secondary">Negocios</a>
+        </div>
+    </div>
+</section>
+
+<main class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+
+                    <h1 class="h3 mb-4">Modificar Datos</h1>
+
+                    <form id="formModificarUsuario">
+
+                        <div class="mb-3">
+                            <label for="nickname" class="form-label">Nickname</label>
+                            <input type="text" class="form-control" id="nickname" disabled>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="correo" class="form-label">Correo electrónico</label>
+                            <input type="email" class="form-control" id="correo" disabled>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label">Nombre</label>
+                            <input type="text" class="form-control" id="nombre" required>
+                        </div>
+
+                        <!-- Solo asistente -->
+                        <div id="camposAsistente">
+                            <div class="mb-3">
+                                <label for="apellido" class="form-label">Apellido</label>
+                                <input type="text" class="form-control" id="apellido">
+                            </div>
+                            <div class="mb-3">
+                                <label for="fechaNacimiento" class="form-label">Fecha de nacimiento</label>
+                                <input type="date" class="form-control" id="fechaNacimiento">
+                            </div>
+                            <div class="mb-3">
+                                <label for="institucion" class="form-label">Institución</label>
+                                <select class="form-select" id="institucion"></select>
+                            </div>
+                        </div>
+
+                        <!-- Solo organizador -->
+                        <div id="camposOrganizador">
+                            <div class="mb-3">
+                                <label for="descripcion" class="form-label">Descripción general</label>
+                                <textarea class="form-control" id="descripcion" rows="4"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="sitioWeb" class="form-label">Sitio web</label>
+                                <input type="url" class="form-control" id="sitioWeb"
+                                       placeholder="https://ejemplo.com">
+                                <div class="form-text">Opcional</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Nueva contraseña</label>
+                            <input type="password" class="form-control" id="password" autocomplete="new-password">
+                            <div class="form-text">Dejala vacía si no querés cambiarla</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="confirmacion" class="form-label">Confirmar contraseña</label>
+                            <input type="password" class="form-control" id="confirmacion" autocomplete="new-password">
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="imagen" class="form-label">Imagen</label>
+                            <input type="file" class="form-control" id="imagen" accept="image/*">
+                            <div class="form-text" id="imagenActual"></div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="perfil.html" class="btn btn-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="../js/datos.js"></script>
+<script src="../js/selects.js"></script>
+<script src="../js/modificar-usuario.js"></script>
