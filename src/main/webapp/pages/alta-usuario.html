@@ -1,5 +1,175 @@
-<!doctype html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Alta de usuario | eventos.uy</title><link rel="stylesheet" href="../css/styles.css"></head>
-<body data-root=".."><div id="site-header"></div><main class="container"><h1>Registrarse</h1><form class="form" data-demo><div class="field"><label>Rol</label><select required><option>Asistente</option><option>Organizador</option></select></div><div class="field"><label>Nickname</label><input required></div><div class="field"><label>Nombre</label><input required></div><div class="field"><label>Correo</label><input type="email" required></div><div class="field"><label>Contraseña</label><input name="password" type="password" required></div><div class="field"><label>Confirmación</label><input name="confirmacion" type="password" required></div><div class="field"><label>Imagen opcional</label><input type="file" accept="image/*"></div><div class="message"></div><button class="btn btn-primary">Registrarme</button></form></main>
-<script src="../js/datos.js"></script><script src="../js/app.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Usuario - eventos.uy</title>
+
+    <link rel="stylesheet" href="../vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/styles.css">
+
+    <style>
+        .header-bg-custom { background-color: #0b4f7c !important; }
+        .btn-registro-green {
+            background-color: #198754 !important;
+            border-color: #198754 !important;
+            color: #ffffff !important;
+            font-weight: 600;
+        }
+        .btn-login-header {
+            background-color: #ffffff !important;
+            color: #0b4f7c !important;
+            border: 1px solid #ffffff !important;
+            font-weight: 600 !important;
+        }
+        .invalid-feedback-custom {
+            display: block !important;
+            color: #dc3545 !important;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+
+<header class="header-bg-custom shadow-sm py-2">
+    <div class="container d-flex justify-content-between align-items-center">
+        <a class="navbar-brand fw-bold fs-4 text-white text-decoration-none" href="../index.html">
+            eventos.uy
+        </a>
+
+        <div class="d-flex align-items-center gap-3" id="navMenuLinks">
+            <a href="../index.html" class="text-white text-decoration-none fs-6">Inicio</a>
+            <a href="usuarios.html" class="text-white text-decoration-none fs-6">Usuarios</a>
+            <div id="contenedorBotonSesion" class="d-flex align-items-center gap-2">
+                <a href="alta-usuario.html" id="linkRegistrarse" class="text-white text-decoration-none fw-bold border-bottom border-2 border-white pb-1 fs-6">Registrarse</a>
+                <a href="login.html" id="linkLogin" class="btn btn-login-header px-3 py-1 text-decoration-none ms-2">
+                    Iniciar sesión
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-body p-4 p-md-5">
+
+                    <h2 class="h3 fw-bold mb-4 text-dark">Registro de Usuario</h2>
+
+                    <form id="formAltaUsuario" novalidate>
+
+                        <div class="mb-3">
+                            <label for="tipoRol" class="form-label fw-bold">Tipo de Usuario</label>
+                            <select id="tipoRol" class="form-select fs-6">
+                                <option value="asistente" selected>Asistente</option>
+                                <option value="organizador">Organizador</option>
+                            </select>
+                        </div>
+
+                        <!-- Nickname y Correo -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="nickname" class="form-label fw-bold">Nickname *</label>
+                                <input type="text" id="nickname" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="correo" class="form-label fw-bold">Correo *</label>
+                                <input type="email" id="correo" class="form-control">
+                            </div>
+                        </div>
+
+                        <!-- Nombre y Apellido -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="nombre" class="form-label fw-bold">Nombre *</label>
+                                <input type="text" id="nombre" class="form-control">
+                            </div>
+                            <div class="col-md-6" id="bloqueApellido">
+                                <label for="apellido" class="form-label fw-bold">Apellido *</label>
+                                <input type="text" id="apellido" class="form-control">
+                            </div>
+                        </div>
+
+                        <!-- Contraseñas para que sean visibles -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="p1" class="form-label fw-bold">Contraseña *</label>
+                                <div class="input-group">
+                                    <input type="password" id="p1" class="form-control">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassVisibility('p1', this)">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="p2" class="form-label fw-bold">Confirmar Contraseña *</label>
+                                <div class="input-group">
+                                    <input type="password" id="p2" class="form-control">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassVisibility('p2', this)">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Imagen -->
+                        <div class="mb-3">
+                            <label for="imagenPerfil" class="form-label fw-bold">Imagen de Perfil (Opcional)</label>
+                            <input type="file" id="imagenPerfil" class="form-control" accept="image/*">
+                        </div>
+
+                        <!-- Campos de Asistente -->
+                        <div id="camposAsistente">
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label for="fechaNac" class="form-label fw-bold">Fecha de Nacimiento *</label>
+                                    <input type="date" id="fechaNac" class="form-control">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="institucion" class="form-label fw-bold">Institución (Opcional)</label>
+                                    <select id="institucion" class="form-select">
+                                        <option value="">Ninguna</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Campos de Organizador -->
+                        <div id="camposOrganizador" class="d-none">
+                            <div class="mb-3">
+                                <label for="descripcion" class="form-label fw-bold">Descripción General *</label>
+                                <textarea id="descripcion" class="form-control" rows="3"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="sitioWeb" class="form-label fw-bold">Sitio Web (Opcional)</label>
+                                <input type="url" id="sitioWeb" class="form-control" placeholder="https://ejemplo.com">
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-registro-green w-100 py-2 fs-5 rounded-2">
+                                Registrarse
+                            </button>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="../js/datos.js"></script>
+<script src="../js/login.js"></script>
+<script src="../js/usuario.js"></script>
+</body>
+
+</html>
