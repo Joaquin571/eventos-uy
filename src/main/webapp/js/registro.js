@@ -1,13 +1,96 @@
-// Simulación de la sesión (como organizadorActualId en patrocinio.js).
-// Para probar la consulta como organizador: consulta-registro.html?rol=organizador
-const asistenteActualId = 1;
-const organizadorActualId = 1;
-const rolActual = new URLSearchParams(location.search).get("rol") || "asistente";
+/* =====================================================
+   FUNCIONES COMPARTIDAS
+   ===================================================== */
+
+// Usuario que inició sesión (lo guarda login.js en sessionStorage).
+// Devuelve null si es un visitante.
+function obtenerUsuarioSesion() {
+    try {
+        return JSON.parse(sessionStorage.getItem("usuarioLogueado"));
+    } catch (error) {
+        return null;
+    }
+}
 
 function formatearFecha(fechaIso) {
     const partes = fechaIso.split("-");
     return partes[2] + "/" + partes[1] + "/" + partes[0];
 }
+
+// Busca un asistente en datos.js y, si no está, entre los usuarios
+// que se dieron de alta desde el sitio (localStorage).
+function obtenerAsistente(asistenteId) {
+    const precargado = Datos.asistentes.find(
+        asistente => asistente.id === asistenteId
+    );
+
+    if (precargado) {
+        return precargado;
+    }
+
+    let registrados = [];
+
+    try {
+        registrados = JSON.parse(localStorage.getItem("usuariosRegistrados")) || [];
+    } catch (error) {
+        registrados = [];
+    }
+
+    return registrados.find(usuario => usuario.id === asistenteId) || null;
+}
+
+// Los registros nuevos se guardan en localStorage para que se vean
+// al pasar de "Registro a edición" a "Consulta de registro".
+function cargarRegistrosGuardados() {
+    let guardados = [];
+
+    try {
+        guardados = JSON.parse(localStorage.getItem("registrosNuevos")) || [];
+    } catch (error) {
+        guardados = [];
+    }
+
+    guardados.forEach(registro => {
+        const yaCargado = Datos.registros.some(
+            existente => existente.id === registro.id
+        );
+
+        if (!yaCargado) {
+            Datos.registros.push(registro);
+        }
+    });
+}
+
+function guardarRegistroNuevo(registro) {
+    let guardados = [];
+
+    try {
+        guardados = JSON.parse(localStorage.getItem("registrosNuevos")) || [];
+    } catch (error) {
+        guardados = [];
+    }
+
+    guardados.push(registro);
+    localStorage.setItem("registrosNuevos", JSON.stringify(guardados));
+}
+
+// Muestra un aviso (alert de Bootstrap) en la página.
+function mostrarAviso(tipo, mensaje, conLogin) {
+    const aviso = document.getElementById("mensajeAcceso");
+
+    aviso.className = "alert alert-" + tipo;
+    aviso.textContent = mensaje;
+
+    if (conLogin) {
+        const enlace = document.createElement("a");
+        enlace.href = "login.html";
+        enlace.className = "alert-link ms-1";
+        enlace.textContent = "Iniciar sesión";
+        aviso.appendChild(enlace);
+    }
+}
+
+cargarRegistrosGuardados();
 
 /* =====================================================
    REGISTRO A EDICIÓN DE EVENTO
@@ -15,6 +98,18 @@ function formatearFecha(fechaIso) {
 const formRegistroEdicion = document.getElementById("formRegistroEdicion");
 
 if (formRegistroEdicion) {
+    const usuario = obtenerUsuarioSesion();
+
+    if (!usuario) {
+        mostrarAviso("warning", "Para registrarte a una edición tenés que iniciar sesión como asistente.", true);
+    } else if (usuario.rol !== "asistente") {
+        mostrarAviso("warning", "Solo los asistentes pueden registrarse a una edición.", false);
+    } else {
+        iniciarRegistroEdicion(usuario);
+    }
+}
+
+function iniciarRegistroEdicion(usuario) {
     const selectEvento = document.getElementById("evento");
     const selectEdicion = document.getElementById("edicion");
     const selectTipoRegistro = document.getElementById("tipoRegistro");
@@ -23,6 +118,8 @@ if (formRegistroEdicion) {
     const radioCodigo = document.getElementById("modalidadCodigo");
     const contenedorCodigo = document.getElementById("contenedorCodigo");
     const inputCodigo = document.getElementById("codigo");
+
+    formRegistroEdicion.classList.remove("d-none");
 
     cargarSelect(selectEvento, Datos.eventos, "Seleccione un evento");
 
@@ -57,6 +154,7 @@ if (formRegistroEdicion) {
             return;
         }
 
+        // solo ediciones Aceptadas
         const edicionesAceptadas = Datos.ediciones.filter(
             edicion => edicion.eventoId === eventoId &&
                        edicion.estado === "Aceptada"
@@ -108,10 +206,7 @@ if (formRegistroEdicion) {
         const tipoRegistroId = Number(selectTipoRegistro.value);
         const conCodigo = radioCodigo.checked;
         const codigo = inputCodigo.value.trim();
-
-        const asistente = Datos.asistentes.find(
-            asistente => asistente.id === asistenteActualId
-        );
+        const institucionId = usuario.institucionId || null;
 
         const tipoRegistro = Datos.tiposRegistro.find(
             tipo => tipo.id === tipoRegistroId
@@ -120,7 +215,7 @@ if (formRegistroEdicion) {
         //validaciones
         const yaRegistrado = Datos.registros.some(
             registro => registro.edicionId === edicionId &&
-                        registro.asistenteId === asistenteActualId
+                        registro.asistenteId === usuario.id
         );
 
         if (yaRegistrado) {
@@ -141,7 +236,7 @@ if (formRegistroEdicion) {
         let patrocinioId = null;
 
         if (conCodigo) {
-            if (asistente.institucionId === null) {
+            if (institucionId === null) {
                 alert("Un asistente sin institución solo puede registrarse de forma general.");
                 return;
             }
@@ -165,7 +260,7 @@ if (formRegistroEdicion) {
                 return;
             }
 
-            if (patrocinio.institucionId !== asistente.institucionId) {
+            if (patrocinio.institucionId !== institucionId) {
                 alert("El código de patrocinio no corresponde a tu institución.");
                 return;
             }
@@ -185,9 +280,9 @@ if (formRegistroEdicion) {
 
         //guardar
         const nuevoRegistro = {
-            id: Datos.registros.length + 1,
+            id: Date.now(),
             edicionId: edicionId,
-            asistenteId: asistenteActualId,
+            asistenteId: usuario.id,
             tipoRegistroId: tipoRegistroId,
             fechaAlta: new Date().toISOString().split("T")[0],
             costo: costo,
@@ -195,6 +290,7 @@ if (formRegistroEdicion) {
         };
 
         Datos.registros.push(nuevoRegistro);
+        guardarRegistroNuevo(nuevoRegistro);
 
         alert("Registro realizado correctamente. Costo: $" + costo);
 
@@ -206,6 +302,25 @@ if (formRegistroEdicion) {
         detalleEdicion.classList.add("d-none");
         actualizarModalidad();
     });
+
+    // Si se llega desde la consulta de edición (registro-edicion.html?edicion=1)
+    // se eligen solos el evento y la edición.
+    const edicionIdParam = Number(new URLSearchParams(location.search).get("edicion"));
+
+    if (edicionIdParam) {
+        const edicionInicial = Datos.ediciones.find(
+            edicion => edicion.id === edicionIdParam &&
+                       edicion.estado === "Aceptada"
+        );
+
+        if (edicionInicial) {
+            selectEvento.value = edicionInicial.eventoId;
+            selectEvento.dispatchEvent(new Event("change"));
+
+            selectEdicion.value = edicionInicial.id;
+            selectEdicion.dispatchEvent(new Event("change"));
+        }
+    }
 }
 
 /* =====================================================
@@ -214,7 +329,19 @@ if (formRegistroEdicion) {
 const detalleRegistro = document.getElementById("detalleRegistro");
 
 if (detalleRegistro) {
-    const esOrganizador = rolActual === "organizador";
+    const usuario = obtenerUsuarioSesion();
+
+    if (!usuario) {
+        mostrarAviso("warning", "Para consultar registros tenés que iniciar sesión como asistente u organizador.", true);
+    } else if (usuario.rol !== "asistente" && usuario.rol !== "organizador") {
+        mostrarAviso("warning", "Solo los asistentes y los organizadores pueden consultar registros.", false);
+    } else {
+        iniciarConsultaRegistro(usuario);
+    }
+}
+
+function iniciarConsultaRegistro(usuario) {
+    const esOrganizador = usuario.rol === "organizador";
 
     const selectEdicion = document.getElementById("edicion");
     const selectAsistente = document.getElementById("asistente");
@@ -227,27 +354,38 @@ if (detalleRegistro) {
 
     if (esOrganizador) {
         edicionesDisponibles = Datos.ediciones.filter(
-            edicion => edicion.organizadorId === organizadorActualId
+            edicion => edicion.organizadorId === usuario.id
         );
         contenedorAsistente.classList.remove("d-none");
     } else {
         edicionesDisponibles = Datos.ediciones.filter(
             edicion => Datos.registros.some(
                 registro => registro.edicionId === edicion.id &&
-                            registro.asistenteId === asistenteActualId
+                            registro.asistenteId === usuario.id
             )
         );
         filaAsistente.classList.add("d-none");
     }
+
+    if (edicionesDisponibles.length === 0) {
+        mostrarAviso(
+            "info",
+            esOrganizador
+                ? "Todavía no tenés ediciones a tu cargo."
+                : "Todavía no te registraste a ninguna edición.",
+            false
+        );
+        return;
+    }
+
+    document.getElementById("contenidoConsulta").classList.remove("d-none");
 
     cargarSelect(selectEdicion, edicionesDisponibles, "Seleccione una edición");
 
     function mostrarRegistro(registroId) {
         const registro = Datos.registros.find(registro => registro.id === registroId);
 
-        const asistente = Datos.asistentes.find(
-            asistente => asistente.id === registro.asistenteId
-        );
+        const asistente = obtenerAsistente(registro.asistenteId);
 
         const edicion = Datos.ediciones.find(
             edicion => edicion.id === registro.edicionId
@@ -257,7 +395,8 @@ if (detalleRegistro) {
             tipo => tipo.id === registro.tipoRegistroId
         );
 
-        document.getElementById("nombreAsistente").textContent = asistente.nickname;
+        document.getElementById("nombreAsistente").textContent =
+            asistente ? asistente.nickname : "Desconocido";
         document.getElementById("nombreEdicion").textContent = edicion.nombre;
         document.getElementById("tipoRegistroDetalle").textContent = tipoRegistro.nombre;
         document.getElementById("fechaRegistro").textContent = formatearFecha(registro.fechaAlta);
@@ -283,13 +422,11 @@ if (detalleRegistro) {
             const asistentesRegistrados = Datos.registros
                 .filter(registro => registro.edicionId === edicionId)
                 .map(registro => {
-                    const asistente = Datos.asistentes.find(
-                        asistente => asistente.id === registro.asistenteId
-                    );
+                    const asistente = obtenerAsistente(registro.asistenteId);
 
                     return {
                         id: registro.id,
-                        nombre: asistente.nickname
+                        nombre: asistente ? asistente.nickname : "Desconocido"
                     };
                 });
 
@@ -303,10 +440,12 @@ if (detalleRegistro) {
             // el asistente ve directamente su registro
             const miRegistro = Datos.registros.find(
                 registro => registro.edicionId === edicionId &&
-                            registro.asistenteId === asistenteActualId
+                            registro.asistenteId === usuario.id
             );
 
-            mostrarRegistro(miRegistro.id);
+            if (miRegistro) {
+                mostrarRegistro(miRegistro.id);
+            }
         }
     });
 
@@ -320,4 +459,32 @@ if (detalleRegistro) {
 
         mostrarRegistro(registroId);
     });
+
+    // Si se llega con consulta-registro.html?edicion=1 o ?id=<registro>
+    // se elige sola la edición (y el asistente, si es organizador).
+    const parametros = new URLSearchParams(location.search);
+    const registroIdParam = Number(parametros.get("id"));
+    let edicionIdParam = Number(parametros.get("edicion"));
+
+    const registroInicial = registroIdParam
+        ? Datos.registros.find(registro => registro.id === registroIdParam)
+        : null;
+
+    if (registroInicial) {
+        edicionIdParam = registroInicial.edicionId;
+    }
+
+    const edicionPermitida = edicionesDisponibles.some(
+        edicion => edicion.id === edicionIdParam
+    );
+
+    if (edicionPermitida) {
+        selectEdicion.value = edicionIdParam;
+        selectEdicion.dispatchEvent(new Event("change"));
+
+        if (esOrganizador && registroInicial) {
+            selectAsistente.value = registroInicial.id;
+            selectAsistente.dispatchEvent(new Event("change"));
+        }
+    }
 }
