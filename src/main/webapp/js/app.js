@@ -1,9 +1,31 @@
 window.App = window.App || {};
-App.rol = "visitante"; // visitante | asistente | organizador
 
+App.obtenerUsuarioActual = function () {
+    const usuarioGuardado = sessionStorage.getItem("usuarioLogueado");
+
+    if (!usuarioGuardado) {
+        return null;
+    }
+
+    try {
+        return JSON.parse(usuarioGuardado);
+    } catch (error) {
+        return null;
+    }
+};
+
+App.obtenerRolActual = function () {
+    const usuario = App.obtenerUsuarioActual();
+
+    return usuario ? usuario.rol.toLowerCase() : "visitante";
+};
+
+App.rol = App.obtenerRolActual();
 App.renderHeader = function () {
     const h = document.querySelector("#site-header");
     if (!h) return;
+    App.rol = App.obtenerRolActual();
+    const usuarioActual = App.obtenerUsuarioActual();
     const r = document.body.dataset.root || ".";
 
     let acciones = App.rol === "visitante"

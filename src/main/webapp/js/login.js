@@ -64,6 +64,7 @@ function mostrarErrorLogin(inputElement, textoMensaje) {
     inputElement.focus();
 }
 
+
 function iniciarSesion(e) {
     e.preventDefault();
     limpiarErroresLogin();
@@ -71,8 +72,8 @@ function iniciarSesion(e) {
     const inputUser = document.getElementById("loginUser");
     const inputPass = document.getElementById("loginPass");
 
-    const loginUser = inputUser ? inputUser.value.trim().toLowerCase() : "";
-    const loginPass = inputPass ? inputPass.value.trim() : "";
+    const loginUser = inputUser.value.trim().toLowerCase();
+    const loginPass = inputPass.value;
 
     if (!loginUser) {
         mostrarErrorLogin(inputUser, "Ingrese su nickname o correo.");
@@ -84,38 +85,55 @@ function iniciarSesion(e) {
         return;
     }
 
+    // Usuarios registrados desde la web
     const registrados = JSON.parse(localStorage.getItem("usuariosRegistrados")) || [];
-    let usuarioEncontrado = registrados.find(u =>
-        (u.nickname.toLowerCase() === loginUser || u.correo.toLowerCase() === loginUser) &&
-        u.password === loginPass
+
+    // Usuarios de prueba definidos en datos.js
+    const organizadores = Datos.organizadores.map(usuario => ({
+        ...usuario,
+        rol: "organizador"
+    }));
+
+    const asistentes = Datos.asistentes.map(usuario => ({
+        ...usuario,
+        rol: "asistente"
+    }));
+
+    // Unificamos los usuarios para buscar en una sola lista
+    const usuarios = [
+        ...registrados,
+        ...organizadores,
+        ...asistentes
+    ];
+
+    const usuarioEncontrado = usuarios.find(usuario =>
+        (
+            usuario.nickname.toLowerCase() === loginUser ||
+            usuario.correo.toLowerCase() === loginUser
+        ) &&
+        usuario.password === loginPass
     );
 
-    if (!usuarioEncontrado && typeof Datos !== "undefined" && Array.isArray(Datos.asistentes)) {
-        const asistentePrueba = Datos.asistentes.find(a =>
-            a.nickname.toLowerCase() === loginUser ||
-            `${a.nickname}@eventos.uy`.toLowerCase() === loginUser
-        );
-
-        if (asistentePrueba) {
-            usuarioEncontrado = {
-                id: asistentePrueba.id,
-                nickname: asistentePrueba.nickname,
-                nombre: asistentePrueba.nombre,
-                correo: `${asistentePrueba.nickname}@eventos.uy`,
-                rol: "asistente",
-                institucionId: asistentePrueba.institucionId
-            };
-        }
-    }
-
-    if (usuarioEncontrado) {
-        sessionStorage.setItem("usuarioLogueado", JSON.stringify(usuarioEncontrado));
-        alert("¡Bienvenido/a " + usuarioEncontrado.nombre + "!");
-        window.location.href = "../index.html";
-    } else {
+    if (!usuarioEncontrado) {
         mostrarErrorLogin(inputPass, "Credenciales incorrectas.");
+        return;
     }
+
+    // Guardamos únicamente los datos necesarios de la sesión
+    const sesion = {
+        id: usuarioEncontrado.id,
+        nickname: usuarioEncontrado.nickname,
+        nombre: usuarioEncontrado.nombre,
+        rol: usuarioEncontrado.rol.toLowerCase()
+    };
+
+    sessionStorage.setItem("usuarioLogueado", JSON.stringify(sesion));
+
+    alert("¡Bienvenido/a " + sesion.nombre + "!");
+
+    window.location.href = "../index.html";
 }
+
 
 function ejecutarCerrarSesion() {
     sessionStorage.removeItem("usuarioLogueado");
