@@ -1,5 +1,66 @@
-<!doctype html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Perfil de usuario | eventos.uy</title><link rel="stylesheet" href="../css/styles.css"></head>
-<body data-root=".."><div id="site-header"></div><main class="container"><h1>Perfil de usuario</h1><article class="card"><h2>Intendencia de Montevideo</h2><p>Organizador · imm</p><h3>Ediciones aceptadas</h3><a href="edicion.html">Maratón 2025</a></article></main>
-<script src="../js/datos.js"></script><script src="../js/app.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil de Usuario - eventos.uy</title>
+
+    <link rel="stylesheet" href="../vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body class="bg-light">
+
+<header class="bg-primary shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-dark container py-2">
+        <a class="navbar-brand fw-bold fs-4" href="../index.html">eventos.uy</a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarPrincipal">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarPrincipal">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="../index.html">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="usuarios.html">Usuarios</a>
+                </li>
+            </ul>
+
+            <div id="accionesUsuario" class="d-flex align-items-center gap-2">
+                <a class="btn btn-outline-light" href="login.html" id="linkLogin">Iniciar sesión</a>
+                <a class="btn btn-light text-primary fw-bold" href="alta-usuario.html" id="linkRegistrarse">Registrarse</a>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-body p-4 p-md-5">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="h3 fw-bold text-dark m-0">Perfil de Usuario</h2>
+                        <a href="usuarios.html" class="btn btn-outline-secondary btn-sm">← Volver al Listado</a>
+                    </div>
+
+                    <div id="infoDetalleUsuario">
+                        <p class="text-muted">Cargando perfil...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="../js/datos.js"></script>
+<script src="../js/login.js"></script>
+<script src="../js/consultaUsuario.js"></script>
+</body>
+
+</html>
