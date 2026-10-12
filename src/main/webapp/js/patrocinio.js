@@ -1,4 +1,8 @@
-const organizadorActualId = 1;
+// Organizador autenticado (null si no hay sesión de organizador)
+const sesionActual = JSON.parse(sessionStorage.getItem("usuarioLogueado") || "null");
+const organizadorActualId = (sesionActual && sesionActual.rol === "organizador")
+    ? Number(sesionActual.id)
+    : null;
 
 const formAltaPatrocinio = document.getElementById("formAltaPatrocinio");
 const detallePatrocinio = document.getElementById("detallePatrocinio");
@@ -247,4 +251,19 @@ if (detallePatrocinio) {
 
         detallePatrocinio.classList.remove("d-none");
     });
+    // Preselección desde enlaces (?id=<id del patrocinio>)
+    const idPre = Number(new URLSearchParams(location.search).get("id"));
+    const patPre = Datos.patrocinios.find(p => p.id === idPre);
+    const edPre = patPre && Datos.ediciones.find(
+        e => e.id === patPre.edicionId && e.estado === "Aceptada"
+    );
+
+    if (edPre) {
+        selectEvento.value = edPre.eventoId;
+        selectEvento.dispatchEvent(new Event("change"));
+        selectEdicion.value = edPre.id;
+        selectEdicion.dispatchEvent(new Event("change"));
+        selectPatrocinio.value = patPre.id;
+        selectPatrocinio.dispatchEvent(new Event("change"));
+    }
 }

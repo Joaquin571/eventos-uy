@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
-    actualizarHeaderGlobal();
+
+
 
     const formLogin = document.getElementById("formLogin");
     if (formLogin) {
@@ -7,40 +8,94 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+
 function actualizarHeaderGlobal() {
-    const usuarioLogueado = JSON.parse(sessionStorage.getItem("usuarioLogueado"));
-    const contenedor = document.getElementById("accionesUsuario") || document.getElementById("contenedorBotonSesion");
+    const usuarioLogueado = JSON.parse(
+        sessionStorage.getItem("usuarioLogueado")
+    );
 
-    if (usuarioLogueado && contenedor) {
-        const enSubcarpeta = window.location.pathname.includes("/pages/");
-        const rutaPerfil = enSubcarpeta
-            ? `usuario.html?nick=${encodeURIComponent(usuarioLogueado.nickname)}`
-            : `pages/usuario.html?nick=${encodeURIComponent(usuarioLogueado.nickname)}`;
+    const contenedor = document.getElementById("accionesUsuario") ||
+                       document.getElementById("contenedorBotonSesion");
 
+    if (!contenedor) return;
+
+    const enSubcarpeta = window.location.pathname.includes("/pages/");
+    const ruta = enSubcarpeta ? "" : "pages/";
+
+    if (!usuarioLogueado) {
         contenedor.innerHTML = `
-            <div class="dropdown">
-                <button class="btn btn-light dropdown-toggle fw-bold text-primary px-3 py-1 shadow-sm" 
-                        type="button" 
-                        id="dropdownMenuUser" 
-                        data-bs-toggle="dropdown" 
-                        aria-expanded="false">
-                    <i class="bi bi-person-circle me-1"></i>${usuarioLogueado.nombre}
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2" aria-labelledby="dropdownMenuUser">
-                    <li>
-                        <a class="dropdown-item py-2 fw-semibold" href="${rutaPerfil}">
-                            <i class="bi bi-person me-2"></i>Mi perfil
-                        </a>
-                    </li>
-                    <li><hr class="dropdown-divider my-1"></li>
-                    <li>
-                        <button class="dropdown-item py-2 fw-semibold text-danger" type="button" onclick="ejecutarCerrarSesion()">
-                            <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión
-                        </button>
-                    </li>
-                </ul>
-            </div>`;
+            <a class="btn btn-outline-light" href="${ruta}login.html">
+                Iniciar sesión
+            </a>
+            <a class="btn btn-light text-primary fw-bold" href="${ruta}alta-usuario.html">
+                Registrarse
+            </a>
+        `;
+        return;
     }
+
+    const rutaPerfil = `${ruta}usuario.html?nick=${encodeURIComponent(usuarioLogueado.nickname)}`;
+    const rol = usuarioLogueado.rol.toLowerCase();
+
+    let opcionesRol = "";
+
+    if (rol === "organizador") {
+        opcionesRol = `
+            <li><h6 class="dropdown-header">Gestión de eventos</h6></li>
+            <li><a class="dropdown-item" href="${ruta}alta-evento.html">Alta Evento</a></li>
+            <li><a class="dropdown-item" href="${ruta}alta-edicion.html">Alta Edición</a></li>
+            <li><a class="dropdown-item" href="${ruta}alta-tipo-registro.html">Alta Tipo Registro</a></li>
+            <li><a class="dropdown-item" href="${ruta}alta-institucion.html">Alta Institución</a></li>
+            <li><a class="dropdown-item" href="${ruta}alta-patrocinio.html">Alta Patrocinio</a></li>
+            <li><a class="dropdown-item" href="${ruta}consulta-registro.html">Consulta Registro</a></li>
+        `;
+    }
+
+    if (rol === "asistente") {
+        opcionesRol = `
+            <li><h6 class="dropdown-header">Mis actividades</h6></li>
+            <li><a class="dropdown-item" href="${ruta}registro-edicion.html">Registrarme a una edición</a></li>
+            <li><a class="dropdown-item" href="${ruta}consulta-registro.html">Consultar mis registros</a></li>
+        `;
+    }
+
+    contenedor.innerHTML = `
+        <div class="dropdown">
+            <button class="btn btn-light dropdown-toggle fw-bold text-primary"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                ${usuarioLogueado.nombre}
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-end shadow">
+                <li>
+                    <a class="dropdown-item" href="${rutaPerfil}">
+                        Mi perfil
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="${ruta}modificar-usuario.html">
+                        Modificar mis datos
+                    </a>
+                </li>
+
+                <li><hr class="dropdown-divider"></li>
+
+                ${opcionesRol}
+
+                <li><hr class="dropdown-divider"></li>
+
+                <li>
+                    <button class="dropdown-item text-danger"
+                            type="button"
+                            onclick="ejecutarCerrarSesion()">
+                        Cerrar sesión
+                    </button>
+                </li>
+            </ul>
+        </div>
+    `;
 }
 
 function limpiarErroresLogin() {

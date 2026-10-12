@@ -13,8 +13,7 @@
 
 <body data-root="..">
 
-<div id="site-header"></div>
-
+<header id="headerPrincipal"></header>
 <main class="container py-4">
 
     <h1 class="mb-4">Consulta de edición de evento</h1>
@@ -122,7 +121,9 @@
 <script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="../js/datos.js"></script>
 <script src="../js/app.js"></script>
-
+<script src="../js/login.js"></script>
+<script src="../js/header.js"></script>
+<script src="../js/edicion.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
 
@@ -167,11 +168,22 @@
             });
         }
 
+        const sesion = App.obtenerUsuarioActual();
+
+        function esOrganizadorDe(edicion) {
+            return rol === "organizador" && sesion &&
+                Number(sesion.id) === Number(edicion.organizadorId);
+        }
+
+        function obtenerRegistros() {
+            return JSON.parse(localStorage.getItem("registrosEventos") || "null") ||
+                datos.registros;
+        }
+
+        // Público: solo Aceptada. El organizador dueño también ve
+        // sus ediciones Ingresada y Rechazada.
         function puedeConsultar(edicion) {
-            // La consulta pública solo muestra ediciones aceptadas.
-            // La identificación del organizador queda pendiente
-            // de acordar con el equipo.
-            return edicion.estado === "Aceptada";
+            return edicion.estado === "Aceptada" || esOrganizadorDe(edicion);
         }
 
         function cargarSelector() {
@@ -179,7 +191,7 @@
                 '<option value="">Seleccione una edición</option>';
 
             datos.ediciones
-                .filter(puedeConsultar)
+                .filter(function (e) { return e.estado === "Aceptada"; })
                 .forEach(function (edicion) {
 
                     const opcion = document.createElement("option");
@@ -253,7 +265,7 @@
                 const enlace = document.createElement("a");
                 enlace.className = "d-block mb-2";
                 enlace.href =
-                    "patrocinio.html?id=" +
+                    "consulta-patrocinio.html?id=" +
                     encodeURIComponent(patrocinio.id);
 
                 enlace.textContent =
@@ -294,21 +306,27 @@
             zonaAsistente.classList.add("d-none");
             zonaRegistro.classList.add("d-none");
 
-            // Pendiente: identificar al organizador autenticado
-            // y comprobar que la edición le pertenece.
-            // Por seguridad, no se habilita todavía esa opción.
+            // Organizador de la edición: ve el listado de registros
+            if (esOrganizadorDe(edicion)) {
+                zonaOrganizador.classList.remove("d-none");
+            }
 
-            // Pendiente: identificar registros del asistente.
-            // No mostramos "Mi registro" sin confirmarlo.
+            if (rol === "asistente" && sesion) {
+                const miRegistro = obtenerRegistros().find(function (r) {
+                    return Number(r.edicionId) === Number(edicion.id) &&
+                        Number(r.asistenteId) === Number(sesion.id);
+                });
 
-            if (rol === "asistente" &&
-                edicion.estado === "Aceptada") {
+                if (miRegistro) {
+                    // Asistente registrado: ve el detalle de su registro
+                    zonaAsistente.classList.remove("d-none");
+                } else if (edicion.estado === "Aceptada") {
+                    document.getElementById("enlaceRegistro").href =
+                        "registro-edicion.html?edicion=" +
+                        encodeURIComponent(edicion.id);
 
-                document.getElementById("enlaceRegistro").href =
-                    "registro-edicion.html?edicion=" +
-                    encodeURIComponent(edicion.id);
-
-                zonaRegistro.classList.remove("d-none");
+                    zonaRegistro.classList.remove("d-none");
+                }
             }
         }
 
@@ -347,6 +365,21 @@
             escribir("organizadorEdicion",
                 edicion.nombreOrganizador);
 
+            const organizador = datos.organizadores.find(function (o) {
+                return Number(o.id) === Number(edicion.organizadorId);
+            });
+
+            if (organizador) {
+                const spanOrganizador =
+                    document.getElementById("organizadorEdicion");
+                const enlaceOrganizador = document.createElement("a");
+                enlaceOrganizador.href = "usuario.html?nick=" +
+                    encodeURIComponent(organizador.nickname);
+                enlaceOrganizador.textContent = organizador.nombre;
+                spanOrganizador.textContent = "";
+                spanOrganizador.appendChild(enlaceOrganizador);
+            }
+
             escribir("siglaEdicion", edicion.sigla);
 
             escribir(
@@ -368,7 +401,11 @@
                 document.getElementById("estadoEdicion");
 
             estado.textContent = edicion.estado;
-            estado.className = "badge bg-success";
+            estado.className = "badge " + (
+                edicion.estado === "Aceptada" ? "bg-success" :
+                edicion.estado === "Ingresada" ? "bg-warning text-dark" :
+                "bg-danger"
+            );
 
             mostrarImagen(edicion);
             mostrarTiposRegistro(edicion);
@@ -400,6 +437,19 @@
 
             if (opcion) {
                 selector.value = idSolicitado;
+            } else {
+                // Edición no pública (Ingresada/Rechazada) del propio organizador
+                const propia = datos.ediciones.find(function (e) {
+                    return String(e.id) === idSolicitado && puedeConsultar(e);
+                });
+
+                if (propia) {
+                    const nueva = document.createElement("option");
+                    nueva.value = propia.id;
+                    nueva.textContent = propia.nombre + " (" + propia.estado + ")";
+                    selector.appendChild(nueva);
+                    selector.value = propia.id;
+                }
             }
 
             mostrarEdicion(idSolicitado);

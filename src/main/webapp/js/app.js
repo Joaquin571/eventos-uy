@@ -21,31 +21,10 @@ App.obtenerRolActual = function () {
 };
 
 App.rol = App.obtenerRolActual();
-App.renderHeader = function () {
-    const h = document.querySelector("#site-header");
-    if (!h) return;
-    App.rol = App.obtenerRolActual();
-    const usuarioActual = App.obtenerUsuarioActual();
-    const r = document.body.dataset.root || ".";
 
-    let acciones = App.rol === "visitante"
-        ? `<a class="btn" href="${r}/pages/login.html">Iniciar sesión</a><a class="btn" href="${r}/pages/alta-usuario.html">Registrarse</a>`
-        : `<a class="btn" href="${r}/pages/perfil.html">Mi perfil</a><a class="btn" href="${r}/index.html">Salir</a>`;
-
-    let rol = "";
-    if (App.rol === "organizador") {
-        rol = `<nav class="container categories"><a href="${r}/pages/alta-evento.html">Alta evento</a><a href="${r}/pages/alta-edicion.html">Alta edición</a><a href="${r}/pages/alta-institucion.html">Alta institución</a><a href="${r}/pages/alta-tipo-registro.html">Alta tipo registro</a><a href="${r}/pages/alta-patrocinio.html">Alta patrocinio</a></nav>`;
-    }
-
-    if (App.rol === "asistente") {
-        rol = `<nav class="container categories"><a href="${r}/pages/perfil.html">Mi perfil</a><a href="${r}/pages/mis-registros.html">Mis registros</a></nav>`;
-    }
-
-    h.innerHTML = `<header class="site-header"><div class="container topbar"><a class="brand" href="${r}/index.html">eventos.uy</a><nav class="nav">${acciones}</nav></div></header>${rol}<nav class="container categories">${App.datos.categorias.map(c => `<a href="${r}/index.html?categoria=${encodeURIComponent(c)}">${c}</a>`).join("")}<a href="${r}/pages/usuarios.html">Usuarios</a></nav>`;
-};
 
 document.addEventListener("DOMContentLoaded", () => {
-    App.renderHeader();
+
     const list = document.querySelector("#event-list");
 
     if (list) {

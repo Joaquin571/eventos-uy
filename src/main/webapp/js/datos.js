@@ -36,8 +36,8 @@ const Datos = {
             eventoId: 1,
             nombre: "Montevideo Comics 2026",
             estado: "Aceptada",
-            organizadorId: 1,
-            nombreOrganizador: "Organizador de prueba 1",
+            organizadorId: 2,
+            nombreOrganizador: "Montevideo Comics SA",
             sigla: "MC2026",
             ciudad: "Montevideo",
             pais: "Uruguay",
@@ -51,8 +51,8 @@ const Datos = {
             eventoId: 1,
             nombre: "Montevideo Comics 2027",
             estado: "Ingresada",
-            organizadorId: 1,
-            nombreOrganizador: "Organizador de prueba 1",
+            organizadorId: 2,
+            nombreOrganizador: "Montevideo Comics SA",
             sigla: "MC2027",
             ciudad: "Montevideo",
             pais: "Uruguay",
@@ -66,14 +66,59 @@ const Datos = {
             eventoId: 2,
             nombre: "Maratón de Montevideo 2026",
             estado: "Aceptada",
-            organizadorId: 2,
-            nombreOrganizador: "Organizador de prueba 2",
+            organizadorId: 1,
+            nombreOrganizador: "Intendencia de Montevideo",
             sigla: "MM2026",
             ciudad: "Montevideo",
             pais: "Uruguay",
             fechaInicio: "2026-11-22",
             fechaFin: "2026-11-22",
             fechaAlta: "2026-04-10",
+            imagen: ""
+        },
+        {
+            id: 4,
+            eventoId: 1,
+            nombre: "Montevideo Comics 2025",
+            estado: "Rechazada",
+            organizadorId: 2,
+            nombreOrganizador: "Montevideo Comics SA",
+            sigla: "MC2025",
+            ciudad: "Montevideo",
+            pais: "Uruguay",
+            fechaInicio: "2025-11-10",
+            fechaFin: "2025-11-12",
+            fechaAlta: "2025-06-01",
+            imagen: ""
+        },
+        {
+            id: 5,
+            eventoId: 2,
+            nombre: "Maratón de Montevideo 2027",
+            estado: "Ingresada",
+            organizadorId: 1,
+            nombreOrganizador: "Intendencia de Montevideo",
+            sigla: "MM2027",
+            ciudad: "Montevideo",
+            pais: "Uruguay",
+            fechaInicio: "2027-11-21",
+            fechaFin: "2027-11-21",
+            fechaAlta: "2026-09-25",
+            imagen: ""
+        },
+        {
+            id: 6,
+            eventoId: 2,
+            nombre: "Maratón de Montevideo 2025",
+            estado: "Rechazada",
+            organizadorId: 1,
+            nombreOrganizador: "Intendencia de Montevideo",
+            sigla: "MM2025",
+            ciudad: "Montevideo",
+            pais: "Uruguay",
+            fechaInicio: "2025-11-23",
+            fechaFin: "2025-11-23",
+            fechaAlta: "2025-05-20",
             imagen: ""
         }
     ],
@@ -139,6 +184,7 @@ const Datos = {
         {
             id: 1,
             nickname: "imm",
+            fechaAlta: "2026-01-15",
             nombre: "Intendencia de Montevideo",
             correo: "imm@montevideo.gub.uy",
             password: "1234",
@@ -149,6 +195,7 @@ const Datos = {
         {
             id: 2,
             nickname: "mvdcomics",
+            fechaAlta: "2026-01-20",
             nombre: "Montevideo Comics SA",
             correo: "info@mvdcomics.uy",
             password: "1234",
@@ -160,17 +207,17 @@ const Datos = {
 
     asistentes: [
         {
-            id: 1, nickname: "juan23", nombre: "Juan", apellido: "Pérez",
+            id: 1, nickname: "juan23", fechaAlta: "2026-02-03", nombre: "Juan", apellido: "Pérez",
             correo: "juan@mail.com", password: "1234",
             fechaNacimiento: "1998-04-12", institucionId: 1, imagen: null
         },
         {
-            id: 2, nickname: "maria88", nombre: "María", apellido: "Gómez",
+            id: 2, nickname: "maria88", fechaAlta: "2026-02-10", nombre: "María", apellido: "Gómez",
             correo: "maria@mail.com", password: "1234",
             fechaNacimiento: "1995-09-30", institucionId: null, imagen: null
         },
         {
-            id: 3, nickname: "ana_utec", nombre: "Ana", apellido: "Silva",
+            id: 3, nickname: "ana_utec", fechaAlta: "2026-03-01", nombre: "Ana", apellido: "Silva",
             correo: "ana@mail.com", password: "1234",
             fechaNacimiento: "2000-01-18", institucionId: 1, imagen: null
         }
