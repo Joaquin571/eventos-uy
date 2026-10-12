@@ -1,17 +1,16 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <title>Registro a Edición - eventos.uy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro a Edición de Evento - eventos.uy</title>
 
     <link rel="stylesheet" href="../vendor/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="../css/styles.css">
 </head>
 
-<body>
+<body class="bg-light">
 
 <header id="headerPrincipal"></header>
 
@@ -26,7 +25,9 @@
                 <div class="card-body p-4">
                     <h1 class="h3 mb-4">Registro a Edición de Evento</h1>
 
-                    <form id="formRegistroEdicion">
+                    <div id="mensajeAcceso" class="alert d-none"></div>
+
+                    <form id="formRegistroEdicion" class="d-none">
 
                         <div class="mb-3">
                             <label for="evento" class="form-label">Evento</label>
@@ -34,6 +35,7 @@
                                 <option value="">Seleccione un evento</option>
                             </select>
                         </div>
+
                         <div class="mb-3">
                             <label for="edicion" class="form-label">Edición</label>
                             <select class="form-select" id="edicion" name="edicion" disabled required>

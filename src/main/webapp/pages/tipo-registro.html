@@ -1,17 +1,16 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <title>Consulta Tipo de Registro - eventos.uy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta de Tipo de Registro - eventos.uy</title>
 
     <link rel="stylesheet" href="../vendor/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="../css/styles.css">
 </head>
 
-<body>
+<body class="bg-light">
 
 <header id="headerPrincipal"></header>
 
@@ -26,56 +25,58 @@
                 <div class="card-body p-4">
                     <h1 class="h3 mb-4">Consulta de Tipo de Registro</h1>
 
+                    <div class="mb-3">
+                        <label for="evento" class="form-label">Evento</label>
+                        <select class="form-select" id="evento" name="evento">
+                            <option value="">Seleccione un evento</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="edicion" class="form-label">Edición</label>
+                        <select class="form-select" id="edicion" name="edicion" disabled>
+                            <option value="">Seleccione una edición</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="tipoRegistro" class="form-label">Tipo de registro</label>
+                        <select class="form-select" id="tipoRegistro" name="tipoRegistro" disabled>
+                            <option value="">Seleccione un tipo de registro</option>
+                        </select>
+                    </div>
+
+                    <div id="detalleTipoRegistro" class="d-none">
+
+                        <hr class="my-4">
+
+                        <h2 class="h5 mb-3">Detalle del tipo de registro</h2>
+
                         <div class="mb-3">
-                            <label for="evento" class="form-label">Evento</label>
-                            <select class="form-select" id="evento" name="evento" required>
-                                <option value="">Seleccione un evento</option>
-                            </select>
+                            <strong>Nombre:</strong>
+                            <span id="nombreTipo"></span>
                         </div>
+
                         <div class="mb-3">
-                            <label for="edicion" class="form-label">Edición</label>
-                            <select class="form-select" id="edicion" name="edicion" disabled required>
-                                <option value="">Seleccione una edición</option>
-                            </select>
+                            <strong>Descripción:</strong>
+                            <span id="descripcionTipo"></span>
                         </div>
+
                         <div class="mb-3">
-                            <label for="tipoRegistro" class="form-label">Tipo de registro</label>
-                            <select class="form-select" id="tipoRegistro" name="tipoRegistro" disabled required>
-                                <option value="">Seleccione un tipo de registro</option>
-                            </select>
+                            <strong>Costo:</strong>
+                            <span id="costoTipo"></span>
                         </div>
 
-                        <div id="detalleTipoRegistro" class="d-none">
-
-                            <hr class="my-4">
-
-                            <h2 class="h5 mb-3">Detalle del tipo de registro</h2>
-
-                            <div class="mb-3">
-                                <strong>Nombre:</strong>
-                                <span id="nombreTipo"></span>
-                            </div>
-
-                            <div class="mb-3">
-                                <strong>Descripción:</strong>
-                                <span id="descripcionTipo"></span>
-                            </div>
-
-                            <div class="mb-3">
-                                <strong>Costo:</strong>
-                                <span id="costoTipo"></span>
-                            </div>
-
-                            <div class="mb-3">
-                                <strong>Cupo:</strong>
-                                <span id="cupoTipo"></span>
-                            </div>
-
+                        <div class="mb-3">
+                            <strong>Cupo:</strong>
+                            <span id="cupoTipo"></span>
                         </div>
 
-                        <div class="d-flex justify-content-end gap-2">
-                            <a href="../index.html" class="btn btn-primary">Aceptar</a>
-                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="../index.html" class="btn btn-primary">Aceptar</a>
+                    </div>
                 </div>
 
             </div>
@@ -89,6 +90,7 @@
 <script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="../js/datos.js"></script>
 <script src="../js/app.js"></script>
+<script src="../js/selects.js"></script>
 <script src="../js/login.js"></script>
 <script src="../js/header.js"></script>
 <script src="../js/tipoRegistro.js"></script>

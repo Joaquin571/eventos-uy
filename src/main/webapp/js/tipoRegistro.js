@@ -75,4 +75,31 @@ if (detalleTipoRegistro) {
 
         detalleTipoRegistro.classList.remove("d-none");
     });
+
+    // Si se llega desde la consulta de edición (tipo-registro.html?id=3)
+    // se eligen solos el evento, la edición y el tipo de registro.
+    const tipoIdParam = Number(new URLSearchParams(location.search).get("id"));
+
+    if (tipoIdParam) {
+        const tipoInicial = Datos.tiposRegistro.find(
+            tipo => tipo.id === tipoIdParam
+        );
+
+        const edicionInicial = tipoInicial
+            ? Datos.ediciones.find(
+                edicion => edicion.id === tipoInicial.edicionId &&
+                           edicion.estado === "Aceptada")
+            : null;
+
+        if (edicionInicial) {
+            selectEvento.value = edicionInicial.eventoId;
+            selectEvento.dispatchEvent(new Event("change"));
+
+            selectEdicion.value = edicionInicial.id;
+            selectEdicion.dispatchEvent(new Event("change"));
+
+            selectTipoRegistro.value = tipoInicial.id;
+            selectTipoRegistro.dispatchEvent(new Event("change"));
+        }
+    }
 }
