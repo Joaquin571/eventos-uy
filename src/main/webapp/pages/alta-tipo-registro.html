@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="es">
 <head>
@@ -176,17 +175,42 @@
             return;
         }
 
-        // Cargar ediciones desde los datos compartidos.
-        // Pendiente: filtrar por organizador autenticado.
-        function cargarEdiciones() {
+        // Recuperar los tipos creados anteriormente en este navegador.
+        const claveTipos = "eventosUyTiposRegistro";
+        let tiposGuardados = [];
+        try {
+            const recuperados = JSON.parse(localStorage.getItem(claveTipos) || "[]");
+            if (Array.isArray(recuperados)) tiposGuardados = recuperados;
+        } catch (error) {
+            console.warn("No se pudieron recuperar los tipos guardados.", error);
+        }
+        tiposGuardados.forEach(function (tipo) {
+            if (!datos.tiposRegistro.some(t => Number(t.id) === Number(tipo.id))) {
+                datos.tiposRegistro.push(tipo);
+            }
+        });
 
+        // Cargar ediciones desde los datos compartidos.
+        function cargarEdiciones() {
             edicion.innerHTML =
                 '<option value="">Seleccione una edición</option>';
 
             const sesion = App.obtenerUsuarioActual();
-            datos.ediciones.filter(function (e) {
-                return sesion && Number(e.organizadorId) === Number(sesion.id);
-            }).forEach(function (e) {
+
+            if (!sesion) {
+                return;
+            }
+
+            datos.ediciones
+                .filter(function (e) {
+                    return Number(e.organizadorId) === Number(sesion.id);
+                })
+                .forEach(function (e) {
+                    const opcion = document.createElement("option");
+                    opcion.value = e.id;
+                    opcion.textContent = e.nombre;
+                    edicion.appendChild(opcion);
+                });
         }
 
         // El nombre debe ser único dentro de la edición.
@@ -351,13 +375,24 @@
 
             // Guardado temporal en memoria.
             datos.tiposRegistro.push(nuevoTipo);
+            try {
+                const guardados = JSON.parse(localStorage.getItem(claveTipos) || "[]");
+                const lista = Array.isArray(guardados) ? guardados : [];
+                lista.push(nuevoTipo);
+                localStorage.setItem(claveTipos, JSON.stringify(lista));
+            } catch (error) {
+                mensaje.className = "alert alert-warning";
+                mensaje.textContent =
+                    "El tipo se agregó temporalmente, pero no se pudo guardar en este navegador.";
+                return;
+            }
 
             mensaje.className =
                 "alert alert-success";
 
             mensaje.textContent =
                 "Tipo de registro ingresado " +
-                "correctamente (simulación).";
+                "correctamente en este navegador.";
 
             form.reset();
 
