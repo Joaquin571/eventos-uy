@@ -470,6 +470,11 @@ function inicializarModificarUsuario() {
     if (!form) return;
     const sesion = JSON.parse(sessionStorage.getItem("usuarioLogueado") || "null");
     if (!sesion) { window.location.href = "login.html"; return; }
+    // Cancelar vuelve al perfil del usuario que inició sesión
+    const btnCancelar = document.getElementById("btnCancelar");
+    if (btnCancelar) {
+        btnCancelar.href = "usuario.html?nick=" + encodeURIComponent(sesion.nickname);
+    }
     const usuario = obtenerTodosLosUsuarios().find(u => u.nickname?.toLowerCase() === sesion.nickname?.toLowerCase());
     if (!usuario) { alert("No se encontró el usuario de la sesión."); return; }
     const esAsistente = usuario.rol === "asistente";
