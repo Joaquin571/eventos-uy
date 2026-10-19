@@ -190,4 +190,50 @@ public class ManejadorUsuarios {
             em.close();
         }
     }
+    public Usuario obtenerPorNicknameOCorreo(String clave) {
+        EntityManager em = BaseDeDatos.getEntityManager();
+        try {
+            return em.createQuery(
+                            """
+                            SELECT u
+                            FROM Usuario u
+                            WHERE u.nickname = :clave
+                               OR LOWER(u.correoElectronico) = LOWER(:clave)
+                            """,
+                            Usuario.class
+                    )
+                    .setParameter("clave", clave)
+                    .getResultStream()
+                    .findFirst()
+                    .orElse(null);
+        } finally {
+            em.close();
+        }
+    }
+
+    public boolean cambiarContrasenia(String nickname, String nueva) {
+        EntityManager em = BaseDeDatos.getEntityManager();
+        EntityTransaction tx = em.getTransaction();
+        try {
+            tx.begin();
+
+            Usuario usuario = em.find(Usuario.class, nickname);
+
+            if (usuario == null) {
+                tx.rollback();
+                return false;
+            }
+
+            usuario.setContrasenia(nueva);
+            tx.commit();
+            return true;
+        } catch (Exception e) {
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
 }
