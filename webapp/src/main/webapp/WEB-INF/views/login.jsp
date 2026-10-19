@@ -25,6 +25,9 @@
                     <c:if test="${not empty error}">
                         <div class="alert alert-danger"><c:out value="${error}" /></div>
                     </c:if>
+                    <c:if test="${param.registrado eq 'ok'}">
+                        <div class="alert alert-success">Usuario registrado. Ya podés iniciar sesión.</div>
+                    </c:if>
 
                     <form method="post" action="${raiz}/login">
                         <div class="mb-3">
