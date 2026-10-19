@@ -15,6 +15,9 @@ public interface ISistema {
     Collection<DtUsuario> listarUsuarios();
     DtUsuario consultarUsuario(String nickname);
     Collection<DtEdicion> obtenerEdicionesOrganizador(String nickname);
+    DtUsuario autenticar(String nicknameOCorreo, String contrasenia);
+    void cambiarContrasenia(String nickname, String nueva, String confirmacion);
+
 
     // INSTITUCIONES
     boolean existeInstitucion(String nombre);

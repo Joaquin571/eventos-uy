@@ -2,6 +2,7 @@
 package clases;
 
 import jakarta.persistence.*;
+import seguridad.HashContrasenia;
 
 @Entity
 @Table(name = "usuario")
@@ -15,6 +16,8 @@ public abstract class Usuario {
 
     @Column(nullable = false, unique = true)
     private String correoElectronico;
+    @Column(name = "contrasenia_hash")
+    private String contraseniaHash;
 
     protected Usuario() {}
 
@@ -38,5 +41,14 @@ public abstract class Usuario {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
+    }
+
+
+    public void setContrasenia(String contrasenia) {
+        this.contraseniaHash = HashContrasenia.hashear(contrasenia);
+    }
+
+    public boolean contraseniaCoincide(String contrasenia) {
+        return HashContrasenia.coincide(contrasenia, contraseniaHash);
     }
 }

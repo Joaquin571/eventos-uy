@@ -43,6 +43,41 @@ public class Sistema implements ISistema {
             throw new IllegalArgumentException("Ya existe un usuario con ese correo electrónico.");
         }
     }
+    private void validarContrasenia(String contrasenia, String confirmacion) {
+        if (contrasenia == null || contrasenia.isEmpty()) {
+            throw new IllegalArgumentException("La contraseña es obligatoria.");
+        }
+
+        if (!contrasenia.equals(confirmacion)) {
+            throw new IllegalArgumentException("La contraseña y su confirmación no coinciden.");
+        }
+    }
+
+    @Override
+    public DtUsuario autenticar(String nicknameOCorreo, String contrasenia) {
+        String mensaje = "El nickname, el correo o la contraseña no son correctos.";
+
+        if (nicknameOCorreo == null || nicknameOCorreo.isBlank() || contrasenia == null) {
+            throw new IllegalArgumentException(mensaje);
+        }
+
+        Usuario usuario = manejadorUsuarios.obtenerPorNicknameOCorreo(nicknameOCorreo.trim());
+
+        if (usuario == null || !usuario.contraseniaCoincide(contrasenia)) {
+            throw new IllegalArgumentException(mensaje);
+        }
+
+        return consultarUsuario(usuario.getNickname());
+    }
+
+    @Override
+    public void cambiarContrasenia(String nickname, String nueva, String confirmacion) {
+        validarContrasenia(nueva, confirmacion);
+
+        if (!manejadorUsuarios.cambiarContrasenia(nickname, nueva)) {
+            throw new IllegalArgumentException("El usuario no existe.");
+        }
+    }
     public Sistema() {
         manejadorUsuarios = ManejadorUsuarios.getInstance();
         manejadorInstituciones = ManejadorInstituciones.getInstance();
@@ -65,7 +100,7 @@ public class Sistema implements ISistema {
         }
 
         validarDatosUsuario(dt.getNickname(), dt.getNombre(), dt.getCorreoElectronico());
-
+        validarContrasenia(dt.getContrasenia(), dt.getConfirmacionContrasenia());
         Institucion institucion = null;
 
         if (dt.getNombreInstitucion() != null && !dt.getNombreInstitucion().isBlank()) {
@@ -84,7 +119,7 @@ public class Sistema implements ISistema {
                 dt.getFechaNacimiento(),
                 institucion
         );
-
+        asistente.setContrasenia(dt.getContrasenia());
         return manejadorUsuarios.addUsuario(asistente);
     }
 
@@ -95,6 +130,7 @@ public class Sistema implements ISistema {
         }
 
         validarDatosUsuario(dt.getNickname(), dt.getNombre(), dt.getCorreoElectronico());
+        validarContrasenia(dt.getContrasenia(), dt.getConfirmacionContrasenia());
 
         Organizador organizador = new Organizador(
                 dt.getNickname(),
@@ -102,8 +138,9 @@ public class Sistema implements ISistema {
                 dt.getCorreoElectronico(),
                 dt.getDescripcion(),
                 dt.getSitioWeb()
-        );
 
+        );
+        organizador.setContrasenia(dt.getContrasenia());
         return manejadorUsuarios.addUsuario(organizador);
     }
 
@@ -216,6 +253,11 @@ public class Sistema implements ISistema {
     @Override
     public void modificarAsistente(DtAsistente dt) {
         Institucion institucion = null;
+
+        if (dt.getContrasenia() != null && !dt.getContrasenia().isEmpty()) {
+            cambiarContrasenia(dt.getNickname(), dt.getContrasenia(), dt.getConfirmacionContrasenia());
+        }
+
         if (dt.getNombreInstitucion() != null && !dt.getNombreInstitucion().isBlank()) {
             institucion = manejadorInstituciones.obtenerInstitucion(dt.getNombreInstitucion());
         }
@@ -230,6 +272,10 @@ public class Sistema implements ISistema {
 
     @Override
     public void modificarOrganizador(DtOrganizador dt) {
+
+        if (dt.getContrasenia() != null && !dt.getContrasenia().isEmpty()) {
+            cambiarContrasenia(dt.getNickname(), dt.getContrasenia(), dt.getConfirmacionContrasenia());
+        }
         manejadorUsuarios.modificarOrganizador(
                 dt.getNickname(),
                 dt.getNombre(),
