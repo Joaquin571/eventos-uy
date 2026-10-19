@@ -82,6 +82,9 @@ public class FiltroAcceso implements Filter {
     }
 
     private boolean esEstatico(String ruta) {
+        if (ruta.equals("/imagen")) {
+            return true;
+        }
         for (String prefijo : ESTATICOS) {
             if (ruta.startsWith(prefijo)) {
                 return true;

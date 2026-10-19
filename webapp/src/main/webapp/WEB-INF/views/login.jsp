@@ -29,6 +29,12 @@
                         <div class="alert alert-success">Usuario registrado. Ya podés iniciar sesión.</div>
                     </c:if>
 
+                    <c:if test="${param.imagen eq 'error'}">
+                        <div class="alert alert-warning">
+                            No se pudo guardar la imagen. Podés agregarla desde Editar perfil.
+                        </div>
+                    </c:if>
+
                     <form method="post" action="${raiz}/login">
                         <div class="mb-3">
                             <label for="identificador" class="form-label fw-bold">Nickname o Correo *</label>

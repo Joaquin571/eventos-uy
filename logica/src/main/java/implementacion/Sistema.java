@@ -774,4 +774,8 @@ public class Sistema implements ISistema {
 
         return manejadorImagenes.obtener(tipo, clave);
     }
+    @Override
+    public void validarImagen(DtImagen imagen) {
+        ValidadorImagen.validar(imagen);
+    }
 }

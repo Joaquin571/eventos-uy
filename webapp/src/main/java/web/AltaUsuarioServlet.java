@@ -1,10 +1,13 @@
 package web;
 
 import datatypes.DtAsistente;
+import datatypes.DtImagen;
 import datatypes.DtOrganizador;
 import datatypes.DtUsuario;
+import datatypes.TipoEntidadImagen;
 import interfaces.ISistema;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @WebServlet("/alta-usuario")
+@MultipartConfig
 public class AltaUsuarioServlet extends HttpServlet {
 
     private static final String[] CAMPOS = {
@@ -43,6 +47,13 @@ public class AltaUsuarioServlet extends HttpServlet {
         ISistema sistema = ContextoListener.sistema(req);
 
         try {
+            // La imagen se valida antes de crear el usuario, para no dejarlo a medias
+            DtImagen imagen = Subidas.leerImagen(req, "imagen");
+
+            if (imagen != null) {
+                sistema.validarImagen(imagen);
+            }
+
             boolean alta;
 
             if ("organizador".equals(form.get("tipo"))) {
@@ -56,7 +67,17 @@ public class AltaUsuarioServlet extends HttpServlet {
                         "No se pudo registrar el usuario. Verificá los datos ingresados.");
             }
 
-            resp.sendRedirect(req.getContextPath() + "/login?registrado=ok");
+            String destino = "/login?registrado=ok";
+
+            if (imagen != null) {
+                try {
+                    sistema.asociarImagen(TipoEntidadImagen.USUARIO, form.get("nickname"), imagen);
+                } catch (IllegalArgumentException e) {
+                    destino += "&imagen=error";
+                }
+            }
+
+            resp.sendRedirect(req.getContextPath() + destino);
 
         } catch (IllegalArgumentException e) {
             mostrarFormulario(req, resp, form, e.getMessage());

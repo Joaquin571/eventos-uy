@@ -20,18 +20,28 @@
 
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-body p-4">
+                    <c:url var="urlImagen" value="/imagen">
+                        <c:param name="tipo" value="usuario" />
+                        <c:param name="id" value="${perfil.nickname}" />
+                    </c:url>
+
                     <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <h1 class="h3 mb-1">
-                                <c:out value="${perfil.nombre}" />
-                                <c:if test="${esAsistente}"> <c:out value="${perfil.apellido}" /></c:if>
-                            </h1>
-                            <span class="badge bg-secondary">
-                                <c:choose>
-                                    <c:when test="${esOrganizador}">Organizador</c:when>
-                                    <c:otherwise>Asistente</c:otherwise>
-                                </c:choose>
-                            </span>
+                        <div class="d-flex align-items-center">
+                            <img src="${urlImagen}" alt="Imagen de perfil"
+                                 class="rounded-circle me-3"
+                                 style="width: 96px; height: 96px; object-fit: cover;">
+                            <div>
+                                <h1 class="h3 mb-1">
+                                    <c:out value="${perfil.nombre}" />
+                                    <c:if test="${esAsistente}"> <c:out value="${perfil.apellido}" /></c:if>
+                                </h1>
+                                <span class="badge bg-secondary">
+                                    <c:choose>
+                                        <c:when test="${esOrganizador}">Organizador</c:when>
+                                        <c:otherwise>Asistente</c:otherwise>
+                                    </c:choose>
+                                </span>
+                            </div>
                         </div>
                         <c:if test="${esPropio}">
                             <a href="${raiz}/modificar-usuario" class="btn btn-outline-primary">Editar perfil</a>

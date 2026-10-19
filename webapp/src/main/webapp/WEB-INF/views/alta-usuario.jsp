@@ -26,7 +26,7 @@
                         <div class="alert alert-danger"><c:out value="${error}" /></div>
                     </c:if>
 
-                    <form id="formAltaUsuario" method="post" action="${raiz}/alta-usuario">
+                    <form id="formAltaUsuario" method="post" action="${raiz}/alta-usuario" enctype="multipart/form-data">
 
                         <div class="mb-3">
                             <label for="tipo" class="form-label fw-bold">Registrarme como *</label>
@@ -91,6 +91,13 @@
                                        placeholder="https://ejemplo.com"
                                        value="<c:out value='${form.sitioWeb}' />">
                             </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="imagen" class="form-label fw-bold">Imagen de perfil</label>
+                            <input type="file" id="imagen" name="imagen" class="form-control"
+                                   accept="image/png,image/jpeg,image/gif,image/webp">
+                            <div class="form-text">Opcional. PNG, JPG, GIF o WEBP, hasta 2 MB.</div>
                         </div>
 
                         <div class="mb-3">

@@ -72,4 +72,5 @@ public interface ISistema {
     //IMAGEN
     void asociarImagen(TipoEntidadImagen tipo, String clave, DtImagen imagen);
     DtImagen obtenerImagen(TipoEntidadImagen tipo, String clave);
+    void validarImagen(DtImagen imagen);
 }
