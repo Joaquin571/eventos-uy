@@ -224,30 +224,7 @@ public class Sistema implements ISistema {
         }
         return resultado;
     }
-    @Override
-    public Collection<DtEdicion> obtenerEdicionesOrganizador(String nickname) {
-        Collection<DtEdicion> resultado = new ArrayList<>();
-        for (Edicion edicion : manejadorEventos.obtenerEdicionesOrganizador(nickname)) {
-            String nombreOrganizador = null;
-            if (edicion.getOrganizador() != null) {
-                nombreOrganizador = edicion.getOrganizador().getNickname();
-            }
 
-            resultado.add(
-                    new DtEdicion(
-                            edicion.getIdNombre(),
-                            edicion.getSigla(),
-                            edicion.getFechaInicio(),
-                            edicion.getFechaFin(),
-                            edicion.getFechaAlta(),
-                            edicion.getCiudad(),
-                            edicion.getPais(),
-                            nombreOrganizador
-                    )
-            );
-        }
-        return resultado;
-    }
 
     // MODIFICAR USUARIO
     @Override
@@ -467,28 +444,64 @@ public class Sistema implements ISistema {
         return true;
     }
 
+    private DtEdicion aDt(Edicion edicion) {
+        String nombreOrganizador = null;
+        if (edicion.getOrganizador() != null) {
+            nombreOrganizador = edicion.getOrganizador().getNickname();
+        }
+
+        DtEdicion dt = new DtEdicion(
+                edicion.getIdNombre(),
+                edicion.getSigla(),
+                edicion.getFechaInicio(),
+                edicion.getFechaFin(),
+                edicion.getFechaAlta(),
+                edicion.getCiudad(),
+                edicion.getPais(),
+                nombreOrganizador
+        );
+        dt.setEstado(edicion.getEstado());
+        return dt;
+    }
+
+    @Override
+    public Collection<DtEdicion> obtenerEdicionesOrganizador(String nickname) {
+        Collection<DtEdicion> resultado = new ArrayList<>();
+        for (Edicion edicion : manejadorEventos.obtenerEdicionesOrganizador(nickname)) {
+            resultado.add(aDt(edicion));
+        }
+        return resultado;
+    }
+
     @Override
     public Collection<DtEdicion> obtenerEdicionesEvento(String nombreEvento) {
         Collection<DtEdicion> resultado = new ArrayList<>();
-
         for (Edicion edicion : manejadorEventos.obtenerEdicionesEvento(nombreEvento)) {
-            String nombreOrganizador = null;
-            if (edicion.getOrganizador() != null) {
-                nombreOrganizador = edicion.getOrganizador().getNickname();
-            }
-
-            resultado.add(new DtEdicion(
-                    edicion.getIdNombre(),
-                    edicion.getSigla(),
-                    edicion.getFechaInicio(),
-                    edicion.getFechaFin(),
-                    edicion.getFechaAlta(),
-                    edicion.getCiudad(),
-                    edicion.getPais(),
-                    nombreOrganizador
-            ));
+            resultado.add(aDt(edicion));
         }
         return resultado;
+    }
+
+    @Override
+    public Collection<DtEdicion> obtenerEdicionesEvento(String nombreEvento, EstadoEdicion estado) {
+        Collection<DtEdicion> resultado = new ArrayList<>();
+        for (DtEdicion dt : obtenerEdicionesEvento(nombreEvento)) {
+            if (dt.getEstado() == estado) {
+                resultado.add(dt);
+            }
+        }
+        return resultado;
+    }
+
+    @Override
+    public void aceptarRechazarEdicion(String nombreEdicion, boolean aceptar) {
+        if (nombreEdicion == null || nombreEdicion.isBlank()) {
+            throw new IllegalArgumentException("Debe indicar la edición.");
+        }
+
+        if (!manejadorEventos.cambiarEstadoEdicion(nombreEdicion, aceptar)) {
+            throw new IllegalArgumentException("La edición no existe.");
+        }
     }
 
     // TIPO REGISTRO
@@ -565,7 +578,15 @@ public class Sistema implements ISistema {
         if (dt == null || dt.getFechaRegistro() == null) {
             throw new IllegalArgumentException("Los datos del registro no son válidos.");
         }
+        Edicion edicion = manejadorEventos.obtenerEdicion(nombreEdicion);
 
+        if (edicion == null) {
+            throw new IllegalArgumentException("La edición no existe.");
+        }
+
+        if (edicion.getEstado() != EstadoEdicion.ACEPTADA) {
+            throw new IllegalArgumentException("Solo se puede registrar a una edición aceptada.");
+        }
         return manejadorRegistros.registrar(
                 nicknameAsistente,
                 nombreEdicion,

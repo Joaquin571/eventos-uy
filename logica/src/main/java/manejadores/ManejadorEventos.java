@@ -372,4 +372,34 @@ public class ManejadorEventos {
             em.close();
         }
     }
+    public boolean cambiarEstadoEdicion(String nombreEdicion, boolean aceptar) {
+        EntityManager em = BaseDeDatos.getEntityManager();
+        EntityTransaction tx = em.getTransaction();
+        try {
+            tx.begin();
+
+            Edicion edicion = em.find(Edicion.class, nombreEdicion);
+
+            if (edicion == null) {
+                tx.rollback();
+                return false;
+            }
+
+            if (aceptar) {
+                edicion.aceptar();
+            } else {
+                edicion.rechazar();
+            }
+
+            tx.commit();
+            return true;
+        } catch (Exception e) {
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
 }

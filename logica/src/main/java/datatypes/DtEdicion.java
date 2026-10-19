@@ -12,6 +12,7 @@ public class DtEdicion {
     private String ciudad;
     private String pais;
     private String nombreOrganizador;
+    private EstadoEdicion estado = EstadoEdicion.INGRESADA;
 
     public DtEdicion(
             String idNombre,
@@ -65,6 +66,13 @@ public class DtEdicion {
         return nombreOrganizador;
     }
 
+    public EstadoEdicion getEstado() {
+        return estado;
+    }
+
+    public void setEstado(EstadoEdicion estado) {
+        this.estado = estado;
+    }
     @Override
     public String toString() {
         return this.getIdNombre();
