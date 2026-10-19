@@ -16,8 +16,7 @@ public class DtAsistente extends DtUsuario {
     public String getApellido() {return apellido;}
     public void setApellido(String apellido){this.apellido = apellido;}
     public LocalDate getFechaNacimiento() {return fechaNacimiento;}
-    public void setFechaNacimiento(){this.fechaNacimiento = fechaNacimiento;}
     public  String getNombreInstitucion() {return nombreInstitucion;}
-    public void setNombreInstitucion(){this.nombreInstitucion = nombreInstitucion;}
-
+    public void setFechaNacimiento(LocalDate fechaNacimiento) {this.fechaNacimiento = fechaNacimiento;}
+    public void setNombreInstitucion(String nombreInstitucion) {this.nombreInstitucion = nombreInstitucion;}
 }

@@ -8,7 +8,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "evento")
-public class Evento {
+public class Evento implements ConImagen {
 
     @Id
     private String nombre;
@@ -27,6 +27,9 @@ public class Evento {
 
     @OneToMany(mappedBy = "evento")
     private Set<Edicion> ediciones = new HashSet<>();
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "imagen_id")
+    private Imagen imagen;
 
     protected Evento() {
     }
@@ -79,6 +82,16 @@ public class Evento {
     }
     public LocalDate getFechaAlta() {
         return fechaAlta;
+    }
+
+    @Override
+    public Imagen getImagen() {
+        return imagen;
+    }
+
+    @Override
+    public void setImagen(Imagen imagen) {
+        this.imagen = imagen;
     }
 
 }

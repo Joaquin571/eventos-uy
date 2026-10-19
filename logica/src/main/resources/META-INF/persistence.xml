@@ -14,6 +14,7 @@
         <class>clases.TipoRegistro</class>
         <class>clases.Registro</class>
         <class>clases.Patrocinio</class>
+        <class>clases.Imagen</class>
 
         <properties>
             <property name="jakarta.persistence.jdbc.driver"   value="org.postgresql.Driver"/>

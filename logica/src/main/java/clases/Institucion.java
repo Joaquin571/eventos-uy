@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "institucion")
-public class Institucion {
+public class Institucion implements ConImagen{
     @Id
     private String nombre;
     private String descripcion;
@@ -14,6 +14,9 @@ public class Institucion {
     private Set<Asistente> asistentes = new HashSet<>();
     @OneToMany(mappedBy = "institucion")
     private Set<Patrocinio> patrocinios = new HashSet<>();
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "imagen_id")
+    private Imagen imagen;
 
     protected Institucion() {}
     public Institucion(String Nombre, String descripcion, String sitioWeb) {
@@ -26,4 +29,13 @@ public class Institucion {
     public String getDescripcion() {return descripcion;}
     public void setDescripcion(String descripcion) {this.descripcion = descripcion;}
     public String getSitioWeb() {return sitioWeb;}
+    @Override
+    public Imagen getImagen() {
+        return imagen;
+    }
+
+    @Override
+    public void setImagen(Imagen imagen) {
+        this.imagen = imagen;
+    }
 }

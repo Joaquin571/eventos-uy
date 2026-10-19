@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-public class Edicion {
+public class Edicion implements ConImagen{
 
     @Id
     private String idNombre;
@@ -38,6 +38,9 @@ public class Edicion {
 
     @OneToMany(mappedBy = "edicion")
     private Set<Registro> registros = new HashSet<>();
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "imagen_id")
+    private Imagen imagen;
 
     protected Edicion() {
     }
@@ -133,5 +136,15 @@ public class Edicion {
                     "Solo se puede aceptar o rechazar una edición en estado Ingresada.");
         }
         this.estado = nuevo;
+    }
+
+    @Override
+    public Imagen getImagen() {
+        return imagen;
+    }
+
+    @Override
+    public void setImagen(Imagen imagen) {
+        this.imagen = imagen;
     }
 }

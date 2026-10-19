@@ -7,7 +7,7 @@ import seguridad.HashContrasenia;
 @Entity
 @Table(name = "usuario")
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class Usuario {
+public abstract class Usuario implements ConImagen{
 
     @Id
     private String nickname;
@@ -18,6 +18,9 @@ public abstract class Usuario {
     private String correoElectronico;
     @Column(name = "contrasenia_hash")
     private String contraseniaHash;
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "imagen_id")
+    private Imagen imagen;
 
     protected Usuario() {}
 
@@ -50,5 +53,15 @@ public abstract class Usuario {
 
     public boolean contraseniaCoincide(String contrasenia) {
         return HashContrasenia.coincide(contrasenia, contraseniaHash);
+    }
+
+    @Override
+    public Imagen getImagen() {
+        return imagen;
+    }
+
+    @Override
+    public void setImagen(Imagen imagen) {
+        this.imagen = imagen;
     }
 }
