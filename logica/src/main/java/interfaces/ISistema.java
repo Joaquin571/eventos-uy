@@ -31,6 +31,8 @@ public interface ISistema {
     // EDICIONES
     boolean altaEdicion(DtEdicion dtEdicion, String nombreEvento);
     Collection<DtEdicion> obtenerEdicionesEvento(String nombreEvento);
+    void aceptarRechazarEdicion(String nombreEdicion, boolean aceptar);
+    Collection<DtEdicion> obtenerEdicionesEvento(String nombreEvento, EstadoEdicion estado);
 
     // CATEGORÍAS
     void altaCategoria(String nombre, String nombrePadre) throws Exception;

@@ -1,6 +1,7 @@
 package clases;
 
 import jakarta.persistence.*;
+import datatypes.EstadoEdicion;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -18,6 +19,8 @@ public class Edicion {
     private LocalDate fechaAlta;
     private String ciudad;
     private String pais;
+    @Enumerated(EnumType.STRING)
+    private EstadoEdicion estado = EstadoEdicion.INGRESADA;
 
     @ManyToOne
     @JoinColumn(name = "ORG_NICKNAME")
@@ -109,5 +112,26 @@ public class Edicion {
     }
     public String getPais() {
         return pais;
+    }
+
+    public EstadoEdicion getEstado() {
+        // Las ediciones creadas antes de este cambio no tienen estado guardado
+        return estado != null ? estado : EstadoEdicion.INGRESADA;
+    }
+
+    public void aceptar() {
+        cambiarEstado(EstadoEdicion.ACEPTADA);
+    }
+
+    public void rechazar() {
+        cambiarEstado(EstadoEdicion.RECHAZADA);
+    }
+
+    private void cambiarEstado(EstadoEdicion nuevo) {
+        if (getEstado() != EstadoEdicion.INGRESADA) {
+            throw new IllegalStateException(
+                    "Solo se puede aceptar o rechazar una edición en estado Ingresada.");
+        }
+        this.estado = nuevo;
     }
 }
