@@ -1,4 +1,6 @@
 package clases;
 
-public class ConImagen {
+public interface ConImagen {
+    Imagen getImagen();
+    void setImagen(Imagen imagen);
 }

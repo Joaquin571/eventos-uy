@@ -1,4 +1,8 @@
 package datatypes;
 
-public class TipoEntidadImagen {
+public enum TipoEntidadImagen {
+    USUARIO,
+    EVENTO,
+    EDICION,
+    INSTITUCION
 }

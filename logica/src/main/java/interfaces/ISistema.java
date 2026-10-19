@@ -68,4 +68,8 @@ public interface ISistema {
     boolean altaPatrocinio(DtPatrocinio patrocinio);
     Collection<DtPatrocinio> obtenerPatrociniosEdicion(String nombreEdicion);
     DtPatrocinio consultarPatrocinio(String codigo);
+
+    //IMAGEN
+    void asociarImagen(TipoEntidadImagen tipo, String clave, DtImagen imagen);
+    DtImagen obtenerImagen(TipoEntidadImagen tipo, String clave);
 }

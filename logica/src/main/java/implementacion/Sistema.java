@@ -8,6 +8,7 @@ import manejadores.ManejadorInstituciones;
 import manejadores.ManejadorPatrocinios;
 import manejadores.ManejadorRegistros;
 import manejadores.ManejadorUsuarios;
+import manejadores.ManejadorImagenes;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -21,6 +22,7 @@ public class Sistema implements ISistema {
     private final ManejadorEventos manejadorEventos;
     private final ManejadorPatrocinios manejadorPatrocinios;
     private final ManejadorRegistros manejadorRegistros;
+    private final ManejadorImagenes manejadorImagenes;
 
     private void validarDatosUsuario(String nickname, String nombre, String correo) {
         if (nickname == null || nickname.isBlank()) {
@@ -84,6 +86,7 @@ public class Sistema implements ISistema {
         manejadorEventos = ManejadorEventos.getInstance();
         manejadorPatrocinios = ManejadorPatrocinios.getInstance();
         manejadorRegistros = ManejadorRegistros.getInstance();
+        manejadorImagenes = ManejadorImagenes.getInstance();
     }
 
     // VALIDACIONES USUARIO
@@ -745,5 +748,30 @@ public class Sistema implements ISistema {
             );
         }
         return resultado;
+    }
+    // IMÁGENES
+    @Override
+    public void asociarImagen(TipoEntidadImagen tipo, String clave, DtImagen imagen) {
+        if (tipo == null || clave == null || clave.isBlank()) {
+            throw new IllegalArgumentException("Debe indicar a qué pertenece la imagen.");
+        }
+
+        ValidadorImagen.validar(imagen);
+
+        boolean asociada = manejadorImagenes.asociar(
+                tipo, clave, imagen.getTipoContenido().toLowerCase(), imagen.getContenido());
+
+        if (!asociada) {
+            throw new IllegalArgumentException("La entidad indicada no existe.");
+        }
+    }
+
+    @Override
+    public DtImagen obtenerImagen(TipoEntidadImagen tipo, String clave) {
+        if (tipo == null || clave == null || clave.isBlank()) {
+            return null;
+        }
+
+        return manejadorImagenes.obtener(tipo, clave);
     }
 }
