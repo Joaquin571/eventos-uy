@@ -55,6 +55,18 @@ public final class BaseDeDatos {
 
     public static void asegurarDisponible() {
 
+        // Dentro de Tomcat el driver está en WEB-INF/lib y DriverManager no lo
+        // registra solo: se carga explícitamente con el cargador de esta clase.
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(
+                    "No se encontró el driver de PostgreSQL (org.postgresql.Driver) " +
+                            "en el classpath.",
+                    e
+            );
+        }
+
         DriverManager.setLoginTimeout(3);
 
         try (
@@ -80,7 +92,8 @@ public final class BaseDeDatos {
             throw new RuntimeException(
                     "No se pudo conectar a PostgreSQL.\n" +
                             "URL: " + JDBC_URL + "\n" +
-                            "Usuario: " + USER + "\n\n" +
+                            "Usuario: " + USER + "\n" +
+                            "Causa: " + e.getMessage() + "\n\n" +
                             "Verifique que PostgreSQL esté iniciado " +
                             "y que exista la base de datos '" +
                             NAME + "'.",
