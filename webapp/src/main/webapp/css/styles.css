@@ -109,21 +109,6 @@ textarea {
     min-height: 100px;
 }
 
-.btn {
-    display: inline-block;
-    padding: 9px 14px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: white;
-    cursor: pointer;
-}
-
-.btn-primary {
-    background: var(--primary);
-    border-color: var(--primary);
-    color: white;
-}
-
 .muted {
     color: #6b7280;
 }
