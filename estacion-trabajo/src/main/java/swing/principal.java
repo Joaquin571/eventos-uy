@@ -27,6 +27,7 @@ public class principal {
     private JInternalFrame internoConsultaTipoRegistro;
     private JInternalFrame internoRegistroEdicion;
     private JInternalFrame internoConsultaRegistro;
+    private JInternalFrame internoAceptarRechazarEdicion;
 
     private AltaUsuarioPanel panelAltaUsuario;
     private ModificarUsuarioPanel panelModificarUsuario;
@@ -42,6 +43,7 @@ public class principal {
     private ConsultaTipoRegistroPanel panelConsultaTipoRegistro;
     private RegistroEdicionEventoPanel panelRegistroEdicion;
     private ConsultaRegistroPanel panelConsultaRegistro;
+    private AceptarRechazarEdicionPanel panelAceptarRechazarEdicion;
 
     public principal() {
         panelPrincipal = new JPanel(new BorderLayout());
@@ -323,6 +325,20 @@ public class principal {
                 100
         );
         agregarInterno(internoConsultaRegistro);
+
+        panelAceptarRechazarEdicion = new AceptarRechazarEdicionPanel();
+        internoAceptarRechazarEdicion = crearInterno(
+                "Aceptar/Rechazar Edición de Evento",
+                panelAceptarRechazarEdicion.getMainPanel(),
+                120,
+                120
+        );
+        internoAceptarRechazarEdicion.setSize(650, 450);
+        internoAceptarRechazarEdicion.setMinimumSize(new Dimension(520, 380));
+        panelAceptarRechazarEdicion.setAccionCerrar(
+                () -> internoAceptarRechazarEdicion.setVisible(false)
+        );
+        agregarInterno(internoAceptarRechazarEdicion);
     }
 
     private void agregarInterno(JInternalFrame interno) {
@@ -352,6 +368,7 @@ public class principal {
         JMenuItem altaTipoRegistro = new JMenuItem("Alta Tipo de Registro");
         JMenuItem consultaTipoRegistro = new JMenuItem("Consulta Tipo de Registro");
         JMenuItem altaCategoria = new JMenuItem("Alta Categoría");
+        JMenuItem aceptarRechazarEdicion = new JMenuItem("Aceptar/Rechazar Edición");
 
         JMenuItem registroEdicionEvento = new JMenuItem(
                 "Registro a Edición de Evento"
@@ -404,6 +421,10 @@ public class principal {
         consultaEdicion.addActionListener(e -> {
             panelConsultaEdicion.cargarEventos();
             mostrar(internoConsultaEdicion);
+        });
+        aceptarRechazarEdicion.addActionListener(e -> {
+            panelAceptarRechazarEdicion.refrescarDatos();
+            mostrar(internoAceptarRechazarEdicion);
         });
 
         altaTipoRegistro.addActionListener(e -> {
@@ -458,6 +479,7 @@ public class principal {
         menuEventos.add(consultaTipoRegistro);
         menuEventos.addSeparator();
         menuEventos.add(altaCategoria);
+        menuEventos.add(aceptarRechazarEdicion);
 
         menuRegistro.add(registroEdicionEvento);
         menuRegistro.add(consultaRegistroEvento);
