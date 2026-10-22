@@ -139,7 +139,7 @@
                                     <small class="text-muted d-block">
                                         <c:out value="${registro.nombreTipoRegistro}" /> ·
                                         $<c:out value="${registro.costo}" /> ·
-                                        <c:out value="${registro.fechaRegistro}" />
+                                        <c:out value="${registro.fecha}" />
                                     </small>
                                 </a>
                             </c:forEach>

@@ -5,6 +5,7 @@ import datatypes.DtEdicion;
 import datatypes.DtOrganizador;
 import datatypes.DtUsuario;
 import datatypes.EstadoEdicion;
+import datatypes.DtRegistro;
 import interfaces.ISistema;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -50,7 +51,19 @@ public class UsuarioServlet extends HttpServlet {
                     ? "" : asistente.getFechaNacimiento().format(FECHA));
 
             if (esPropio) {
-                req.setAttribute("registros", sistema.obtenerRegistrosAsistente(perfil.getNickname()));
+                Collection<RegistroVista> registros = new ArrayList<>();
+
+                for (DtRegistro registro : sistema.obtenerRegistrosAsistente(perfil.getNickname())) {
+                    float costo = registro.getCosto();
+
+                    registros.add(new RegistroVista(
+                            registro.getNombreEdicion(),
+                            registro.getNombreTipoRegistro(),
+                            costo == Math.rint(costo) ? String.valueOf((long) costo) : String.format("%.2f", costo),
+                            registro.getFechaRegistro() == null ? "" : registro.getFechaRegistro().format(FECHA)));
+                }
+
+                req.setAttribute("registros", registros);
             }
         } else if (perfil instanceof DtOrganizador) {
             req.setAttribute("esOrganizador", true);
