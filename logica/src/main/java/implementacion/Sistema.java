@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.time.LocalDate;
 
 public class Sistema implements ISistema {
 
@@ -229,18 +230,38 @@ public class Sistema implements ISistema {
     }
 
 
-    // MODIFICAR USUARIO
     @Override
     public void modificarAsistente(DtAsistente dt) {
+        if (dt == null || dt.getNickname() == null || !existeUsuario(dt.getNickname())) {
+            throw new IllegalArgumentException("El usuario no existe.");
+        }
+        if (dt.getNombre() == null || dt.getNombre().isBlank()) {
+            throw new IllegalArgumentException("El nombre es obligatorio.");
+        }
+        if (dt.getApellido() == null || dt.getApellido().isBlank()) {
+            throw new IllegalArgumentException("El apellido es obligatorio.");
+        }
+        if (dt.getFechaNacimiento() == null) {
+            throw new IllegalArgumentException("La fecha de nacimiento es obligatoria.");
+        }
+        if (!dt.getFechaNacimiento().isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException(
+                    "La fecha de nacimiento debe ser anterior a la fecha actual.");
+        }
+
         Institucion institucion = null;
+        if (dt.getNombreInstitucion() != null && !dt.getNombreInstitucion().isBlank()) {
+            institucion = manejadorInstituciones.obtenerInstitucion(dt.getNombreInstitucion());
+
+            if (institucion == null) {
+                throw new IllegalArgumentException("La institución indicada no existe.");
+            }
+        }
 
         if (dt.getContrasenia() != null && !dt.getContrasenia().isEmpty()) {
             cambiarContrasenia(dt.getNickname(), dt.getContrasenia(), dt.getConfirmacionContrasenia());
         }
 
-        if (dt.getNombreInstitucion() != null && !dt.getNombreInstitucion().isBlank()) {
-            institucion = manejadorInstituciones.obtenerInstitucion(dt.getNombreInstitucion());
-        }
         manejadorUsuarios.modificarAsistente(
                 dt.getNickname(),
                 dt.getNombre(),
@@ -252,10 +273,20 @@ public class Sistema implements ISistema {
 
     @Override
     public void modificarOrganizador(DtOrganizador dt) {
+        if (dt == null || dt.getNickname() == null || !existeUsuario(dt.getNickname())) {
+            throw new IllegalArgumentException("El usuario no existe.");
+        }
+        if (dt.getNombre() == null || dt.getNombre().isBlank()) {
+            throw new IllegalArgumentException("El nombre es obligatorio.");
+        }
+        if (dt.getDescripcion() == null || dt.getDescripcion().isBlank()) {
+            throw new IllegalArgumentException("La descripción es obligatoria.");
+        }
 
         if (dt.getContrasenia() != null && !dt.getContrasenia().isEmpty()) {
             cambiarContrasenia(dt.getNickname(), dt.getContrasenia(), dt.getConfirmacionContrasenia());
         }
+
         manejadorUsuarios.modificarOrganizador(
                 dt.getNickname(),
                 dt.getNombre(),
