@@ -414,7 +414,7 @@ public class Sistema implements ISistema {
                 dt.getNombre(),
                 dt.getSigla(),
                 dt.getDescripcion(),
-                dt.getFechaAlta()
+                LocalDate.now()
         );
 
         for (String nombreCategoria : dt.getCategorias()) {
@@ -468,7 +468,7 @@ public class Sistema implements ISistema {
                 dt.getSigla(),
                 dt.getFechaInicio(),
                 dt.getFechaFin(),
-                dt.getFechaAlta(),
+                LocalDate.now(),
                 dt.getCiudad(),
                 dt.getPais(),
                 organizador
@@ -696,7 +696,7 @@ public class Sistema implements ISistema {
         }
 
         Patrocinio patrocinio = new Patrocinio(
-                        dt.getFecha(),
+                        LocalDate.now(),
                         dt.getMontoAporte(),
                         dt.getCantRegistrosGrat(),
                         dt.getCodigoPatrocinio(),
