@@ -8,6 +8,10 @@ public class DtRegistro {
     private float costo;
     private String nombreTipoRegistro;
     private String nombreEdicion;
+    // Solo las consultas los completan: quién se registró y si usó código de patrocinio.
+    // El código en sí nunca viaja en el DtRegistro.
+    private String nicknameAsistente;
+    private boolean usoCodigo;
 
     public DtRegistro(
             LocalDate fechaRegistro,
@@ -28,6 +32,19 @@ public class DtRegistro {
         this.nombreTipoRegistro = nombreTipoRegistro;
         this.nombreEdicion = nombreEdicion;
     }
+    
+    public DtRegistro(
+            LocalDate fechaRegistro,
+            float costo,
+            String nombreTipoRegistro,
+            String nombreEdicion,
+            String nicknameAsistente,
+            boolean usoCodigo
+    ) {
+        this(fechaRegistro, costo, nombreTipoRegistro, nombreEdicion);
+        this.nicknameAsistente = nicknameAsistente;
+        this.usoCodigo = usoCodigo;
+    }
 
     public String getNombreTipoRegistro() {
         return nombreTipoRegistro;
@@ -43,6 +60,14 @@ public class DtRegistro {
 
     public float getCosto() {
         return costo;
+    }
+
+    public String getNicknameAsistente() {
+        return nicknameAsistente;
+    }
+
+    public boolean isUsoCodigo() {
+        return usoCodigo;
     }
 
     @Override

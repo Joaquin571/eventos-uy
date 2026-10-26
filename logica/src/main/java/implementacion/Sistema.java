@@ -229,6 +229,34 @@ public class Sistema implements ISistema {
         return resultado;
     }
 
+    // Arma el DtRegistro de las consultas: con el asistente y si usó código de patrocinio
+    // (el código en sí no se publica).
+    private DtRegistro aDtRegistro(Registro registro) {
+        String nombreTipoRegistro = null;
+        String nombreEdicion = null;
+        String nicknameAsistente = null;
+
+        if (registro.getTipoRegistro() != null) {
+            nombreTipoRegistro = registro.getTipoRegistro().getIdNombre();
+        }
+
+        if (registro.getEdicion() != null) {
+            nombreEdicion = registro.getEdicion().getIdNombre();
+        }
+
+        if (registro.getAsistente() != null) {
+            nicknameAsistente = registro.getAsistente().getNickname();
+        }
+
+        return new DtRegistro(
+                registro.getFechaRegistro(),
+                registro.getCosto(),
+                nombreTipoRegistro,
+                nombreEdicion,
+                nicknameAsistente,
+                registro.getPatrocinio() != null
+        );
+    }
 
     @Override
     public void modificarAsistente(DtAsistente dt) {
@@ -415,6 +443,7 @@ public class Sistema implements ISistema {
                 dt.getSigla(),
                 dt.getDescripcion(),
                 LocalDate.now()
+
         );
 
         for (String nombreCategoria : dt.getCategorias()) {

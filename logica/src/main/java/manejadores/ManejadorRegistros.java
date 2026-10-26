@@ -1,4 +1,3 @@
-
 package manejadores;
 
 import clases.Asistente;
@@ -208,7 +207,26 @@ public class ManejadorRegistros {
 
             // Bloquea el tipo de registro mientras se comprueba su cupo.
             em.lock(tipo, LockModeType.PESSIMISTIC_WRITE);
+            // Primero se comprueba que no esté registrado: así quien repite el registro con el
+            // mismo código recibe este mensaje y no el de "se agotaron los usos".
+            Long existentes = em.createQuery(
+                            """
+                            SELECT COUNT(r)
+                            FROM Registro r
+                            WHERE r.asistente.nickname = :nickname
+                              AND r.edicion.idNombre = :edicion
+                            """,
+                            Long.class
+                    )
+                    .setParameter("nickname", nickname)
+                    .setParameter("edicion", nombreEdicion)
+                    .getSingleResult();
 
+            if (existentes > 0) {
+                throw new IllegalArgumentException(
+                        "El asistente ya está registrado en esta edición."
+                );
+            }
             String codigo = codigoPatrocinio == null
                     ? ""
                     : codigoPatrocinio.trim();
@@ -228,8 +246,13 @@ public class ManejadorRegistros {
                     );
                 }
 
-                if (asistente.getInstitucion() == null
-                        || patrocinio.getInstitucion() == null
+                if (asistente.getInstitucion() == null) {
+                    throw new IllegalArgumentException(
+                            "Un asistente sin institución solo puede registrarse de forma general."
+                    );
+                }
+
+                if (patrocinio.getInstitucion() == null
                         || !asistente.getInstitucion().getNombre()
                         .equals(patrocinio.getInstitucion().getNombre())) {
 
@@ -274,7 +297,7 @@ public class ManejadorRegistros {
                 }
             }
 
-            Long existentes = em.createQuery(
+            Long existentes2 = em.createQuery(
                             """
                             SELECT COUNT(r)
                             FROM Registro r
@@ -287,7 +310,7 @@ public class ManejadorRegistros {
                     .setParameter("edicion", nombreEdicion)
                     .getSingleResult();
 
-            if (existentes > 0) {
+            if (existentes2 > 0) {
                 throw new IllegalArgumentException(
                         "El asistente ya está registrado en esta edición."
                 );
@@ -416,3 +439,4 @@ public class ManejadorRegistros {
         }
     }
 }
+
