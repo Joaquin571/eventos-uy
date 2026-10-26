@@ -102,6 +102,34 @@ public class ManejadorPatrocinios {
         }
     }
 
+    public Patrocinio obtenerPatrocinio(String nombreEdicion, String nombreInstitucion) {
+        EntityManager em = BaseDeDatos.getEntityManager();
+        try {
+            List<Patrocinio> resultado = em.createQuery(
+                            """
+                            SELECT p
+                            FROM Patrocinio p
+                            LEFT JOIN FETCH p.institucion
+                            LEFT JOIN FETCH p.edicion
+                            LEFT JOIN FETCH p.tipoRegistro
+                            WHERE LOWER(p.edicion.idNombre) = LOWER(:edicion)
+                              AND LOWER(p.institucion.nombre) = LOWER(:institucion)
+                            """,
+                            Patrocinio.class
+                    )
+                    .setParameter("edicion", nombreEdicion)
+                    .setParameter("institucion", nombreInstitucion)
+                    .getResultList();
+
+            if (resultado.isEmpty()) {
+                return null;
+            }
+            return resultado.getFirst();
+        } finally {
+            em.close();
+        }
+    }
+
     public boolean existePatrocinio(String codigo) {
         EntityManager em = BaseDeDatos.getEntityManager();
         try {

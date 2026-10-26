@@ -17,6 +17,7 @@ public interface ISistema {
     Collection<DtEdicion> obtenerEdicionesOrganizador(String nickname);
     DtUsuario autenticar(String nicknameOCorreo, String contrasenia);
     void cambiarContrasenia(String nickname, String nueva, String confirmacion);
+    DtPatrocinio consultarPatrocinio(String nombreEdicion, String nombreInstitucion);
 
 
     // INSTITUCIONES
