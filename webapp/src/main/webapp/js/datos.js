@@ -1,0 +1,257 @@
+const Datos = {
+
+    categorias: [
+        { id: 1, nombre: "Tecnología" },
+        { id: 2, nombre: "Cultura" },
+        { id: 3, nombre: "Deporte" },
+        { id: 4, nombre: "Música" },
+        { id: 5, nombre: "Negocios" }
+    ],
+
+    eventos: [
+        {
+            id: 1,
+            nombre: "Montevideo Comics",
+            descripcion: "Convención de historietas y cultura geek",
+            sigla: "MVDCOMICS",
+            categorias: [2],
+            fechaAlta: "2026-03-12",
+            imagen: null
+        },
+        {
+            id: 2,
+            nombre: "Maratón de Montevideo",
+            descripcion: "Evento deportivo",
+            sigla: "MARATON",
+            categorias: [1, 3],
+            fechaAlta: "2026-03-12",
+            imagen: null
+        }
+    ],
+
+
+    ediciones: [
+        {
+            id: 1,
+            eventoId: 1,
+            nombre: "Montevideo Comics 2026",
+            estado: "Aceptada",
+            organizadorId: 2,
+            nombreOrganizador: "Montevideo Comics SA",
+            sigla: "MC2026",
+            ciudad: "Montevideo",
+            pais: "Uruguay",
+            fechaInicio: "2026-11-10",
+            fechaFin: "2026-11-12",
+            fechaAlta: "2026-05-15",
+            imagen: ""
+        },
+        {
+            id: 2,
+            eventoId: 1,
+            nombre: "Montevideo Comics 2027",
+            estado: "Ingresada",
+            organizadorId: 2,
+            nombreOrganizador: "Montevideo Comics SA",
+            sigla: "MC2027",
+            ciudad: "Montevideo",
+            pais: "Uruguay",
+            fechaInicio: "2027-11-10",
+            fechaFin: "2027-11-12",
+            fechaAlta: "2026-09-20",
+            imagen: ""
+        },
+        {
+            id: 3,
+            eventoId: 2,
+            nombre: "Maratón de Montevideo 2026",
+            estado: "Aceptada",
+            organizadorId: 1,
+            nombreOrganizador: "Intendencia de Montevideo",
+            sigla: "MM2026",
+            ciudad: "Montevideo",
+            pais: "Uruguay",
+            fechaInicio: "2026-11-22",
+            fechaFin: "2026-11-22",
+            fechaAlta: "2026-04-10",
+            imagen: ""
+        },
+        {
+            id: 4,
+            eventoId: 1,
+            nombre: "Montevideo Comics 2025",
+            estado: "Rechazada",
+            organizadorId: 2,
+            nombreOrganizador: "Montevideo Comics SA",
+            sigla: "MC2025",
+            ciudad: "Montevideo",
+            pais: "Uruguay",
+            fechaInicio: "2025-11-10",
+            fechaFin: "2025-11-12",
+            fechaAlta: "2025-06-01",
+            imagen: ""
+        },
+        {
+            id: 5,
+            eventoId: 2,
+            nombre: "Maratón de Montevideo 2027",
+            estado: "Ingresada",
+            organizadorId: 1,
+            nombreOrganizador: "Intendencia de Montevideo",
+            sigla: "MM2027",
+            ciudad: "Montevideo",
+            pais: "Uruguay",
+            fechaInicio: "2027-11-21",
+            fechaFin: "2027-11-21",
+            fechaAlta: "2026-09-25",
+            imagen: ""
+        },
+        {
+            id: 6,
+            eventoId: 2,
+            nombre: "Maratón de Montevideo 2025",
+            estado: "Rechazada",
+            organizadorId: 1,
+            nombreOrganizador: "Intendencia de Montevideo",
+            sigla: "MM2025",
+            ciudad: "Montevideo",
+            pais: "Uruguay",
+            fechaInicio: "2025-11-23",
+            fechaFin: "2025-11-23",
+            fechaAlta: "2025-05-20",
+            imagen: ""
+        }
+    ],
+
+    instituciones: [
+        {
+            id: 1,
+            nombre: "UTEC",
+            descripcion: "Universidad Tecnológica",
+            sitioWeb: "https://www.utec.edu.uy",
+            imagen: "../img/utec.png"
+        },
+        {
+            id: 2,
+            nombre: "ANTEL",
+            descripcion: "Empresa de telecomunicaciones",
+            sitioWeb: "https://www.antel.com.uy",
+            imagen: "../img/antel.png"
+        }
+    ],
+
+    tiposRegistro: [
+        {
+            id: 1,
+            edicionId: 1,
+            nombre: "General",
+            descripcion: "Acceso general a los tres días de la convención",
+            costo: 1500,
+            cupo: 100
+        },
+        {
+            id: 2,
+            edicionId: 1,
+            nombre: "Estudiante",
+            descripcion: "Acceso con descuento para estudiantes",
+            costo: 800,
+            cupo: 50
+        },
+        {
+            id: 3,
+            edicionId: 3,
+            nombre: "Corredor 10K",
+            descripcion: "Participación en la carrera de 10 kilómetros",
+            costo: 1000,
+            cupo: 2
+        }
+    ],
+
+    patrocinios: [
+        {
+            id: 1,
+            edicionId: 1,
+            institucionId: 1,
+            nivel: "Oro",
+            aporte: 50000,
+            tipoRegistroId: 1,
+            cantidadGratuitos: 5,
+            codigo: "UTEC2026",
+            fechaAlta: "2026-10-01"
+        }
+    ],
+    organizadores: [
+        {
+            id: 1,
+            nickname: "imm",
+            fechaAlta: "2026-01-15",
+            nombre: "Intendencia de Montevideo",
+            correo: "imm@montevideo.gub.uy",
+            password: "1234",
+            descripcion: "Gobierno departamental de Montevideo",
+            sitioWeb: "https://montevideo.gub.uy",
+            imagen: null
+        },
+        {
+            id: 2,
+            nickname: "mvdcomics",
+            fechaAlta: "2026-01-20",
+            nombre: "Montevideo Comics SA",
+            correo: "info@mvdcomics.uy",
+            password: "1234",
+            descripcion: "Productora de eventos de cultura geek",
+            sitioWeb: "",
+            imagen: null
+        }
+    ],
+
+    asistentes: [
+        {
+            id: 1, nickname: "juan23", fechaAlta: "2026-02-03", nombre: "Juan", apellido: "Pérez",
+            correo: "juan@mail.com", password: "1234",
+            fechaNacimiento: "1998-04-12", institucionId: 1, imagen: null
+        },
+        {
+            id: 2, nickname: "maria88", fechaAlta: "2026-02-10", nombre: "María", apellido: "Gómez",
+            correo: "maria@mail.com", password: "1234",
+            fechaNacimiento: "1995-09-30", institucionId: null, imagen: null
+        },
+        {
+            id: 3, nickname: "ana_utec", fechaAlta: "2026-03-01", nombre: "Ana", apellido: "Silva",
+            correo: "ana@mail.com", password: "1234",
+            fechaNacimiento: "2000-01-18", institucionId: 1, imagen: null
+        }
+    ],
+
+    registros: [
+        {
+            id: 1,
+            edicionId: 3,
+            asistenteId: 1,
+            tipoRegistroId: 3,
+            fechaAlta: "2026-08-20",
+            costo: 1000,
+            patrocinioId: null
+        },
+        {
+            id: 2,
+            edicionId: 1,
+            asistenteId: 2,
+            tipoRegistroId: 2,
+            fechaAlta: "2026-10-02",
+            costo: 800,
+            patrocinioId: null
+        },
+        {
+            id: 3,
+            edicionId: 1,
+            asistenteId: 3,
+            tipoRegistroId: 1,
+            fechaAlta: "2026-10-03",
+            costo: 0,
+            patrocinioId: 1
+        }
+    ]
+};
+window.App = window.App || {};
+App.datos = Datos;

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alta de Institución - eventos.uy</title>
+
+    <link rel="stylesheet" href="../vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/styles.css">
+    <script src="../js/guard.js" data-roles="organizador"></script>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header id="headerPrincipal"></header>
+
+<main class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-12 col-md-8 col-lg-6">
+
+            <div class="card shadow-sm">
+
+                <div class="card-body p-4">
+
+                    <h1 class="h3 mb-4">
+                        Alta de Institución
+                    </h1>
+
+                    <form id="formAltaInstitucion">
+
+                        <div class="mb-3">
+                            <label for="nombre"
+                                   class="form-label">
+                                Nombre
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   id="nombre"
+                                   name="nombre"
+                                   required>
+                        </div>
+
+
+                        <div class="mb-3">
+                            <label for="descripcion"
+                                   class="form-label">
+                                Descripción
+                            </label>
+
+                            <textarea class="form-control"
+                                      id="descripcion"
+                                      name="descripcion"
+                                      rows="4"
+                                      required></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="sitioWeb"
+                                   class="form-label">
+                                Sitio web
+                            </label>
+
+                            <input type="url"
+                                   class="form-control"
+                                   id="sitioWeb"
+                                   name="sitioWeb"
+                                   placeholder="https://ejemplo.com"
+                                   required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="imagen" class="form-label">Imagen</label>
+                            <input type="file" class="form-control" id="imagen" name="imagen" accept="image/*">
+                            <div class="form-text">
+                                Opcional
+                            </div>
+                        </div>
+
+
+                        <div class="d-flex justify-content-end gap-2">
+
+                            <a href="../index.html"
+                               class="btn btn-secondary">
+                                Cancelar
+                            </a>
+
+                            <button type="submit"
+                                    class="btn btn-primary">
+                                Dar de alta
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</main>
+
+
+<script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="../js/datos.js"></script>
+<script src="../js/institucion.js"></script>
+<script src="../js/login.js"></script>
+<script src="../js/header.js"></script>
+</body>
+
+</html>

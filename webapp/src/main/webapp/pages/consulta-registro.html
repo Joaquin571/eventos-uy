@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta de Registro - eventos.uy</title>
+
+    <link rel="stylesheet" href="../vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body class="bg-light">
+
+<header id="headerPrincipal"></header>
+
+<main class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-12 col-md-8 col-lg-6">
+
+            <div class="card shadow-sm">
+
+                <div class="card-body p-4">
+                    <h1 class="h3 mb-4">Consulta de Registro</h1>
+
+                    <div id="mensajeAcceso" class="alert d-none"></div>
+
+                    <div id="contenidoConsulta" class="d-none">
+
+                        <div class="mb-3">
+                            <label for="edicion" class="form-label">Edición</label>
+                            <select class="form-select" id="edicion" name="edicion">
+                                <option value="">Seleccione una edición</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3 d-none" id="contenedorAsistente">
+                            <label for="asistente" class="form-label">Asistente</label>
+                            <select class="form-select" id="asistente" name="asistente" disabled>
+                                <option value="">Seleccione un asistente</option>
+                            </select>
+                        </div>
+
+                        <div id="detalleRegistro" class="d-none">
+
+                            <hr class="my-4">
+
+                            <h2 class="h5 mb-3">Detalle del registro</h2>
+
+                            <div class="mb-3" id="filaAsistente">
+                                <strong>Asistente:</strong>
+                                <span id="nombreAsistente"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <strong>Edición:</strong>
+                                <span id="nombreEdicion"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <strong>Tipo de registro:</strong>
+                                <span id="tipoRegistroDetalle"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <strong>Fecha de registro:</strong>
+                                <span id="fechaRegistro"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <strong>Costo:</strong>
+                                <span id="costoRegistro"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <strong>Utilizó código de patrocinio:</strong>
+                                <span id="usoCodigo"></span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="../index.html" class="btn btn-primary">Aceptar</a>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</main>
+
+<script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="../js/datos.js"></script>
+<script src="../js/selects.js"></script>
+<script src="../js/login.js"></script>
+<script src="../js/header.js"></script>
+<script src="../js/registro.js"></script>
+
+</body>
+
+</html>

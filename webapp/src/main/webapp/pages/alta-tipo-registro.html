@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+
+    <title>Alta de tipo de registro | eventos.uy</title>
+
+    <link rel="stylesheet" href="../vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/styles.css">
+    <script src="../js/guard.js" data-roles="organizador"></script>
+</head>
+
+<body data-root="..">
+
+<header id="headerPrincipal"></header>
+<main class="container py-4">
+
+    <h1 class="mb-4">Alta de tipo de registro</h1>
+
+    <div class="card">
+        <div class="card-body">
+
+            <form id="formAltaTipoRegistro">
+
+                <div class="mb-3">
+                    <label for="edicion" class="form-label">
+                        Edición del evento
+                    </label>
+
+                    <select id="edicion" name="edicion"
+                            class="form-select" required>
+
+                        <option value="">
+                            Seleccione una edición
+                        </option>
+
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="nombre" class="form-label">
+                        Nombre del tipo de registro
+                    </label>
+
+                    <input type="text"
+                           id="nombre"
+                           name="nombre"
+                           class="form-control"
+                           required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="descripcion" class="form-label">
+                        Descripción
+                    </label>
+
+                    <textarea id="descripcion"
+                              name="descripcion"
+                              class="form-control"
+                              rows="3"
+                              required></textarea>
+                </div>
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        <label for="costo" class="form-label">
+                            Costo ($)
+                        </label>
+
+                        <input type="number"
+                               id="costo"
+                               name="costo"
+                               class="form-control"
+                               min="0"
+                               step="0.01"
+                               required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="cupo" class="form-label">
+                            Cupo
+                        </label>
+
+                        <input type="number"
+                               id="cupo"
+                               name="cupo"
+                               class="form-control"
+                               min="1"
+                               step="1"
+                               required>
+                    </div>
+
+                </div>
+
+                <div id="mensaje"
+                     class="alert d-none"
+                     role="alert"
+                     aria-live="polite">
+                </div>
+
+                <div class="d-flex gap-2 flex-wrap">
+
+                    <button type="submit"
+                            class="btn btn-primary">
+                        Confirmar
+                    </button>
+
+                    <button type="reset"
+                            class="btn btn-secondary">
+                        Limpiar
+                    </button>
+
+                    <a href="../index.html"
+                       class="btn btn-outline-secondary">
+                        Cancelar
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</main>
+
+<script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="../js/datos.js"></script>
+<script src="../js/app.js"></script>
+<script src="../js/login.js"></script>
+<script src="../js/header.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const form =
+            document.getElementById("formAltaTipoRegistro");
+
+        const edicion =
+            document.getElementById("edicion");
+
+        const nombre =
+            document.getElementById("nombre");
+
+        const descripcion =
+            document.getElementById("descripcion");
+
+        const costo =
+            document.getElementById("costo");
+
+        const cupo =
+            document.getElementById("cupo");
+
+        const mensaje =
+            document.getElementById("mensaje");
+
+        const datos = App.datos;
+
+        // Comprobar que existan los datos necesarios.
+        if (!datos ||
+            !Array.isArray(datos.ediciones) ||
+            !Array.isArray(datos.tiposRegistro)) {
+
+            mensaje.className = "alert alert-danger";
+
+            mensaje.textContent =
+                "No se pudieron cargar los datos del sistema.";
+
+            form.querySelector('button[type="submit"]')
+                .disabled = true;
+
+            return;
+        }
+
+        // Recuperar los tipos creados anteriormente en este navegador.
+        const claveTipos = "eventosUyTiposRegistro";
+        let tiposGuardados = [];
+        try {
+            const recuperados = JSON.parse(localStorage.getItem(claveTipos) || "[]");
+            if (Array.isArray(recuperados)) tiposGuardados = recuperados;
+        } catch (error) {
+            console.warn("No se pudieron recuperar los tipos guardados.", error);
+        }
+        tiposGuardados.forEach(function (tipo) {
+            if (!datos.tiposRegistro.some(t => Number(t.id) === Number(tipo.id))) {
+                datos.tiposRegistro.push(tipo);
+            }
+        });
+
+        // Cargar ediciones desde los datos compartidos.
+        function cargarEdiciones() {
+            edicion.innerHTML =
+                '<option value="">Seleccione una edición</option>';
+
+            const sesion = App.obtenerUsuarioActual();
+
+            if (!sesion) {
+                return;
+            }
+
+            datos.ediciones
+                .filter(function (e) {
+                    return Number(e.organizadorId) === Number(sesion.id);
+                })
+                .forEach(function (e) {
+                    const opcion = document.createElement("option");
+                    opcion.value = e.id;
+                    opcion.textContent = e.nombre;
+                    edicion.appendChild(opcion);
+                });
+        }
+
+        // El nombre debe ser único dentro de la edición.
+        function validarNombre() {
+
+            const nombreIngresado =
+                nombre.value.trim().toLowerCase();
+
+            const edicionSeleccionada =
+                Number(edicion.value);
+
+            const existe = datos.tiposRegistro.some(
+                function (tipo) {
+
+                    return Number(tipo.edicionId) ===
+                        edicionSeleccionada &&
+
+                        String(tipo.nombre)
+                            .trim()
+                            .toLowerCase() ===
+                        nombreIngresado;
+                }
+            );
+
+            if (existe) {
+
+                nombre.setCustomValidity(
+                    "Ya existe un tipo de registro " +
+                    "con ese nombre para esta edición."
+                );
+
+            } else {
+
+                nombre.setCustomValidity("");
+
+            }
+        }
+
+        // Verificar que los campos de texto no estén vacíos.
+        function validarTextos() {
+
+            nombre.setCustomValidity("");
+
+            if (nombre.value.trim() === "") {
+
+                nombre.setCustomValidity(
+                    "Debe ingresar un nombre."
+                );
+
+                return;
+            }
+
+            validarNombre();
+        }
+
+        function validarDescripcion() {
+
+            if (descripcion.value.trim() === "") {
+
+                descripcion.setCustomValidity(
+                    "Debe ingresar una descripción."
+                );
+
+            } else {
+
+                descripcion.setCustomValidity("");
+
+            }
+        }
+
+        // Comprobar que el costo sea válido.
+        function validarCosto() {
+
+            const valor = Number(costo.value);
+
+            if (costo.value === "" ||
+                !Number.isFinite(valor) ||
+                valor < 0) {
+
+                costo.setCustomValidity(
+                    "El costo debe ser mayor o igual a cero."
+                );
+
+            } else {
+
+                costo.setCustomValidity("");
+
+            }
+        }
+
+        // Comprobar que el cupo sea entero y positivo.
+        function validarCupo() {
+
+            const valor = Number(cupo.value);
+
+            if (cupo.value === "" ||
+                !Number.isInteger(valor) ||
+                valor < 1) {
+
+                cupo.setCustomValidity(
+                    "El cupo debe ser un número entero " +
+                    "mayor o igual a uno."
+                );
+
+            } else {
+
+                cupo.setCustomValidity("");
+
+            }
+        }
+
+        // Validaciones mientras se completa el formulario.
+        nombre.addEventListener("input", validarTextos);
+
+        edicion.addEventListener("change", validarTextos);
+
+        descripcion.addEventListener(
+            "input", validarDescripcion
+        );
+
+        costo.addEventListener("input", validarCosto);
+
+        cupo.addEventListener("input", validarCupo);
+
+        // Simular el alta del tipo de registro.
+        form.addEventListener("submit", function (e) {
+
+            e.preventDefault();
+
+            validarTextos();
+            validarDescripcion();
+            validarCosto();
+            validarCupo();
+
+            if (!form.checkValidity()) {
+
+                form.reportValidity();
+                return;
+
+            }
+
+            const nuevoTipo = {
+
+                id: Math.max(
+                    0,
+                    ...datos.tiposRegistro.map(
+                        t => Number(t.id) || 0
+                    )
+                ) + 1,
+
+                edicionId: Number(edicion.value),
+
+                nombre: nombre.value.trim(),
+
+                descripcion: descripcion.value.trim(),
+
+                costo: Number(costo.value),
+
+                cupo: Number(cupo.value)
+
+            };
+
+            // Guardado temporal en memoria.
+            datos.tiposRegistro.push(nuevoTipo);
+            try {
+                const guardados = JSON.parse(localStorage.getItem(claveTipos) || "[]");
+                const lista = Array.isArray(guardados) ? guardados : [];
+                lista.push(nuevoTipo);
+                localStorage.setItem(claveTipos, JSON.stringify(lista));
+            } catch (error) {
+                mensaje.className = "alert alert-warning";
+                mensaje.textContent =
+                    "El tipo se agregó temporalmente, pero no se pudo guardar en este navegador.";
+                return;
+            }
+
+            mensaje.className =
+                "alert alert-success";
+
+            mensaje.textContent =
+                "Tipo de registro ingresado " +
+                "correctamente en este navegador.";
+
+            form.reset();
+
+        });
+
+        // Limpiar mensajes de validación.
+        form.addEventListener("reset", function () {
+
+            nombre.setCustomValidity("");
+            descripcion.setCustomValidity("");
+            costo.setCustomValidity("");
+            cupo.setCustomValidity("");
+
+        });
+
+        cargarEdiciones();
+
+    });
+</script>
+
+</body>
+</html>

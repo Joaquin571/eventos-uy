@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - eventos.uy</title>
+
+    <link rel="stylesheet" href="../vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/styles.css">
+
+    <style>
+        .header-bg-custom {
+            background-color: #0b4f7c !important;
+        }
+        .btn-login-header {
+            background-color: #ffffff !important;
+            color: #0b4f7c !important;
+            border: 1px solid #ffffff !important;
+            font-weight: 600 !important;
+        }
+        .invalid-feedback-custom {
+            display: block !important;
+            color: #dc3545 !important;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+    </style>
+    <script src="../js/guard.js" data-roles="visitante" data-silent="true"></script>
+</head>
+
+<body class="bg-light">
+
+<header id="headerPrincipal"></header>
+
+<main class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-6 col-lg-5">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-body p-4 p-md-5">
+
+                    <h2 class="h3 fw-bold mb-4 text-dark text-center">Iniciar Sesión</h2>
+
+                    <form id="formLogin" novalidate>
+                        <div class="mb-3">
+                            <label for="loginUser" class="form-label fw-bold">Nickname o Correo *</label>
+                            <input type="text" id="loginUser" class="form-control">
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="loginPass" class="form-label fw-bold">Contraseña *</label>
+                            <input type="password" id="loginPass" class="form-control">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-2 fs-6 fw-bold rounded-2">
+                            Ingresar
+                        </button>
+                    </form>
+
+                    <div class="mt-4 text-center">
+                        <small class="text-muted">¿No tenés cuenta? <a href="alta-usuario.html" class="fw-bold text-decoration-none">Registrate acá</a></small>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="../js/datos.js"></script>
+<script src="../js/login.js"></script>
+</body>
+
+</html>
