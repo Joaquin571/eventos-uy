@@ -32,7 +32,7 @@ public class DtRegistro {
         this.nombreTipoRegistro = nombreTipoRegistro;
         this.nombreEdicion = nombreEdicion;
     }
-    
+
     public DtRegistro(
             LocalDate fechaRegistro,
             float costo,
