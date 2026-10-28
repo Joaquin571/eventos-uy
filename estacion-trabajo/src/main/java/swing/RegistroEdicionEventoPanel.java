@@ -9,6 +9,7 @@ import datatypes.DtTipoRegistro;
 import datatypes.DtUsuario;
 import implementacion.Fabrica;
 import interfaces.ISistema;
+import datatypes.EstadoEdicion;
 
 import javax.swing.*;
 import java.awt.*;
@@ -133,7 +134,7 @@ public class RegistroEdicionEventoPanel extends JPanel {
         }
 
         Collection<DtEdicion> ediciones =
-                sistema.obtenerEdicionesEvento(eventoSeleccionado);
+                sistema.obtenerEdicionesEvento(eventoSeleccionado,EstadoEdicion.ACEPTADA);
 
         for (DtEdicion edicion : ediciones) {
             comboEdiciones.addItem(edicion.getIdNombre());
