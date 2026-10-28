@@ -486,11 +486,31 @@ public class Sistema implements ISistema {
     // EDICIONES
     @Override
     public boolean altaEdicion(DtEdicion dt, String nombreEvento) {
+        if (dt == null || dt.getIdNombre() == null || dt.getIdNombre().isBlank()) {
+            throw new IllegalArgumentException("El nombre de la edición es obligatorio.");
+        }
+
         Evento evento = manejadorEventos.obtenerEvento(nombreEvento);
-        if (evento == null || manejadorEventos.existeEdicion(dt.getIdNombre())) {return false;}
+        if (evento == null) {
+            throw new IllegalArgumentException("El evento indicado no existe.");
+        }
+
+        if (manejadorEventos.existeEdicion(dt.getIdNombre())) {
+            throw new IllegalArgumentException("Ya existe una edición con ese nombre.");
+        }
 
         Organizador organizador = manejadorUsuarios.obtenerOrganizador(dt.getNombreOrganizador());
-        if (organizador == null) {return false;}
+        if (organizador == null) {
+            throw new IllegalArgumentException("El organizador indicado no existe.");
+        }
+
+        if (dt.getFechaInicio() == null || dt.getFechaFin() == null) {
+            throw new IllegalArgumentException("Las fechas de inicio y de fin son obligatorias.");
+        }
+
+        if (dt.getFechaFin().isBefore(dt.getFechaInicio())) {
+            throw new IllegalArgumentException("La fecha de fin no puede ser anterior a la de inicio.");
+        }
 
         Edicion edicion = new Edicion(
                 dt.getIdNombre(),
@@ -503,9 +523,14 @@ public class Sistema implements ISistema {
                 organizador
         );
         edicion.setEvento(evento);
-        manejadorEventos.addEdicion(edicion);
+
+        if (!manejadorEventos.addEdicion(edicion)) {
+            throw new IllegalArgumentException("Ya existe una edición con ese nombre.");
+        }
         return true;
     }
+
+
 
     private DtEdicion aDt(Edicion edicion) {
         String nombreOrganizador = null;
@@ -570,21 +595,41 @@ public class Sistema implements ISistema {
     // TIPO REGISTRO
     @Override
     public boolean altaTipoRegistro(DtTipoRegistro dt, String nombreEdicion) {
-        Edicion edicion = manejadorEventos.obtenerEdicion(nombreEdicion);
-        if (edicion == null) {return false;}
-        if (manejadorEventos.existeTipoRegistro(nombreEdicion, dt.getIdNombre())) {return false;}
+        if (dt == null || dt.getIdNombre() == null || dt.getIdNombre().isBlank()) {
+            throw new IllegalArgumentException("El nombre del tipo de registro es obligatorio.");
+        }
 
-        TipoRegistro tipoRegistro =
-                new TipoRegistro(
-                        dt.getIdNombre(),
-                        dt.getDescripcion(),
-                        dt.getCosto(),
-                        dt.getCupo()
-                );
-        tipoRegistro.setEdicion(edicion);
-        return manejadorEventos.addTipoRegistro(
-                tipoRegistro
+        Edicion edicion = manejadorEventos.obtenerEdicion(nombreEdicion);
+        if (edicion == null) {
+            throw new IllegalArgumentException("La edición indicada no existe.");
+        }
+
+        if (manejadorEventos.existeTipoRegistro(nombreEdicion, dt.getIdNombre())) {
+            throw new IllegalArgumentException(
+                    "Ya existe un tipo de registro con ese nombre en la edición.");
+        }
+
+        if (dt.getCosto() < 0) {
+            throw new IllegalArgumentException("El costo no puede ser negativo.");
+        }
+
+        if (dt.getCupo() <= 0) {
+            throw new IllegalArgumentException("El cupo debe ser mayor que cero.");
+        }
+
+        TipoRegistro tipoRegistro = new TipoRegistro(
+                dt.getIdNombre(),
+                dt.getDescripcion(),
+                dt.getCosto(),
+                dt.getCupo()
         );
+        tipoRegistro.setEdicion(edicion);
+
+        if (!manejadorEventos.addTipoRegistro(tipoRegistro)) {
+            throw new IllegalArgumentException(
+                    "Ya existe un tipo de registro con ese nombre en la edición.");
+        }
+        return true;
     }
     @Override
     public Collection<DtTipoRegistro> obtenerTiposRegistroEdicion(String nombreEdicion) {
