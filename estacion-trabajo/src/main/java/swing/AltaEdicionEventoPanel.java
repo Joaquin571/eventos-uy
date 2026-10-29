@@ -4,6 +4,7 @@ import datatypes.DtEdicion;
 import datatypes.DtEvento;
 import datatypes.DtOrganizador;
 import datatypes.DtUsuario;
+import datatypes.TipoEntidadImagen;
 import interfaces.ISistema;
 import implementacion.Fabrica;
 
@@ -27,6 +28,8 @@ public class AltaEdicionEventoPanel extends JPanel {
     private JSpinner spinnerFechaFin;
     private JTextField txtCiudad;
     private JTextField txtPais;
+    private JButton btnImagen;
+    private SelectorImagen selectorImagen;
 
     public AltaEdicionEventoPanel() {
 
@@ -46,7 +49,7 @@ public class AltaEdicionEventoPanel extends JPanel {
         // DATOS DE LA EDICIÓN
         // =====================================================
 
-        JPanel panelForm = new JPanel(new GridLayout(8, 2, 5, 5));
+        JPanel panelForm = new JPanel(new GridLayout(9, 2, 5, 5));
 
         panelForm.setBorder(
                 BorderFactory.createTitledBorder(
@@ -97,6 +100,11 @@ public class AltaEdicionEventoPanel extends JPanel {
         panelForm.add(new JLabel("País:"));
         txtPais = new JTextField();
         panelForm.add(txtPais);
+
+        panelForm.add(new JLabel("Imagen:"));
+        btnImagen = new JButton();
+        selectorImagen = new SelectorImagen(this, btnImagen, sistema);
+        panelForm.add(btnImagen);
 
         // =====================================================
         // BOTÓN GUARDAR
@@ -219,6 +227,8 @@ public class AltaEdicionEventoPanel extends JPanel {
 
             if (okEdicion) {
 
+                selectorImagen.asociarA(TipoEntidadImagen.EDICION, nombre);
+
                 JOptionPane.showMessageDialog(
                         this,
                         "Edición registrada correctamente.",
@@ -267,5 +277,6 @@ public class AltaEdicionEventoPanel extends JPanel {
         txtSigla.setText("");
         txtCiudad.setText("");
         txtPais.setText("");
+        selectorImagen.limpiar();
     }
 }

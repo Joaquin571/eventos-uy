@@ -1,6 +1,7 @@
 package swing;
 
 import datatypes.DtEvento;
+import datatypes.TipoEntidadImagen;
 import interfaces.ISistema;
 import implementacion.Fabrica;
 
@@ -19,6 +20,8 @@ public class AltaEventoPanel {
     private JTextField txtSigla;
     private JTextField txtDescripcion;
     private JButton btnSeleccionarCategorias;
+    private JButton btnImagen;
+    private SelectorImagen selectorImagen;
     private JPopupMenu popupCategorias;
     private List<JCheckBox> checkCategorias;
     private JButton btnAceptar;
@@ -80,6 +83,14 @@ public class AltaEventoPanel {
         });
         mainPanel.add(btnSeleccionarCategorias, gbc);
 
+        // Imagen (opcional)
+        gbc.gridx = 0; gbc.gridy = 4;
+        mainPanel.add(new JLabel("Imagen:"), gbc);
+        gbc.gridx = 1;
+        btnImagen = new JButton();
+        selectorImagen = new SelectorImagen(mainPanel, btnImagen, Fabrica.getInstance().getISistema());
+        mainPanel.add(btnImagen, gbc);
+
         // Botones de acción
         JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         btnAceptar = new JButton("Aceptar");
@@ -87,7 +98,7 @@ public class AltaEventoPanel {
         panelBotones.add(btnAceptar);
         panelBotones.add(btnCancelar);
 
-        gbc.gridx = 0; gbc.gridy = 4;
+        gbc.gridx = 0; gbc.gridy = 5;
         gbc.gridwidth = 2;
         mainPanel.add(panelBotones, gbc);
     }
@@ -136,6 +147,7 @@ public class AltaEventoPanel {
 
             ISistema sistema = Fabrica.getInstance().getISistema();
             sistema.altaEvento(dt);
+            selectorImagen.asociarA(TipoEntidadImagen.EVENTO, nombre);
 
             JOptionPane.showMessageDialog(mainPanel, "Evento registrado con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
             limpiarCampos();
@@ -153,6 +165,7 @@ public class AltaEventoPanel {
         for (JCheckBox chk : checkCategorias) {
             chk.setSelected(false);
         }
+        selectorImagen.limpiar();
     }
 
     public JPanel getMainPanel() { return mainPanel; }

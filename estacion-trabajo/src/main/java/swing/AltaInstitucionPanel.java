@@ -2,6 +2,7 @@ package swing;
 
 import javax.swing.*;
 import datatypes.DtInstitucion;
+import datatypes.TipoEntidadImagen;
 import implementacion.Fabrica;
 import interfaces.ISistema;
 
@@ -16,6 +17,8 @@ public class AltaInstitucionPanel {
     private JTextField txtNombre;
     private JTextField txtSitioWeb;
     private JTextArea txtDescripcion;
+    private JButton btnImagen;
+    private transient SelectorImagen selectorImagen;
     private JButton btnAceptar;
     private JButton btnCancelar;
 
@@ -28,6 +31,8 @@ public class AltaInstitucionPanel {
 
 
     private void configurarEventos() {
+
+        selectorImagen = new SelectorImagen(mainPanel, btnImagen, sistema);
 
         btnAceptar.addActionListener(
                 e -> guardarInstitucion()
@@ -86,6 +91,7 @@ public class AltaInstitucionPanel {
             );
             return;
         }
+        selectorImagen.asociarA(TipoEntidadImagen.INSTITUCION, nombre);
         mostrarExito();
         limpiarFormulario();
         accionCerrar.run();
@@ -109,6 +115,7 @@ public class AltaInstitucionPanel {
         txtNombre.setText("");
         txtDescripcion.setText("");
         txtSitioWeb.setText("");
+        selectorImagen.limpiar();
     }
 
 
