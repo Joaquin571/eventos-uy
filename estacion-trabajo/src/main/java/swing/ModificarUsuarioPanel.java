@@ -1,13 +1,19 @@
 package swing;
 
 import datatypes.DtAsistente;
+import datatypes.DtImagen;
 import datatypes.DtInstitucion;
 import datatypes.DtOrganizador;
 import datatypes.DtUsuario;
+import datatypes.TipoEntidadImagen;
 import implementacion.Fabrica;
 import interfaces.ISistema;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
@@ -25,6 +31,14 @@ public class ModificarUsuarioPanel {
     private JTextField txtNombre;
     private JTextField txtCorreo;
     private JComboBox<String> comboTipoUsuario;
+
+    // Contraseña e imagen (opcionales: si se dejan vacías no se modifican)
+    private JPasswordField txtContrasenia;
+    private JPasswordField txtConfirmacion;
+    private JButton btnImagen;
+    private transient DtImagen imagenElegida;
+
+    private static final String TEXTO_BOTON_IMAGEN = "Elegir imagen (opcional)...";
 
     // Asistente
     private JPanel panelAsistente;
@@ -68,6 +82,9 @@ public class ModificarUsuarioPanel {
         if (txtFechaNacimiento == null) txtFechaNacimiento = new JTextField();
         if (txtDescripcion == null) txtDescripcion = new JTextArea();
         if (txtSitioWeb == null) txtSitioWeb = new JTextField();
+        if (txtContrasenia == null) txtContrasenia = new JPasswordField();
+        if (txtConfirmacion == null) txtConfirmacion = new JPasswordField();
+        if (btnImagen == null) btnImagen = new JButton(TEXTO_BOTON_IMAGEN);
 
         if (btnGuardar == null) btnGuardar = new JButton("Guardar");
         if (btnCancelar == null) btnCancelar = new JButton("Cancelar");
@@ -111,6 +128,10 @@ public class ModificarUsuarioPanel {
 
         if (btnGuardar.getActionListeners().length == 0) {
             btnGuardar.addActionListener(e -> guardarCambios());
+        }
+
+        if (btnImagen.getActionListeners().length == 0) {
+            btnImagen.addActionListener(e -> elegirImagen());
         }
 
         if (btnCancelar.getActionListeners().length == 0) {
@@ -255,6 +276,22 @@ public class ModificarUsuarioPanel {
             return;
         }
 
+        // La contraseña es opcional: si se escribe algo, tiene que coincidir con la confirmación
+        String contrasenia = new String(txtContrasenia.getPassword());
+        String confirmacion = new String(txtConfirmacion.getPassword());
+
+        if (!contrasenia.isEmpty() || !confirmacion.isEmpty()) {
+            if (!contrasenia.equals(confirmacion)) {
+                JOptionPane.showMessageDialog(
+                        mainPanel,
+                        "La contraseña y su confirmación no coinciden.",
+                        "Modificar usuario",
+                        JOptionPane.WARNING_MESSAGE
+                );
+                return;
+            }
+        }
+
         if ("Asistente".equals(tipo)) {
             guardarAsistente(nickname, nombre, correo);
         } else if ("Organizador".equals(tipo)) {
@@ -296,9 +333,13 @@ public class ModificarUsuarioPanel {
                     institucion
             );
 
+            aplicarContrasenia(dt);
             sistema.modificarAsistente(dt);
+            guardarImagen(nickname);
             mostrarExito();
 
+        } catch (IllegalArgumentException e) {
+            mostrarError(e.getMessage());
         } catch (DateTimeParseException e) {
             JOptionPane.showMessageDialog(
                     mainPanel,
@@ -324,8 +365,87 @@ public class ModificarUsuarioPanel {
                 sitioWeb
         );
 
-        sistema.modificarOrganizador(dt);
-        mostrarExito();
+        try {
+            aplicarContrasenia(dt);
+            sistema.modificarOrganizador(dt);
+            guardarImagen(nickname);
+            mostrarExito();
+        } catch (IllegalArgumentException e) {
+            mostrarError(e.getMessage());
+        }
+    }
+
+
+    // Si el administrador escribió una contraseña nueva, viaja en el Dt (la lógica la valida y la guarda)
+    private void aplicarContrasenia(DtUsuario dt) {
+        String contrasenia = new String(txtContrasenia.getPassword());
+
+        if (!contrasenia.isEmpty()) {
+            dt.setContrasenia(contrasenia);
+            dt.setConfirmacionContrasenia(new String(txtConfirmacion.getPassword()));
+        }
+    }
+
+
+    // Si eligió una imagen, se asocia al usuario a través de la lógica
+    private void guardarImagen(String nickname) {
+        if (imagenElegida != null) {
+            sistema.asociarImagen(TipoEntidadImagen.USUARIO, nickname, imagenElegida);
+        }
+    }
+
+
+    private void elegirImagen() {
+        inicializarComponentesSeguros();
+
+        JFileChooser selector = new JFileChooser();
+        selector.setDialogTitle("Elegir imagen");
+        selector.setFileFilter(new FileNameExtensionFilter(
+                "Imágenes (png, jpg, gif, webp)", "png", "jpg", "jpeg", "gif", "webp"));
+
+        if (selector.showOpenDialog(mainPanel) != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+
+        File archivo = selector.getSelectedFile();
+        String tipo = tipoContenido(archivo.getName());
+
+        if (tipo == null) {
+            mostrarError("Elegí una imagen PNG, JPG, GIF o WEBP.");
+            return;
+        }
+
+        try {
+            DtImagen imagen = new DtImagen(tipo, Files.readAllBytes(archivo.toPath()));
+            sistema.validarImagen(imagen);
+            imagenElegida = imagen;
+            btnImagen.setText(archivo.getName());
+        } catch (IllegalArgumentException e) {
+            mostrarError(e.getMessage());
+        } catch (IOException e) {
+            mostrarError("No se pudo leer el archivo.");
+        }
+    }
+
+
+    private String tipoContenido(String nombreArchivo) {
+        String nombre = nombreArchivo.toLowerCase();
+
+        if (nombre.endsWith(".png")) return "image/png";
+        if (nombre.endsWith(".jpg") || nombre.endsWith(".jpeg")) return "image/jpeg";
+        if (nombre.endsWith(".gif")) return "image/gif";
+        if (nombre.endsWith(".webp")) return "image/webp";
+        return null;
+    }
+
+
+    private void mostrarError(String mensaje) {
+        JOptionPane.showMessageDialog(
+                mainPanel,
+                mensaje,
+                "Modificar usuario",
+                JOptionPane.WARNING_MESSAGE
+        );
     }
 
 
@@ -351,6 +471,11 @@ public class ModificarUsuarioPanel {
 
         txtDescripcion.setText("");
         txtSitioWeb.setText("");
+
+        txtContrasenia.setText("");
+        txtConfirmacion.setText("");
+        imagenElegida = null;
+        btnImagen.setText(TEXTO_BOTON_IMAGEN);
 
         if (comboInstitucion.getItemCount() > 0) {
             comboInstitucion.setSelectedIndex(0);
