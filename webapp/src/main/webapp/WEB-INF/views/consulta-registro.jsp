@@ -160,7 +160,10 @@
                             </dd>
 
                             <dt class="col-sm-5">Tipo de registro</dt>
-                            <dd class="col-sm-7"><c:out value="${detalle.nombreTipoRegistro}" /></dd>
+                            <dd class="col-sm-7">
+                                <c:url var="urlTipoDetalle" value="/tipo-registro"><c:param name="edicion" value="${detalle.nombreEdicion}"/><c:param name="nombre" value="${detalle.nombreTipoRegistro}"/></c:url>
+                                <a href="${urlTipoDetalle}"><c:out value="${detalle.nombreTipoRegistro}"/></a>
+                            </dd>
 
                             <dt class="col-sm-5">Fecha de registro</dt>
                             <dd class="col-sm-7"><c:out value="${detalle.fecha}" /></dd>

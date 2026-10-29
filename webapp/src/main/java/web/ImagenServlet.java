@@ -18,6 +18,17 @@ public class ImagenServlet extends HttpServlet {
         TipoEntidadImagen tipo = tipoDe(req.getParameter("tipo"));
         String id = req.getParameter("id");
 
+        if (tipo == TipoEntidadImagen.EDICION) {
+            resp.setHeader("Cache-Control", "private, no-store");
+            var sistema = ContextoListener.sistema(req);
+            var seleccion = AccesoEdiciones.resolver(sistema, sistema.listarEventos(), "",
+                    id == null ? "" : id, AccesoEdiciones.usuario(req));
+            if (seleccion == null || seleccion.edicion() == null) {
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+        }
+
         DtImagen imagen = (tipo == null || id == null || id.isBlank())
                 ? null
                 : ContextoListener.sistema(req).obtenerImagen(tipo, id);
@@ -29,7 +40,7 @@ public class ImagenServlet extends HttpServlet {
 
         resp.setContentType(imagen.getTipoContenido());
         resp.setHeader("X-Content-Type-Options", "nosniff");
-        resp.setHeader("Cache-Control", "no-cache");
+        if (tipo != TipoEntidadImagen.EDICION) resp.setHeader("Cache-Control", "no-cache");
         resp.setContentLength(imagen.getContenido().length);
         resp.getOutputStream().write(imagen.getContenido());
     }

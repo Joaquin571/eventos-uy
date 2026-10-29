@@ -209,24 +209,7 @@ public class Sistema implements ISistema {
         Collection<DtRegistro> resultado = new ArrayList<>();
 
         for (Registro registro : manejadorRegistros.obtenerRegistrosAsistente(nickname)) {
-            String nombreTipoRegistro = null;
-            String nombreEdicion = null;
-
-            if (registro.getTipoRegistro() != null) {
-                nombreTipoRegistro = registro.getTipoRegistro().getIdNombre();
-            }
-
-            if (registro.getEdicion() != null) {
-                nombreEdicion = registro.getEdicion().getIdNombre();
-            }
-            resultado.add(
-                    new DtRegistro(
-                            registro.getFechaRegistro(),
-                            registro.getCosto(),
-                            nombreTipoRegistro,
-                            nombreEdicion
-                    )
-            );
+            resultado.add(aDtRegistro(registro));
         }
         return resultado;
     }
@@ -662,7 +645,7 @@ public class Sistema implements ISistema {
             DtRegistro dt,
             String codigoPatrocinio
     ) {
-        if (dt == null || dt.getFechaRegistro() == null) {
+        if (dt == null) {
             throw new IllegalArgumentException("Los datos del registro no son válidos.");
         }
         Edicion edicion = manejadorEventos.obtenerEdicion(nombreEdicion);
@@ -678,7 +661,7 @@ public class Sistema implements ISistema {
                 nicknameAsistente,
                 nombreEdicion,
                 nombreTipoRegistro,
-                dt.getFechaRegistro(),
+                LocalDate.now(),
                 codigoPatrocinio
         );
     }
@@ -704,7 +687,7 @@ public class Sistema implements ISistema {
         if (dt.getNivel() == null) {
             throw new IllegalArgumentException("Debe seleccionar un nivel de patrocinio.");
         }
-        if (dt.getMontoAporte() <= 0) {
+        if (!Float.isFinite(dt.getMontoAporte()) || dt.getMontoAporte() <= 0) {
             throw new IllegalArgumentException("El aporte económico debe ser mayor que 0.");
         }
         if (dt.getCantRegistrosGrat() < 0) {
@@ -842,22 +825,9 @@ public class Sistema implements ISistema {
     @Override
     public Collection<DtRegistro> obtenerRegistrosEdicion(String nombreEdicion) {
         Collection<DtRegistro> resultado = new ArrayList<>();
+
         for (Registro registro : manejadorRegistros.obtenerRegistrosEdicion(nombreEdicion)) {
-            String nombreTipoRegistro = null;
-            if (registro.getTipoRegistro() != null) {
-                nombreTipoRegistro = registro.getTipoRegistro().getIdNombre();
-            }
-            String nombreEd = null;
-            if (registro.getEdicion() != null) {
-                nombreEd = registro.getEdicion().getIdNombre();
-            }
-            resultado.add(new DtRegistro(
-                            registro.getFechaRegistro(),
-                            registro.getCosto(),
-                            nombreTipoRegistro,
-                            nombreEd
-                    )
-            );
+            resultado.add(aDtRegistro(registro));
         }
         return resultado;
     }

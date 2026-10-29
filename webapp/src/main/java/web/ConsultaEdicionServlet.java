@@ -5,87 +5,72 @@ import interfaces.ISistema;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
-
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 @WebServlet("/edicion")
 public class ConsultaEdicionServlet extends HttpServlet {
+    private static final DateTimeFormatter FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
-
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         ISistema sistema = ContextoListener.sistema(req);
-
-        HttpSession sesion = req.getSession(false);
-        DtUsuario usuario = null;
-
-        if (sesion != null) {
-            Object atributo = sesion.getAttribute("usuario");
-
-            if (atributo instanceof DtUsuario) {
-                usuario = (DtUsuario) atributo;
-            }
+        DtUsuario usuario = AccesoEdiciones.usuario(req);
+        var eventos = sistema.listarEventos();
+        var seleccion = AccesoEdiciones.resolver(sistema, eventos, AccesoEdiciones.texto(req, "evento"),
+                AccesoEdiciones.texto(req, "nombre"), usuario);
+        if (seleccion == null) {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
         }
-
-        req.setAttribute("eventos", sistema.listarEventos());
-
-        String evento = req.getParameter("evento");
-        String nombre = req.getParameter("nombre");
-
-        // Enlace directo (/edicion?nombre=X), como los del evento y del perfil:
-        // se busca a qué evento pertenece la edición.
-        if ((evento == null || evento.isBlank()) && nombre != null && !nombre.isBlank()) {
-            evento = eventoDeLaEdicion(sistema, nombre);
-        }
-
-        if (evento != null && !evento.isBlank()) {
-
-            List<DtEdicion> visibles = new ArrayList<>();
-
-            for (DtEdicion edicion : sistema.obtenerEdicionesEvento(evento)) {
-
-                boolean aceptada = edicion.getEstado() == EstadoEdicion.ACEPTADA;
-
-                boolean propia = usuario instanceof DtOrganizador
-                        && usuario.getNickname().equals(edicion.getNombreOrganizador());
-
-                if (aceptada || propia) {
-                    visibles.add(edicion);
-                }
+        req.setAttribute("eventos", eventos);
+        req.setAttribute("eventoElegido", seleccion.evento());
+        req.setAttribute("ediciones", AccesoEdiciones.aceptadas(sistema, seleccion.evento()));
+        DtEdicion edicion = seleccion.edicion();
+        if (edicion != null) {
+            String nombre = edicion.getIdNombre();
+            req.setAttribute("detalle", edicion);
+            req.setAttribute("fechaInicio", fecha(edicion.getFechaInicio()));
+            req.setAttribute("fechaFin", fecha(edicion.getFechaFin()));
+            req.setAttribute("fechaAlta", fecha(edicion.getFechaAlta()));
+            req.setAttribute("organizador", sistema.consultarUsuario(edicion.getNombreOrganizador()));
+            req.setAttribute("tieneImagen", sistema.obtenerImagen(TipoEntidadImagen.EDICION, nombre) != null);
+            req.setAttribute("tipos", sistema.obtenerTiposRegistroEdicion(nombre));
+            // El resumen conserva el contrato de la etapa anterior: solo instituciones, nunca códigos.
+            List<String> patrocinadoras = new ArrayList<>();
+            for (DtPatrocinio patrocinio : sistema.obtenerPatrociniosEdicion(nombre)) {
+                patrocinadoras.add(patrocinio.getNombreInstituto());
             }
-
-            req.setAttribute("ediciones", visibles);
-            req.setAttribute("eventoElegido", evento);
-
-            if (nombre != null && !nombre.isBlank()) {
-
-                for (DtEdicion edicion : visibles) {
-
-                    if (nombre.equals(edicion.getIdNombre())) {
-
-                        req.setAttribute("detalle", edicion);
-                        req.setAttribute("tipos", sistema.obtenerTiposRegistroEdicion(nombre));
-
-                        break;
-                    }
-                }
-            }
+            req.setAttribute("patrocinadoras", patrocinadoras);
+            prepararRegistros(req, sistema, usuario, edicion);
         }
-
         req.getRequestDispatcher("/WEB-INF/views/edicion.jsp").forward(req, resp);
     }
 
-    private String eventoDeLaEdicion(ISistema sistema, String nombre) {
-        for (DtEvento evento : sistema.listarEventos()) {
-            for (DtEdicion edicion : sistema.obtenerEdicionesEvento(evento.getNombre())) {
-                if (edicion.getIdNombre().equals(nombre)) {
-                    return evento.getNombre();
+    private void prepararRegistros(HttpServletRequest req, ISistema sistema, DtUsuario usuario, DtEdicion edicion) {
+        if (AccesoEdiciones.esPropietario(usuario, edicion)) {
+            List<DetalleRegistroVista> registros = new ArrayList<>();
+            for (DtRegistro registro : sistema.obtenerRegistrosEdicion(edicion.getIdNombre())) {
+                registros.add(DetalleRegistroVista.de(registro, registro.getNicknameAsistente()));
+            }
+            req.setAttribute("esPropietario", true);
+            req.setAttribute("registros", registros);
+        } else if (usuario instanceof DtAsistente) {
+            DtRegistro propio = null;
+            for (DtRegistro registro : sistema.obtenerRegistrosAsistente(usuario.getNickname())) {
+                if (edicion.getIdNombre().equals(registro.getNombreEdicion())
+                        && usuario.getNickname().equals(registro.getNicknameAsistente())) {
+                    propio = registro;
+                    break;
                 }
             }
+            if (propio != null) req.setAttribute("registroPropio", DetalleRegistroVista.de(propio, usuario.getNombre()));
+            req.setAttribute("puedeRegistrarse", propio == null && edicion.getEstado() == EstadoEdicion.ACEPTADA);
         }
-        return null;
     }
+
+    private String fecha(LocalDate fecha) { return fecha == null ? "" : fecha.format(FECHA); }
 }
