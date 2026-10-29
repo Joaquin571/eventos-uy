@@ -76,6 +76,17 @@ public class ConsultaEventoPanel extends JPanel {
 
         listModelEdiciones = new DefaultListModel<>();
         listEdiciones = new JList<>(listModelEdiciones);
+        listEdiciones.setCellRenderer(new DefaultListCellRenderer() {
+            @Override
+            public java.awt.Component getListCellRendererComponent(
+                    JList<?> lista, Object valor, int indice, boolean seleccionado, boolean foco) {
+                super.getListCellRendererComponent(lista, valor, indice, seleccionado, foco);
+                if (valor instanceof DtEdicion edicion) {
+                    setText(edicion.getIdNombre() + " (" + edicion.getEstado() + ")");
+                }
+                return this;
+            }
+        });
         JScrollPane scrollEdiciones = new JScrollPane(listEdiciones);
         scrollEdiciones.setPreferredSize(new Dimension(0, 100));
 

@@ -87,6 +87,7 @@ public class ConsultaEdicionEventoPanel extends JPanel {
         if (seleccionada != null) {
             StringBuilder sb = new StringBuilder();
             sb.append("Nombre Edición: ").append(seleccionada.getIdNombre()).append("\n");
+            sb.append("Estado: ").append(seleccionada.getEstado()).append("\n");
             sb.append("Sigla: ").append(seleccionada.getSigla()).append("\n");
             sb.append("Fecha Inicio: ").append(seleccionada.getFechaInicio()).append("\n");
             sb.append("Fecha Fin: ").append(seleccionada.getFechaFin()).append("\n");
