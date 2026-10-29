@@ -1,6 +1,10 @@
 package swing;
 
 import datatypes.DtAsistente;
+import datatypes.DtImagen;
+import datatypes.TipoEntidadImagen;
+import java.io.IOException;
+import java.util.Arrays;
 import datatypes.DtInstitucion;
 import datatypes.DtOrganizador;
 import datatypes.DtUsuario;
@@ -37,6 +41,11 @@ public class ModificarUsuarioPanel {
     private JTextArea txtDescripcion;
     private JTextField txtSitioWeb;
 
+    private JPasswordField txtContrasenia;
+    private JPasswordField txtConfirmacion;
+    private ImagenSwing imagen;
+    private DtUsuario usuarioSeleccionado;
+
     // Botones
     private JPanel panelBotones;
     private JButton btnGuardar;
@@ -51,7 +60,8 @@ public class ModificarUsuarioPanel {
      * Asegura que los componentes gráficos no sean null antes de usarlos.
      */
     private void inicializarComponentesSeguros() {
-        if (mainPanel == null) mainPanel = new JPanel();
+        if (mainPanel != null) return;
+        mainPanel = new JPanel();
         if (panelDatosComunes == null) panelDatosComunes = new JPanel();
         if (panelAsistente == null) panelAsistente = new JPanel();
         if (panelOrganizador == null) panelOrganizador = new JPanel();
@@ -71,6 +81,17 @@ public class ModificarUsuarioPanel {
 
         if (btnGuardar == null) btnGuardar = new JButton("Guardar");
         if (btnCancelar == null) btnCancelar = new JButton("Cancelar");
+        txtContrasenia = new JPasswordField(24);
+        txtConfirmacion = new JPasswordField(24);
+        imagen = new ImagenSwing(true);
+        txtDescripcion.setRows(3);
+        panelDatosComunes = FormularioSwing.campos("Usuario:", comboUsuarios, "Nickname:", txtNickname, "Nombre:", txtNombre, "Correo:", txtCorreo, "Tipo:", comboTipoUsuario, "Nueva contraseña (opcional):", txtContrasenia, "Confirmar contraseña:", txtConfirmacion);
+        panelAsistente = FormularioSwing.campos("Apellido:", txtApellido, "Nacimiento (AAAA-MM-DD):", txtFechaNacimiento, "Institución:", comboInstitucion);
+        panelOrganizador = FormularioSwing.campos("Descripción:", txtDescripcion, "Sitio web:", txtSitioWeb);
+        panelBotones = FormularioSwing.botones(btnGuardar, btnCancelar);
+        mainPanel = FormularioSwing.componer(panelBotones, panelDatosComunes, panelAsistente, panelOrganizador, imagen);
+        txtNickname.setEditable(false);
+        txtCorreo.setEditable(false);
     }
 
 
@@ -163,7 +184,7 @@ public class ModificarUsuarioPanel {
         inicializarComponentesSeguros();
 
         String nickname = (String) comboUsuarios.getSelectedItem();
-        if (nickname == null) return;
+        if (nickname == null) { limpiarFormulario(); return; }
 
         DtUsuario usuario = sistema.consultarUsuario(nickname);
         if (usuario == null) return;
@@ -173,6 +194,10 @@ public class ModificarUsuarioPanel {
 
 
     private void cargarUsuario(DtUsuario usuario) {
+        usuarioSeleccionado = usuario;
+        txtContrasenia.setText("");
+        txtConfirmacion.setText("");
+        imagen.cargar(sistema, TipoEntidadImagen.USUARIO, usuario.getNickname());
         cargarDatosComunes(
                 usuario.getNickname(),
                 usuario.getNombre(),
@@ -238,96 +263,59 @@ public class ModificarUsuarioPanel {
 
 
     private void guardarCambios() {
-        inicializarComponentesSeguros();
-
-        String nickname = txtNickname.getText().trim();
-        String nombre = txtNombre.getText().trim();
-        String correo = txtCorreo.getText().trim();
-        String tipo = (String) comboTipoUsuario.getSelectedItem();
-
-        if (nickname.isEmpty() || nombre.isEmpty() || correo.isEmpty()) {
-            JOptionPane.showMessageDialog(
-                    mainPanel,
-                    "Complete los datos obligatorios.",
-                    "Modificar usuario",
-                    JOptionPane.WARNING_MESSAGE
-            );
+        if (usuarioSeleccionado == null) {
+            JOptionPane.showMessageDialog(mainPanel, "Seleccione un usuario.", "Modificar usuario", JOptionPane.WARNING_MESSAGE);
             return;
         }
-
-        if ("Asistente".equals(tipo)) {
-            guardarAsistente(nickname, nombre, correo);
-        } else if ("Organizador".equals(tipo)) {
-            guardarOrganizador(nickname, nombre, correo);
-        }
-    }
-
-
-    private void guardarAsistente(String nickname, String nombre, String correo) {
-        inicializarComponentesSeguros();
-
-        String apellido = txtApellido.getText().trim();
-        String fechaTexto = txtFechaNacimiento.getText().trim();
-        String institucion = (String) comboInstitucion.getSelectedItem();
-
-        if (apellido.isEmpty() || fechaTexto.isEmpty()) {
-            JOptionPane.showMessageDialog(
-                    mainPanel,
-                    "Complete apellido y fecha de nacimiento.",
-                    "Modificar usuario",
-                    JOptionPane.WARNING_MESSAGE
-            );
-            return;
-        }
-
+        char[] clave = txtContrasenia.getPassword();
+        char[] confirmacion = txtConfirmacion.getPassword();
         try {
-            LocalDate fechaNacimiento = LocalDate.parse(fechaTexto);
-
-            if ("Sin Institución".equals(institucion)) {
-                institucion = null;
+            if (!Arrays.equals(clave, confirmacion)) throw new IllegalArgumentException("La contraseña y su confirmación no coinciden.");
+            DtImagen nuevaImagen = imagen.leerValidada(sistema);
+            String nickname = usuarioSeleccionado.getNickname();
+            String correo = usuarioSeleccionado.getCorreoElectronico();
+            if (usuarioSeleccionado instanceof DtAsistente) {
+                guardarAsistente(nickname, txtNombre.getText().trim(), correo, new String(clave), new String(confirmacion));
+            } else {
+                guardarOrganizador(nickname, txtNombre.getText().trim(), correo, new String(clave), new String(confirmacion));
             }
-
-            DtAsistente dt = new DtAsistente(
-                    nickname,
-                    nombre,
-                    correo,
-                    apellido,
-                    fechaNacimiento,
-                    institucion
-            );
-
-            sistema.modificarAsistente(dt);
-            mostrarExito();
-
-        } catch (DateTimeParseException e) {
-            JOptionPane.showMessageDialog(
-                    mainPanel,
-                    "La fecha debe tener formato AAAA-MM-DD.",
-                    "Modificar usuario",
-                    JOptionPane.WARNING_MESSAGE
-            );
+            // No se repite el cambio de contraseña si la asociación posterior falla.
+            txtContrasenia.setText("");
+            txtConfirmacion.setText("");
+            usuarioSeleccionado = sistema.consultarUsuario(nickname);
+            String errorImagen = ImagenSwing.asociar(sistema, TipoEntidadImagen.USUARIO, nickname, nuevaImagen);
+            if (errorImagen == null) {
+                imagen.cargar(sistema, TipoEntidadImagen.USUARIO, nickname);
+                mostrarExito();
+            } else {
+                JOptionPane.showMessageDialog(mainPanel, errorImagen + " Puede reintentar guardar para asociarla.", "Modificación parcial", JOptionPane.WARNING_MESSAGE);
+            }
+        } catch (DateTimeParseException ex) {
+            JOptionPane.showMessageDialog(mainPanel, "La fecha debe tener formato AAAA-MM-DD.", "Modificar usuario", JOptionPane.WARNING_MESSAGE);
+        } catch (IllegalArgumentException | IllegalStateException | IOException ex) {
+            JOptionPane.showMessageDialog(mainPanel, ex.getMessage(), "Modificar usuario", JOptionPane.WARNING_MESSAGE);
+        } finally {
+            Arrays.fill(clave, '\0');
+            Arrays.fill(confirmacion, '\0');
         }
     }
 
-
-    private void guardarOrganizador(String nickname, String nombre, String correo) {
-        inicializarComponentesSeguros();
-
-        String descripcion = txtDescripcion.getText().trim();
-        String sitioWeb = txtSitioWeb.getText().trim();
-
-        DtOrganizador dt = new DtOrganizador(
-                nickname,
-                nombre,
-                correo,
-                descripcion,
-                sitioWeb
-        );
-
-        sistema.modificarOrganizador(dt);
-        mostrarExito();
+    private void guardarAsistente(String nickname, String nombre, String correo, String clave, String confirmacion) {
+        String institucion = (String) comboInstitucion.getSelectedItem();
+        if ("Sin Institución".equals(institucion)) institucion = null;
+        DtAsistente dt = new DtAsistente(nickname, nombre, correo, txtApellido.getText().trim(),
+                LocalDate.parse(txtFechaNacimiento.getText().trim()), institucion);
+        dt.setContrasenia(clave);
+        dt.setConfirmacionContrasenia(confirmacion);
+        sistema.modificarAsistente(dt);
     }
 
+    private void guardarOrganizador(String nickname, String nombre, String correo, String clave, String confirmacion) {
+        DtOrganizador dt = new DtOrganizador(nickname, nombre, correo, txtDescripcion.getText().trim(), txtSitioWeb.getText().trim());
+        dt.setContrasenia(clave);
+        dt.setConfirmacionContrasenia(confirmacion);
+        sistema.modificarOrganizador(dt);
+    }
 
     private void mostrarExito() {
         JOptionPane.showMessageDialog(
@@ -341,6 +329,10 @@ public class ModificarUsuarioPanel {
 
     private void limpiarFormulario() {
         inicializarComponentesSeguros();
+        usuarioSeleccionado = null;
+        txtContrasenia.setText("");
+        txtConfirmacion.setText("");
+        imagen.mostrar(null);
 
         txtNickname.setText("");
         txtNombre.setText("");

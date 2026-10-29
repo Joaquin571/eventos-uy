@@ -1,6 +1,8 @@
 package swing;
 
 import datatypes.DtEvento;
+import datatypes.DtImagen;
+import datatypes.TipoEntidadImagen;
 import interfaces.ISistema;
 import implementacion.Fabrica;
 
@@ -15,6 +17,7 @@ import java.util.Set;
 public class AltaEventoPanel {
 
     private JPanel mainPanel;
+    private final ImagenSwing imagen = new ImagenSwing(true);
     private JTextField txtNombre;
     private JTextField txtSigla;
     private JTextField txtDescripcion;
@@ -87,7 +90,9 @@ public class AltaEventoPanel {
         panelBotones.add(btnAceptar);
         panelBotones.add(btnCancelar);
 
-        gbc.gridx = 0; gbc.gridy = 4;
+        gbc.gridx = 0; gbc.gridy = 4; gbc.gridwidth = 2;
+        mainPanel.add(imagen, gbc);
+        gbc.gridx = 0; gbc.gridy = 5;
         gbc.gridwidth = 2;
         mainPanel.add(panelBotones, gbc);
     }
@@ -107,6 +112,8 @@ public class AltaEventoPanel {
     }
 
     private void agregarEvento() {
+        ISistema sistema = Fabrica.getInstance().getISistema();
+        if (imagen.reintentarAlta(sistema, () -> { limpiarCampos(); if (accionCerrar != null) accionCerrar.run(); })) return;
         String nombre = txtNombre.getText().trim();
         String sigla = txtSigla.getText().trim();
         String descripcion = txtDescripcion.getText().trim();
@@ -132,10 +139,11 @@ public class AltaEventoPanel {
         }
 
         try {
+            DtImagen nuevaImagen = imagen.leerValidada(sistema);
             DtEvento dt = new DtEvento(nombre, sigla, descripcion, LocalDate.now(), categoriasSeleccionadas);
 
-            ISistema sistema = Fabrica.getInstance().getISistema();
-            sistema.altaEvento(dt);
+            if (!sistema.altaEvento(dt)) throw new IllegalArgumentException("No se pudo crear el evento.");
+            if (!imagen.completarAlta(sistema, TipoEntidadImagen.EVENTO, nombre, nuevaImagen)) return;
 
             JOptionPane.showMessageDialog(mainPanel, "Evento registrado con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
             limpiarCampos();
@@ -147,6 +155,7 @@ public class AltaEventoPanel {
     }
 
     private void limpiarCampos() {
+        imagen.mostrar(null);
         txtNombre.setText("");
         txtSigla.setText("");
         txtDescripcion.setText("");

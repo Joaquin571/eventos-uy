@@ -1,6 +1,7 @@
 package swing;
 
 import datatypes.DtEdicion;
+import datatypes.TipoEntidadImagen;
 import datatypes.DtEvento;
 import implementacion.Fabrica;
 import interfaces.ISistema;
@@ -12,6 +13,7 @@ import java.util.Collection;
 
 public class ConsultaEventoPanel extends JPanel {
 
+    private final ImagenSwing imagen = new ImagenSwing(false);
     private JComboBox<DtEvento> comboEventos;
 
     private JTextField txtNombre;
@@ -118,6 +120,7 @@ public class ConsultaEventoPanel extends JPanel {
         panelCenter.add(scrollEdiciones, gbc);
 
         add(panelCenter, BorderLayout.CENTER);
+        add(imagen, BorderLayout.EAST);
 
         // =========================
         // EVENTOS
@@ -177,6 +180,7 @@ public class ConsultaEventoPanel extends JPanel {
             return;
         }
 
+        imagen.cargar(sistema, TipoEntidadImagen.EVENTO, evento.getNombre());
         txtNombre.setText(evento.getNombre());
         txtSigla.setText(evento.getSigla());
         txtDescripcion.setText(evento.getDescripcion());
@@ -204,6 +208,7 @@ public class ConsultaEventoPanel extends JPanel {
     }
 
     private void limpiarCampos() {
+        imagen.mostrar(null);
         txtNombre.setText("");
         txtSigla.setText("");
         txtDescripcion.setText("");

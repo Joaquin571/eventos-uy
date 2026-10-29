@@ -36,9 +36,19 @@ public class AltaTipoRegistro {
                 Fabrica.getInstance()
                         .getISistema();
 
+        armarUI();
         configurarComponentes();
         configurarEventos();
         refrescarDatos();
+    }
+
+    private void armarUI() {
+        cbxEvento = new JComboBox<>(); cbxEdicion = new JComboBox<>(); txtNombre = new JTextField(24);
+        txtDescripcion = new JTextArea(3, 24); snrCosto = new JSpinner(); snrCupos = new JSpinner();
+        btnAceptar = new JButton("Aceptar"); btnCancelar = new JButton("Cancelar");
+        principalPanel = FormularioSwing.campos("Evento:", cbxEvento, "Edición:", cbxEdicion, "Nombre:", txtNombre, "Descripción:", txtDescripcion, "Costo:", snrCosto, "Cupo:", snrCupos);
+        botonesPanel = FormularioSwing.botones(btnAceptar, btnCancelar);
+        mainPanel = FormularioSwing.componer(botonesPanel, principalPanel);
     }
 
     private void configurarComponentes() {

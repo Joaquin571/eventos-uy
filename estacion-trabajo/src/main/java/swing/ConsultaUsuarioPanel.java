@@ -1,5 +1,7 @@
 package swing;
 
+import datatypes.TipoEntidadImagen;
+
 import datatypes.DtAsistente;
 import datatypes.DtOrganizador;
 import datatypes.DtUsuario;
@@ -20,6 +22,7 @@ public class ConsultaUsuarioPanel {
     private final principal ventanaPrincipal;
 
     private JPanel mainPanel;
+    private final ImagenSwing imagen = new ImagenSwing(false);
     private JComboBox<DtUsuario> cbUsuarios;
 
     private JLabel lblTipoUsuario;
@@ -236,6 +239,7 @@ public class ConsultaUsuarioPanel {
             return;
         }
 
+        imagen.cargar(sistema, TipoEntidadImagen.USUARIO, completo.getNickname());
         lblNickname.setText(
                 completo.getNickname()
         );
@@ -354,6 +358,7 @@ public class ConsultaUsuarioPanel {
     // =====================================================
 
     private void limpiarCampos() {
+        imagen.mostrar(null);
 
         lblTipoUsuario.setText("-");
         lblNickname.setText("-");
@@ -383,6 +388,7 @@ public class ConsultaUsuarioPanel {
                         )
                 );
 
+        mainPanel.add(imagen, BorderLayout.EAST);
         mainPanel.setBorder(
                 BorderFactory
                         .createEmptyBorder(

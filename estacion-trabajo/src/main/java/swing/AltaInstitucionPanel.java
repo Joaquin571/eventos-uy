@@ -2,6 +2,9 @@ package swing;
 
 import javax.swing.*;
 import datatypes.DtInstitucion;
+import datatypes.DtImagen;
+import datatypes.TipoEntidadImagen;
+import java.io.IOException;
 import implementacion.Fabrica;
 import interfaces.ISistema;
 
@@ -11,6 +14,7 @@ public class AltaInstitucionPanel {
     private transient Runnable accionCerrar = () -> {};
 
     private JPanel mainPanel;
+    private final ImagenSwing imagen = new ImagenSwing(true);
     private JPanel panelFormulario;
     private JPanel panelBotones;
     private JTextField txtNombre;
@@ -23,9 +27,19 @@ public class AltaInstitucionPanel {
 
         sistema = Fabrica.getInstance().getISistema();
 
+        armarUI();
         configurarEventos();
     }
 
+
+    private void armarUI() {
+        txtNombre = new JTextField(24); txtSitioWeb = new JTextField(24);
+        txtDescripcion = new JTextArea(3, 24);
+        btnAceptar = new JButton("Aceptar"); btnCancelar = new JButton("Cancelar");
+        panelFormulario = FormularioSwing.campos("Nombre:", txtNombre, "Descripción:", txtDescripcion, "Sitio web:", txtSitioWeb);
+        panelBotones = FormularioSwing.botones(btnAceptar, btnCancelar);
+        mainPanel = FormularioSwing.componer(panelBotones, panelFormulario, imagen);
+    }
 
     private void configurarEventos() {
 
@@ -41,6 +55,8 @@ public class AltaInstitucionPanel {
 
 
     private void guardarInstitucion() {
+        if (imagen.reintentarAlta(sistema, () -> { limpiarFormulario(); accionCerrar.run(); })) return;
+        try {
 
         String nombre = txtNombre.getText().trim();
         String descripcion = txtDescripcion.getText().trim();
@@ -75,6 +91,7 @@ public class AltaInstitucionPanel {
                                 : sitioWeb
                 );
 
+        DtImagen nuevaImagen = imagen.leerValidada(sistema);
         boolean agregada = sistema.altaInstitucion(dtInstitucion);
 
         if (!agregada) {
@@ -86,9 +103,13 @@ public class AltaInstitucionPanel {
             );
             return;
         }
+        if (!imagen.completarAlta(sistema, TipoEntidadImagen.INSTITUCION, nombre, nuevaImagen)) return;
         mostrarExito();
         limpiarFormulario();
         accionCerrar.run();
+        } catch (IllegalArgumentException | IllegalStateException | IOException ex) {
+            JOptionPane.showMessageDialog(mainPanel, ex.getMessage(), "Alta Institución", JOptionPane.WARNING_MESSAGE);
+        }
     }
 
 
@@ -105,6 +126,7 @@ public class AltaInstitucionPanel {
 
 
     private void limpiarFormulario() {
+        imagen.mostrar(null);
 
         txtNombre.setText("");
         txtDescripcion.setText("");

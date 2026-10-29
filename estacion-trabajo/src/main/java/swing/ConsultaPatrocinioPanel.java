@@ -3,6 +3,7 @@ package swing;
 import datatypes.DtEdicion;
 import datatypes.DtEvento;
 import datatypes.DtPatrocinio;
+import datatypes.TipoEntidadImagen;
 import interfaces.ISistema;
 import implementacion.Fabrica;
 
@@ -14,6 +15,7 @@ public class ConsultaPatrocinioPanel {
     private transient Runnable accionCerrar = () -> {};
 
     private JPanel mainPanel;
+    private final ImagenSwing imagen = new ImagenSwing(false);
     private JPanel panelSeleccion;
     private JPanel panelDatos;
 
@@ -38,6 +40,7 @@ public class ConsultaPatrocinioPanel {
                 Fabrica.getInstance()
                         .getISistema();
 
+        armarUI();
         configurarCampos();
         configurarEventos();
     }
@@ -45,6 +48,17 @@ public class ConsultaPatrocinioPanel {
     // =====================================================
     // CONFIGURACIÓN CAMPOS
     // =====================================================
+
+    private void armarUI() {
+        comboEvento = new JComboBox<>(); comboEdicion = new JComboBox<>(); comboPatrocinio = new JComboBox<>();
+        txtCodigo = new JTextField(24); txtFecha = new JTextField(24); txtNivel = new JTextField(24); txtAporte = new JTextField(24);
+        txtRegistroGratuito = new JTextField(24); txtInstitución = new JTextField(24); txtTipoRegistro = new JTextField(24);
+        btnCancelar = new JButton("Cerrar");
+        panelSeleccion = FormularioSwing.campos("Evento:", comboEvento, "Edición:", comboEdicion, "Patrocinio:", comboPatrocinio);
+        panelDatos = FormularioSwing.campos("Código:", txtCodigo, "Fecha:", txtFecha, "Nivel:", txtNivel, "Aporte:", txtAporte, "Registros gratuitos:", txtRegistroGratuito, "Institución:", txtInstitución, "Tipo de registro:", txtTipoRegistro);
+        panelBotones = FormularioSwing.botones(btnCancelar);
+        mainPanel = FormularioSwing.componer(panelBotones, panelSeleccion, panelDatos, imagen);
+    }
 
     private void configurarCampos() {
 
@@ -214,6 +228,7 @@ public class ConsultaPatrocinioPanel {
             return;
         }
 
+        imagen.cargar(sistema, TipoEntidadImagen.INSTITUCION, patrocinio.getNombreInstituto());
         txtCodigo.setText(
                 patrocinio.getCodigoPatrocinio()
         );
@@ -280,6 +295,7 @@ public class ConsultaPatrocinioPanel {
     // =====================================================
 
     private void limpiarDatosPatrocinio() {
+        imagen.mostrar(null);
 
         txtCodigo.setText("");
         txtFecha.setText("");

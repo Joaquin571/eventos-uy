@@ -42,6 +42,7 @@ public class AltaPatrocinioPanel {
                 Fabrica.getInstance()
                         .getISistema();
 
+        armarUI();
         configurarEventos();
 
         refrescarDatos();
@@ -50,6 +51,17 @@ public class AltaPatrocinioPanel {
     // =====================================================
     // CONFIGURACIÓN DE EVENTOS
     // =====================================================
+
+    private void armarUI() {
+        comboEvento = new JComboBox<>(); comboEdicion = new JComboBox<>();
+        comboInstitucion = new JComboBox<>(); comboTipoRegistro = new JComboBox<>(); comboNivel = new JComboBox<>();
+        txtAporte = new JTextField(24); txtCantidadRegistros = new JTextField(24); txtCodigo = new JTextField(24);
+        btnAceptar = new JButton("Aceptar"); btnCancelar = new JButton("Cancelar");
+        panelSeleccion = FormularioSwing.campos("Evento:", comboEvento, "Edición:", comboEdicion, "Institución:", comboInstitucion, "Tipo de registro:", comboTipoRegistro);
+        panelDatosPatrocinio = FormularioSwing.campos("Nivel:", comboNivel, "Aporte:", txtAporte, "Registros gratuitos:", txtCantidadRegistros, "Código:", txtCodigo);
+        panelBotones = FormularioSwing.botones(btnAceptar, btnCancelar);
+        mainPanel = FormularioSwing.componer(panelBotones, panelSeleccion, panelDatosPatrocinio);
+    }
 
     private void configurarEventos() {
 

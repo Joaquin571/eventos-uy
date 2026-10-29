@@ -11,6 +11,7 @@ import java.util.Collection;
 public class ConsultaEdicionEventoPanel extends JPanel {
 
     private final ISistema sistema;
+    private final ImagenSwing imagen = new ImagenSwing(false);
     private JComboBox<String> comboEventos;
     private JComboBox<String> comboEdiciones;
     private JTextArea areaDetalles;
@@ -45,6 +46,7 @@ public class ConsultaEdicionEventoPanel extends JPanel {
 
         add(panelFiltros, BorderLayout.NORTH);
         add(scroll, BorderLayout.CENTER);
+        add(imagen, BorderLayout.EAST);
     }
 
     public void cargarEventos() {
@@ -67,6 +69,7 @@ public class ConsultaEdicionEventoPanel extends JPanel {
     }
 
     private void mostrarDetalles() {
+        imagen.mostrar(null);
         String edicionSel = (String) comboEdiciones.getSelectedItem();
         if (edicionSel == null) {
             areaDetalles.setText("");
@@ -85,7 +88,9 @@ public class ConsultaEdicionEventoPanel extends JPanel {
         }
 
         if (seleccionada != null) {
+            imagen.cargar(sistema, TipoEntidadImagen.EDICION, seleccionada.getIdNombre());
             StringBuilder sb = new StringBuilder();
+            sb.append("Estado: ").append(seleccionada.getEstado()).append("\n");
             sb.append("Nombre Edición: ").append(seleccionada.getIdNombre()).append("\n");
             sb.append("Sigla: ").append(seleccionada.getSigla()).append("\n");
             sb.append("Fecha Inicio: ").append(seleccionada.getFechaInicio()).append("\n");

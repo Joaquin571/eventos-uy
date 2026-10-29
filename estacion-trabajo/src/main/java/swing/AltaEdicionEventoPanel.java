@@ -1,6 +1,8 @@
 package swing;
 
 import datatypes.DtEdicion;
+import datatypes.DtImagen;
+import datatypes.TipoEntidadImagen;
 import datatypes.DtEvento;
 import datatypes.DtOrganizador;
 import datatypes.DtUsuario;
@@ -17,6 +19,7 @@ import java.util.Date;
 public class AltaEdicionEventoPanel extends JPanel {
 
     private final ISistema sistema;
+    private final ImagenSwing imagen = new ImagenSwing(true);
 
     private JComboBox<String> comboEventos;
     private JComboBox<String> comboOrganizadores;
@@ -115,7 +118,10 @@ public class AltaEdicionEventoPanel extends JPanel {
                 e -> guardarEdicion()
         );
 
-        add(panelForm, BorderLayout.NORTH);
+        JPanel contenido = new JPanel(new BorderLayout(8, 8));
+        contenido.add(panelForm, BorderLayout.NORTH);
+        contenido.add(imagen, BorderLayout.CENTER);
+        add(new JScrollPane(contenido), BorderLayout.CENTER);
         add(btnGuardar, BorderLayout.SOUTH);
     }
 
@@ -162,6 +168,7 @@ public class AltaEdicionEventoPanel extends JPanel {
     // =====================================================
 
     private void guardarEdicion() {
+        if (imagen.reintentarAlta(sistema, this::limpiarFormulario)) return;
 
         String eventoSel = (String) comboEventos.getSelectedItem();
         String organizadorSel = (String) comboOrganizadores.getSelectedItem();
@@ -215,9 +222,11 @@ public class AltaEdicionEventoPanel extends JPanel {
 
         try {
 
+            DtImagen nuevaImagen = imagen.leerValidada(sistema);
             boolean okEdicion = sistema.altaEdicion(dtEdicion, eventoSel);
 
             if (okEdicion) {
+                if (!imagen.completarAlta(sistema, TipoEntidadImagen.EDICION, nombre, nuevaImagen)) return;
 
                 JOptionPane.showMessageDialog(
                         this,
@@ -262,6 +271,7 @@ public class AltaEdicionEventoPanel extends JPanel {
     }
 
     private void limpiarFormulario() {
+        imagen.mostrar(null);
 
         txtNombreEdicion.setText("");
         txtSigla.setText("");
