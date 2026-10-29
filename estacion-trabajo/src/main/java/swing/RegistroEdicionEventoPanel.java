@@ -7,9 +7,9 @@ import datatypes.DtEvento;
 import datatypes.DtRegistro;
 import datatypes.DtTipoRegistro;
 import datatypes.DtUsuario;
+import datatypes.EstadoEdicion;
 import implementacion.Fabrica;
 import interfaces.ISistema;
-import datatypes.EstadoEdicion;
 
 import javax.swing.*;
 import java.awt.*;
@@ -133,8 +133,9 @@ public class RegistroEdicionEventoPanel extends JPanel {
             return;
         }
 
+        // Solo se puede registrar a ediciones Aceptadas
         Collection<DtEdicion> ediciones =
-                sistema.obtenerEdicionesEvento(eventoSeleccionado,EstadoEdicion.ACEPTADA);
+                sistema.obtenerEdicionesEvento(eventoSeleccionado, EstadoEdicion.ACEPTADA);
 
         for (DtEdicion edicion : ediciones) {
             comboEdiciones.addItem(edicion.getIdNombre());
