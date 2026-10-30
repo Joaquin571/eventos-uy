@@ -129,6 +129,69 @@ class RegistroTest {
         return null;
     }
 
+    @Test
+    void sobrecargaDeCuatroParametrosRegistraYRechazaDuplicadoSinAlterarElOriginal() throws Exception {
+        String edicion = crearEdicion("General", 1250, 2);
+        String asistente = crearAsistente("cuatro", null);
+        assertTrue(sistema.registroAEdicion(asistente, edicion, "General", new DtRegistro(hoy.minusYears(1), 1)));
+        DtRegistro original = registroDe(asistente, edicion);
+        assertNotNull(original);
+        assertEquals(asistente, original.getNicknameAsistente());
+        assertEquals(edicion, original.getNombreEdicion());
+        assertEquals("General", original.getNombreTipoRegistro());
+        assertEquals(hoy, original.getFechaRegistro());
+        assertEquals(1250f, original.getCosto());
+        assertFalse(original.isUsoCodigo());
+        assertTrue(motivoDelRechazo(() -> sistema.registroAEdicion(asistente, edicion, "General", new DtRegistro(hoy, 0)))
+                .contains("ya está registrado"));
+        assertEquals(1, sistema.obtenerRegistrosEdicion(edicion).size());
+        assertEquals(1250f, registroDe(asistente, edicion).getCosto());
+        String segundo = crearAsistente("cuatroSegundo", null);
+        assertTrue(sistema.registroAEdicion(segundo, edicion, "General", new DtRegistro(hoy, 0)));
+        assertEquals(2, sistema.obtenerRegistrosEdicion(edicion).size());
+    }
+
+    @Test
+    void registroDeAsistenteInexistenteNoConsumeCupo() throws Exception {
+        String edicion = crearEdicion("General", 100, 1);
+        assertEquals("El asistente o la edición no existen.", motivoDelRechazo(() -> sistema.registroAEdicion(
+                "ausente" + sufijo, edicion, "General", new DtRegistro(hoy, 0))));
+        assertTrue(sistema.obtenerRegistrosEdicion(edicion).isEmpty());
+        String asistente = crearAsistente("trasAusente", null);
+        assertTrue(sistema.registroAEdicion(asistente, edicion, "General", new DtRegistro(hoy, 0)));
+        assertNotNull(registroDe(asistente, edicion));
+    }
+
+    @Test
+    void registroDeEdicionInexistenteNoCreaRegistrosDelAsistente() {
+        String asistente = crearAsistente("sinEdicion", null);
+        assertEquals("La edición no existe.", motivoDelRechazo(() -> sistema.registroAEdicion(
+                asistente, "ausente" + sufijo, "General", new DtRegistro(hoy, 0))));
+        assertTrue(sistema.obtenerRegistrosAsistente(asistente).isEmpty());
+    }
+
+    @Test
+    void registroDeTipoInexistenteNoCreaRegistrosNiConsumeCupo() throws Exception {
+        String edicion = crearEdicion("General", 100, 1);
+        String asistente = crearAsistente("sinTipo", null);
+        assertEquals("El tipo de registro no existe.", motivoDelRechazo(() -> sistema.registroAEdicion(
+                asistente, edicion, "Ausente", new DtRegistro(hoy, 0))));
+        assertTrue(sistema.obtenerRegistrosEdicion(edicion).isEmpty());
+        assertTrue(sistema.obtenerRegistrosAsistente(asistente).isEmpty());
+        assertTrue(sistema.registroAEdicion(asistente, edicion, "General", new DtRegistro(hoy, 0)));
+        assertEquals(100f, registroDe(asistente, edicion).getCosto());
+    }
+
+    @Test
+    void registroConDtNuloNoCreaRegistros() throws Exception {
+        String edicion = crearEdicion("General", 100, 1);
+        String asistente = crearAsistente("sinDt", null);
+        assertEquals("Los datos del registro no son válidos.", motivoDelRechazo(() ->
+                sistema.registroAEdicion(asistente, edicion, "General", null)));
+        assertTrue(sistema.obtenerRegistrosEdicion(edicion).isEmpty());
+        assertTrue(sistema.obtenerRegistrosAsistente(asistente).isEmpty());
+    }
+
     // ----------------------------------------------------------- registro general
 
     @Test

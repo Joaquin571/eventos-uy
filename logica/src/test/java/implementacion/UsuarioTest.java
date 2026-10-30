@@ -143,6 +143,88 @@ class UsuarioTest {
     }
 
     @Test
+    void modificarOrganizadorPersisteDatosYConservaLaClaveSiNoSeProporcionaOtra() {
+        String nick = "orgDatos" + sufijo;
+        assertTrue(sistema.altaOrganizador(organizador(nick, "clave1")));
+        for (String clave : new String[]{null, ""}) {
+            DtOrganizador cambio = new DtOrganizador(nick, "Nombre nuevo", nick + "@mail.com", "Descripción nueva", "https://nuevo.test");
+            cambio.setContrasenia(clave);
+            sistema.modificarOrganizador(cambio);
+            DtOrganizador consultado = (DtOrganizador) sistema.consultarUsuario(nick);
+            assertEquals("Nombre nuevo", consultado.getNombre());
+            assertEquals("Descripción nueva", consultado.getDescripcion());
+            assertEquals("https://nuevo.test", consultado.getSitioWeb());
+            assertEquals(nick + "@mail.com", consultado.getCorreoElectronico());
+            assertEquals(nick, sistema.autenticar(nick, "clave1").getNickname());
+            assertNull(consultado.getContrasenia());
+            assertNull(consultado.getConfirmacionContrasenia());
+        }
+    }
+
+    @Test
+    void modificarOrganizadorActualizaClaveYDatos() {
+        String nick = "orgClave" + sufijo;
+        assertTrue(sistema.altaOrganizador(organizador(nick, "clave1")));
+        DtOrganizador cambio = new DtOrganizador(nick, "Nombre nuevo", nick + "@mail.com", "Descripción nueva", null);
+        cambio.setContrasenia("clave2");
+        cambio.setConfirmacionContrasenia("clave2");
+        sistema.modificarOrganizador(cambio);
+        DtOrganizador consultado = (DtOrganizador) sistema.consultarUsuario(nick);
+        assertEquals("Nombre nuevo", consultado.getNombre());
+        assertEquals("Descripción nueva", consultado.getDescripcion());
+        assertNull(consultado.getSitioWeb());
+        assertEquals(nick, sistema.autenticar(nick, "clave2").getNickname());
+        assertThrows(IllegalArgumentException.class, () -> sistema.autenticar(nick, "clave1"));
+    }
+
+    @Test
+    void modificarOrganizadorRechazaConfirmacionDistintaSinCambiarDatosNiClave() {
+        String nick = "orgConf" + sufijo;
+        assertTrue(sistema.altaOrganizador(organizador(nick, "clave1")));
+        DtOrganizador cambio = new DtOrganizador(nick, "No guardar", nick + "@mail.com", "No guardar", "https://nuevo.test");
+        cambio.setContrasenia("clave2");
+        cambio.setConfirmacionContrasenia("otra");
+        assertThrows(IllegalArgumentException.class, () -> sistema.modificarOrganizador(cambio));
+        DtOrganizador consultado = (DtOrganizador) sistema.consultarUsuario(nick);
+        assertEquals("Organizadora", consultado.getNombre());
+        assertEquals("Descripción general", consultado.getDescripcion());
+        assertEquals("https://ejemplo.com", consultado.getSitioWeb());
+        assertEquals(nick, sistema.autenticar(nick, "clave1").getNickname());
+        assertThrows(IllegalArgumentException.class, () -> sistema.autenticar(nick, "clave2"));
+    }
+
+    @Test
+    void modificarOrganizadorRechazaUsuarioNuloSinNicknameOInexistente() {
+        assertEquals("El usuario no existe.", assertThrows(IllegalArgumentException.class,
+                () -> sistema.modificarOrganizador(null)).getMessage());
+        for (String nick : new String[]{null, "ausente" + sufijo}) {
+            assertEquals("El usuario no existe.", assertThrows(IllegalArgumentException.class,
+                    () -> sistema.modificarOrganizador(new DtOrganizador(nick, "Nombre", "correo@test.uy", "Descripción", null))).getMessage());
+        }
+    }
+
+    @Test
+    void modificarOrganizadorRechazaNombreODescripcionInvalidosSinCambiarLaClave() {
+        String nick = "orgInvalidos" + sufijo;
+        assertTrue(sistema.altaOrganizador(organizador(nick, "clave1")));
+        for (String invalido : new String[]{null, " "}) {
+            for (boolean nombreInvalido : new boolean[]{true, false}) {
+                DtOrganizador cambio = new DtOrganizador(nick, nombreInvalido ? invalido : "Nombre nuevo", nick + "@mail.com",
+                        nombreInvalido ? "Descripción nueva" : invalido, null);
+                cambio.setContrasenia("clave2");
+                cambio.setConfirmacionContrasenia("clave2");
+                assertEquals(nombreInvalido ? "El nombre es obligatorio." : "La descripción es obligatoria.",
+                        assertThrows(IllegalArgumentException.class, () -> sistema.modificarOrganizador(cambio)).getMessage());
+                DtOrganizador consultado = (DtOrganizador) sistema.consultarUsuario(nick);
+                assertEquals("Organizadora", consultado.getNombre());
+                assertEquals("Descripción general", consultado.getDescripcion());
+                assertEquals(nick, sistema.autenticar(nick, "clave1").getNickname());
+                assertThrows(IllegalArgumentException.class, () -> sistema.autenticar(nick, "clave2"));
+            }
+        }
+    }
+
+    @Test
     void modificarUnOrganizadorExigeDescripcion() {
         String nick = "orgMod" + sufijo;
         assertTrue(sistema.altaOrganizador(organizador(nick, "clave1")));

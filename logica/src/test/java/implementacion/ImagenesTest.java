@@ -3,11 +3,15 @@ package implementacion;
 import datatypes.DtAsistente;
 import datatypes.DtImagen;
 import datatypes.DtInstitucion;
+import datatypes.DtEvento;
+import datatypes.DtEdicion;
+import datatypes.DtOrganizador;
 import datatypes.TipoEntidadImagen;
 import interfaces.ISistema;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -103,6 +107,103 @@ class ImagenesTest {
 
         assertArrayEquals(png(),
                 sistema.obtenerImagen(TipoEntidadImagen.INSTITUCION, nombre).getContenido());
+    }
+
+    private String crearEntidadConImagen(TipoEntidadImagen tipo) throws Exception {
+        String categoria = "Categoría imagen " + sufijo;
+        String evento = "Evento imagen " + sufijo;
+        sistema.altaCategoria(categoria, null);
+        assertTrue(sistema.altaEvento(new DtEvento(evento, "IM", "Evento con imagen", LocalDate.now(), List.of(categoria))));
+        if (tipo == TipoEntidadImagen.EVENTO) return evento;
+        String nick = "orgImagen" + sufijo;
+        DtOrganizador organizador = new DtOrganizador(nick, "Organizadora", nick + "@test.uy", "Descripción", null);
+        organizador.setContrasenia("clave");
+        organizador.setConfirmacionContrasenia("clave");
+        assertTrue(sistema.altaOrganizador(organizador));
+        String edicion = "Edición imagen " + sufijo;
+        assertTrue(sistema.altaEdicion(new DtEdicion(edicion, "IM", LocalDate.now().plusDays(10),
+                LocalDate.now().plusDays(11), LocalDate.now(), "Montevideo", "Uruguay", nick), evento));
+        return edicion;
+    }
+
+    private void comprobarImagen(TipoEntidadImagen tipo, String clave, String contenido, byte[] bytes) {
+        DtImagen recuperada = sistema.obtenerImagen(tipo, clave);
+        assertNotNull(recuperada);
+        assertEquals(contenido, recuperada.getTipoContenido());
+        assertArrayEquals(bytes, recuperada.getContenido());
+    }
+
+    private void comprobarAsociacion(TipoEntidadImagen tipo) throws Exception {
+        String clave = crearEntidadConImagen(tipo);
+        assertNull(sistema.obtenerImagen(tipo, clave));
+        sistema.asociarImagen(tipo, clave, new DtImagen("IMAGE/PNG", png()));
+        comprobarImagen(tipo, clave, "image/png", png());
+        assertNull(sistema.obtenerImagen(tipo, "ausente" + sufijo));
+    }
+
+    private void comprobarReemplazo(TipoEntidadImagen tipo) throws Exception {
+        String clave = crearEntidadConImagen(tipo);
+        sistema.asociarImagen(tipo, clave, new DtImagen("image/png", png()));
+        sistema.asociarImagen(tipo, clave, new DtImagen("image/jpeg", jpeg()));
+        comprobarImagen(tipo, clave, "image/jpeg", jpeg());
+        // La consulta devuelve datos desconectados: alterarlos no debe cambiar la base.
+        sistema.obtenerImagen(tipo, clave).getContenido()[0] = 0;
+        comprobarImagen(tipo, clave, "image/jpeg", jpeg());
+    }
+
+    private void comprobarRechazoSinPerdida(TipoEntidadImagen tipo) throws Exception {
+        String clave = crearEntidadConImagen(tipo);
+        sistema.asociarImagen(tipo, clave, new DtImagen("image/png", png()));
+        DtImagen[] invalidas = {null, new DtImagen("image/png", jpeg()),
+                new DtImagen("image/jpeg", new byte[ValidadorImagen.TAMANIO_MAXIMO + 1])};
+        for (DtImagen invalida : invalidas) {
+            assertThrows(IllegalArgumentException.class, () -> sistema.asociarImagen(tipo, clave, invalida));
+            comprobarImagen(tipo, clave, "image/png", png());
+        }
+    }
+
+    @Test
+    void asociaYRecuperaImagenDeEvento() throws Exception {
+        comprobarAsociacion(TipoEntidadImagen.EVENTO);
+    }
+
+    @Test
+    void asociaYRecuperaImagenDeEdicion() throws Exception {
+        comprobarAsociacion(TipoEntidadImagen.EDICION);
+    }
+
+    @Test
+    void reemplazaImagenDeEventoSinConservarLaAnterior() throws Exception {
+        comprobarReemplazo(TipoEntidadImagen.EVENTO);
+    }
+
+    @Test
+    void reemplazaImagenDeEdicionSinConservarLaAnterior() throws Exception {
+        comprobarReemplazo(TipoEntidadImagen.EDICION);
+    }
+
+    @Test
+    void rechazaImagenInvalidaDeEventoSinPerderLaAnterior() throws Exception {
+        comprobarRechazoSinPerdida(TipoEntidadImagen.EVENTO);
+    }
+
+    @Test
+    void rechazaImagenInvalidaDeEdicionSinPerderLaAnterior() throws Exception {
+        comprobarRechazoSinPerdida(TipoEntidadImagen.EDICION);
+    }
+
+    @Test
+    void referenciasInvalidasDeImagenNoModificanLaImagenExistente() throws Exception {
+        String clave = crearEntidadConImagen(TipoEntidadImagen.EVENTO);
+        sistema.asociarImagen(TipoEntidadImagen.EVENTO, clave, new DtImagen("image/png", png()));
+        for (String invalida : new String[]{null, " "}) {
+            assertNull(sistema.obtenerImagen(TipoEntidadImagen.EVENTO, invalida));
+            assertThrows(IllegalArgumentException.class, () -> sistema.asociarImagen(
+                    TipoEntidadImagen.EVENTO, invalida, new DtImagen("image/jpeg", jpeg())));
+        }
+        assertNull(sistema.obtenerImagen(null, clave));
+        assertThrows(IllegalArgumentException.class, () -> sistema.asociarImagen(null, clave, new DtImagen("image/jpeg", jpeg())));
+        comprobarImagen(TipoEntidadImagen.EVENTO, clave, "image/png", png());
     }
 
     @Test
