@@ -1,19 +1,29 @@
 package datatypes;
 
+import java.time.LocalDate;
+
 public class DtUsuario {
     private String nickname;
     private String nombre;
     private String correoElectronico;
+    private final LocalDate fechaAlta;
 
     // Solo se usan en el alta y la modificación; las consultas nunca los completan.
     private String contrasenia;
     private String confirmacionContrasenia;
 
     public DtUsuario(String nickname, String nombre, String correoElectronico) {
+        this(nickname, nombre, correoElectronico, null);
+    }
+
+    public DtUsuario(String nickname, String nombre, String correoElectronico, LocalDate fechaAlta) {
+        this.fechaAlta = fechaAlta;
         this.nickname = nickname;
         this.nombre = nombre;
         this.correoElectronico = correoElectronico;
     }
+
+    public LocalDate getFechaAlta() {return fechaAlta;}
 
     public String getNickname(){return this.nickname;}
     public String getNombre(){return this.nombre;}

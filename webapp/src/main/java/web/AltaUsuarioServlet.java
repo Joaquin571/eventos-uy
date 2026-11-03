@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @WebServlet("/alta-usuario")
-@MultipartConfig
+@MultipartConfig(maxFileSize = 2L * 1024 * 1024, maxRequestSize = 3L * 1024 * 1024)
 public class AltaUsuarioServlet extends HttpServlet {
 
     private static final String[] CAMPOS = {

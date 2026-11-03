@@ -11,7 +11,7 @@ import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** Casos de borde adicionales; ejecutarlos exclusivamente contra eventosuy_test. */
-class ValidacionesAdicionalesTest {
+class ValidacionesAdicionalesTest extends soporte.PruebaConBaseSegura {
     private final ISistema sistema = Fabrica.getInstance().getISistema();
     private final String unico = Long.toString(System.nanoTime());
 
@@ -125,14 +125,6 @@ class ValidacionesAdicionalesTest {
     }
 
     // Pruebas de consultas y persistencia de los manejadores.
-    // No alteran eventosuy: la base se comprueba en @BeforeAll.
-    @org.junit.jupiter.api.BeforeAll
-    static void exigirBaseAislada() {
-        org.junit.jupiter.api.Assumptions.assumeTrue(
-                "eventosuy_test".equals(System.getenv("EVENTOS_DB_NAME")),
-                "Se omiten pruebas de persistencia fuera de eventosuy_test");
-    }
-
     @Test void consultasDeUsuarioInexistente() {
         String nick = "ausente" + unico;
         manejadores.ManejadorUsuarios m = manejadores.ManejadorUsuarios.getInstance();

@@ -21,17 +21,17 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Casos de uso de imágenes. Necesitan la base de pruebas (eventosuy_test). */
-class ImagenesTest {
+class ImagenesTest extends soporte.PruebaConBaseSegura {
 
     private final ISistema sistema = Fabrica.getInstance().getISistema();
     private final String sufijo = String.valueOf(System.nanoTime());
 
     private static byte[] png() {
-        return new byte[]{(byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 1, 2, 3};
+        return soporte.ImagenesPrueba.imagen("png");
     }
 
     private static byte[] jpeg() {
-        return new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0, 9, 8, 7};
+        return soporte.ImagenesPrueba.imagen("jpeg");
     }
 
     private String crearAsistente(String prefijo) {
@@ -155,11 +155,36 @@ class ImagenesTest {
         String clave = crearEntidadConImagen(tipo);
         sistema.asociarImagen(tipo, clave, new DtImagen("image/png", png()));
         DtImagen[] invalidas = {null, new DtImagen("image/png", jpeg()),
+                new DtImagen("image/png", java.util.Arrays.copyOf(png(), png().length - 1)),
                 new DtImagen("image/jpeg", new byte[ValidadorImagen.TAMANIO_MAXIMO + 1])};
         for (DtImagen invalida : invalidas) {
             assertThrows(IllegalArgumentException.class, () -> sistema.asociarImagen(tipo, clave, invalida));
             comprobarImagen(tipo, clave, "image/png", png());
         }
+    }
+
+    @Test
+    void gifYWebpEstaticosYAnimadosSePersistenConLosBytesOriginales() {
+        String nick = crearAsistente("formatosReales");
+        byte[][] imagenes = {soporte.ImagenesPrueba.imagen("gif"), soporte.ImagenesPrueba.gifAnimado(2),
+                soporte.ImagenesPrueba.webp(), soporte.ImagenesPrueba.webpSinPerdida(), soporte.ImagenesPrueba.webpAnimado(2)};
+        for (int i = 0; i < imagenes.length; i++) {
+            String mime = i < 2 ? "image/gif" : "image/webp";
+            sistema.asociarImagen(TipoEntidadImagen.USUARIO, nick, new DtImagen(mime, imagenes[i]));
+            comprobarImagen(TipoEntidadImagen.USUARIO, nick, mime, imagenes[i]);
+        }
+    }
+
+    @Test
+    void consultarImagenLegadaNoLaRevalidaNiReescribe() {
+        String nick = crearAsistente("legadaSinMigracion");
+        byte[] antigua = {(byte)137,80,78,71};
+        // Simula solo en una entidad nueva de eventosuy_test datos admitidos por el validador anterior.
+        assertTrue(manejadores.ManejadorImagenes.getInstance().asociar(TipoEntidadImagen.USUARIO, nick, "image/png", antigua));
+        DtImagen recuperada = sistema.obtenerImagen(TipoEntidadImagen.USUARIO, nick);
+        assertArrayEquals(antigua, recuperada.getContenido());
+        assertThrows(IllegalArgumentException.class, () -> sistema.validarImagen(recuperada));
+        assertArrayEquals(antigua, sistema.obtenerImagen(TipoEntidadImagen.USUARIO, nick).getContenido());
     }
 
     @Test

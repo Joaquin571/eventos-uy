@@ -10,15 +10,18 @@
 <c:if test="${not empty error}"><div class="alert alert-danger"><c:out value="${error}"/></div></c:if>
 <c:if test="${not empty exito}"><div class="alert alert-success"><c:out value="${exito}"/></div></c:if>
 <c:if test="${not empty advertencia}"><div class="alert alert-warning"><c:out value="${advertencia}"/></div></c:if>
-<form method="post" action="${raiz}/alta-edicion" enctype="multipart/form-data" class="card card-body">
+<form id="formAltaEdicion" method="post" action="${raiz}/alta-edicion" enctype="multipart/form-data" class="card card-body">
+<jsp:include page="/WEB-INF/views/fragmentos/csrf.jsp"/>
 <label class="form-label">Evento<select name="evento" class="form-select" required><option value="">Seleccione un evento</option>
-<c:forEach var="e" items="${eventos}"><option value="<c:out value='${e.nombre}'/>"><c:out value="${e.nombre}"/></option></c:forEach></select></label>
-<label class="form-label">Nombre de edición<input name="nombre" class="form-control" required></label>
-<label class="form-label">Sigla<input name="sigla" class="form-control" required></label>
-<label class="form-label">Ciudad<input name="ciudad" class="form-control" required></label>
-<label class="form-label">País<input name="pais" class="form-control" required></label>
-<label class="form-label">Fecha de inicio<input type="date" name="fechaInicio" class="form-control" required></label>
-<label class="form-label">Fecha de fin<input type="date" name="fechaFin" class="form-control" required></label>
+<c:forEach var="e" items="${eventos}"><option value="<c:out value='${e.nombre}'/>" <c:if test="${form.evento eq e.nombre}">selected</c:if>><c:out value="${e.nombre}"/></option></c:forEach></select></label>
+<label class="form-label">Nombre de edición<input name="nombre" value="<c:out value='${form.nombre}'/>" class="form-control" required></label>
+<label class="form-label">Sigla<input name="sigla" value="<c:out value='${form.sigla}'/>" class="form-control" required></label>
+<label class="form-label">Ciudad<input name="ciudad" value="<c:out value='${form.ciudad}'/>" class="form-control" required></label>
+<label class="form-label">País<input name="pais" value="<c:out value='${form.pais}'/>" class="form-control" required></label>
+<label class="form-label">Fecha de inicio<input type="date" name="fechaInicio" value="<c:out value='${form.fechaInicio}'/>" class="form-control" required></label>
+<label class="form-label">Fecha de fin<input type="date" name="fechaFin" value="<c:out value='${form.fechaFin}'/>" class="form-control" required></label>
 <label class="form-label">Imagen opcional<input type="file" name="imagen" accept="image/png,image/jpeg,image/gif,image/webp" class="form-control"></label>
 <div class="mt-3"><button class="btn btn-primary">Confirmar alta</button> <a class="btn btn-outline-secondary" href="${raiz}/">Cancelar</a></div></form>
-</main><script src="${raiz}/vendor/bootstrap/js/bootstrap.bundle.min.js"></script></body></html>
+</main><script src="${raiz}/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="${raiz}/js/alta-edicion-fechas.js"></script><script src="${raiz}/js/validacion-formularios.js"></script>
+</body></html>

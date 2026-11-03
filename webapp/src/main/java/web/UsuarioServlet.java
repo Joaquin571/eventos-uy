@@ -42,6 +42,8 @@ public class UsuarioServlet extends HttpServlet {
         DtUsuario actual = sesion == null ? null : (DtUsuario) sesion.getAttribute("usuario");
         boolean esPropio = actual != null && actual.getNickname().equals(perfil.getNickname());
 
+        req.setAttribute("fechaAlta", perfil.getFechaAlta() == null
+                ? "No registrada" : perfil.getFechaAlta().format(FECHA));
         req.setAttribute("perfil", perfil);
         req.setAttribute("esPropio", esPropio);
 
@@ -77,6 +79,7 @@ public class UsuarioServlet extends HttpServlet {
             req.setAttribute("ediciones", ediciones);
         }
 
+        if (esPropio) MensajesFlash.mostrar(req, "/usuario");
         req.getRequestDispatcher("/WEB-INF/views/usuario.jsp").forward(req, resp);
     }
 }

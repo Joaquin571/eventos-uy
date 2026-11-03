@@ -1,0 +1,60 @@
+@startuml 07-secuencia-perfil-imagen
+hide footbox
+autonumber
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 14
+skinparam shadowing false
+skinparam backgroundColor white
+title Realización - perfil atómico y asociación de imagen posterior
+
+actor "Usuario autenticado" as B
+participant "ModificarUsuarioServlet / UsuarioServlet" as C
+participant "sistema : ISistema\nSistema" as S
+participant ManejadorUsuarios as M
+participant ManejadorImagenes as I
+participant "EntityManager / EntityTransaction" as J
+database PostgreSQL as DB
+B -> C : POST /modificar-usuario (multipart con CSRF)
+C -> C : perfilActual(req): nickname de sesión
+opt Imagen seleccionada
+ C -> S : validarImagen(dtImagen)
+ S -> S : ValidadorImagen.validar(dtImagen)
+end
+C -> S : modificarAsistente(dt) o modificarOrganizador(dt)
+S -> S : Validaciones de perfil y confirmación
+S -> M : modificarAsistente(..., nuevaClave)\no modificarOrganizador(..., nuevaClave)
+M -> J : tx.begin(); em.find(Usuario, nickname)
+J -> DB : SELECT del usuario
+M -> M : Verificar subtipo antes de modificar
+M -> M : setters de perfil; setContrasenia si corresponde
+M -> J : tx.commit(): dirty checking
+J -> DB : UPDATE datos y hash en una transacción
+alt Fallo en actualización
+ M -> J : tx.rollback() si activa; em.close()
+ M --> C : Excepción a través de Sistema
+ C --> B : Error de negocio: formulario; inesperado: 500 genérico\nsin cambios parciales de datos/clave
+else Commit de perfil confirmado
+ M --> S : true
+ S --> C : void
+ opt Imagen seleccionada
+  C -> S : asociarImagen(USUARIO, nickname, dtImagen)
+  S -> S : ValidadorImagen.validar(dtImagen)
+  S -> I : asociar(tipo, clave, mime, bytes)
+  I -> J : Otro EM y tx.begin(); em.find(entidad)
+  I -> I : entidad.setImagen(new Imagen(...))
+  I -> J : tx.commit(); em.close()
+  J -> DB : Persistencia por cascade/orphanRemoval
+  alt Falla esta segunda operación
+   I --> C : RuntimeException a través de Sistema
+   C -> C : Registrar error; advertencia de éxito parcial
+  end
+ end
+ C -> S : consultarUsuario(nickname)
+ S --> C : DTO actualizado
+ C -> C : Actualizar sesión; MensajesFlash.guardar(...)
+ C --> B : 302 /usuario?nick=...
+ B -> C : GET /usuario (lo atiende UsuarioServlet)
+ note over C : UsuarioServlet consume flash solo en perfil propio; JSP escapa mensajes.
+end
+
+@enduml

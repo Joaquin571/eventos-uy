@@ -15,6 +15,8 @@
 <jsp:include page="/WEB-INF/views/fragmentos/cabezal.jsp" />
 
 <main class="container py-5">
+    <c:if test="${not empty exito}"><div class="alert alert-success" role="status"><c:out value="${exito}" /></div></c:if>
+    <c:if test="${not empty advertencia}"><div class="alert alert-warning" role="alert"><c:out value="${advertencia}" /></div></c:if>
     <div class="row justify-content-center">
         <div class="col-12 col-lg-8">
 
@@ -51,6 +53,9 @@
                     <hr>
 
                     <dl class="row mb-0">
+                        <dt class="col-sm-4">Miembro desde</dt>
+                        <dd class="col-sm-8"><c:out value="${fechaAlta}" /></dd>
+
                         <dt class="col-sm-4">Nickname</dt>
                         <dd class="col-sm-8"><c:out value="${perfil.nickname}" /></dd>
 

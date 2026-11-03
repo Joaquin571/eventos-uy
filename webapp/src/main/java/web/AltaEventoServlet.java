@@ -24,7 +24,7 @@ import java.util.Set;
  * Alta de Evento: /alta-evento (solo organizador, lo controla FiltroAcceso).
  */
 @WebServlet("/alta-evento")
-@MultipartConfig
+@MultipartConfig(maxFileSize = 2L * 1024 * 1024, maxRequestSize = 3L * 1024 * 1024)
 public class AltaEventoServlet extends HttpServlet {
 
     private static final String[] CAMPOS = {"nombre", "sigla", "descripcion"};
@@ -87,6 +87,8 @@ public class AltaEventoServlet extends HttpServlet {
                     throw new IllegalArgumentException("No se pudo dar de alta el evento.");
                 }
             } catch (IllegalArgumentException e) {
+                throw e;
+            } catch (RuntimeException e) {
                 throw e;
             } catch (Exception e) {
                 // La lógica informa con mensaje claro (nombre repetido, categoría inexistente)

@@ -22,7 +22,7 @@ public class ManejadorRegistros {
 
     private ManejadorRegistros() {}
 
-    public static ManejadorRegistros getInstance() {
+    public static synchronized ManejadorRegistros getInstance() {
         if (instancia == null) {
             instancia = new ManejadorRegistros();
         }
@@ -149,7 +149,7 @@ public class ManejadorRegistros {
             if (tx.isActive()) {
                 tx.rollback();
             }
-            throw e;
+            throw ConflictosPersistencia.traducir(e, "El asistente ya está registrado en esta edición.");
         } finally {
             em.close();
         }
@@ -170,7 +170,8 @@ public class ManejadorRegistros {
 
             Asistente asistente = em.find(
                     Asistente.class,
-                    nickname
+                    nickname,
+                    LockModeType.PESSIMISTIC_WRITE
             );
 
             Edicion edicion = em.find(
@@ -356,7 +357,7 @@ public class ManejadorRegistros {
             if (tx.isActive()) {
                 tx.rollback();
             }
-            throw e;
+            throw ConflictosPersistencia.traducir(e, "El asistente ya está registrado en esta edición.");
         } finally {
             em.close();
         }

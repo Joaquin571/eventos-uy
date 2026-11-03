@@ -40,7 +40,7 @@ test('rechaza el exceso del 20 %', () => {
     assert.equal(e.enviar(), false); assert.match(e.elementos.registrograt.mensaje, /20/);
 });
 test('rechaza aportes inválidos y no finitos', () => {
-    for (const valor of ['', 'NaN', 'Infinity', '-Infinity', '0', '-1', '1e500', 'texto']) {
+    for (const valor of ['', 'NaN', 'Infinity', '-Infinity', '0', '-1', '1e500', '1e39', '1e-50', '0x10', 'texto']) {
         const e = escenario(); e.elementos.aporte.value = valor;
         assert.equal(e.enviar(), false, valor);
     }

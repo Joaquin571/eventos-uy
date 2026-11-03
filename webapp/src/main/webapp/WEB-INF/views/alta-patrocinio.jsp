@@ -27,20 +27,21 @@
 </form></c:if>
 <c:if test="${not empty form.edicion}">
 <form id="formAltaPatrocinio" method="post" action="${raiz}/alta-patrocinio" class="card card-body">
+<jsp:include page="/WEB-INF/views/fragmentos/csrf.jsp"/>
 <h2 class="h4"><c:out value="${form.edicion}"/></h2>
 <input type="hidden" name="evento" value="<c:out value='${form.evento}'/>">
 <input type="hidden" name="edicion" value="<c:out value='${form.edicion}'/>">
 <label for="institucion" class="form-label mt-2">Institución</label>
 <select id="institucion" name="institucion" class="form-select" required><option value="">Seleccione una institución</option>
-<c:if test="${institucionNoDisponible}"><option selected value="<c:out value='${form.institucion}'/>"><c:out value="${form.institucion}"/> (no disponible)</option></c:if>
+<c:if test="${institucionNoDisponible}"><option selected disabled value="<c:out value='${form.institucion}'/>"><c:out value="${form.institucion}"/> (no disponible)</option></c:if>
 <c:forEach var="i" items="${instituciones}"><option value="<c:out value='${i.nombre}'/>" ${i.nombre eq form.institucion ? 'selected' : ''}><c:out value="${i.nombre}"/></option></c:forEach></select>
 <label for="nivel" class="form-label mt-2">Nivel de patrocinio</label>
 <select id="nivel" name="nivel" class="form-select" required><option value="">Seleccione un nivel</option>
-<c:if test="${nivelNoDisponible}"><option selected value="<c:out value='${form.nivel}'/>"><c:out value="${form.nivel}"/> (no disponible)</option></c:if>
+<c:if test="${nivelNoDisponible}"><option selected disabled value="<c:out value='${form.nivel}'/>"><c:out value="${form.nivel}"/> (no disponible)</option></c:if>
 <c:forEach var="n" items="${niveles}"><option value="<c:out value='${n}'/>" ${n.toString() eq form.nivel ? 'selected' : ''}><c:out value="${n}"/></option></c:forEach></select>
 <label for="tipoRegistro" class="form-label mt-2">Tipo de registro</label>
 <select id="tipoRegistro" name="tipoRegistro" class="form-select" required><option value="">Seleccione un tipo de registro</option>
-<c:if test="${tipoNoDisponible}"><option selected value="<c:out value='${form.tipoRegistro}'/>"><c:out value="${form.tipoRegistro}"/> (no disponible)</option></c:if>
+<c:if test="${tipoNoDisponible}"><option selected disabled value="<c:out value='${form.tipoRegistro}'/>"><c:out value="${form.tipoRegistro}"/> (no disponible)</option></c:if>
 <c:forEach var="t" items="${tipos}"><option value="<c:out value='${t.idNombre}'/>" data-costo="<c:out value='${t.costo}'/>" ${t.idNombre eq form.tipoRegistro ? 'selected' : ''}><c:out value="${t.idNombre}"/> — $<c:out value="${t.costo}"/></option></c:forEach></select>
 <label for="aporte" class="form-label mt-2">Aporte económico (use punto decimal)</label>
 <input id="aporte" name="aporte" type="text" inputmode="decimal" class="form-control" required value="<c:out value='${form.aporte}'/>">
@@ -55,4 +56,5 @@
 </form></c:if>
 <script src="${raiz}/js/alta-patrocinio.js"></script>
 </main><script src="${raiz}/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="${raiz}/js/validacion-formularios.js"></script>
 </body></html>

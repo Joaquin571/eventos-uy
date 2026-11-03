@@ -1,0 +1,66 @@
+@startuml 06-secuencia-usuarios
+hide footbox
+autonumber
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 14
+skinparam shadowing false
+skinparam backgroundColor white
+title Realización - alta de usuario y autenticación
+
+actor Visitante as B
+participant "AltaUsuarioServlet / LoginServlet" as C
+participant "sistema : ISistema\nimplementación Sistema" as S
+participant ManejadorUsuarios as M
+participant "Usuario / HashContrasenia" as U
+participant "EntityManager / EntityTransaction" as EM
+database PostgreSQL as DB
+note over C
+Precede FiltroAcceso: CSRF y rol visitante.
+El contenedor invoca doPost; las flechas HTTP no son llamadas Java.
+end note
+group Alta sin imagen (imagen: ver secuencia 07)
+ B -> C : POST /alta-usuario
+ C -> S : altaAsistente(dt) o altaOrganizador(dt)
+ S -> M : existeUsuario(nickname); existeCorreo(correo)
+ M -> EM : Consultas con parámetros
+ EM -> DB : SELECT generados por JPA
+ DB --> M : Resultado de unicidad
+ S -> U : Constructor Asistente/Organizador; setContrasenia(clave)
+ U -> U : HashContrasenia.hashear(clave)
+ S -> M : addUsuario(usuario)
+ M -> EM : tx.begin(); verificar; persist(usuario); tx.commit()
+ EM -> DB : SQL de persistencia y restricciones
+ M --> S : true
+ S --> C : true
+ C --> B : 302 /login?registrado=ok
+end
+group Autenticación
+ B -> C : POST /login
+ C -> S : autenticar(identificador, clave)
+ S -> M : buscarPorNicknameOCorreo(identificador)
+ M -> EM : createQuery(...).getResultList()
+ EM -> DB : SELECT nickname exacto OR correo con LOWER
+ DB --> EM : Filas
+ EM --> M : Candidatos
+ M --> S : Collection<Usuario>
+ loop Cada candidato
+  S -> U : contraseniaCoincide(clave)
+  U -> U : HashContrasenia.coincide(clave, hash)
+  U --> S : boolean
+ end
+ alt Exactamente una coincidencia
+  S -> S : consultarUsuario(nickname)
+  S -> M : obtenerUsuario(nickname)
+  M -> EM : find(Usuario, nickname)
+  EM -> DB : SELECT
+  S --> C : DtAsistente o DtOrganizador sin contraseña
+  C -> C : invalidar sesión anterior; guardar usuario en nueva sesión
+  C --> B : 302 /
+ else Cero o más de una coincidencia
+  S --> C : IllegalArgumentException con mensaje genérico
+  C --> B : Forward login.jsp con error
+ end
+end
+note over M,EM : Cada operación del manejador obtiene EM por BaseDeDatos.getEntityManager() y lo cierra.
+
+@enduml

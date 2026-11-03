@@ -1,0 +1,53 @@
+@startuml 11-secuencia-patrocinio
+hide footbox
+autonumber
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 14
+skinparam shadowing false
+skinparam backgroundColor white
+title Realización - alta y consulta de patrocinio con privacidad
+
+actor "Organizador / consultante" as A
+participant "AltaPatrocinioServlet / ConsultaPatrocinioServlet" as C
+participant "AccesoPatrocinios" as H
+participant "sistema : ISistema\nSistema" as S
+participant ManejadorPatrocinios as M
+participant "EntityManager / EntityTransaction" as J
+database PostgreSQL as DB
+group Alta
+ A -> C : POST /alta-patrocinio con token
+ C -> H : usuarioDeSesion(req); esEdicionPropia(...)
+ H -> S : obtenerEdicionesOrganizador(nickname)
+ S --> H : DTO de sus ediciones
+ alt Edición ajena o rol incorrecto
+  C --> A : 403; no invoca alta
+ else Propietario
+  C -> S : consultarTipoRegistro(edición, tipo)
+  C -> S : altaPatrocinio(DtPatrocinio)
+  S -> S : Validar aporte, gratuitos, nivel y referencias\nconsultar manejadores de institución/eventos y calcular tope 20 por ciento
+  S -> M : existePatrocinio(código)\ny existePatrocinioInstitucionEdicion(institución, edición)
+  S -> M : addPatrocinio(patrocinio)
+  M -> J : tx.begin(); find de código y referencias gestionadas
+  M -> J : persist(patrocinioGestionado); tx.commit()
+  J -> DB : INSERT; PK de código y UNIQUE institución/edición
+  M --> S : true
+  S --> C : true
+  C --> A : Redirect a consulta-patrocinio
+ end
+end
+group Consulta
+ A -> C : GET /consulta-patrocinio?edicion=...&institucion=...
+ C -> H : Resolver edición y verificar visibilidad/propiedad
+ C -> S : consultarPatrocinio(edición, institución)
+ S -> M : obtenerPatrocinio(edición, institución)
+ M -> J : Consulta JPQL con igualdad exacta y referencias fetch
+ J -> DB : SELECT parametrizado
+ M --> S : Patrocinio
+ S --> C : DtPatrocinio
+ C -> H : esPropietario(usuario, edición)
+ C -> C : Crear DTO visible: código solo si dueño, null para terceros
+ C --> A : Forward consulta-patrocinio.jsp con datos escapados
+end
+note over M,J : EM por operación, close en finally; errores en alta revierten su propia transacción.
+
+@enduml

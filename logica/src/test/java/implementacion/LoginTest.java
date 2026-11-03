@@ -9,7 +9,7 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class LoginTest {
+class LoginTest extends soporte.PruebaConBaseSegura {
 
     private final ISistema sistema = Fabrica.getInstance().getISistema();
     private final String sufijo = String.valueOf(System.nanoTime());
@@ -67,5 +67,44 @@ class LoginTest {
         assertEquals(nick, sistema.autenticar(nick, "nueva1").getNickname());
         assertThrows(IllegalArgumentException.class,
                 () -> sistema.autenticar(nick, "clave1"));
+    }
+
+    @Test
+    void identificadorCompartidoSeleccionaSoloLaContraseniaCoincidente() {
+        String id = "compartido" + sufijo + "@test.uy";
+        DtAsistente a = new DtAsistente(id, "A", "propioA" + sufijo + "@test.uy", "A", LocalDate.of(2000,1,1), null);
+        a.setContrasenia("claveA"); a.setConfirmacionContrasenia("claveA");
+        DtAsistente b = new DtAsistente("otro" + sufijo, "B", id, "B", LocalDate.of(2000,1,1), null);
+        b.setContrasenia("claveB"); b.setConfirmacionContrasenia("claveB");
+        assertTrue(sistema.altaAsistente(a)); assertTrue(sistema.altaAsistente(b));
+        assertEquals(a.getNickname(), sistema.autenticar(id, "claveA").getNickname());
+        assertEquals(b.getNickname(), sistema.autenticar(id, "claveB").getNickname());
+        String error = assertThrows(IllegalArgumentException.class, () -> sistema.autenticar(id, "incorrecta")).getMessage();
+        assertEquals(error, assertThrows(IllegalArgumentException.class,
+                () -> sistema.autenticar("noExiste" + sufijo, "incorrecta")).getMessage());
+    }
+
+    @Test
+    void identificadorYContraseniaAmbiguosSeRechazanSinElegirCuenta() {
+        String id = "ambiguo" + sufijo + "@test.uy";
+        DtAsistente a = new DtAsistente(id, "A", "propioIgual" + sufijo + "@test.uy", "A", LocalDate.of(2000,1,1), null);
+        a.setContrasenia("igual"); a.setConfirmacionContrasenia("igual");
+        DtAsistente b = new DtAsistente("ambB" + sufijo, "B", id, "B", LocalDate.of(2000,1,1), null);
+        b.setContrasenia("igual"); b.setConfirmacionContrasenia("igual");
+        assertTrue(sistema.altaAsistente(a)); assertTrue(sistema.altaAsistente(b));
+        String error = assertThrows(IllegalArgumentException.class, () -> sistema.autenticar(id, "igual")).getMessage();
+        assertEquals(error, assertThrows(IllegalArgumentException.class,
+                () -> sistema.autenticar(id, "incorrecta")).getMessage());
+        assertEquals(b.getNickname(), sistema.autenticar(b.getNickname(), "igual").getNickname());
+    }
+
+    @Test
+    void identificadoresNoPersistiblesConservanElErrorGenerico() {
+        String mensaje = assertThrows(IllegalArgumentException.class,
+                () -> sistema.autenticar("inexistente" + sufijo, "clave")).getMessage();
+        for (String id : java.util.List.of("x".repeat(256), "a\0b")) {
+            assertEquals(mensaje, assertThrows(IllegalArgumentException.class,
+                    () -> sistema.autenticar(id, "clave")).getMessage());
+        }
     }
 }

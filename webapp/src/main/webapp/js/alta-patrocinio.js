@@ -12,7 +12,8 @@ if (formulario) {
     function validar() {
         const monto = Number(aporte.value.trim());
         const cantidad = Number(gratuitos.value.trim());
-        aporte.setCustomValidity(Number.isFinite(monto) && monto > 0 ? "" : "Ingresá un aporte mayor que cero.");
+        aporte.setCustomValidity(/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/.test(aporte.value.trim())
+            && Number.isFinite(Math.fround(monto)) && Math.fround(monto) > 0 ? "" : "Ingresá un aporte finito mayor que cero.");
         gratuitos.setCustomValidity(/^\d+$/.test(gratuitos.value.trim()) && Number.isSafeInteger(cantidad)
             && cantidad <= 2147483647 ? "" : "Ingresá una cantidad entera no negativa.");
         codigo.setCustomValidity(codigo.value.trim() ? "" : "Ingresá el código de patrocinio.");

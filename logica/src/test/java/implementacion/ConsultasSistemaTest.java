@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** Consultas por la interfaz pública; cada prueba crea datos propios en eventosuy_test. */
-class ConsultasSistemaTest {
+class ConsultasSistemaTest extends soporte.PruebaConBaseSegura {
     private final ISistema sistema = Fabrica.getInstance().getISistema();
     private final String sufijo = Long.toString(System.nanoTime());
     private final LocalDate hoy = LocalDate.now();

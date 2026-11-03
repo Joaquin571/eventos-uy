@@ -1,0 +1,9 @@
+{
+  "herramienta": "PlantUML",
+  "version": "1.2026.9",
+  "sha256_jar": "96ace11f947a04a4320a413a0a2c6bad8b87daaac1869fe51e82622d812fe13c",
+  "origen": "https://repo.maven.apache.org/maven2/net/sourceforge/plantuml/plantuml/",
+  "layout": "Smetana (sin Graphviz externo)",
+  "salida": "PNG",
+  "java": "25"
+}

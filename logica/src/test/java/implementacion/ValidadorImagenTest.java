@@ -9,19 +9,19 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class ValidadorImagenTest {
 
     private static byte[] png() {
-        return new byte[]{(byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
+        return soporte.ImagenesPrueba.imagen("png");
     }
 
     private static byte[] jpeg() {
-        return new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0};
+        return soporte.ImagenesPrueba.imagen("jpeg");
     }
 
     private static byte[] gif() {
-        return "GIF89a....".getBytes();
+        return soporte.ImagenesPrueba.imagen("gif");
     }
 
     private static byte[] webp() {
-        return "RIFF....WEBPVP8 ".getBytes();
+        return soporte.ImagenesPrueba.webp();
     }
 
     @Test
@@ -39,8 +39,7 @@ class ValidadorImagenTest {
 
     @Test
     void aceptaUnArchivoDeExactamente2Mb() {
-        byte[] exacto = new byte[ValidadorImagen.TAMANIO_MAXIMO];
-        System.arraycopy(png(), 0, exacto, 0, png().length);
+        byte[] exacto = soporte.ImagenesPrueba.pngConTamano(ValidadorImagen.TAMANIO_MAXIMO);
 
         ValidadorImagen.validar(new DtImagen("image/png", exacto));
     }

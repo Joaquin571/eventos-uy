@@ -1,11 +1,18 @@
 package datatypes;
 
+import java.time.LocalDate;
+
 public class DtOrganizador extends DtUsuario{
     private String descripcion;
     private String sitioWeb;
 
     public DtOrganizador(String nickname, String nombre, String correoElectronico, String descripcion, String sitioWeb){
-        super(nickname, nombre, correoElectronico);
+        this(nickname, nombre, correoElectronico, descripcion, sitioWeb, null);
+    }
+
+    public DtOrganizador(String nickname, String nombre, String correoElectronico, String descripcion,
+                         String sitioWeb, LocalDate fechaAlta) {
+        super(nickname, nombre, correoElectronico, fechaAlta);
         this.descripcion = descripcion;
         this.sitioWeb = sitioWeb;
     }

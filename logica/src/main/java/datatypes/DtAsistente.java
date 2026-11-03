@@ -8,7 +8,12 @@ public class DtAsistente extends DtUsuario {
     private  String nombreInstitucion;
 
     public DtAsistente(String nickname, String nombre, String correoElectronico, String apellido, LocalDate fechaNacimiento, String nombreInstitucion) {
-        super(nickname, nombre, correoElectronico);
+        this(nickname, nombre, correoElectronico, apellido, fechaNacimiento, nombreInstitucion, null);
+    }
+
+    public DtAsistente(String nickname, String nombre, String correoElectronico, String apellido,
+                       LocalDate fechaNacimiento, String nombreInstitucion, LocalDate fechaAlta) {
+        super(nickname, nombre, correoElectronico, fechaAlta);
         this.apellido = apellido;
         this.fechaNacimiento = fechaNacimiento;
         this.nombreInstitucion = nombreInstitucion;

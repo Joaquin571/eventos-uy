@@ -1,0 +1,52 @@
+@startuml 08-secuencia-evento-edicion
+hide footbox
+autonumber
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 14
+skinparam shadowing false
+skinparam backgroundColor white
+title Realización - alta de evento y alta de edición web
+
+actor Organizador as B
+participant "AltaEventoServlet / AltaEdicionServlet" as C
+participant "sistema : ISistema\nSistema" as S
+participant ManejadorEventos as M
+participant ManejadorUsuarios as U
+participant "EntityManager / EntityTransaction" as EM
+database PostgreSQL as DB
+note over C : FiltroAcceso exige rol/CSRF; imagen opcional se valida antes y asocia después del alta.
+group Evento
+ B -> C : POST /alta-evento
+ C -> S : altaEvento(DtEvento)
+ S -> M : existeEvento(nombre)
+ loop Cada categoría seleccionada
+  S -> M : obtenerCategoria(nombreCategoria)
+ end
+ M -> EM : find / consultas JPA
+ EM -> DB : SELECT
+ S -> S : new Evento(..., LocalDate.now()); agregarCategoria(...)
+ S -> M : addEvento(evento)
+ M -> EM : tx.begin(); persist(evento); tx.commit(); close()
+ EM -> DB : INSERT evento y asociaciones de categorías
+ S --> C : true
+ C --> B : Redirect a alta-evento con resultado
+end
+group Edición
+ B -> C : POST /alta-edicion
+ C -> C : Organizador tomado de sesión, no del formulario
+ C -> S : altaEdicion(DtEdicion, nombreEvento)
+ S -> M : obtenerEvento(nombreEvento); existeEdicion(nombre)
+ S -> U : obtenerOrganizador(nickname)
+ U -> EM : Consulta JPA
+ EM -> DB : SELECT
+ S -> S : Validar fechas/textos; new Edicion(..., LocalDate.now(), organizador)
+ S -> S : edicion.setEvento(evento); estado inicial INGRESADA
+ S -> M : addEdicion(edicion)
+ M -> EM : tx.begin(); referencias gestionadas; persist; tx.commit(); close()
+ EM -> DB : INSERT edición
+ S --> C : true
+ C --> B : 302 /alta-edicion (PRG con flash)
+end
+note over S,DB : Duplicado/validación: excepción útil y formulario conservado; error SQL: rollback de su transacción.
+
+@enduml

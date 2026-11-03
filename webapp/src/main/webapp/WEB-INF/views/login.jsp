@@ -35,7 +35,8 @@
                         </div>
                     </c:if>
 
-                    <form method="post" action="${raiz}/login">
+                    <form id="formLogin" method="post" action="${raiz}/login">
+<jsp:include page="/WEB-INF/views/fragmentos/csrf.jsp"/>
                         <div class="mb-3">
                             <label for="identificador" class="form-label fw-bold">Nickname o Correo *</label>
                             <input type="text" id="identificador" name="identificador"
@@ -68,5 +69,6 @@
 </main>
 
 <script src="${raiz}/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="${raiz}/js/validacion-formularios.js"></script>
 </body>
 </html>

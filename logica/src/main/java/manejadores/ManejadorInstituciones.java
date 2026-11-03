@@ -12,7 +12,7 @@ public class ManejadorInstituciones {
 
     private static ManejadorInstituciones instancia = null;
     private ManejadorInstituciones() {}
-    public static ManejadorInstituciones getInstance() {
+    public static synchronized ManejadorInstituciones getInstance() {
         if (instancia == null) {instancia = new ManejadorInstituciones();}
         return instancia;
     }
@@ -31,9 +31,9 @@ public class ManejadorInstituciones {
             em.persist(institucion);
             tx.commit();
             return true;
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             if (tx.isActive()) {tx.rollback();}
-            throw e;
+            throw ConflictosPersistencia.traducir(e, "Ya existe una institución con ese nombre.");
         } finally {
             em.close();
         }

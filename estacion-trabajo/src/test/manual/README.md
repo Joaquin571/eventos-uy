@@ -7,6 +7,14 @@ responden automáticamente. Crean datos con nombres únicos y no los borran.
 Antes de inicializar JPA o escribir, cada ejecutor comprueba por JDBC de sólo
 lectura que `current_database()` sea `eventosuy_test`. No usar la base habitual.
 
+## Entorno vigente
+
+Usar **Java 25** para el proyecto, el Maven Runner, Swing y Tomcat. Las rutas de
+los ejemplos corresponden a Temurin 25.0.5; adaptarlas a la instalación local de
+JDK 25. `mvn clean install` ejecuta pruebas: definir también
+`EVENTOS_DB_NAME=eventosuy_test` en el proceso Maven, no solo en la plantilla JUnit.
+Confirmar `java -version` y `mvn -version` antes de comenzar.
+
 ## Estado recuperado el 29/10/2026
 
 | Bloque | Implementación existente | Evidencia |
@@ -29,7 +37,7 @@ Primero compilar los tres módulos con `mvn install -DskipTests`.
 Después, desde la raíz del repositorio, en PowerShell:
 
 ```powershell
-$jdkSwing = 'C:\Users\Joaco\.jdks\openjdk-26.0.2'
+$jdkSwing = 'C:\Users\Joaco\.jdks\temurin-25.0.5'
 $tomcatSwing = 'C:\Users\Joaco\Desktop\apache-tomcat-11.0.27'
 $env:EVENTOS_DB_NAME = 'eventosuy_test'
 $cpSwing = "estacion-trabajo/target/classes;webapp/target/webapp-1.0-SNAPSHOT/WEB-INF/lib/*;$tomcatSwing/lib/*;$tomcatSwing/bin/tomcat-juli.jar"
@@ -51,9 +59,11 @@ contraseña desde Swing; y lectura inmediata desde la web.
 
 ## Entorno y límites
 
-El POM exige `release 25`. Se encontró JDK 26, usado con `--release 25`, además de
-JDK 8, 17, 21 y 24. No se modificaron los POM. Falta la ejecución final con JDK 25
-y revisión visual humana de la distribución de las pantallas.
+El POM exige `release 25`. Las instrucciones vigentes usan JDK 25 (entorno
+verificado: Temurin 25.0.5), tanto para Maven como para ejecutar Swing y Tomcat.
+La compilación y JUnit con Java 25 ya fueron verificadas; sigue pendiente la
+revisión visual humana. Los resultados B/C/D de octubre son históricos y no
+se presentan como una nueva ejecución de esos verificadores con Java 25.
 
 El primer intento de Maven falló abriendo el archivo de bloqueo de
 `maven-install-plugin:3.2.0` en `.m2/repository/.locks`, antes de compilar.
@@ -65,7 +75,7 @@ Tomcat emitió advertencias de detección de fugas y desregistro del driver JDBC
 cerrarse. No impidieron las comprobaciones ni el cierre de la instancia aislada.
 
 La ejecución posterior de `mvn -o install`, con `EVENTOS_DB_NAME=eventosuy_test`
-y JDK 26, terminó en `BUILD SUCCESS` para los tres módulos: 90 pruebas de lógica
+en la ejecución histórica terminó en `BUILD SUCCESS` para los tres módulos: 90 pruebas de lógica
 y 48 de web, sin fallos, errores ni omisiones. Registro:
 `target/pruebas-reanudacion.log`. Se ejecutó `install` sin `clean` para conservar
 los registros y las imágenes temporales de la sesión anterior.
@@ -88,8 +98,8 @@ No se deben agregar logs, PDF, target ni archivos temporales al commit.
   ni omisiones. Los ejecutores Swing se ejecutan aparte de Maven.
 - Las pruebas con escritura confirmaron eventosuy_test. D comprobó la base por
   JDBC antes de escribir y ambas aplicaciones registraron esa URL.
-- JDK usado: 26 con release 25. No se modificaron los POM.
-- Pendientes: revisión visual humana y ejecución específica con JDK 25.
+- La ejecución histórica mantuvo release 25. Para repetirla se utiliza JDK 25.
+- Pendiente: revisión visual humana. La compilación final con JDK 25 ya pasó.
 - Advertencias de integración: Hibernate HHH000505 ignoró un
   ServiceConfigurationError de BytecodeProviderImpl (not a subtype). Posible
   conflicto de cargadores del ejecutor embebido, causa no demostrada. Tomcat
@@ -99,7 +109,7 @@ No se deben agregar logs, PDF, target ni archivos temporales al commit.
 
 ## Revisión visual humana después de compilar
 
-En IntelliJ, seleccionar JDK 26 para el proyecto y para Maven, sin cambiar el
+En IntelliJ, seleccionar JDK 25 para el proyecto, Maven y la configuración Application, sin cambiar el
 release 25 del POM. Crear o revisar una configuración Application con clase
 principal swing.principal, classpath del módulo estacion-trabajo, directorio de
 trabajo en la raíz del repositorio y variable EVENTOS_DB_NAME=eventosuy_test.
@@ -111,7 +121,7 @@ sesión.
 Alternativa PowerShell desde la raíz, después de mvn clean install:
 
 ```powershell
-$env:JAVA_HOME = 'C:\Users\Joaco\.jdks\openjdk-26.0.2'
+$env:JAVA_HOME = 'C:\Users\Joaco\.jdks\temurin-25.0.5'
 $env:PATH = "$env:JAVA_HOME\bin;$env:PATH"
 $env:EVENTOS_DB_NAME = 'eventosuy_test'
 $cpVisual = 'estacion-trabajo/target/classes;webapp/target/webapp-1.0-SNAPSHOT/WEB-INF/lib/*'
@@ -147,7 +157,7 @@ No ejecutar clean entre B+C y D.
 ## Resultado de clean install (29/10/2026)
 
 - Comando: mvn clean install.
-- Entorno confirmado: OpenJDK 26.0.2; Maven 3.10.0; release 25 del POM intacto.
+- Entorno histórico: Maven 3.10.0; release 25 del POM intacto. Usar JDK 25 al repetir.
 - Antes de ejecutar: confirmación JDBC de sólo lectura con
   VerificarBaseConsultas: eventosuy_test / localhost:5432/eventosuy_test.
 - BUILD SUCCESS, finalizado a las 19:32:37 -03:00; duración 26,535 segundos.
@@ -162,5 +172,5 @@ No ejecutar clean entre B+C y D.
   a la cuarta etapa de Swing, sus verificaciones y esta documentación.
 - Persisten avisos de compilación sobre operaciones unchecked/unsafe y los
   avisos conocidos de Hibernate (pool integrado y dialecto explícito).
-- Pendientes para cierre visual: revisión humana y ejecución específica con
-  JDK 25. No se declara aprobada la revisión visual.
+- Pendiente para cierre visual: revisión humana. La compilación actual con
+  JDK 25 ya está aprobada; no se declara aprobada la revisión visual.

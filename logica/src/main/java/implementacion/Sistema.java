@@ -26,6 +26,9 @@ public class Sistema implements ISistema {
     private final ManejadorImagenes manejadorImagenes;
 
     private void validarDatosUsuario(String nickname, String nombre, String correo) {
+        validarTexto("nickname", nickname);
+        validarTexto("nombre", nombre);
+        validarTexto("correo", correo);
         if (nickname == null || nickname.isBlank()) {
             throw new IllegalArgumentException("El nickname es obligatorio.");
         }
@@ -47,6 +50,32 @@ public class Sistema implements ISistema {
         }
     }
 
+    /** String JPA sin longitud explícita: varchar(255); PostgreSQL cuenta caracteres. */
+    private void validarTexto(String campo, String valor) {
+        if (valor != null && valor.codePointCount(0, valor.length()) > 255) {
+            throw new IllegalArgumentException("El campo " + campo + " no puede superar los 255 caracteres.");
+        }
+        if (valor != null && valor.indexOf('\0') >= 0) {
+            throw new IllegalArgumentException("El campo " + campo + " contiene un carácter no permitido.");
+        }
+    }
+
+    private void validarObligatorio(String valor, String mensaje) {
+        validarTexto("texto", valor);
+        if (valor == null || valor.isBlank()) {
+            throw new IllegalArgumentException(mensaje);
+        }
+    }
+
+    private void validarNacimiento(LocalDate fecha) {
+        if (fecha == null) {
+            throw new IllegalArgumentException("La fecha de nacimiento es obligatoria.");
+        }
+        if (fecha.isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException("La fecha de nacimiento no puede ser futura.");
+        }
+    }
+
     private void validarContrasenia(String contrasenia, String confirmacion) {
         if (contrasenia == null || contrasenia.isEmpty()) {
             throw new IllegalArgumentException("La contraseña es obligatoria.");
@@ -65,13 +94,21 @@ public class Sistema implements ISistema {
             throw new IllegalArgumentException(mensaje);
         }
 
-        Usuario usuario = manejadorUsuarios.obtenerPorNicknameOCorreo(nicknameOCorreo.trim());
-
-        if (usuario == null || !usuario.contraseniaCoincide(contrasenia)) {
+        String identificador = nicknameOCorreo.trim();
+        if (identificador.codePointCount(0, identificador.length()) > 255 || identificador.indexOf('\0') >= 0) {
             throw new IllegalArgumentException(mensaje);
         }
-
-        return consultarUsuario(usuario.getNickname());
+        Usuario coincidencia = null;
+        int cantidad = 0;
+        for (Usuario candidato : manejadorUsuarios.buscarPorNicknameOCorreo(identificador)) {
+            if (candidato.contraseniaCoincide(contrasenia)) {
+                coincidencia = candidato;
+                cantidad++;
+            }
+        }
+        // No se elige arbitrariamente una cuenta cuando también coincide la contraseña.
+        if (cantidad != 1) throw new IllegalArgumentException(mensaje);
+        return consultarUsuario(coincidencia.getNickname());
     }
 
     @Override
@@ -107,6 +144,8 @@ public class Sistema implements ISistema {
 
         validarDatosUsuario(dt.getNickname(), dt.getNombre(), dt.getCorreoElectronico());
         validarContrasenia(dt.getContrasenia(), dt.getConfirmacionContrasenia());
+        validarObligatorio(dt.getApellido(), "El apellido es obligatorio.");
+        validarNacimiento(dt.getFechaNacimiento());
         Institucion institucion = null;
 
         if (dt.getNombreInstitucion() != null && !dt.getNombreInstitucion().isBlank()) {
@@ -138,6 +177,9 @@ public class Sistema implements ISistema {
         validarDatosUsuario(dt.getNickname(), dt.getNombre(), dt.getCorreoElectronico());
         validarContrasenia(dt.getContrasenia(), dt.getConfirmacionContrasenia());
 
+        validarObligatorio(dt.getDescripcion(), "La descripción es obligatoria.");
+        validarTexto("sitio web", dt.getSitioWeb());
+
         Organizador organizador = new Organizador(
                 dt.getNickname(),
                 dt.getNombre(),
@@ -162,7 +204,8 @@ public class Sistema implements ISistema {
                         asistente.getCorreoElectronico(),
                         asistente.getApellido(),
                         asistente.getFechaNacimiento(),
-                        asistente.getNombreInstitucion()
+                        asistente.getNombreInstitucion(),
+                        asistente.getFechaAlta()
                 ));
 
             } else if (usuario instanceof Organizador organizador) {
@@ -171,7 +214,8 @@ public class Sistema implements ISistema {
                         organizador.getNombre(),
                         organizador.getCorreoElectronico(),
                         organizador.getDescripcion(),
-                        organizador.getSitioWeb()
+                        organizador.getSitioWeb(),
+                        organizador.getFechaAlta()
                 ));
             }
         }
@@ -189,7 +233,8 @@ public class Sistema implements ISistema {
                     asistente.getCorreoElectronico(),
                     asistente.getApellido(),
                     asistente.getFechaNacimiento(),
-                    asistente.getNombreInstitucion()
+                    asistente.getNombreInstitucion(),
+                    asistente.getFechaAlta()
             );
         }
         if (usuario instanceof Organizador organizador) {
@@ -198,7 +243,8 @@ public class Sistema implements ISistema {
                     organizador.getNombre(),
                     organizador.getCorreoElectronico(),
                     organizador.getDescripcion(),
-                    organizador.getSitioWeb()
+                    organizador.getSitioWeb(),
+                    organizador.getFechaAlta()
             );
         }
         return null;
@@ -254,13 +300,9 @@ public class Sistema implements ISistema {
         if (dt.getApellido() == null || dt.getApellido().isBlank()) {
             throw new IllegalArgumentException("El apellido es obligatorio.");
         }
-        if (dt.getFechaNacimiento() == null) {
-            throw new IllegalArgumentException("La fecha de nacimiento es obligatoria.");
-        }
-        if (!dt.getFechaNacimiento().isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException(
-                    "La fecha de nacimiento debe ser anterior a la fecha actual.");
-        }
+        validarNacimiento(dt.getFechaNacimiento());
+        validarTexto("nombre", dt.getNombre());
+        validarTexto("apellido", dt.getApellido());
 
         Institucion institucion = null;
         if (dt.getNombreInstitucion() != null && !dt.getNombreInstitucion().isBlank()) {
@@ -272,16 +314,19 @@ public class Sistema implements ISistema {
         }
 
         if (dt.getContrasenia() != null && !dt.getContrasenia().isEmpty()) {
-            cambiarContrasenia(dt.getNickname(), dt.getContrasenia(), dt.getConfirmacionContrasenia());
+            validarContrasenia(dt.getContrasenia(), dt.getConfirmacionContrasenia());
         }
 
-        manejadorUsuarios.modificarAsistente(
+        if (!manejadorUsuarios.modificarAsistente(
                 dt.getNickname(),
                 dt.getNombre(),
                 dt.getApellido(),
                 dt.getFechaNacimiento(),
-                institucion
-        );
+                institucion,
+                dt.getContrasenia()
+        )) {
+            throw new IllegalArgumentException("El usuario no existe.");
+        }
     }
 
     @Override
@@ -296,21 +341,34 @@ public class Sistema implements ISistema {
             throw new IllegalArgumentException("La descripción es obligatoria.");
         }
 
+        validarTexto("nombre", dt.getNombre());
+        validarTexto("descripción", dt.getDescripcion());
+        validarTexto("sitio web", dt.getSitioWeb());
+
         if (dt.getContrasenia() != null && !dt.getContrasenia().isEmpty()) {
-            cambiarContrasenia(dt.getNickname(), dt.getContrasenia(), dt.getConfirmacionContrasenia());
+            validarContrasenia(dt.getContrasenia(), dt.getConfirmacionContrasenia());
         }
 
-        manejadorUsuarios.modificarOrganizador(
+        if (!manejadorUsuarios.modificarOrganizador(
                 dt.getNickname(),
                 dt.getNombre(),
                 dt.getDescripcion(),
-                dt.getSitioWeb()
-        );
+                dt.getSitioWeb(),
+                dt.getContrasenia()
+        )) {
+            throw new IllegalArgumentException("El usuario no existe.");
+        }
     }
 
     // INSTITUCIONES
     @Override
     public boolean altaInstitucion(DtInstitucion dt) {
+        if (dt == null) {
+            throw new IllegalArgumentException("Los datos de la institución son obligatorios.");
+        }
+        validarObligatorio(dt.getNombre(), "El nombre de la institución es obligatorio.");
+        validarObligatorio(dt.getDescripcion(), "La descripción es obligatoria.");
+        validarTexto("sitio web", dt.getSitioWeb());
         Institucion institucion = new Institucion(
                 dt.getNombre(),
                 dt.getDescripcion(),
@@ -338,6 +396,7 @@ public class Sistema implements ISistema {
     // CATEGORÍAS
     @Override
     public void altaCategoria(String nombre, String nombrePadre) throws Exception {
+        validarTexto("nombre de categoría", nombre);
         if (nombre == null || nombre.trim().isEmpty()) {
             throw new Exception("El nombre de la categoría no puede estar vacío.");
         }
@@ -398,6 +457,12 @@ public class Sistema implements ISistema {
     // EVENTOS
     @Override
     public boolean altaEvento(DtEvento dt) throws Exception {
+        if (dt == null) {
+            throw new IllegalArgumentException("Los datos del evento son obligatorios.");
+        }
+        validarObligatorio(dt.getNombre(), "El nombre del evento es obligatorio.");
+        validarObligatorio(dt.getSigla(), "La sigla es obligatoria.");
+        validarObligatorio(dt.getDescripcion(), "La descripción es obligatoria.");
         if (manejadorEventos.existeEvento(dt.getNombre())) {
             throw new Exception("Ya existe un evento con el nombre: " + dt.getNombre());
         }
@@ -414,6 +479,7 @@ public class Sistema implements ISistema {
         );
 
         for (String nombreCategoria : dt.getCategorias()) {
+            validarObligatorio(nombreCategoria, "Debe seleccionar una categoría existente.");
             Categoria categoria = manejadorEventos.obtenerCategoria(nombreCategoria);
             if (categoria == null) {
                 throw new Exception("La categoría '" + nombreCategoria + "' no existe.");
@@ -448,6 +514,14 @@ public class Sistema implements ISistema {
         if (dt == null || dt.getIdNombre() == null || dt.getIdNombre().isBlank()) {
             throw new IllegalArgumentException("El nombre de la edición es obligatorio.");
         }
+
+        validarTexto("nombre de edición", dt.getIdNombre());
+
+        validarObligatorio(nombreEvento, "Debe seleccionar un evento.");
+        validarObligatorio(dt.getSigla(), "La sigla es obligatoria.");
+        validarObligatorio(dt.getCiudad(), "La ciudad es obligatoria.");
+        validarObligatorio(dt.getPais(), "El país es obligatorio.");
+        validarObligatorio(dt.getNombreOrganizador(), "El organizador indicado no existe.");
 
         Evento evento = manejadorEventos.obtenerEvento(nombreEvento);
 
@@ -559,6 +633,11 @@ public class Sistema implements ISistema {
             throw new IllegalArgumentException("El nombre del tipo de registro es obligatorio.");
         }
 
+        validarTexto("nombre del tipo de registro", dt.getIdNombre());
+
+        validarObligatorio(nombreEdicion, "Debe seleccionar una edición.");
+        validarObligatorio(dt.getDescripcion(), "La descripción es obligatoria.");
+
         Edicion edicion = manejadorEventos.obtenerEdicion(nombreEdicion);
         if (edicion == null) {
             throw new IllegalArgumentException("La edición indicada no existe.");
@@ -569,6 +648,9 @@ public class Sistema implements ISistema {
                     "Ya existe un tipo de registro con ese nombre en la edición.");
         }
 
+        if (!Float.isFinite(dt.getCosto())) {
+            throw new IllegalArgumentException("El costo debe ser un número finito.");
+        }
         if (dt.getCosto() < 0) {
             throw new IllegalArgumentException("El costo no puede ser negativo.");
         }
@@ -672,6 +754,8 @@ public class Sistema implements ISistema {
         if (dt == null) {
             throw new IllegalArgumentException("Los datos del patrocinio no pueden ser nulos.");
         }
+        validarTexto("código de patrocinio", dt.getCodigoPatrocinio());
+
         if (dt.getCodigoPatrocinio() == null || dt.getCodigoPatrocinio().isBlank()) {
             throw new IllegalArgumentException("El código del patrocinio es obligatorio.");
         }

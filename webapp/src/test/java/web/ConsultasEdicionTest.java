@@ -156,14 +156,14 @@ class ConsultasEdicionTest {
             new ImagenServlet().doGet(e.req,e.resp);
             boolean propio=usuario instanceof DtOrganizador && usuario.getNickname().equals("duenio");
             assertEquals(propio?200:404,e.estado);assertEquals(propio?1:0,e.imagenes);
-            assertEquals(propio?3:0,e.bytes.size());
+            assertArrayEquals(propio?e.imagen.getContenido():new byte[0],e.bytes.toByteArray());
         }
     }
 
     @Test
     void imagenPublicaYAusenteMantienenSuComportamiento() throws Exception {
         Escenario e = new Escenario(null);e.parametros.putAll(Map.of("tipo","edicion","id","Aceptada"));
-        new ImagenServlet().doGet(e.req,e.resp);assertEquals(3,e.bytes.size());assertEquals("private, no-store",e.headers.get("Cache-Control"));
+        new ImagenServlet().doGet(e.req,e.resp);assertArrayEquals(e.imagen.getContenido(),e.bytes.toByteArray());assertEquals("private, no-store",e.headers.get("Cache-Control"));
         Escenario sinImagen=new Escenario(null);sinImagen.imagen=null;sinImagen.parametros.putAll(e.parametros);
         new ImagenServlet().doGet(sinImagen.req,sinImagen.resp);assertEquals(302,sinImagen.estado);assertEquals("/pruebas/img/default-avatar.png",sinImagen.redireccion);
     }
@@ -192,7 +192,7 @@ class ConsultasEdicionTest {
         final Map<String,String> headers=new HashMap<>();
         final Map<String,List<DtEdicion>> ediciones=new HashMap<>();
         final ByteArrayOutputStream bytes=new ByteArrayOutputStream();
-        DtImagen imagen=new DtImagen("image/png",new byte[]{1,2,3});
+        DtImagen imagen=new DtImagen("image/png",java.util.Base64.getDecoder().decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII="));
         int estado=200,imagenes,registrosEdicion,registrosAsistente,tipos,consultasTipo,patrocinios;
         boolean reenviado;String nickConsultado,redireccion;
         final LocalDate fecha=LocalDate.of(2026,3,7);

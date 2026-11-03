@@ -3,6 +3,7 @@ package clases;
 
 import jakarta.persistence.*;
 import seguridad.HashContrasenia;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "usuario")
@@ -13,6 +14,10 @@ public abstract class Usuario implements ConImagen{
     private String nickname;
 
     private String nombre;
+
+    // Nullable para usuarios anteriores: no se inventa su fecha histórica.
+    @Column(name = "fecha_alta", updatable = false)
+    private LocalDate fechaAlta;
 
     @Column(nullable = false, unique = true)
     private String correoElectronico;
@@ -25,9 +30,14 @@ public abstract class Usuario implements ConImagen{
     protected Usuario() {}
 
     public Usuario(String nickname, String nombre, String correoElectronico) {
+        this.fechaAlta = LocalDate.now();
         this.nickname = nickname;
         this.nombre = nombre;
         this.correoElectronico = correoElectronico;
+    }
+
+    public LocalDate getFechaAlta() {
+        return fechaAlta;
     }
 
     public String getNickname() {

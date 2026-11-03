@@ -27,7 +27,7 @@ public class VerificarConsultasWeb {
     static final String org="orgConsulta"+sufijo,ajeno="ajenoConsulta"+sufijo;
     static final String ana="anaConsulta"+sufijo,bea="beaConsulta"+sufijo,libre="libreConsulta"+sufijo;
     static final String institucion="Institución "+sufijo,codigo="NO-PUBLICAR-"+sufijo;
-    static final byte[] png=Base64.getDecoder().decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jH3sAAAAASUVORK5CYII=");
+    static final byte[] png=Base64.getDecoder().decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=");
 
     public static void main(String[] args)throws Exception {
         confirmarBase();
@@ -147,6 +147,10 @@ public class VerificarConsultasWeb {
     static HttpResponse<String> get(HttpClient c,String ruta)throws Exception{return c.send(HttpRequest.newBuilder(URI.create(base+ruta)).GET().build(),HttpResponse.BodyHandlers.ofString());}
     static HttpResponse<byte[]> getBytes(HttpClient c,String ruta)throws Exception{return c.send(HttpRequest.newBuilder(URI.create(base+ruta)).GET().build(),HttpResponse.BodyHandlers.ofByteArray());}
     static HttpResponse<String> post(HttpClient c,String ruta,Map<String,String> datos)throws Exception {
+        var pagina=get(c,ruta.equals("/login")?"/login":"/edicion");
+        var token=java.util.regex.Pattern.compile("name=\"_csrf\" value=\"([A-Za-z0-9_-]{43})\"").matcher(pagina.body());
+        if(!token.find())throw new AssertionError("No se obtuvo el formulario con token CSRF.");
+        datos=new LinkedHashMap<>(datos);datos.put("_csrf",token.group(1));
         String body=datos.entrySet().stream().map(e->enc(e.getKey())+"="+enc(e.getValue())).reduce((a,b)->a+"&"+b).orElse("");
         return c.send(HttpRequest.newBuilder(URI.create(base+ruta)).header("Content-Type","application/x-www-form-urlencoded").POST(HttpRequest.BodyPublishers.ofString(body)).build(),HttpResponse.BodyHandlers.ofString());
     }

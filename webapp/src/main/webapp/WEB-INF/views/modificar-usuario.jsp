@@ -32,6 +32,7 @@
 
                     <form id="formModificarUsuario" method="post"
                           action="${raiz}/modificar-usuario" enctype="multipart/form-data">
+<jsp:include page="/WEB-INF/views/fragmentos/csrf.jsp"/>
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">Nickname</label>
@@ -137,14 +138,18 @@
         const fechaNac = document.getElementById("fechaNac");
 
         if (fechaNac) {
-            fechaNac.max = new Date().toISOString().split("T")[0];
+            fechaNac.max = new Date().getFullYear() + "-" + String(new Date().getMonth() + 1).padStart(2, "0") + "-" + String(new Date().getDate()).padStart(2, "0");
         }
 
         confirmacion.addEventListener("input", function () {
             confirmacion.setCustomValidity("");
         });
+        document.getElementById("contrasenia").addEventListener("input", function () {
+            confirmacion.setCustomValidity("");
+        });
 
         document.getElementById("formModificarUsuario").addEventListener("submit", function (e) {
+            confirmacion.setCustomValidity("");
             if (contrasenia.value !== confirmacion.value) {
                 e.preventDefault();
                 confirmacion.setCustomValidity("Las contraseñas no coinciden.");
@@ -153,5 +158,6 @@
         });
     })();
 </script>
+<script src="${raiz}/js/validacion-formularios.js"></script>
 </body>
 </html>

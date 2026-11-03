@@ -9,6 +9,8 @@ import jakarta.servlet.http.*;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 @WebServlet("/alta-tipo-registro")
 public class AltaTipoRegistroServlet extends HttpServlet {
@@ -21,6 +23,8 @@ public class AltaTipoRegistroServlet extends HttpServlet {
         if (organizador == null) {
             return;
         }
+
+        MensajesFlash.mostrar(req, "/alta-tipo-registro");
 
         ISistema sistema = ContextoListener.sistema(req);
 
@@ -46,6 +50,13 @@ public class AltaTipoRegistroServlet extends HttpServlet {
         }
 
         ISistema sistema = ContextoListener.sistema(req);
+
+        Map<String, String> form = new HashMap<>();
+        for (String campo : new String[]{"edicion", "nombre", "descripcion", "costo", "cupo"}) {
+            String valor = req.getParameter(campo);
+            form.put(campo, valor == null ? "" : valor);
+        }
+        req.setAttribute("form", form);
 
         try {
             String edicion = requerido(req, "edicion");
@@ -107,10 +118,9 @@ public class AltaTipoRegistroServlet extends HttpServlet {
                 );
             }
 
-            req.setAttribute(
-                    "exito",
-                    "Tipo de registro creado correctamente."
-            );
+            MensajesFlash.guardar(req, "/alta-tipo-registro", "Tipo de registro creado correctamente.", null);
+            resp.sendRedirect(req.getContextPath() + "/alta-tipo-registro");
+            return;
 
         } catch (NumberFormatException e) {
             req.setAttribute(

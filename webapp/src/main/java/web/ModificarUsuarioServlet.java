@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @WebServlet("/modificar-usuario")
-@MultipartConfig
+@MultipartConfig(maxFileSize = 2L * 1024 * 1024, maxRequestSize = 3L * 1024 * 1024)
 public class ModificarUsuarioServlet extends HttpServlet {
 
     private static final String[] CAMPOS = {
@@ -63,13 +63,21 @@ public class ModificarUsuarioServlet extends HttpServlet {
                 sistema.modificarOrganizador(armarOrganizador(req, form, perfil));
             }
 
+            String advertencia = null;
             if (imagen != null) {
-                sistema.asociarImagen(TipoEntidadImagen.USUARIO, perfil.getNickname(), imagen);
+                try {
+                    sistema.asociarImagen(TipoEntidadImagen.USUARIO, perfil.getNickname(), imagen);
+                } catch (RuntimeException e) {
+                    getServletContext().log("Falló la imagen después de guardar el perfil.", e);
+                    advertencia = "Los datos del perfil y, si la cambiaste, la contraseña se guardaron. "
+                            + "La imagen no se pudo actualizar; intentá cargarla nuevamente.";
+                }
             }
 
             // El cabezal muestra el nombre: se actualiza el usuario guardado en la sesión
             req.getSession().setAttribute("usuario", sistema.consultarUsuario(perfil.getNickname()));
 
+            MensajesFlash.guardar(req, "/usuario", "Los datos del perfil se guardaron.", advertencia);
             resp.sendRedirect(req.getContextPath() + "/usuario?nick="
                     + URLEncoder.encode(perfil.getNickname(), StandardCharsets.UTF_8));
 

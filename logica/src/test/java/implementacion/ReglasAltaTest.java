@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Reglas de las altas de eventos, ediciones, tipos de registro, instituciones y patrocinios
  * (secciones 6.2 y 7.5). Necesitan la base de pruebas (eventosuy_test).
  */
-class ReglasAltaTest {
+class ReglasAltaTest extends soporte.PruebaConBaseSegura {
 
     private final ISistema sistema = Fabrica.getInstance().getISistema();
     private final String sufijo = String.valueOf(System.nanoTime());

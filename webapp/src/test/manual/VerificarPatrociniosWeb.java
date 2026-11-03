@@ -136,6 +136,10 @@ public class VerificarPatrociniosWeb {
     static void login(HttpClient c,String nick)throws Exception {comprobar(post(c,"/login",Map.of("identificador",nick,"contrasenia","clave")).statusCode()==302,"Login real "+nick);}
     static HttpResponse<String> get(HttpClient c,String ruta)throws Exception {return c.send(HttpRequest.newBuilder(URI.create(base+ruta)).GET().build(),HttpResponse.BodyHandlers.ofString());}
     static HttpResponse<String> post(HttpClient c,String ruta,Map<String,String> datos)throws Exception {
+        var pagina=get(c,ruta.equals("/login")?"/login":"/edicion");
+        var token=java.util.regex.Pattern.compile("name=\"_csrf\" value=\"([A-Za-z0-9_-]{43})\"").matcher(pagina.body());
+        if(!token.find())throw new AssertionError("No se obtuvo el formulario con token CSRF.");
+        datos=new LinkedHashMap<>(datos);datos.put("_csrf",token.group(1));
         String body=datos.entrySet().stream().map(e->enc(e.getKey())+"="+enc(e.getValue())).reduce((a,b)->a+"&"+b).orElse("");
         return c.send(HttpRequest.newBuilder(URI.create(base+ruta)).header("Content-Type","application/x-www-form-urlencoded")
                 .POST(HttpRequest.BodyPublishers.ofString(body)).build(),HttpResponse.BodyHandlers.ofString());

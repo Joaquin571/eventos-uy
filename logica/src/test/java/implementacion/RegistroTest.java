@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * institución, de otro tipo o de otra edición, código sin usos, cupo agotado y asistente ya
  * registrado. Necesitan la base de pruebas (eventosuy_test).
  */
-class RegistroTest {
+class RegistroTest extends soporte.PruebaConBaseSegura {
 
     private final ISistema sistema = Fabrica.getInstance().getISistema();
     private final String sufijo = String.valueOf(System.nanoTime());

@@ -7,6 +7,7 @@ import clases.TipoRegistro;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.LockModeType;
 
 import persistencia.BaseDeDatos;
 
@@ -17,7 +18,7 @@ public class ManejadorEventos {
 
     private static ManejadorEventos instancia = null;
     private ManejadorEventos() {}
-    public static ManejadorEventos getInstance() {
+    public static synchronized ManejadorEventos getInstance() {
         if (instancia == null) {instancia = new ManejadorEventos();}
         return instancia;
     }
@@ -35,11 +36,11 @@ public class ManejadorEventos {
             tx.commit();
             return true;
 
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             if (tx.isActive()) {
                 tx.rollback();
             }
-            throw e;
+            throw ConflictosPersistencia.traducir(e, "Ya existe un evento con ese nombre.");
         } finally {
             em.close();
         }
@@ -107,11 +108,11 @@ public class ManejadorEventos {
             tx.commit();
             return true;
 
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             if (tx.isActive()) {
                 tx.rollback();
             }
-            throw e;
+            throw ConflictosPersistencia.traducir(e, "Ya existe una edición con ese nombre.");
         } finally {
             em.close();
         }
@@ -206,11 +207,11 @@ public class ManejadorEventos {
             tx.commit();
             return true;
 
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             if (tx.isActive()) {
                 tx.rollback();
             }
-            throw e;
+            throw ConflictosPersistencia.traducir(e, "Ya existe una categoría con ese nombre.");
 
         } finally {
             em.close();
@@ -283,6 +284,13 @@ public class ManejadorEventos {
 
             String nombreEdicion = tipoRegistro.getEdicion().getIdNombre();
 
+            // Serializa altas del mismo padre, incluso con nombres que solo difieren en mayúsculas.
+            Edicion edicionGestionada = em.find(Edicion.class, nombreEdicion, LockModeType.PESSIMISTIC_WRITE);
+            if (edicionGestionada == null) {
+                tx.rollback();
+                return false;
+            }
+
             Long cantidad = em.createQuery(
                                     """
                                     SELECT COUNT(t)
@@ -303,22 +311,17 @@ public class ManejadorEventos {
                 return false;
             }
 
-            Edicion edicionGestionada = em.find(Edicion.class, nombreEdicion);
-            if (edicionGestionada == null) {
-                tx.rollback();
-                return false;
-            }
             tipoRegistro.setEdicion(edicionGestionada);
 
             em.persist(tipoRegistro);
             tx.commit();
             return true;
 
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             if (tx.isActive()) {
                 tx.rollback();
             }
-            throw e;
+            throw ConflictosPersistencia.traducir(e, "Ya existe un tipo de registro con ese nombre en la edición.");
         } finally {
             em.close();
         }
@@ -378,7 +381,8 @@ public class ManejadorEventos {
         try {
             tx.begin();
 
-            Edicion edicion = em.find(Edicion.class, nombreEdicion);
+            // Serializa decisiones entre procesos. La entidad valida el estado ya bloqueado.
+            Edicion edicion = em.find(Edicion.class, nombreEdicion, LockModeType.PESSIMISTIC_WRITE);
 
             if (edicion == null) {
                 tx.rollback();

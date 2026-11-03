@@ -128,6 +128,7 @@
                             </c:when>
                             <c:otherwise>
                                 <form id="formRegistro" method="post" action="${raiz}/registro-edicion">
+<jsp:include page="/WEB-INF/views/fragmentos/csrf.jsp"/>
                                     <input type="hidden" name="evento" value="<c:out value='${eventoElegido}' />">
                                     <input type="hidden" name="edicion" value="<c:out value='${edicionElegida}' />">
 
@@ -152,6 +153,7 @@
                                         </c:forEach>
                                     </div>
 
+                                    <div data-error-grupo="tipo" aria-live="polite"></div>
                                     <h2 class="h5 mb-3">5. Modalidad de registro</h2>
 
                                     <div class="mb-3">
@@ -221,5 +223,6 @@
         actualizar();
     })();
 </script>
+<script src="${raiz}/js/validacion-formularios.js"></script>
 </body>
 </html>

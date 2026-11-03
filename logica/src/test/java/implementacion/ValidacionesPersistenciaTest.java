@@ -10,7 +10,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** Validaciones pendientes y ausencia de efectos parciales, exclusivamente en eventosuy_test. */
-class ValidacionesPersistenciaTest {
+class ValidacionesPersistenciaTest extends soporte.PruebaConBaseSegura {
     private final ISistema sistema = Fabrica.getInstance().getISistema();
     private final String sufijo = Long.toString(System.nanoTime());
     private final LocalDate hoy = LocalDate.now();

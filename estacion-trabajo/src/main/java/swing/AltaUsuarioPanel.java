@@ -148,7 +148,13 @@ public class AltaUsuarioPanel {
             throw new IllegalArgumentException("La imagen supera el tamaño máximo de 2 MB.");
         }
 
-        return new DtImagen(tipoContenido(imagenElegida), Files.readAllBytes(imagenElegida.toPath()));
+        try (var entrada = Files.newInputStream(imagenElegida.toPath())) {
+            byte[] contenido = entrada.readNBytes((int) TAMANIO_MAXIMO_IMAGEN + 1);
+            if (contenido.length > TAMANIO_MAXIMO_IMAGEN) {
+                throw new IllegalArgumentException("La imagen supera el tamaño máximo de 2 MB.");
+            }
+            return new DtImagen(tipoContenido(imagenElegida), contenido);
+        }
     }
 
     // ------------------------------------------------------------------ alta

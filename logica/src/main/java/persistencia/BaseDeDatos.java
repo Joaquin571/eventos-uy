@@ -102,7 +102,7 @@ public final class BaseDeDatos {
         }
     }
 
-    public static void inicializar() {
+    public static synchronized void inicializar() {
         if (emf != null && emf.isOpen()) {
             return;
         }
@@ -119,14 +119,14 @@ public final class BaseDeDatos {
         );
     }
 
-    public static EntityManager getEntityManager() {
+    public static synchronized EntityManager getEntityManager() {
         if (emf == null || !emf.isOpen()) {
             inicializar();
         }
         return emf.createEntityManager();
     }
 
-    public static void cerrar() {
+    public static synchronized void cerrar() {
         if (emf != null && emf.isOpen()) {
             emf.close();
             System.out.println(

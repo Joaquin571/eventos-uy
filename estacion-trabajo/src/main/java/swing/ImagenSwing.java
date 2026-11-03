@@ -3,6 +3,7 @@ package swing;
 import datatypes.DtImagen;
 import datatypes.TipoEntidadImagen;
 import interfaces.ISistema;
+import implementacion.Fabrica;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -13,6 +14,7 @@ import java.util.Locale;
 
 /** Selección opcional y presentación de imágenes, sin acceder al almacenamiento. */
 final class ImagenSwing extends JPanel {
+    private final ISistema sistema = Fabrica.getInstance().getISistema();
     private final JLabel vista = new JLabel("Sin imagen", SwingConstants.CENTER);
     private final JLabel nombre = new JLabel("Sin selección nueva");
     private Path seleccion;
@@ -107,6 +109,8 @@ final class ImagenSwing extends JPanel {
         vista.setText("Sin imagen");
         if (imagen == null) return;
         try {
+            // También protege la vista previa de datos antiguos, sin migrarlos.
+            sistema.validarImagen(imagen);
             var original = ImageIO.read(new ByteArrayInputStream(imagen.getContenido()));
             if (original == null) {
                 vista.setText("Vista previa no disponible");

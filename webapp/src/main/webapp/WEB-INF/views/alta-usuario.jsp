@@ -27,6 +27,7 @@
                     </c:if>
 
                     <form id="formAltaUsuario" method="post" action="${raiz}/alta-usuario" enctype="multipart/form-data">
+<jsp:include page="/WEB-INF/views/fragmentos/csrf.jsp"/>
 
                         <div class="mb-3">
                             <label for="tipo" class="form-label fw-bold">Registrarme como *</label>
@@ -133,7 +134,7 @@
         const confirmacion = document.getElementById("confirmacion");
         const fechaNac = document.getElementById("fechaNac");
 
-        fechaNac.max = new Date().toISOString().split("T")[0];
+        fechaNac.max = new Date().getFullYear() + "-" + String(new Date().getMonth() + 1).padStart(2, "0") + "-" + String(new Date().getDate()).padStart(2, "0");
 
         function alternarCampos() {
             const esOrganizador = tipo.value === "organizador";
@@ -144,6 +145,8 @@
             document.getElementById("apellido").required = !esOrganizador;
             fechaNac.required = !esOrganizador;
             document.getElementById("descripcion").required = esOrganizador;
+            camposAsistente.querySelectorAll("input, select").forEach(c => { c.disabled = esOrganizador; });
+            camposOrganizador.querySelectorAll("textarea, input").forEach(c => { c.disabled = !esOrganizador; });
         }
 
         tipo.addEventListener("change", alternarCampos);
@@ -152,8 +155,12 @@
         confirmacion.addEventListener("input", function () {
             confirmacion.setCustomValidity("");
         });
+        document.getElementById("contrasenia").addEventListener("input", function () {
+            confirmacion.setCustomValidity("");
+        });
 
         document.getElementById("formAltaUsuario").addEventListener("submit", function (e) {
+            confirmacion.setCustomValidity("");
             if (document.getElementById("contrasenia").value !== confirmacion.value) {
                 e.preventDefault();
                 confirmacion.setCustomValidity("Las contraseñas no coinciden.");
@@ -162,5 +169,6 @@
         });
     })();
 </script>
+<script src="${raiz}/js/validacion-formularios.js"></script>
 </body>
 </html>

@@ -42,10 +42,11 @@
                         <div class="alert alert-danger"><c:out value="${error}" /></div>
                     </c:if>
 
-                    <div id="errorCliente" class="alert alert-danger d-none"></div>
+
 
                     <form id="formAltaEvento" method="post"
                           action="${raiz}/alta-evento" enctype="multipart/form-data">
+<jsp:include page="/WEB-INF/views/fragmentos/csrf.jsp"/>
 
                         <div class="mb-3">
                             <label for="nombre" class="form-label fw-bold">Nombre *</label>
@@ -78,6 +79,7 @@
                                     </label>
                                 </div>
                             </c:forEach>
+                            <div data-error-grupo="categorias" aria-live="polite" class="text-danger"></div>
                         </div>
 
                         <div class="mb-4">
@@ -100,30 +102,7 @@
 </main>
 
 <script src="${raiz}/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script>
-    // Validación en el navegador: al menos una categoría y campos sin espacios vacíos
-    document.getElementById('formAltaEvento').addEventListener('submit', function (e) {
-        var aviso = document.getElementById('errorCliente');
-        var campos = ['nombre', 'sigla', 'descripcion'];
-        var mensaje = '';
 
-        campos.forEach(function (id) {
-            if (!mensaje && document.getElementById(id).value.trim() === '') {
-                mensaje = 'Completá todos los campos obligatorios.';
-            }
-        });
-
-        if (!mensaje && document.querySelectorAll('.categoria:checked').length === 0) {
-            mensaje = 'Elegí al menos una categoría.';
-        }
-
-        if (mensaje) {
-            e.preventDefault();
-            aviso.textContent = mensaje;
-            aviso.classList.remove('d-none');
-            aviso.scrollIntoView({behavior: 'smooth', block: 'center'});
-        }
-    });
-</script>
+<script src="${raiz}/js/validacion-formularios.js"></script>
 </body>
 </html>

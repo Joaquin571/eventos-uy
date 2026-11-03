@@ -20,7 +20,7 @@ public class ManejadorPatrocinios {
     private ManejadorPatrocinios() {
     }
 
-    public static ManejadorPatrocinios getInstance() {
+    public static synchronized ManejadorPatrocinios getInstance() {
         if (instancia == null) {instancia = new ManejadorPatrocinios();}
         return instancia;
     }
@@ -91,12 +91,12 @@ public class ManejadorPatrocinios {
 
             tx.commit();
             return true;
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
 
             if (tx.isActive()) {
                 tx.rollback();
             }
-            throw e;
+            throw ConflictosPersistencia.traducir(e, "Ya existe un patrocinio con ese código o para esa institución y edición.");
         } finally {
             em.close();
         }
@@ -112,8 +112,8 @@ public class ManejadorPatrocinios {
                             LEFT JOIN FETCH p.institucion
                             LEFT JOIN FETCH p.edicion
                             LEFT JOIN FETCH p.tipoRegistro
-                            WHERE LOWER(p.edicion.idNombre) = LOWER(:edicion)
-                              AND LOWER(p.institucion.nombre) = LOWER(:institucion)
+                            WHERE p.edicion.idNombre = :edicion
+                              AND p.institucion.nombre = :institucion
                             """,
                             Patrocinio.class
                     )
@@ -223,10 +223,8 @@ public class ManejadorPatrocinios {
                                     """
                                     SELECT COUNT(p)
                                     FROM Patrocinio p
-                                    WHERE LOWER(p.institucion.nombre)
-                                          = LOWER(:institucion)
-                                      AND LOWER(p.edicion.idNombre)
-                                          = LOWER(:edicion)
+                                    WHERE p.institucion.nombre = :institucion
+                                      AND p.edicion.idNombre = :edicion
                                     """,
                                     Long.class
                             ).setParameter(

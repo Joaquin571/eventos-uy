@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Alta, modificación y contraseña de usuarios. Necesitan la base de pruebas (eventosuy_test). */
-class UsuarioTest {
+class UsuarioTest extends soporte.PruebaConBaseSegura {
 
     private final ISistema sistema = Fabrica.getInstance().getISistema();
     private final String sufijo = String.valueOf(System.nanoTime());

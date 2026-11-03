@@ -52,10 +52,15 @@ public class FiltroAcceso implements Filter {
 
         String ruta = req.getServletPath();
 
+        if ("POST".equals(req.getMethod()) && !Csrf.validarPost(req, resp)) return;
+
         if (esEstatico(ruta)) {
             chain.doFilter(req, resp);
             return;
         }
+
+        if (!"POST".equals(req.getMethod())) Csrf.prepararFormulario(req);
+        resp.setHeader("Cache-Control", "private, no-store");
 
         HttpSession sesion = req.getSession(false);
         DtUsuario usuario = sesion == null ? null : (DtUsuario) sesion.getAttribute("usuario");

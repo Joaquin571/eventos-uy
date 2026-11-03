@@ -61,9 +61,12 @@ public class VerificarBloqueD extends VerificarSwing {
             verificar(imagen.statusCode() == 200 && Arrays.equals(imagen.body(), Files.readAllBytes(png)), "Web sirve la misma imagen persistida por Swing");
             var cookies = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
             var cliente = HttpClient.newBuilder().cookieHandler(cookies).build();
+            var formularioLogin = get(cliente, "/login");
+            var tokenLogin = java.util.regex.Pattern.compile("name=\"_csrf\" value=\"([A-Za-z0-9_-]{43})\"").matcher(formularioLogin.body());
+            if (!tokenLogin.find()) throw new AssertionError("No se obtuvo el token del login.");
             var login = cliente.send(HttpRequest.newBuilder(URI.create(base + "/login"))
                     .header("Content-Type", "application/x-www-form-urlencoded")
-                    .POST(HttpRequest.BodyPublishers.ofString("identificador=" + url(nuevoUsuario) + "&contrasenia=clave-d" )).build(), HttpResponse.BodyHandlers.ofString());
+                    .POST(HttpRequest.BodyPublishers.ofString("identificador=" + url(nuevoUsuario) + "&contrasenia=clave-d&_csrf=" + url(tokenLogin.group(1)) )).build(), HttpResponse.BodyHandlers.ofString());
             verificar(login.statusCode() == 302 && !cookies.getCookieStore().getCookies().isEmpty(), "Usuario creado en Swing inicia sesión en web sin reinicio");
             var perfil = get(cliente, "/usuario?nick=" + url(nuevoUsuario));
             verificar(perfil.statusCode() == 200 && perfil.body().contains(nuevoUsuario), "Perfil web del usuario creado en Swing");

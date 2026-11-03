@@ -40,30 +40,36 @@
 
                     <form id="formAltaInstitucion" method="post"
                           action="${raiz}/alta-institucion" enctype="multipart/form-data">
+<jsp:include page="/WEB-INF/views/fragmentos/csrf.jsp"/>
 
                         <div class="mb-3">
                             <label for="nombre" class="form-label fw-bold">Nombre *</label>
                             <input type="text" id="nombre" name="nombre" class="form-control" required
-                                   value="<c:out value='${form.nombre}' />">
+                                   aria-describedby="nombreError" value="<c:out value='${form.nombre}' />">
+                            <div id="nombreError" class="invalid-feedback d-block" aria-live="polite"></div>
                         </div>
 
                         <div class="mb-3">
                             <label for="descripcion" class="form-label fw-bold">Descripción *</label>
                             <textarea id="descripcion" name="descripcion" class="form-control"
-                                      rows="3" required><c:out value="${form.descripcion}" /></textarea>
+                                      rows="3" required aria-describedby="descripcionError"><c:out value="${form.descripcion}" /></textarea>
+                            <div id="descripcionError" class="invalid-feedback d-block" aria-live="polite"></div>
                         </div>
 
                         <div class="mb-3">
                             <label for="sitioWeb" class="form-label fw-bold">Sitio web *</label>
                             <input type="url" id="sitioWeb" name="sitioWeb" class="form-control" required
                                    placeholder="https://ejemplo.com"
+                                   aria-describedby="sitioWebError"
                                    value="<c:out value='${form.sitioWeb}' />">
+                            <div id="sitioWebError" class="invalid-feedback d-block" aria-live="polite"></div>
                         </div>
 
                         <div class="mb-4">
                             <label for="imagen" class="form-label fw-bold">Imagen</label>
                             <input type="file" id="imagen" name="imagen" class="form-control"
-                                   accept="image/png,image/jpeg,image/gif,image/webp">
+                                   accept="image/png,image/jpeg,image/gif,image/webp" aria-describedby="imagenError">
+                            <div id="imagenError" class="invalid-feedback d-block" aria-live="polite"></div>
                             <div class="form-text">Opcional. PNG, JPG, GIF o WEBP, hasta 2 MB.</div>
                         </div>
 
@@ -80,5 +86,6 @@
 </main>
 
 <script src="${raiz}/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="${raiz}/js/validacion-altas.js"></script>
 </body>
 </html>

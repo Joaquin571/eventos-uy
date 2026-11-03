@@ -68,6 +68,7 @@
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <form method="post" action="${raiz}/logout" class="m-0">
+<jsp:include page="/WEB-INF/views/fragmentos/csrf.jsp"/>
                                         <button type="submit" class="dropdown-item text-danger">Cerrar sesión</button>
                                     </form>
                                 </li>

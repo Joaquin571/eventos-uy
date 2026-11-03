@@ -11,9 +11,11 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.HashMap;
+import java.util.Map;
 
 @WebServlet("/alta-edicion")
-@MultipartConfig
+@MultipartConfig(maxFileSize = 2L * 1024 * 1024, maxRequestSize = 3L * 1024 * 1024)
 public class AltaEdicionServlet extends HttpServlet {
 
     @Override
@@ -24,6 +26,8 @@ public class AltaEdicionServlet extends HttpServlet {
         if (organizador == null) {
             return;
         }
+
+        MensajesFlash.mostrar(req, "/alta-edicion");
 
         req.setAttribute(
                 "eventos",
@@ -44,6 +48,13 @@ public class AltaEdicionServlet extends HttpServlet {
         }
 
         ISistema sistema = ContextoListener.sistema(req);
+
+        Map<String, String> form = new HashMap<>();
+        for (String campo : new String[]{"evento", "nombre", "sigla", "ciudad", "pais", "fechaInicio", "fechaFin"}) {
+            String valor = req.getParameter(campo);
+            form.put(campo, valor == null ? "" : valor);
+        }
+        req.setAttribute("form", form);
 
         try {
             String evento = obligatorio(req, "evento");
@@ -92,6 +103,7 @@ public class AltaEdicionServlet extends HttpServlet {
                 );
             }
 
+            String advertencia = null;
             if (imagen != null) {
                 try {
                     sistema.asociarImagen(
@@ -100,17 +112,14 @@ public class AltaEdicionServlet extends HttpServlet {
                             imagen
                     );
                 } catch (IllegalArgumentException e) {
-                    req.setAttribute(
-                            "advertencia",
-                            "La edición se creó, pero no se pudo guardar su imagen."
-                    );
+                    advertencia = "La edición se creó, pero no se pudo guardar su imagen.";
                 }
             }
 
-            req.setAttribute(
-                    "exito",
-                    "Edición creada correctamente. Estado: Ingresada."
-            );
+            MensajesFlash.guardar(req, "/alta-edicion",
+                    "Edición creada correctamente. Estado: Ingresada.", advertencia);
+            resp.sendRedirect(req.getContextPath() + "/alta-edicion");
+            return;
 
         } catch (DateTimeParseException e) {
             req.setAttribute(

@@ -30,7 +30,11 @@ final class Subidas {
         }
 
         try (InputStream entrada = parte.getInputStream()) {
-            return new DtImagen(parte.getContentType(), entrada.readAllBytes());
+            byte[] contenido = entrada.readNBytes((int) TAMANIO_MAXIMO + 1);
+            if (contenido.length > TAMANIO_MAXIMO) {
+                throw new IllegalArgumentException("La imagen supera el tamaño máximo de 2 MB.");
+            }
+            return new DtImagen(parte.getContentType(), contenido);
         }
     }
 }

@@ -24,6 +24,7 @@ public class LogoutServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        doPost(req, resp);
+        resp.setHeader("Allow", "POST");
+        resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
     }
 }

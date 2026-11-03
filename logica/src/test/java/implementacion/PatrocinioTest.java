@@ -5,13 +5,11 @@ import datatypes.*;
 import interfaces.ISistema;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import persistencia.BaseDeDatos;
-import java.sql.DriverManager;
 import java.time.LocalDate;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
-class PatrocinioTest {
+class PatrocinioTest extends soporte.PruebaConBaseSegura {
     private final ISistema sistema = Fabrica.getInstance().getISistema();
     private final String sufijo = String.valueOf(System.nanoTime());
     private final String edicion = "Edición patrocinio " + sufijo;
@@ -20,18 +18,6 @@ class PatrocinioTest {
 
     @BeforeEach
     void prepararEnBaseDePruebas() throws Exception {
-        // Se confirma la base real antes de que Hibernate pueda crear o modificar tablas.
-        assertEquals("eventosuy_test", System.getenv("EVENTOS_DB_NAME"), "No ejecutar contra la base habitual.");
-        var props = BaseDeDatos.propiedadesJpa();
-        assertTrue(props.get("jakarta.persistence.jdbc.url").endsWith("/eventosuy_test"));
-        Class.forName("org.postgresql.Driver");
-        try (var conexion = DriverManager.getConnection(props.get("jakarta.persistence.jdbc.url"),
-                props.get("jakarta.persistence.jdbc.user"), props.get("jakarta.persistence.jdbc.password"))) {
-            conexion.setReadOnly(true);
-            try (var consulta = conexion.createStatement(); var resultado = consulta.executeQuery("SELECT current_database()")) {
-                assertTrue(resultado.next());assertEquals("eventosuy_test", resultado.getString(1));
-            }
-        }
         String org = "orgPat" + sufijo;
         DtOrganizador usuario = new DtOrganizador(org, "Organizador", org + "@test.uy", "Descripción", "");
         usuario.setContrasenia("clave");usuario.setConfirmacionContrasenia("clave");

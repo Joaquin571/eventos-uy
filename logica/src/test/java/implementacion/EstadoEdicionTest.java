@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Estados de la edición (sección 4 y 7.5): nace Ingresada, solo pasa a Aceptada o a
  * Rechazada y no vuelve. Necesitan la base de pruebas (eventosuy_test).
  */
-class EstadoEdicionTest {
+class EstadoEdicionTest extends soporte.PruebaConBaseSegura {
 
     private final ISistema sistema = Fabrica.getInstance().getISistema();
     private final String sufijo = String.valueOf(System.nanoTime());

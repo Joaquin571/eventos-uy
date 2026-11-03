@@ -16,7 +16,7 @@ public class ManejadorUsuarios {
     private static ManejadorUsuarios instancia = null;
     private ManejadorUsuarios() {}
 
-    public static ManejadorUsuarios getInstance() {
+    public static synchronized ManejadorUsuarios getInstance() {
         if (instancia == null) {instancia = new ManejadorUsuarios();}
         return instancia;
     }
@@ -55,11 +55,11 @@ public class ManejadorUsuarios {
             em.persist(usuario);
             tx.commit();
             return true;
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             if (tx.isActive()) {
                 tx.rollback();
             }
-            throw e;
+            throw ConflictosPersistencia.traducir(e, "Ya existe un usuario con ese nickname o correo electrónico.");
         } finally {
             em.close();
         }
@@ -117,26 +117,38 @@ public class ManejadorUsuarios {
     }
 
     public boolean modificarAsistente(String nickname, String nombre, String apellido, LocalDate fechaNacimiento, Institucion institucion) {
+        return modificarAsistente(nickname, nombre, apellido, fechaNacimiento, institucion, null);
+    }
+
+    // Datos y contraseña opcional se confirman juntos; no llama a otra transacción.
+    public boolean modificarAsistente(String nickname, String nombre, String apellido,
+                                     LocalDate fechaNacimiento, Institucion institucion, String nuevaContrasenia) {
         EntityManager em = BaseDeDatos.getEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
 
             tx.begin();
-            Asistente asistente =
-                    em.find(Asistente.class, nickname);
-            if (asistente == null) {
+            Usuario usuario = em.find(Usuario.class, nickname);
+            if (usuario == null) {
                 tx.rollback();
                 return false;
+            }
+            if (!(usuario instanceof Asistente asistente)) {
+                throw new IllegalArgumentException("El usuario no es un asistente.");
+            }
+            Institucion institucionGestionada = null;
+            if (institucion != null) {
+                institucionGestionada = em.find(Institucion.class, institucion.getNombre());
+                if (institucionGestionada == null) {
+                    throw new IllegalArgumentException("La institución indicada no existe.");
+                }
             }
             asistente.setNombre(nombre);
             asistente.setApellido(apellido);
             asistente.setFechaNacimiento(fechaNacimiento);
-
-            if (institucion != null) {
-                Institucion institucionGestionada = em.find(Institucion.class, institucion.getNombre());
-                asistente.setInstitucion(institucionGestionada);
-            } else {
-                asistente.setInstitucion(null);
+            asistente.setInstitucion(institucionGestionada);
+            if (nuevaContrasenia != null && !nuevaContrasenia.isEmpty()) {
+                asistente.setContrasenia(nuevaContrasenia);
             }
             tx.commit();
             return true;
@@ -151,20 +163,30 @@ public class ManejadorUsuarios {
     }
 
     public boolean modificarOrganizador(String nickname, String nombre, String descripcion, String sitioWeb) {
+        return modificarOrganizador(nickname, nombre, descripcion, sitioWeb, null);
+    }
+
+    public boolean modificarOrganizador(String nickname, String nombre, String descripcion,
+                                       String sitioWeb, String nuevaContrasenia) {
         EntityManager em = BaseDeDatos.getEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
             tx.begin();
-            Organizador organizador = em.find(Organizador.class, nickname);
-
-            if (organizador == null) {
+            Usuario usuario = em.find(Usuario.class, nickname);
+            if (usuario == null) {
                 tx.rollback();
                 return false;
+            }
+            if (!(usuario instanceof Organizador organizador)) {
+                throw new IllegalArgumentException("El usuario no es un organizador.");
             }
 
             organizador.setNombre(nombre);
             organizador.setDescripcion(descripcion);
             organizador.setSitioWeb(sitioWeb);
+            if (nuevaContrasenia != null && !nuevaContrasenia.isEmpty()) {
+                organizador.setContrasenia(nuevaContrasenia);
+            }
 
             tx.commit();
             return true;
@@ -190,7 +212,13 @@ public class ManejadorUsuarios {
             em.close();
         }
     }
+    /** Consulta heredada de una fila; no usar para autenticar identificadores ambiguos. */
     public Usuario obtenerPorNicknameOCorreo(String clave) {
+        return buscarPorNicknameOCorreo(clave).stream().findFirst().orElse(null);
+    }
+
+    /** Todos los candidatos: nickname y correo pertenecen a espacios distintos. */
+    public Collection<Usuario> buscarPorNicknameOCorreo(String clave) {
         EntityManager em = BaseDeDatos.getEntityManager();
         try {
             return em.createQuery(
@@ -203,9 +231,7 @@ public class ManejadorUsuarios {
                             Usuario.class
                     )
                     .setParameter("clave", clave)
-                    .getResultStream()
-                    .findFirst()
-                    .orElse(null);
+                    .getResultList();
         } finally {
             em.close();
         }

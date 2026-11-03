@@ -9,7 +9,7 @@ public class Fabrica {
     private Fabrica() {
     }
 
-    public static Fabrica getInstance() {
+    public static synchronized Fabrica getInstance() {
 
         if (instancia == null) {
             instancia = new Fabrica();

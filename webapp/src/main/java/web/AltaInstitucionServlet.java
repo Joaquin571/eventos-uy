@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 @WebServlet("/alta-institucion")
-@MultipartConfig
+@MultipartConfig(maxFileSize = 2L * 1024 * 1024, maxRequestSize = 3L * 1024 * 1024)
 public class AltaInstitucionServlet extends HttpServlet {
 
     private static final Pattern URL =
