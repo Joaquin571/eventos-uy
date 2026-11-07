@@ -119,6 +119,22 @@ public final class BaseDeDatos {
         );
     }
 
+    /** Arranque del Central con conexión externa y sin generación de esquema. */
+    public static synchronized void inicializar(Map<String, String> propiedades) {
+        if (emf != null && emf.isOpen()) {
+            throw new IllegalStateException("JPA ya está inicializado; no se puede sustituir la conexión.");
+        }
+        for (String clave : new String[]{"jakarta.persistence.jdbc.url", "jakarta.persistence.jdbc.user",
+                "jakarta.persistence.jdbc.password"}) {
+            if (!propiedades.containsKey(clave) || propiedades.get(clave) == null) {
+                throw new IllegalArgumentException("Falta configuración externa de conexión.");
+            }
+        }
+        Map<String, String> externas = new HashMap<>(propiedades);
+        externas.put("hibernate.hbm2ddl.auto", "validate");
+        emf = Persistence.createEntityManagerFactory("postgres", externas);
+    }
+
     public static synchronized EntityManager getEntityManager() {
         if (emf == null || !emf.isOpen()) {
             inicializar();

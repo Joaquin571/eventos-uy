@@ -14,9 +14,17 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.sun.xml.ws</groupId><artifactId>jaxws-rt</artifactId><version>4.0.5</version>
+        </dependency>
+        <dependency>
+            <groupId>uy.edu.utec</groupId><artifactId>servidor-central</artifactId><version>${project.version}</version><scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>uy.edu.utec</groupId>
             <artifactId>logica</artifactId>
             <version>${project.version}</version>
+            <exclusions><exclusion><groupId>org.glassfish.jaxb</groupId><artifactId>jaxb-runtime</artifactId></exclusion></exclusions>
         </dependency>
 
         <dependency>
@@ -51,6 +59,16 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>com.sun.xml.ws</groupId><artifactId>jaxws-maven-plugin</artifactId><version>4.0.5</version>
+                <executions><execution><goals><goal>wsimport</goal></goals><configuration>
+                    <wsdlDirectory>${project.basedir}/src/main/resources/wsdl</wsdlDirectory>
+                    <wsdlFiles><wsdlFile>EventosService.wsdl</wsdlFile></wsdlFiles>
+                    <packageName>web.soap.generado</packageName>
+                    <wsdlLocation>/wsdl/EventosService.wsdl</wsdlLocation>
+                </configuration></execution></executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>

@@ -11,6 +11,7 @@
     <modules>
         <module>logica</module>
         <module>estacion-trabajo</module>
+        <module>servidor-central</module>
         <module>webapp</module>
     </modules>
 

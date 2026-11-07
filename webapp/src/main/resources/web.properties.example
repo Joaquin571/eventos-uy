@@ -1,0 +1,5 @@
+# Copiar a ~/.eventosUy/web.properties del usuario que ejecuta Tomcat.
+# En otra computadora: indicar la IP LAN del Central, no localhost.
+central.host=127.0.0.1
+central.puerto=9128
+central.ruta=/eventos

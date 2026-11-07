@@ -1,6 +1,8 @@
 package web;
 
-import datatypes.DtEvento;
+import web.soap.ClienteEventosCentral;
+import web.soap.generado.EventoSoap;
+import jakarta.xml.ws.WebServiceException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -13,15 +15,28 @@ import java.util.Collection;
 
 @WebServlet(urlPatterns = {"", "/inicio"})
 public class InicioServlet extends HttpServlet {
+    private final ClienteEventosCentral cliente;
+
+    public InicioServlet() { this(new ClienteEventosCentral()); }
+    InicioServlet(ClienteEventosCentral cliente) { this.cliente = cliente; }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
         String categoria = req.getParameter("categoria");
-        Collection<DtEvento> eventos = new ArrayList<>();
+        Collection<EventoSoap> eventos = new ArrayList<>();
 
-        for (DtEvento evento : ContextoListener.sistema(req).listarEventos()) {
+        Collection<EventoSoap> disponibles;
+        try {
+            disponibles = cliente.listarEventos();
+        } catch (WebServiceException error) {
+            resp.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+            req.getRequestDispatcher("/WEB-INF/views/servicio-no-disponible.jsp").forward(req, resp);
+            return;
+        }
+
+        for (EventoSoap evento : disponibles) {
             boolean sinFiltro = categoria == null || categoria.isBlank();
             boolean coincide = evento.getCategorias() != null
                     && evento.getCategorias().contains(categoria);

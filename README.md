@@ -2,6 +2,15 @@
 
 Programación de Aplicaciones · Tecnólogo en Informática · UTEC · 2026
 
+## Laboratorio 3 — primer corte SOAP
+
+En `lab3-desarrollo`, el listado de eventos de la portada consulta al nuevo
+Servidor Central por SOAP. El resto de la web sigue utilizando lógica local
+durante esta transición. Para compilar, configurar e iniciar el Central y probar
+la consulta, ver [Primer corte vertical SOAP](docs/lab3/CORTE-SOAP.md).
+Las instrucciones del Laboratorio 2 que siguen continúan aplicándose a los casos
+que todavía no se migraron.
+
 ## Requisitos
 
 - JDK 25

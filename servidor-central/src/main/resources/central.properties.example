@@ -1,0 +1,7 @@
+# Copiar a ~/.eventosUy/central.properties y completar. No contiene credenciales reales.
+central.host=127.0.0.1
+central.puerto=9128
+central.ruta=/eventos
+db.url=jdbc:postgresql://localhost:5432/eventosuy_test
+db.usuario=COMPLETAR
+db.password=COMPLETAR
