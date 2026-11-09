@@ -111,7 +111,7 @@ Reglas de trabajo:
 
 Transferir bytes originales y MIME con tipos simples/DTO; no rutas del disco ni entidades. Mantener formatos PNG/JPEG/GIF/WEBP, límites y decodificación existentes. La validación remota debe usar la lógica real; no sustituirla por validar solo extensión o `Content-Type` del navegador.
 
-El servlet sigue leyendo `Part` mediante `Subidas` con límites y CSRF compatibles con multipart. Validar antes de dar de alta y conservar el tratamiento actual de fallos de asociación posteriores. Una respuesta SOAP no implica una transacción distribuida entre llamadas distintas.
+El servlet sigue leyendo `Part` mediante `Subidas` con límites y CSRF compatibles con multipart. Actualización tras la defensa (09/11): alta/modificación con imagen deben constituir una única operación transaccional en lógica; la validación previa no garantiza atomicidad. Se reemplaza el acuerdo anterior de conservar el éxito parcial ante fallos de asociación. Una respuesta SOAP no une transacciones de llamadas distintas. Diseño, responsables y pruebas pendientes: [auditoría, tareas A06–A08](AUDITORIA-2026-11-09.md).
 
 Las imágenes de edición mantienen controles de acceso. El publicador delega en la lógica, y el cliente Web no obtiene imágenes mediante JDBC o archivos compartidos. Responsable J03, con revisión de visibilidad de 3/4.
 

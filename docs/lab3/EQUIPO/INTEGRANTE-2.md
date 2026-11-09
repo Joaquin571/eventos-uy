@@ -11,7 +11,7 @@ Base compartida: corte `586eab4`. Rama propuesta `lab3-web-usuarios-patrocinios`
 | ID | Trabajo | Prioridad / dificultad | Aceptación |
 | --- | --- | --- | --- |
 | W01 | Login, sesión, roles, filtro y listener. | P0 / 5 | Datos de sesión independientes de logica.jar; renovación, CSRF y restricciones conservadas. |
-| W02 | Alta/modificación/listado/perfil de usuarios. | P0 / 5 | Operaciones por SOAP con privacidad, atomicidad de perfil y mensajes de imagen parcial actuales. |
+| W02 | Alta/modificación/listado/perfil de usuarios. | P0 / 5 | Operaciones por SOAP con privacidad y atomicidad de datos/contraseña/imagen; sustituir éxito parcial de imagen según [auditoría A06–A08](../AUDITORIA-2026-11-09.md). |
 | W03 | Instituciones y patrocinios. | P0 / 5 | Altas/consultas por SOAP; propiedad y código privado preservados. |
 | W04 | Disponibilidad de nickname/correo mientras se escribe. | P1 / 3 | fetch + async/await, mensajes junto a campos, sin recarga; backend revalida duplicados. |
 | W05 | Retiro definitivo de lógica local del Web. | P2 / 3 | Sin inicialización JPA/imports productivos de lógica; dependencias productivas y de tests revisadas. |
@@ -47,7 +47,7 @@ Cerrar modelo de sesión/rol; migrar consultas y autenticación; W02; W03; W04 e
 ## 9. Pruebas obligatorias
 
 - Login válido/inválido y ambigüedad ya resuelta; renovación de sesión, logout POST y GET 405; roles y CSRF.
-- Alta/modificación de ambos subtipos, duplicados y límites; conservación de mensajes/valores, PRG y comportamiento de imagen parcialmente fallida.
+- Alta/modificación de ambos subtipos, duplicados y límites; conservación de valores y PRG. Actualizar expectativas de imagen parcialmente fallida: ante error deben revertirse datos, contraseña e imagen de la operación compuesta (auditoría A06–A08), con mensaje de fallo completo.
 - Patrocinios propios/ajenos, código no expuesto a público/asistente, errores 20 %, cupo gratuito y duplicados.
 - AJAX: disponible/no disponible, vacío/formato, respuestas obsoletas y fallo de Central; validación definitiva al enviar permanece.
 - Cliente generado contra servicio real y regresión de `PatrociniosAutorizacionTest`, `PatrociniosFlujoTest`, `CsrfTest`, `AltasPrgTest`, `UsuarioFechaAltaTest`, según cambios; nuevas pruebas JS.
