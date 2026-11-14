@@ -125,7 +125,7 @@ public class VerificarConsultasWeb {
         }
         s.aceptarRechazarEdicion(rechazada,false);
         s.altaTipoRegistro(new DtTipoRegistro("SoloOtra","Exclusivo",0,5),otra, Actor.administradorLocal());
-        s.altaPatrocinio(new DtPatrocinio(LocalDate.now(),1000,1,codigo,NivelPatrocinio.ORO,institucion,aceptada,"General"));
+        s.altaPatrocinio(new DtPatrocinio(LocalDate.now(),1000,1,codigo,NivelPatrocinio.ORO,institucion,aceptada,"General"), null, datatypes.Actor.administradorLocal());
         s.registroAEdicion(ana,aceptada,"General",new DtRegistro(LocalDate.now(),100));
         s.registroAEdicion(bea,aceptada,"General",new DtRegistro(LocalDate.now(),0),codigo);
     }

@@ -53,7 +53,7 @@ public class VerificarPatrociniosWeb {
         sistema.altaInstitucion(new DtInstitucion(institucionNueva,"Descripción","https://test.uy"));
         for (String nombre : List.of(edicion,oculta,rechazada)) {
             sistema.altaPatrocinio(new DtPatrocinio(LocalDate.of(1999,1,1),1000,1,codigo+nombre,
-                    NivelPatrocinio.ORO,institucion,nombre,"General"));
+                    NivelPatrocinio.ORO,institucion,nombre,"General"), null, datatypes.Actor.administradorLocal());
         }
         Tomcat tomcat = new Tomcat();
         tomcat.setBaseDir(Path.of("webapp/target/tomcat-patrocinios-integracion").toAbsolutePath().toString());

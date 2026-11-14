@@ -66,7 +66,8 @@ public interface ISistema {
     Collection<DtRegistro> obtenerRegistrosEdicion(String nombreEdicion);
 
     // PATROCINIOS
-    boolean altaPatrocinio(DtPatrocinio patrocinio);
+    boolean altaPatrocinio(DtPatrocinio patrocinio, String nombreEvento, Actor actor);
+    DtOpcionesAltaPatrocinio obtenerOpcionesAltaPatrocinio(String nombreEvento, String nombreEdicion, Actor actor);
     Collection<DtPatrocinio> obtenerPatrociniosEdicion(String nombreEdicion);
     DtPatrocinio consultarPatrocinio(String codigo);
 

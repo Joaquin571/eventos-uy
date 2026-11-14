@@ -108,7 +108,7 @@ class RegistroTest extends soporte.PruebaConBaseSegura {
     private void crearPatrocinio(String codigo, String institucion, String edicion, String tipo,
                                  int gratuitos) {
         assertTrue(sistema.altaPatrocinio(new DtPatrocinio(hoy, 1_000_000f, gratuitos, codigo,
-                NivelPatrocinio.ORO, institucion, edicion, tipo)));
+                NivelPatrocinio.ORO, institucion, edicion, tipo), null, datatypes.Actor.administradorLocal()));
     }
 
     private boolean registrar(String asistente, String edicion, String tipo, String codigo) {

@@ -161,7 +161,7 @@ public class CargarDatosPrueba {
         // ---- Patrocinio de UTEC (5 gratuitos de $1500 = $7500, menos del 20 % de $50000)
         intentar("patrocinio UTEC2026", () -> sistema.altaPatrocinio(new DtPatrocinio(
                 hoy, 50000, 5, "UTEC2026", NivelPatrocinio.ORO,
-                "UTEC", "Montevideo Comics 2026", "General")));
+                "UTEC", "Montevideo Comics 2026", "General"), null, datatypes.Actor.administradorLocal()));
 
         // ---- Registros (las ediciones ya están aceptadas)
         intentar("registro general: maria88 en MC2026 (Estudiante)", () -> sistema.registroAEdicion(

@@ -26,6 +26,8 @@ class PatrociniosAutorizacionTest {
             assertEquals(1, e.altas);
             assertEquals(302, e.estado);
             assertEquals("Edicion", e.creado.getNombreEdicion());
+            assertEquals("duenio", e.actorRecibido.nickname());
+            assertFalse(e.actorRecibido.esAdministradorLocal());
         }
     }
 
@@ -227,6 +229,7 @@ class PatrociniosAutorizacionTest {
         int consultas;
         boolean reenviado;
         DtPatrocinio creado;
+        Actor actorRecibido;
         boolean existePatrocinio = true;
         final DtPatrocinio patrocinio = new DtPatrocinio(LocalDate.now(), 5000, 1,
                 "SECRETO-UTEC", NivelPatrocinio.ORO, "UTEC", "Edicion", "General");
@@ -244,8 +247,33 @@ class PatrociniosAutorizacionTest {
                     .filter(t -> t.getIdNombre().equals(a[1])).findFirst().orElse(null);
             case "obtenerPatrociniosEdicion" -> existePatrocinio ? List.of(patrocinio) : List.of();
             case "altaPatrocinio" -> {
+                creado = (DtPatrocinio) a[0];
+                actorRecibido = (Actor) a[2];
+                // Doble del contrato: la autorización real se verifica con Sistema y persistencia en lógica.
+                comprobarDestino(creado.getNombreEdicion(), actorRecibido);
+                if (a[1] != null && !((String) a[1]).isEmpty() && edicionesPorEvento.getOrDefault(a[1], List.of())
+                        .stream().noneMatch(e -> e.getIdNombre().equals(creado.getNombreEdicion()))) {
+                    throw new IllegalArgumentException("La edición no pertenece al evento seleccionado.");
+                }
                 if (errorAlta != null) throw new IllegalArgumentException(errorAlta);
-                altas++; creado = (DtPatrocinio) a[0]; yield true;
+                altas++; yield true;
+            }
+            case "obtenerOpcionesAltaPatrocinio" -> {
+                String evento = (String) a[0], edicion = (String) a[1];
+                Actor actor = (Actor) a[2];
+                if (!edicion.isEmpty()) {
+                    comprobarDestino(edicion, actor);
+                    for (var entrada : edicionesPorEvento.entrySet()) {
+                        if (entrada.getValue().stream().anyMatch(e -> edicion.equals(e.getIdNombre()))) {
+                            evento = entrada.getKey(); break;
+                        }
+                    }
+                }
+                yield new DtOpcionesAltaPatrocinio(evento, eventos,
+                        edicionesPorEvento.getOrDefault(evento, List.of()).stream()
+                                .filter(e -> actor.nickname().equals(e.getNombreOrganizador())).toList(),
+                        tiposPorEdicion.getOrDefault(edicion, List.of()),
+                        List.of(new DtInstitucion("UTEC", "Institución", "https://utec.edu.uy")));
             }
             case "consultarPatrocinio" -> { consultas++; yield existePatrocinio ? patrocinio : null; }
             default -> throw new AssertionError("Llamada inesperada a ISistema: " + m.getName());
@@ -297,6 +325,14 @@ class PatrociniosAutorizacionTest {
             tieneSesion = true;
             sesion.put("usuario", usuario);
         }
+        private void comprobarDestino(String edicion, Actor actor) {
+            if (ediciones.stream().noneMatch(e -> e.getIdNombre().equals(edicion)
+                    && actor.esOrganizador() && actor.nickname().equals(e.getNombreOrganizador()))) {
+                throw new excepciones.AccesoDenegadoException("La edición no pertenece al organizador.");
+            }
+        }
+
+
     }
 
     private static <T> T doble(Class<T> tipo, InvocationHandler manejador) {

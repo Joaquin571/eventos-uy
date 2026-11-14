@@ -68,12 +68,16 @@ class PatrociniosFlujoTest {
     void erroresNumericosConservanTodosLosCamposYNoCrean() throws Exception {
         for (String valor : List.of("NaN", "Infinity", "-Infinity", "0", "-1", "texto")) {
             Escenario e = propio();e.parametros.put("aporte", valor);
+            e.errorAlta = "El aporte económico debe ser un número finito mayor que cero.";
             new AltaPatrocinioServlet().doPost(e.request, e.response);
             assertEquals(0, e.altas);assertTrue(e.reenviado);
             assertEquals(valor, form(e).get("aporte"));
             assertEquals("NUEVO", form(e).get("codigo"));
             assertEquals("UTEC", form(e).get("institucion"));
             assertNotNull(e.atributos.get("error"));
+            if (!valor.equals("texto")) {
+                assertNotNull(e.creado, "El Servlet convierte el número; Sistema decide su validez funcional.");
+            }
         }
     }
 
@@ -81,8 +85,10 @@ class PatrociniosFlujoTest {
     void gratuitosInvalidosSeRechazanYSeConservan() throws Exception {
         for (String valor : List.of("-1", "1.5", "2147483648", "texto")) {
             Escenario e = propio();e.parametros.put("registrograt", valor);
+            e.errorAlta = "La cantidad de registros gratuitos no puede ser negativa.";
             new AltaPatrocinioServlet().doPost(e.request, e.response);
             assertEquals(0, e.altas);assertEquals(valor, form(e).get("registrograt"));
+            if (valor.equals("-1")) assertNotNull(e.creado, "El rango debe delegarse a Sistema.");
         }
     }
 
@@ -101,6 +107,7 @@ class PatrociniosFlujoTest {
     @Test
     void tipoAjenoNoSeAceptaAunqueExistaEnOtraEdicion() throws Exception {
         Escenario e = propio();e.parametros.put("tipoRegistro", "VIP");
+        e.errorAlta = "El tipo de registro no pertenece a la edición seleccionada.";
         e.tiposPorEdicion.put("Otra", List.of(new DtTipoRegistro("VIP", "", 100, 10)));
         new AltaPatrocinioServlet().doPost(e.request, e.response);
         assertEquals(0, e.altas);assertNotNull(e.atributos.get("error"));

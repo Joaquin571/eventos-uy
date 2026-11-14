@@ -752,88 +752,104 @@ public class Sistema implements ISistema {
     }
 
     // PATROCINIOS
+    private void requerirActorPatrocinio(Actor actor) {
+        if (actor == null || (!actor.esAdministradorLocal()
+                && (!actor.esOrganizador() || actor.nickname() == null || actor.nickname().isBlank()))) {
+            throw new excepciones.AccesoDenegadoException("Esta operación requiere un organizador o administrador local.");
+        }
+    }
+
+    private void comprobarPropiedadPatrocinio(Actor actor, String propietario) {
+        requerirActorPatrocinio(actor);
+        if (!puedeGestionarPatrocinio(actor, propietario)) {
+            throw new excepciones.AccesoDenegadoException("La edición no pertenece al organizador.");
+        }
+    }
+
+    private boolean puedeGestionarPatrocinio(Actor actor, String propietario) {
+        return propietario != null && (actor.esAdministradorLocal() || actor.nickname().equals(propietario));
+    }
+
     @Override
-    public boolean altaPatrocinio(DtPatrocinio dt) {
-        if (dt == null) {
-            throw new IllegalArgumentException("Los datos del patrocinio no pueden ser nulos.");
+    public DtOpcionesAltaPatrocinio obtenerOpcionesAltaPatrocinio(String nombreEvento, String nombreEdicion, Actor actor) {
+        requerirActorPatrocinio(actor);
+        String evento = nombreEvento == null ? "" : nombreEvento;
+        String edicion = nombreEdicion == null ? "" : nombreEdicion;
+        Collection<DtEvento> eventos = listarEventos();
+        if (!edicion.isEmpty()) {
+            Edicion seleccionada = manejadorEventos.obtenerEdicion(edicion);
+            comprobarPropiedadPatrocinio(actor, seleccionada == null || seleccionada.getOrganizador() == null
+                    ? null : seleccionada.getOrganizador().getNickname());
+            for (DtEvento candidato : eventos) {
+                if (obtenerEdicionesEvento(candidato.getNombre()).stream()
+                        .anyMatch(e -> edicion.equals(e.getIdNombre()))) {
+                    evento = candidato.getNombre();
+                    break;
+                }
+            }
+        }
+        List<DtEdicion> propias = new ArrayList<>();
+        if (!evento.isEmpty()) {
+            for (DtEdicion candidata : obtenerEdicionesEvento(evento)) {
+                if (puedeGestionarPatrocinio(actor, candidata.getNombreOrganizador())) {
+                    propias.add(candidata);
+                }
+            }
+        }
+        return new DtOpcionesAltaPatrocinio(evento, eventos, propias,
+                edicion.isEmpty() ? List.of() : obtenerTiposRegistroEdicion(edicion), listarInstituciones());
+    }
+
+    @Override
+    public boolean altaPatrocinio(DtPatrocinio dt, String nombreEvento, Actor actor) {
+        requerirActorPatrocinio(actor);
+        if (dt == null) throw new IllegalArgumentException("Los datos del patrocinio no pueden ser nulos.");
+        if (dt.getNombreEdicion() == null || dt.getNombreEdicion().isBlank()) {
+            throw new excepciones.AccesoDenegadoException("La edición no pertenece al organizador.");
         }
         validarTexto("código de patrocinio", dt.getCodigoPatrocinio());
-
-        if (dt.getCodigoPatrocinio() == null || dt.getCodigoPatrocinio().isBlank()) {
-            throw new IllegalArgumentException("El código del patrocinio es obligatorio.");
-        }
-        if (dt.getNombreInstituto() == null || dt.getNombreInstituto().isBlank()) {
-            throw new IllegalArgumentException("Debe seleccionar una institución.");
-        }
-        if (dt.getNombreEdicion() == null || dt.getNombreEdicion().isBlank()) {
-            throw new IllegalArgumentException("Debe seleccionar una edición.");
-        }
-        if (dt.getNombreTipoRegistro() == null || dt.getNombreTipoRegistro().isBlank()) {
-            throw new IllegalArgumentException("Debe seleccionar un tipo de registro.");
-        }
-        if (dt.getNivel() == null) {
-            throw new IllegalArgumentException("Debe seleccionar un nivel de patrocinio.");
-        }
+        validarObligatorio(dt.getCodigoPatrocinio(), "El código del patrocinio es obligatorio.");
+        validarObligatorio(dt.getNombreInstituto(), "Debe seleccionar una institución.");
+        validarObligatorio(dt.getNombreTipoRegistro(), "Debe seleccionar un tipo de registro.");
+        if (dt.getNivel() == null) throw new IllegalArgumentException("Debe seleccionar un nivel de patrocinio.");
         if (!Float.isFinite(dt.getMontoAporte()) || dt.getMontoAporte() <= 0) {
-            throw new IllegalArgumentException("El aporte económico debe ser mayor que 0.");
+            throw new IllegalArgumentException("El aporte económico debe ser un número finito mayor que cero.");
         }
         if (dt.getCantRegistrosGrat() < 0) {
             throw new IllegalArgumentException("La cantidad de registros gratuitos no puede ser negativa.");
         }
 
-        if (manejadorPatrocinios.existePatrocinio(dt.getCodigoPatrocinio())) {
-            throw new IllegalArgumentException("Ya existe un patrocinio con el código '" + dt.getCodigoPatrocinio() + "'.");
-        }
-
-        Institucion institucion = manejadorInstituciones.obtenerInstitucion(dt.getNombreInstituto());
-        if (institucion == null) {
-            throw new IllegalArgumentException("La institución seleccionada no existe.");
-        }
-
-        Edicion edicion = manejadorEventos.obtenerEdicion(dt.getNombreEdicion());
-        if (edicion == null) {
-            throw new IllegalArgumentException("La edición seleccionada no existe.");
-        }
-
-        TipoRegistro tipoRegistro = manejadorEventos.obtenerTipoRegistro(dt.getNombreEdicion(), dt.getNombreTipoRegistro());
-        if (tipoRegistro == null) {
-            throw new IllegalArgumentException("El tipo de registro seleccionado no existe.");
-        }
-
-        if (manejadorPatrocinios.existePatrocinioInstitucionEdicion(institucion.getNombre(), edicion.getIdNombre())) {
-            throw new IllegalArgumentException(
-                    "La institución '" + institucion.getNombre() + "' ya posee un patrocinio para la edición '" + edicion.getIdNombre() + "'."
-            );
-        }
-
-        // RESTRICCIÓN DEL 20 %
-        float costoRegistros = tipoRegistro.getCosto() * dt.getCantRegistrosGrat();
-        float maximoPermitido = dt.getMontoAporte() * 0.20f;
-
-        if (costoRegistros > maximoPermitido) {
-            throw new IllegalArgumentException(
-                    "El costo de los registros gratuitos ($" + costoRegistros + ") supera el 20% del aporte económico ($" + maximoPermitido + ")."
-            );
-        }
-
-        Patrocinio patrocinio = new Patrocinio(
-
-                        LocalDate.now(),
-                        dt.getMontoAporte(),
-                        dt.getCantRegistrosGrat(),
-                        dt.getCodigoPatrocinio(),
-                        dt.getNivel(),
-                        institucion
-                );
-
-        patrocinio.setEdicion(edicion);
-        patrocinio.setTipoRegistro(tipoRegistro);
-
-        boolean agregado = manejadorPatrocinios.addPatrocinio(patrocinio);
-        if (!agregado) {
-            throw new IllegalArgumentException("No fue posible registrar el patrocinio.");
-        }
-        return true;
+        // La política se define aquí; el manejador la ejecuta con las referencias gestionadas y bloqueadas.
+        return manejadorPatrocinios.addPatrocinio(dt, patrocinio -> {
+            Edicion edicion = patrocinio.getEdicion();
+            comprobarPropiedadPatrocinio(actor, edicion == null || edicion.getOrganizador() == null
+                    ? null : edicion.getOrganizador().getNickname());
+            if (nombreEvento != null && !nombreEvento.isBlank()
+                    && (edicion.getEvento() == null || !nombreEvento.equals(edicion.getEvento().getNombre()))) {
+                throw new IllegalArgumentException("La edición no pertenece al evento seleccionado.");
+            }
+            Institucion institucion = patrocinio.getInstitucion();
+            if (institucion == null) throw new IllegalArgumentException("La institución seleccionada no existe.");
+            TipoRegistro tipo = patrocinio.getTipoRegistro();
+            if (tipo == null || tipo.getEdicion() == null
+                    || !edicion.getIdNombre().equals(tipo.getEdicion().getIdNombre())) {
+                throw new IllegalArgumentException("El tipo de registro no pertenece a la edición seleccionada.");
+            }
+            if (manejadorPatrocinios.existePatrocinio(dt.getCodigoPatrocinio())) {
+                throw new IllegalArgumentException("Ya existe un patrocinio con el código '" + dt.getCodigoPatrocinio() + "'.");
+            }
+            if (manejadorPatrocinios.existePatrocinioInstitucionEdicion(institucion.getNombre(), edicion.getIdNombre())) {
+                throw new IllegalArgumentException("La institución '" + institucion.getNombre()
+                        + "' ya posee un patrocinio para la edición '" + edicion.getIdNombre() + "'.");
+            }
+            float costoRegistros = tipo.getCosto() * dt.getCantRegistrosGrat();
+            float maximoPermitido = dt.getMontoAporte() * 0.20f;
+            if (costoRegistros > maximoPermitido) {
+                throw new IllegalArgumentException("El costo de los registros gratuitos ($" + costoRegistros
+                        + ") supera el 20% del aporte económico ($" + maximoPermitido + ").");
+            }
+            patrocinio.setFecha(LocalDate.now());
+        });
     }
 
     @Override

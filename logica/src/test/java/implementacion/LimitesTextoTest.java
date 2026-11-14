@@ -84,7 +84,7 @@ class LimitesTextoTest extends soporte.PruebaConBaseSegura {
     @Test void tipoYCodigoExcesivosSeRechazanSinInsertar() {
         assertThrows(IllegalArgumentException.class, () -> sistema.altaTipoRegistro(new DtTipoRegistro(excesivo,"D",0,1),"edición", Actor.administradorLocal()));
         assertThrows(IllegalArgumentException.class, () -> sistema.altaPatrocinio(new DtPatrocinio(
-                null,100,0,excesivo,NivelPatrocinio.ORO,"institución","edición","tipo")));
+                null,100,0,excesivo,NivelPatrocinio.ORO,"institución","edición","tipo"), null, datatypes.Actor.administradorLocal()));
         assertNull(sistema.consultarPatrocinio(excesivo));
     }
 }

@@ -199,7 +199,7 @@ class ReglasAltaTest extends soporte.PruebaConBaseSegura {
         assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General", "Tipo", 1000, 50), edicion, Actor.administradorLocal()));
 
         // 2 gratuitos de $1000 = $2000, menos del 20 % de $100000
-        assertTrue(sistema.altaPatrocinio(patrocinio("COD-OK-" + sufijo, institucion, edicion, "General", 100_000f, 2)));
+        assertTrue(sistema.altaPatrocinio(patrocinio("COD-OK-" + sufijo, institucion, edicion, "General", 100_000f, 2), null, datatypes.Actor.administradorLocal()));
     }
 
     @Test
@@ -210,10 +210,10 @@ class ReglasAltaTest extends soporte.PruebaConBaseSegura {
         assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General", "Tipo", 1000, 50), edicion, Actor.administradorLocal()));
 
         String codigo = "COD-UNICO-" + sufijo;
-        assertTrue(sistema.altaPatrocinio(patrocinio(codigo, primera, edicion, "General", 100_000f, 2)));
+        assertTrue(sistema.altaPatrocinio(patrocinio(codigo, primera, edicion, "General", 100_000f, 2), null, datatypes.Actor.administradorLocal()));
 
         assertThrows(IllegalArgumentException.class, () -> sistema.altaPatrocinio(
-                patrocinio(codigo, segunda, edicion, "General", 100_000f, 2)));
+                patrocinio(codigo, segunda, edicion, "General", 100_000f, 2), null, datatypes.Actor.administradorLocal()));
     }
 
     @Test
@@ -222,10 +222,10 @@ class ReglasAltaTest extends soporte.PruebaConBaseSegura {
         String institucion = crearInstitucion("instDos");
         assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General", "Tipo", 1000, 50), edicion, Actor.administradorLocal()));
 
-        assertTrue(sistema.altaPatrocinio(patrocinio("COD-1-" + sufijo, institucion, edicion, "General", 100_000f, 2)));
+        assertTrue(sistema.altaPatrocinio(patrocinio("COD-1-" + sufijo, institucion, edicion, "General", 100_000f, 2), null, datatypes.Actor.administradorLocal()));
 
         assertThrows(IllegalArgumentException.class, () -> sistema.altaPatrocinio(
-                patrocinio("COD-2-" + sufijo, institucion, edicion, "General", 100_000f, 2)));
+                patrocinio("COD-2-" + sufijo, institucion, edicion, "General", 100_000f, 2), null, datatypes.Actor.administradorLocal()));
     }
 
     @Test
@@ -236,7 +236,7 @@ class ReglasAltaTest extends soporte.PruebaConBaseSegura {
 
         // 3 gratuitos de $1000 = $3000, más del 20 % de $10000 ($2000)
         assertThrows(IllegalArgumentException.class, () -> sistema.altaPatrocinio(
-                patrocinio("COD-TOPE-" + sufijo, institucion, edicion, "General", 10_000f, 3)));
+                patrocinio("COD-TOPE-" + sufijo, institucion, edicion, "General", 10_000f, 3), null, datatypes.Actor.administradorLocal()));
     }
 
     @Test
@@ -246,10 +246,10 @@ class ReglasAltaTest extends soporte.PruebaConBaseSegura {
         assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General", "Tipo", 1000, 50), edicion, Actor.administradorLocal()));
 
         assertThrows(IllegalArgumentException.class, () -> sistema.altaPatrocinio(
-                patrocinio("COD-A-" + sufijo, "noexiste" + sufijo, edicion, "General", 100_000f, 1)));
+                patrocinio("COD-A-" + sufijo, "noexiste" + sufijo, edicion, "General", 100_000f, 1), null, datatypes.Actor.administradorLocal()));
         assertThrows(IllegalArgumentException.class, () -> sistema.altaPatrocinio(
-                patrocinio("COD-B-" + sufijo, institucion, "noexiste" + sufijo, "General", 100_000f, 1)));
+                patrocinio("COD-B-" + sufijo, institucion, "noexiste" + sufijo, "General", 100_000f, 1), null, datatypes.Actor.administradorLocal()));
         assertThrows(IllegalArgumentException.class, () -> sistema.altaPatrocinio(
-                patrocinio("COD-C-" + sufijo, institucion, edicion, "NoExiste", 100_000f, 1)));
+                patrocinio("COD-C-" + sufijo, institucion, edicion, "NoExiste", 100_000f, 1), null, datatypes.Actor.administradorLocal()));
     }
 }

@@ -32,7 +32,7 @@ public class VerificarBloqueD extends VerificarSwing {
             sistema.asociarImagen(TipoEntidadImagen.EDICION, aceptada, sistema.obtenerImagen(TipoEntidadImagen.EDICION, edicion));
             sistema.altaTipoRegistro(new DtTipoRegistro("General D", "Descripción", 10, 20), aceptada, Actor.administradorLocal());
             String codigo = "codigo-d-" + sufijo;
-            sistema.altaPatrocinio(new DtPatrocinio(null, 100, 1, codigo, NivelPatrocinio.ORO, institucion, aceptada, "General D"));
+            sistema.altaPatrocinio(new DtPatrocinio(null, 100, 1, codigo, NivelPatrocinio.ORO, institucion, aceptada, "General D"), null, datatypes.Actor.administradorLocal());
 
             tomcat = new Tomcat();
             tomcat.setBaseDir(Path.of("webapp/target/tomcat-swing-d-" + sufijo).toAbsolutePath().toString());
