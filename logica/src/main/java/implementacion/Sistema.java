@@ -1,0 +1,984 @@
+package implementacion;
+
+import clases.*;
+import datatypes.*;
+import interfaces.ISistema;
+import manejadores.ManejadorEventos;
+import manejadores.ManejadorInstituciones;
+import manejadores.ManejadorPatrocinios;
+import manejadores.ManejadorRegistros;
+import manejadores.ManejadorUsuarios;
+import manejadores.ManejadorImagenes;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.time.LocalDate;
+
+public class Sistema implements ISistema {
+
+    private final ManejadorUsuarios manejadorUsuarios;
+    private final ManejadorInstituciones manejadorInstituciones;
+    private final ManejadorEventos manejadorEventos;
+    private final ManejadorPatrocinios manejadorPatrocinios;
+    private final ManejadorRegistros manejadorRegistros;
+    private final ManejadorImagenes manejadorImagenes;
+
+    private void validarDatosUsuario(String nickname, String nombre, String correo) {
+        validarTexto("nickname", nickname);
+        validarTexto("nombre", nombre);
+        validarTexto("correo", correo);
+        if (nickname == null || nickname.isBlank()) {
+            throw new IllegalArgumentException("El nickname es obligatorio.");
+        }
+
+        if (nombre == null || nombre.isBlank()) {
+            throw new IllegalArgumentException("El nombre es obligatorio.");
+        }
+
+        if (correo == null || !correo.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
+            throw new IllegalArgumentException("El correo electrónico no es válido.");
+        }
+
+        if (manejadorUsuarios.existeUsuario(nickname)) {
+            throw new IllegalArgumentException("Ya existe un usuario con ese nickname.");
+        }
+
+        if (manejadorUsuarios.existeCorreo(correo)) {
+            throw new IllegalArgumentException("Ya existe un usuario con ese correo electrónico.");
+        }
+    }
+
+    /** String JPA sin longitud explícita: varchar(255); PostgreSQL cuenta caracteres. */
+    private void validarTexto(String campo, String valor) {
+        if (valor != null && valor.codePointCount(0, valor.length()) > 255) {
+            throw new IllegalArgumentException("El campo " + campo + " no puede superar los 255 caracteres.");
+        }
+        if (valor != null && valor.indexOf('\0') >= 0) {
+            throw new IllegalArgumentException("El campo " + campo + " contiene un carácter no permitido.");
+        }
+    }
+
+    private void validarObligatorio(String valor, String mensaje) {
+        validarTexto("texto", valor);
+        if (valor == null || valor.isBlank()) {
+            throw new IllegalArgumentException(mensaje);
+        }
+    }
+
+    private void validarNacimiento(LocalDate fecha) {
+        if (fecha == null) {
+            throw new IllegalArgumentException("La fecha de nacimiento es obligatoria.");
+        }
+        if (fecha.isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException("La fecha de nacimiento no puede ser futura.");
+        }
+    }
+
+    private void validarContrasenia(String contrasenia, String confirmacion) {
+        if (contrasenia == null || contrasenia.isEmpty()) {
+            throw new IllegalArgumentException("La contraseña es obligatoria.");
+        }
+
+        if (!contrasenia.equals(confirmacion)) {
+            throw new IllegalArgumentException("La contraseña y su confirmación no coinciden.");
+        }
+    }
+
+    @Override
+    public DtUsuario autenticar(String nicknameOCorreo, String contrasenia) {
+        String mensaje = "El nickname, el correo o la contraseña no son correctos.";
+
+        if (nicknameOCorreo == null || nicknameOCorreo.isBlank() || contrasenia == null) {
+            throw new IllegalArgumentException(mensaje);
+        }
+
+        String identificador = nicknameOCorreo.trim();
+        if (identificador.codePointCount(0, identificador.length()) > 255 || identificador.indexOf('\0') >= 0) {
+            throw new IllegalArgumentException(mensaje);
+        }
+        Usuario coincidencia = null;
+        int cantidad = 0;
+        for (Usuario candidato : manejadorUsuarios.buscarPorNicknameOCorreo(identificador)) {
+            if (candidato.contraseniaCoincide(contrasenia)) {
+                coincidencia = candidato;
+                cantidad++;
+            }
+        }
+        // No se elige arbitrariamente una cuenta cuando también coincide la contraseña.
+        if (cantidad != 1) throw new IllegalArgumentException(mensaje);
+        return consultarUsuario(coincidencia.getNickname());
+    }
+
+    @Override
+    public void cambiarContrasenia(String nickname, String nueva, String confirmacion) {
+        validarContrasenia(nueva, confirmacion);
+
+        if (!manejadorUsuarios.cambiarContrasenia(nickname, nueva)) {
+            throw new IllegalArgumentException("El usuario no existe.");
+        }
+    }
+
+    public Sistema() {
+        manejadorUsuarios = ManejadorUsuarios.getInstance();
+        manejadorInstituciones = ManejadorInstituciones.getInstance();
+        manejadorEventos = ManejadorEventos.getInstance();
+        manejadorPatrocinios = ManejadorPatrocinios.getInstance();
+        manejadorRegistros = ManejadorRegistros.getInstance();
+        manejadorImagenes = ManejadorImagenes.getInstance();
+    }
+
+    // VALIDACIONES USUARIO
+    @Override
+    public boolean existeUsuario(String nickname) { return manejadorUsuarios.existeUsuario(nickname); }
+    @Override
+    public boolean existeCorreoElectronico(String correoElectronico) { return manejadorUsuarios.existeCorreo(correoElectronico); }
+
+    // ALTA USUARIO
+    @Override
+    public boolean altaAsistente(DtAsistente dt) {
+        return altaAsistente(dt, null);
+    }
+
+    @Override
+    public boolean altaAsistente(DtAsistente dt, DtImagen imagen) {
+        if (imagen != null) validarImagen(imagen);
+        if (dt == null) {
+            throw new IllegalArgumentException("Los datos del asistente son obligatorios.");
+        }
+
+        validarDatosUsuario(dt.getNickname(), dt.getNombre(), dt.getCorreoElectronico());
+        validarContrasenia(dt.getContrasenia(), dt.getConfirmacionContrasenia());
+        validarObligatorio(dt.getApellido(), "El apellido es obligatorio.");
+        validarNacimiento(dt.getFechaNacimiento());
+        Institucion institucion = null;
+
+        if (dt.getNombreInstitucion() != null && !dt.getNombreInstitucion().isBlank()) {
+            institucion = manejadorInstituciones.obtenerInstitucion(dt.getNombreInstitucion());
+
+            if (institucion == null) {
+                throw new IllegalArgumentException("La institución seleccionada no existe.");
+            }
+        }
+
+        Asistente asistente = new Asistente(
+                dt.getNickname(),
+                dt.getNombre(),
+                dt.getCorreoElectronico(),
+                dt.getApellido(),
+                dt.getFechaNacimiento(),
+                institucion
+        );
+        asistente.setContrasenia(dt.getContrasenia());
+        if (imagen != null) asistente.setImagen(new Imagen(imagen.getTipoContenido(), imagen.getContenido()));
+        return manejadorUsuarios.addUsuario(asistente);
+    }
+
+    @Override
+    public boolean altaOrganizador(DtOrganizador dt) {
+        return altaOrganizador(dt, null);
+    }
+
+    @Override
+    public boolean altaOrganizador(DtOrganizador dt, DtImagen imagen) {
+        if (imagen != null) validarImagen(imagen);
+        if (dt == null) {
+            throw new IllegalArgumentException("Los datos del organizador son obligatorios.");
+        }
+
+        validarDatosUsuario(dt.getNickname(), dt.getNombre(), dt.getCorreoElectronico());
+        validarContrasenia(dt.getContrasenia(), dt.getConfirmacionContrasenia());
+
+        validarObligatorio(dt.getDescripcion(), "La descripción es obligatoria.");
+        validarTexto("sitio web", dt.getSitioWeb());
+
+        Organizador organizador = new Organizador(
+                dt.getNickname(),
+                dt.getNombre(),
+                dt.getCorreoElectronico(),
+                dt.getDescripcion(),
+                dt.getSitioWeb()
+        );
+        organizador.setContrasenia(dt.getContrasenia());
+        if (imagen != null) organizador.setImagen(new Imagen(imagen.getTipoContenido(), imagen.getContenido()));
+        return manejadorUsuarios.addUsuario(organizador);
+    }
+
+    // CONSULTA USUARIO
+    @Override
+    public Collection<DtUsuario> listarUsuarios() {
+        Collection<DtUsuario> resultado = new ArrayList<>();
+
+        for (Usuario usuario : manejadorUsuarios.listarUsuarios()) {
+            if (usuario instanceof Asistente asistente) {
+                resultado.add(new DtAsistente(
+                        asistente.getNickname(),
+                        asistente.getNombre(),
+                        asistente.getCorreoElectronico(),
+                        asistente.getApellido(),
+                        asistente.getFechaNacimiento(),
+                        asistente.getNombreInstitucion(),
+                        asistente.getFechaAlta()
+                ));
+
+            } else if (usuario instanceof Organizador organizador) {
+                resultado.add(new DtOrganizador(
+                        organizador.getNickname(),
+                        organizador.getNombre(),
+                        organizador.getCorreoElectronico(),
+                        organizador.getDescripcion(),
+                        organizador.getSitioWeb(),
+                        organizador.getFechaAlta()
+                ));
+            }
+        }
+        return resultado;
+    }
+
+    @Override
+    public DtUsuario consultarUsuario(String nickname) {
+        Usuario usuario = manejadorUsuarios.obtenerUsuario(nickname);
+        if (usuario == null) { return null; }
+        if (usuario instanceof Asistente asistente) {
+            return new DtAsistente(
+                    asistente.getNickname(),
+                    asistente.getNombre(),
+                    asistente.getCorreoElectronico(),
+                    asistente.getApellido(),
+                    asistente.getFechaNacimiento(),
+                    asistente.getNombreInstitucion(),
+                    asistente.getFechaAlta()
+            );
+        }
+        if (usuario instanceof Organizador organizador) {
+            return new DtOrganizador(
+                    organizador.getNickname(),
+                    organizador.getNombre(),
+                    organizador.getCorreoElectronico(),
+                    organizador.getDescripcion(),
+                    organizador.getSitioWeb(),
+                    organizador.getFechaAlta()
+            );
+        }
+        return null;
+    }
+
+    @Override
+    public Collection<DtRegistro> obtenerRegistrosAsistente(String nickname) {
+        Collection<DtRegistro> resultado = new ArrayList<>();
+
+        for (Registro registro : manejadorRegistros.obtenerRegistrosAsistente(nickname)) {
+            resultado.add(aDtRegistro(registro));
+        }
+        return resultado;
+    }
+
+    // Arma el DtRegistro de las consultas: con el asistente y si usó código de patrocinio
+    // (el código en sí no se publica).
+    private DtRegistro aDtRegistro(Registro registro) {
+        String nombreTipoRegistro = null;
+        String nombreEdicion = null;
+        String nicknameAsistente = null;
+
+        if (registro.getTipoRegistro() != null) {
+            nombreTipoRegistro = registro.getTipoRegistro().getIdNombre();
+        }
+
+        if (registro.getEdicion() != null) {
+            nombreEdicion = registro.getEdicion().getIdNombre();
+        }
+
+        if (registro.getAsistente() != null) {
+            nicknameAsistente = registro.getAsistente().getNickname();
+        }
+
+        return new DtRegistro(
+                registro.getFechaRegistro(),
+                registro.getCosto(),
+                nombreTipoRegistro,
+                nombreEdicion,
+                nicknameAsistente,
+                registro.getPatrocinio() != null
+        );
+    }
+
+    @Override
+    public void modificarAsistente(DtAsistente dt) {
+        modificarAsistente(dt, null);
+    }
+
+    @Override
+    public void modificarAsistente(DtAsistente dt, DtImagen imagen) {
+        if (imagen != null) validarImagen(imagen);
+        if (dt == null || dt.getNickname() == null || !existeUsuario(dt.getNickname())) {
+            throw new IllegalArgumentException("El usuario no existe.");
+        }
+        if (dt.getNombre() == null || dt.getNombre().isBlank()) {
+            throw new IllegalArgumentException("El nombre es obligatorio.");
+        }
+        if (dt.getApellido() == null || dt.getApellido().isBlank()) {
+            throw new IllegalArgumentException("El apellido es obligatorio.");
+        }
+        validarNacimiento(dt.getFechaNacimiento());
+        validarTexto("nombre", dt.getNombre());
+        validarTexto("apellido", dt.getApellido());
+
+        Institucion institucion = null;
+        if (dt.getNombreInstitucion() != null && !dt.getNombreInstitucion().isBlank()) {
+            institucion = manejadorInstituciones.obtenerInstitucion(dt.getNombreInstitucion());
+
+            if (institucion == null) {
+                throw new IllegalArgumentException("La institución indicada no existe.");
+            }
+        }
+
+        if (dt.getContrasenia() != null && !dt.getContrasenia().isEmpty()) {
+            validarContrasenia(dt.getContrasenia(), dt.getConfirmacionContrasenia());
+        }
+
+        if (!manejadorUsuarios.modificarAsistente(
+                dt.getNickname(),
+                dt.getNombre(),
+                dt.getApellido(),
+                dt.getFechaNacimiento(),
+                institucion,
+                dt.getContrasenia(),
+                imagen
+        )) {
+            throw new IllegalArgumentException("El usuario no existe.");
+        }
+    }
+
+    @Override
+    public void modificarOrganizador(DtOrganizador dt) {
+        modificarOrganizador(dt, null);
+    }
+
+    @Override
+    public void modificarOrganizador(DtOrganizador dt, DtImagen imagen) {
+        if (imagen != null) validarImagen(imagen);
+        if (dt == null || dt.getNickname() == null || !existeUsuario(dt.getNickname())) {
+            throw new IllegalArgumentException("El usuario no existe.");
+        }
+        if (dt.getNombre() == null || dt.getNombre().isBlank()) {
+            throw new IllegalArgumentException("El nombre es obligatorio.");
+        }
+        if (dt.getDescripcion() == null || dt.getDescripcion().isBlank()) {
+            throw new IllegalArgumentException("La descripción es obligatoria.");
+        }
+
+        validarTexto("nombre", dt.getNombre());
+        validarTexto("descripción", dt.getDescripcion());
+        validarTexto("sitio web", dt.getSitioWeb());
+
+        if (dt.getContrasenia() != null && !dt.getContrasenia().isEmpty()) {
+            validarContrasenia(dt.getContrasenia(), dt.getConfirmacionContrasenia());
+        }
+
+        if (!manejadorUsuarios.modificarOrganizador(
+                dt.getNickname(),
+                dt.getNombre(),
+                dt.getDescripcion(),
+                dt.getSitioWeb(),
+                dt.getContrasenia(),
+                imagen
+        )) {
+            throw new IllegalArgumentException("El usuario no existe.");
+        }
+    }
+
+    // INSTITUCIONES
+    @Override
+    public boolean altaInstitucion(DtInstitucion dt) {
+        return altaInstitucion(dt, null);
+    }
+
+    @Override
+    public boolean altaInstitucion(DtInstitucion dt, DtImagen imagen) {
+        if (imagen != null) validarImagen(imagen);
+        if (dt == null) {
+            throw new IllegalArgumentException("Los datos de la institución son obligatorios.");
+        }
+        validarObligatorio(dt.getNombre(), "El nombre de la institución es obligatorio.");
+        validarObligatorio(dt.getDescripcion(), "La descripción es obligatoria.");
+        validarTexto("sitio web", dt.getSitioWeb());
+        Institucion institucion = new Institucion(
+                dt.getNombre(),
+                dt.getDescripcion(),
+                dt.getSitioWeb()
+        );
+        if (imagen != null) institucion.setImagen(new Imagen(imagen.getTipoContenido(), imagen.getContenido()));
+        return manejadorInstituciones.addInstitucion(institucion);
+    }
+
+    @Override
+    public boolean existeInstitucion(String nombre) { return manejadorInstituciones.existeInstitucion(nombre); }
+
+    @Override
+    public Collection<DtInstitucion> listarInstituciones() {
+        Collection<DtInstitucion> resultado = new ArrayList<>();
+        for (Institucion institucion : manejadorInstituciones.listarInstituciones()) {
+            resultado.add(new DtInstitucion(
+                    institucion.getNombre(),
+                    institucion.getDescripcion(),
+                    institucion.getSitioWeb()
+            ));
+        }
+        return resultado;
+    }
+
+    // CATEGORÍAS
+    @Override
+    public void altaCategoria(String nombre, String nombrePadre) throws Exception {
+        validarTexto("nombre de categoría", nombre);
+        if (nombre == null || nombre.trim().isEmpty()) {
+            throw new Exception("El nombre de la categoría no puede estar vacío.");
+        }
+        if (manejadorEventos.obtenerCategoria(nombre) != null) {
+            throw new Exception("Ya existe una categoría con el nombre '" + nombre + "'.");
+        }
+
+        Categoria categoriaPadre = null;
+        if (nombrePadre != null && !nombrePadre.trim().isEmpty()) {
+            categoriaPadre = manejadorEventos.obtenerCategoria(nombrePadre);
+            if (categoriaPadre == null) {
+                throw new Exception("La categoría padre especificada no existe.");
+            }
+        }
+        Categoria nuevaCategoria = new Categoria(nombre, categoriaPadre);
+        manejadorEventos.addCategoria(nuevaCategoria);
+    }
+
+    @Override
+    public Collection<String> listarCategoriasFormateadas() {
+        List<String> resultado = new ArrayList<>();
+
+        for (Categoria categoria : manejadorEventos.obtenerCategorias()) {
+            if (categoria.getPadre() == null) {
+                agregarConIndentacion(categoria, "", resultado);
+            }
+        }
+        return resultado;
+    }
+
+    @Override
+    public Collection<DtCategoria> listarCategorias() {
+        Collection<DtCategoria> resultado = new ArrayList<>();
+
+        for (Categoria categoria : manejadorEventos.obtenerCategorias()) {
+            String nombrePadre = null;
+
+            if (categoria.getPadre() != null) {
+                nombrePadre = categoria.getPadre().getNombre();
+            }
+
+            resultado.add(new DtCategoria(
+                    categoria.getNombre(),
+                    nombrePadre
+            ));
+        }
+
+        return resultado;
+    }
+
+    private void agregarConIndentacion(Categoria categoria, String prefijo, List<String> resultado) {
+        resultado.add(prefijo + categoria.getNombre());
+        for (Categoria hija : categoria.getSubcategorias()) {
+            agregarConIndentacion(hija, prefijo + "   - ", resultado);
+        }
+    }
+
+    // EVENTOS
+    @Override
+    public boolean altaEvento(DtEvento dt) throws Exception {
+        if (dt == null) {
+            throw new IllegalArgumentException("Los datos del evento son obligatorios.");
+        }
+        validarObligatorio(dt.getNombre(), "El nombre del evento es obligatorio.");
+        validarObligatorio(dt.getSigla(), "La sigla es obligatoria.");
+        validarObligatorio(dt.getDescripcion(), "La descripción es obligatoria.");
+        if (manejadorEventos.existeEvento(dt.getNombre())) {
+            throw new Exception("Ya existe un evento con el nombre: " + dt.getNombre());
+        }
+        if (dt.getCategorias() == null || dt.getCategorias().isEmpty()) {
+            throw new Exception("Debe seleccionar al menos una categoría.");
+        }
+
+        Evento evento = new Evento(
+                dt.getNombre(),
+                dt.getSigla(),
+                dt.getDescripcion(),
+                LocalDate.now()
+
+        );
+
+        for (String nombreCategoria : dt.getCategorias()) {
+            validarObligatorio(nombreCategoria, "Debe seleccionar una categoría existente.");
+            Categoria categoria = manejadorEventos.obtenerCategoria(nombreCategoria);
+            if (categoria == null) {
+                throw new Exception("La categoría '" + nombreCategoria + "' no existe.");
+            }
+            evento.agregarCategoria(categoria);
+        }
+        return manejadorEventos.addEvento(evento);
+    }
+
+    @Override
+    public Collection<DtEvento> listarEventos() {
+        Collection<DtEvento> resultado = new ArrayList<>();
+        for (Evento evento : manejadorEventos.obtenerEventos()) {
+            Set<String> categorias = new HashSet<>();
+            for (Categoria categoria : evento.getCategorias()) {
+                categorias.add(categoria.getNombre());
+            }
+            resultado.add(new DtEvento(
+                    evento.getNombre(),
+                    evento.getSigla(),
+                    evento.getDescripcion(),
+                    evento.getFechaAlta(),
+                    categorias
+            ));
+        }
+        return resultado;
+    }
+
+    // EDICIONES
+    @Override
+    public boolean altaEdicion(DtEdicion dt, String nombreEvento) {
+        if (dt == null || dt.getIdNombre() == null || dt.getIdNombre().isBlank()) {
+            throw new IllegalArgumentException("El nombre de la edición es obligatorio.");
+        }
+
+        validarTexto("nombre de edición", dt.getIdNombre());
+
+        validarObligatorio(nombreEvento, "Debe seleccionar un evento.");
+        validarObligatorio(dt.getSigla(), "La sigla es obligatoria.");
+        validarObligatorio(dt.getCiudad(), "La ciudad es obligatoria.");
+        validarObligatorio(dt.getPais(), "El país es obligatorio.");
+        validarObligatorio(dt.getNombreOrganizador(), "El organizador indicado no existe.");
+
+        Evento evento = manejadorEventos.obtenerEvento(nombreEvento);
+
+        if (evento == null) {
+            throw new IllegalArgumentException("El evento indicado no existe.");
+        }
+
+        if (manejadorEventos.existeEdicion(dt.getIdNombre())) {
+            throw new IllegalArgumentException("Ya existe una edición con ese nombre.");
+        }
+
+        Organizador organizador = manejadorUsuarios.obtenerOrganizador(dt.getNombreOrganizador());
+        if (organizador == null) {
+            throw new IllegalArgumentException("El organizador indicado no existe.");
+        }
+
+        if (dt.getFechaInicio() == null || dt.getFechaFin() == null) {
+            throw new IllegalArgumentException("Las fechas de inicio y de fin son obligatorias.");
+        }
+
+        if (dt.getFechaFin().isBefore(dt.getFechaInicio())) {
+            throw new IllegalArgumentException("La fecha de fin no puede ser anterior a la de inicio.");
+        }
+
+        Edicion edicion = new Edicion(
+                dt.getIdNombre(),
+                dt.getSigla(),
+                dt.getFechaInicio(),
+                dt.getFechaFin(),
+                LocalDate.now(),
+                dt.getCiudad(),
+                dt.getPais(),
+                organizador
+        );
+        edicion.setEvento(evento);
+
+        if (!manejadorEventos.addEdicion(edicion)) {
+            throw new IllegalArgumentException("Ya existe una edición con ese nombre.");
+        }
+        return true;
+    }
+
+
+
+    private DtEdicion aDt(Edicion edicion) {
+        String nombreOrganizador = null;
+        if (edicion.getOrganizador() != null) {
+            nombreOrganizador = edicion.getOrganizador().getNickname();
+        }
+
+        DtEdicion dt = new DtEdicion(
+                edicion.getIdNombre(),
+                edicion.getSigla(),
+                edicion.getFechaInicio(),
+                edicion.getFechaFin(),
+                edicion.getFechaAlta(),
+                edicion.getCiudad(),
+                edicion.getPais(),
+                nombreOrganizador
+        );
+        dt.setEstado(edicion.getEstado());
+        return dt;
+    }
+
+    @Override
+    public Collection<DtEdicion> obtenerEdicionesOrganizador(String nickname) {
+        Collection<DtEdicion> resultado = new ArrayList<>();
+        for (Edicion edicion : manejadorEventos.obtenerEdicionesOrganizador(nickname)) {
+            resultado.add(aDt(edicion));
+        }
+        return resultado;
+    }
+
+    @Override
+    public Collection<DtEdicion> obtenerEdicionesEvento(String nombreEvento) {
+        Collection<DtEdicion> resultado = new ArrayList<>();
+        for (Edicion edicion : manejadorEventos.obtenerEdicionesEvento(nombreEvento)) {
+            resultado.add(aDt(edicion));
+        }
+        return resultado;
+    }
+
+    @Override
+    public Collection<DtEdicion> obtenerEdicionesEvento(String nombreEvento, EstadoEdicion estado) {
+        Collection<DtEdicion> resultado = new ArrayList<>();
+        for (DtEdicion dt : obtenerEdicionesEvento(nombreEvento)) {
+            if (dt.getEstado() == estado) {
+                resultado.add(dt);
+            }
+        }
+        return resultado;
+    }
+
+    @Override
+    public void aceptarRechazarEdicion(String nombreEdicion, boolean aceptar) {
+        if (nombreEdicion == null || nombreEdicion.isBlank()) {
+            throw new IllegalArgumentException("Debe indicar la edición.");
+        }
+
+        if (!manejadorEventos.cambiarEstadoEdicion(nombreEdicion, aceptar)) {
+            throw new IllegalArgumentException("La edición no existe.");
+        }
+    }
+
+    // TIPO REGISTRO
+    @Override
+    public boolean altaTipoRegistro(DtTipoRegistro dt, String nombreEdicion) {
+        if (dt == null || dt.getIdNombre() == null || dt.getIdNombre().isBlank()) {
+            throw new IllegalArgumentException("El nombre del tipo de registro es obligatorio.");
+        }
+
+        validarTexto("nombre del tipo de registro", dt.getIdNombre());
+
+        validarObligatorio(nombreEdicion, "Debe seleccionar una edición.");
+        validarObligatorio(dt.getDescripcion(), "La descripción es obligatoria.");
+
+        Edicion edicion = manejadorEventos.obtenerEdicion(nombreEdicion);
+        if (edicion == null) {
+            throw new IllegalArgumentException("La edición indicada no existe.");
+        }
+
+        if (manejadorEventos.existeTipoRegistro(nombreEdicion, dt.getIdNombre())) {
+            throw new IllegalArgumentException(
+                    "Ya existe un tipo de registro con ese nombre en la edición.");
+        }
+
+        if (!Float.isFinite(dt.getCosto())) {
+            throw new IllegalArgumentException("El costo debe ser un número finito.");
+        }
+        if (dt.getCosto() < 0) {
+            throw new IllegalArgumentException("El costo no puede ser negativo.");
+        }
+
+        if (dt.getCupo() <= 0) {
+            throw new IllegalArgumentException("El cupo debe ser mayor que cero.");
+        }
+
+        TipoRegistro tipoRegistro = new TipoRegistro(
+                dt.getIdNombre(),
+                dt.getDescripcion(),
+                dt.getCosto(),
+                dt.getCupo()
+        );
+        tipoRegistro.setEdicion(edicion);
+
+        if (!manejadorEventos.addTipoRegistro(tipoRegistro)) {
+            throw new IllegalArgumentException(
+                    "Ya existe un tipo de registro con ese nombre en la edición.");
+        }
+        return true;
+
+    }
+
+    @Override
+    public Collection<DtTipoRegistro> obtenerTiposRegistroEdicion(String nombreEdicion) {
+        Collection<DtTipoRegistro> resultado = new ArrayList<>();
+        for (TipoRegistro tipo : manejadorEventos.obtenerTiposRegistroEdicion(nombreEdicion)) {
+            resultado.add(new DtTipoRegistro(
+                    tipo.getIdNombre(),
+                    tipo.getDescripcion(),
+                    tipo.getCosto(),
+                    tipo.getCupo()
+            ));
+        }
+        return resultado;
+    }
+
+    @Override
+    public DtTipoRegistro consultarTipoRegistro(String nombreEdicion, String nombreTipoRegistro) {
+        TipoRegistro tipoRegistro = manejadorEventos.obtenerTipoRegistro(nombreEdicion, nombreTipoRegistro);
+        if (tipoRegistro == null) { return null; }
+
+        return new DtTipoRegistro(
+                tipoRegistro.getIdNombre(),
+                tipoRegistro.getDescripcion(),
+                tipoRegistro.getCosto(),
+                tipoRegistro.getCupo()
+        );
+    }
+
+    // REGISTRO A EDICIÓN
+    @Override
+    public boolean registroAEdicion(
+            String nicknameAsistente,
+            String nombreEdicion,
+            String nombreTipoRegistro,
+            DtRegistro dt
+    ) {
+        return registroAEdicion(
+                nicknameAsistente,
+                nombreEdicion,
+                nombreTipoRegistro,
+                dt,
+                null
+        );
+    }
+
+    @Override
+    public boolean registroAEdicion(
+            String nicknameAsistente,
+            String nombreEdicion,
+            String nombreTipoRegistro,
+            DtRegistro dt,
+            String codigoPatrocinio
+    ) {
+        if (dt == null) {
+            throw new IllegalArgumentException("Los datos del registro no son válidos.");
+        }
+        Edicion edicion = manejadorEventos.obtenerEdicion(nombreEdicion);
+
+        if (edicion == null) {
+            throw new IllegalArgumentException("La edición no existe.");
+        }
+
+        if (edicion.getEstado() != EstadoEdicion.ACEPTADA) {
+            throw new IllegalArgumentException("Solo se puede registrar a una edición aceptada.");
+        }
+        return manejadorRegistros.registrar(
+                nicknameAsistente,
+                nombreEdicion,
+                nombreTipoRegistro,
+                LocalDate.now(),
+                codigoPatrocinio
+        );
+    }
+
+    // PATROCINIOS
+    @Override
+    public boolean altaPatrocinio(DtPatrocinio dt) {
+        if (dt == null) {
+            throw new IllegalArgumentException("Los datos del patrocinio no pueden ser nulos.");
+        }
+        validarTexto("código de patrocinio", dt.getCodigoPatrocinio());
+
+        if (dt.getCodigoPatrocinio() == null || dt.getCodigoPatrocinio().isBlank()) {
+            throw new IllegalArgumentException("El código del patrocinio es obligatorio.");
+        }
+        if (dt.getNombreInstituto() == null || dt.getNombreInstituto().isBlank()) {
+            throw new IllegalArgumentException("Debe seleccionar una institución.");
+        }
+        if (dt.getNombreEdicion() == null || dt.getNombreEdicion().isBlank()) {
+            throw new IllegalArgumentException("Debe seleccionar una edición.");
+        }
+        if (dt.getNombreTipoRegistro() == null || dt.getNombreTipoRegistro().isBlank()) {
+            throw new IllegalArgumentException("Debe seleccionar un tipo de registro.");
+        }
+        if (dt.getNivel() == null) {
+            throw new IllegalArgumentException("Debe seleccionar un nivel de patrocinio.");
+        }
+        if (!Float.isFinite(dt.getMontoAporte()) || dt.getMontoAporte() <= 0) {
+            throw new IllegalArgumentException("El aporte económico debe ser mayor que 0.");
+        }
+        if (dt.getCantRegistrosGrat() < 0) {
+            throw new IllegalArgumentException("La cantidad de registros gratuitos no puede ser negativa.");
+        }
+
+        if (manejadorPatrocinios.existePatrocinio(dt.getCodigoPatrocinio())) {
+            throw new IllegalArgumentException("Ya existe un patrocinio con el código '" + dt.getCodigoPatrocinio() + "'.");
+        }
+
+        Institucion institucion = manejadorInstituciones.obtenerInstitucion(dt.getNombreInstituto());
+        if (institucion == null) {
+            throw new IllegalArgumentException("La institución seleccionada no existe.");
+        }
+
+        Edicion edicion = manejadorEventos.obtenerEdicion(dt.getNombreEdicion());
+        if (edicion == null) {
+            throw new IllegalArgumentException("La edición seleccionada no existe.");
+        }
+
+        TipoRegistro tipoRegistro = manejadorEventos.obtenerTipoRegistro(dt.getNombreEdicion(), dt.getNombreTipoRegistro());
+        if (tipoRegistro == null) {
+            throw new IllegalArgumentException("El tipo de registro seleccionado no existe.");
+        }
+
+        if (manejadorPatrocinios.existePatrocinioInstitucionEdicion(institucion.getNombre(), edicion.getIdNombre())) {
+            throw new IllegalArgumentException(
+                    "La institución '" + institucion.getNombre() + "' ya posee un patrocinio para la edición '" + edicion.getIdNombre() + "'."
+            );
+        }
+
+        // RESTRICCIÓN DEL 20 %
+        float costoRegistros = tipoRegistro.getCosto() * dt.getCantRegistrosGrat();
+        float maximoPermitido = dt.getMontoAporte() * 0.20f;
+
+        if (costoRegistros > maximoPermitido) {
+            throw new IllegalArgumentException(
+                    "El costo de los registros gratuitos ($" + costoRegistros + ") supera el 20% del aporte económico ($" + maximoPermitido + ")."
+            );
+        }
+
+        Patrocinio patrocinio = new Patrocinio(
+
+                        LocalDate.now(),
+                        dt.getMontoAporte(),
+                        dt.getCantRegistrosGrat(),
+                        dt.getCodigoPatrocinio(),
+                        dt.getNivel(),
+                        institucion
+                );
+
+        patrocinio.setEdicion(edicion);
+        patrocinio.setTipoRegistro(tipoRegistro);
+
+        boolean agregado = manejadorPatrocinios.addPatrocinio(patrocinio);
+        if (!agregado) {
+            throw new IllegalArgumentException("No fue posible registrar el patrocinio.");
+        }
+        return true;
+    }
+
+    @Override
+    public DtPatrocinio consultarPatrocinio(String codigo) {
+        Patrocinio patrocinio = manejadorPatrocinios.obtenerPatrocinio(codigo);
+        if (patrocinio == null) { return null; }
+
+        String nombreInstitucion = null;
+        if (patrocinio.getInstitucion() != null) {
+            nombreInstitucion = patrocinio.getInstitucion().getNombre();
+        }
+
+        return new DtPatrocinio(
+                patrocinio.getFecha(),
+                patrocinio.getMontoAporte(),
+                patrocinio.getCantRegistrosGrat(),
+                patrocinio.getCodigoPatrocinio(),
+                patrocinio.getNivel(),
+                nombreInstitucion,
+                patrocinio.getEdicion() != null ? patrocinio.getEdicion().getIdNombre() : null,
+                patrocinio.getTipoRegistro() != null ? patrocinio.getTipoRegistro().getIdNombre() : null
+        );
+    }
+
+    @Override
+    public DtPatrocinio consultarPatrocinio(String nombreEdicion, String nombreInstitucion) {
+        if (nombreEdicion == null || nombreEdicion.isBlank() || nombreInstitucion == null || nombreInstitucion.isBlank()) {
+            return null;
+        }
+
+        Patrocinio patrocinio = manejadorPatrocinios.obtenerPatrocinio(nombreEdicion, nombreInstitucion);
+        if (patrocinio == null) {
+            return null;
+        }
+
+        String instNombre = patrocinio.getInstitucion() != null ? patrocinio.getInstitucion().getNombre() : null;
+        String edicNombre = patrocinio.getEdicion() != null ? patrocinio.getEdicion().getIdNombre() : null;
+        String tipoRegNombre = patrocinio.getTipoRegistro() != null ? patrocinio.getTipoRegistro().getIdNombre() : null;
+
+        return new DtPatrocinio(
+                patrocinio.getFecha(),
+                patrocinio.getMontoAporte(),
+                patrocinio.getCantRegistrosGrat(),
+                patrocinio.getCodigoPatrocinio(),
+                patrocinio.getNivel(),
+                instNombre,
+                edicNombre,
+                tipoRegNombre
+        );
+    }
+
+    @Override
+    public Collection<DtPatrocinio> obtenerPatrociniosEdicion(String nombreEdicion) {
+        Collection<DtPatrocinio> resultado = new ArrayList<>();
+        for (Patrocinio patrocinio : manejadorPatrocinios.obtenerPatrociniosEdicion(nombreEdicion)) {
+            String nombreInstitucion = null;
+            if (patrocinio.getInstitucion() != null) {
+                nombreInstitucion = patrocinio.getInstitucion().getNombre();
+            }
+            resultado.add(
+                    new DtPatrocinio(
+                            patrocinio.getFecha(),
+                            patrocinio.getMontoAporte(),
+                            patrocinio.getCantRegistrosGrat(),
+                            patrocinio.getCodigoPatrocinio(),
+                            patrocinio.getNivel(),
+                            nombreInstitucion,
+                            patrocinio.getEdicion() != null ? patrocinio.getEdicion().getIdNombre() : null,
+                            patrocinio.getTipoRegistro() != null ? patrocinio.getTipoRegistro().getIdNombre() : null
+                    )
+            );
+        }
+        return resultado;
+    }
+
+    @Override
+    public Collection<DtRegistro> obtenerRegistrosEdicion(String nombreEdicion) {
+        Collection<DtRegistro> resultado = new ArrayList<>();
+
+        for (Registro registro : manejadorRegistros.obtenerRegistrosEdicion(nombreEdicion)) {
+            resultado.add(aDtRegistro(registro));
+        }
+        return resultado;
+    }
+
+    // IMÁGENES
+    @Override
+    public void asociarImagen(TipoEntidadImagen tipo, String clave, DtImagen imagen) {
+        if (tipo == null || clave == null || clave.isBlank()) {
+            throw new IllegalArgumentException("Debe indicar a qué pertenece la imagen.");
+        }
+
+        ValidadorImagen.validar(imagen);
+
+        boolean asociada = manejadorImagenes.asociar(
+                tipo, clave, imagen.getTipoContenido().toLowerCase(), imagen.getContenido());
+
+        if (!asociada) {
+            throw new IllegalArgumentException("La entidad indicada no existe.");
+        }
+    }
+
+    @Override
+    public DtImagen obtenerImagen(TipoEntidadImagen tipo, String clave) {
+        if (tipo == null || clave == null || clave.isBlank()) {
+            return null;
+        }
+
+        return manejadorImagenes.obtener(tipo, clave);
+    }
+
+    @Override
+    public void validarImagen(DtImagen imagen) {
+        ValidadorImagen.validar(imagen);
+    }
+}
