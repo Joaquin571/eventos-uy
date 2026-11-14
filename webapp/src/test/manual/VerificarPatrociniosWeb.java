@@ -46,7 +46,7 @@ public class VerificarPatrociniosWeb {
         for (String nombre : List.of(edicion, oculta, rechazada)) {
             LocalDate h = LocalDate.now();
             sistema.altaEdicion(new DtEdicion(nombre,"ED",h,h,h,"Ciudad","País",duenio),evento);
-            sistema.altaTipoRegistro(new DtTipoRegistro("General","General",100,50),nombre);
+            sistema.altaTipoRegistro(new DtTipoRegistro("General","General",100,50),nombre, Actor.administradorLocal());
         }
         sistema.aceptarRechazarEdicion(edicion,true);sistema.aceptarRechazarEdicion(rechazada,false);
         sistema.altaInstitucion(new DtInstitucion(institucion,"Descripción","https://test.uy"));

@@ -119,12 +119,12 @@ public class VerificarConsultasWeb {
         for(String ev:List.of(evento,otroEvento))s.altaEvento(new DtEvento(ev,"EV","Descripción",LocalDate.now(),List.of(cat)));
         for(String nombre:List.of(aceptada,ingresada,rechazada,otra,vacia)) {
             s.altaEdicion(new DtEdicion(nombre,"ED",LocalDate.of(2026,3,7),LocalDate.of(2026,3,9),LocalDate.now(),"Montevideo","Uruguay",org),nombre.equals(otra)?otroEvento:evento);
-            if(!nombre.equals(vacia))s.altaTipoRegistro(new DtTipoRegistro("General","Acceso <general>",nombre.equals(otra)?200:100,50),nombre);
+            if(!nombre.equals(vacia))s.altaTipoRegistro(new DtTipoRegistro("General","Acceso <general>",nombre.equals(otra)?200:100,50),nombre, Actor.administradorLocal());
             if(!nombre.equals(ingresada)&&!nombre.equals(rechazada))s.aceptarRechazarEdicion(nombre,true);
             if(!nombre.equals(vacia))s.asociarImagen(TipoEntidadImagen.EDICION,nombre,new DtImagen("image/png",png));
         }
         s.aceptarRechazarEdicion(rechazada,false);
-        s.altaTipoRegistro(new DtTipoRegistro("SoloOtra","Exclusivo",0,5),otra);
+        s.altaTipoRegistro(new DtTipoRegistro("SoloOtra","Exclusivo",0,5),otra, Actor.administradorLocal());
         s.altaPatrocinio(new DtPatrocinio(LocalDate.now(),1000,1,codigo,NivelPatrocinio.ORO,institucion,aceptada,"General"));
         s.registroAEdicion(ana,aceptada,"General",new DtRegistro(LocalDate.now(),100));
         s.registroAEdicion(bea,aceptada,"General",new DtRegistro(LocalDate.now(),0),codigo);

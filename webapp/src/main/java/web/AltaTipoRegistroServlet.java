@@ -59,45 +59,11 @@ public class AltaTipoRegistroServlet extends HttpServlet {
         req.setAttribute("form", form);
 
         try {
-            String edicion = requerido(req, "edicion");
-
-            boolean propia = sistema
-                    .obtenerEdicionesOrganizador(
-                            organizador.getNickname()
-                    )
-                    .stream()
-                    .anyMatch(e ->
-                            e.getIdNombre().equals(edicion)
-                    );
-
-            if (!propia) {
-                throw new IllegalArgumentException(
-                        "La edición no pertenece al organizador."
-                );
-            }
-
-            String nombre = requerido(req, "nombre");
-            String descripcion = requerido(req, "descripcion");
-
-            float costo = Float.parseFloat(
-                    requerido(req, "costo")
-            );
-
-            int cupo = Integer.parseInt(
-                    requerido(req, "cupo")
-            );
-
-            if (!Float.isFinite(costo) || costo < 0) {
-                throw new IllegalArgumentException(
-                        "El costo debe ser un número no negativo."
-                );
-            }
-
-            if (cupo < 1) {
-                throw new IllegalArgumentException(
-                        "El cupo debe ser mayor que cero."
-                );
-            }
+            String edicion = form.get("edicion").trim();
+            String nombre = form.get("nombre").trim();
+            String descripcion = form.get("descripcion").trim();
+            float costo = Float.parseFloat(campoNumericoRequerido(form, "costo"));
+            int cupo = Integer.parseInt(campoNumericoRequerido(form, "cupo"));
 
             DtTipoRegistro tipo = new DtTipoRegistro(
                     nombre,
@@ -108,7 +74,8 @@ public class AltaTipoRegistroServlet extends HttpServlet {
 
             boolean creado = sistema.altaTipoRegistro(
                     tipo,
-                    edicion
+                    edicion,
+                    Actor.usuarioAutenticado(organizador)
             );
 
             if (!creado) {
@@ -133,6 +100,14 @@ public class AltaTipoRegistroServlet extends HttpServlet {
         }
 
         doGet(req, resp);
+    }
+
+    private String campoNumericoRequerido(Map<String, String> form, String campo) {
+        String valor = form.get(campo);
+        if (valor.isBlank()) {
+            throw new IllegalArgumentException("El campo " + campo + " es obligatorio.");
+        }
+        return valor.trim();
     }
 
     private DtOrganizador obtenerOrganizador(
@@ -161,20 +136,5 @@ public class AltaTipoRegistroServlet extends HttpServlet {
         }
 
         return (DtOrganizador) usuario;
-    }
-
-    private String requerido(
-            HttpServletRequest req,
-            String campo
-    ) {
-        String valor = req.getParameter(campo);
-
-        if (valor == null || valor.isBlank()) {
-            throw new IllegalArgumentException(
-                    "El campo " + campo + " es obligatorio."
-            );
-        }
-
-        return valor.trim();
     }
 }

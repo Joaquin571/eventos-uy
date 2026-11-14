@@ -2,6 +2,7 @@ package swing;
 
 import datatypes.DtEdicion;
 import datatypes.DtEvento;
+import datatypes.Actor;
 import datatypes.DtTipoRegistro;
 import implementacion.Fabrica;
 import interfaces.ISistema;
@@ -30,7 +31,10 @@ public class AltaTipoRegistro {
 
     private Runnable accionCerrar = () -> {};
 
-    public AltaTipoRegistro() {
+    private final Actor actor;
+
+    public AltaTipoRegistro(Actor actor) {
+        this.actor = actor;
 
         sistema =
                 Fabrica.getInstance()
@@ -224,24 +228,6 @@ public class AltaTipoRegistro {
             return;
         }
 
-        if (nombreEdicion == null) {
-
-            mostrarAdvertencia(
-                    "Debe seleccionar una edición."
-            );
-
-            return;
-        }
-
-        if (nombre.isBlank()) {
-
-            mostrarAdvertencia(
-                    "Debe ingresar un nombre para el tipo de registro."
-            );
-
-            return;
-        }
-
         try {
 
             snrCosto.commitEdit();
@@ -264,24 +250,6 @@ public class AltaTipoRegistro {
                 ((Number) snrCupos.getValue())
                         .intValue();
 
-        if (costo < 0) {
-
-            mostrarAdvertencia(
-                    "El costo no puede ser negativo."
-            );
-
-            return;
-        }
-
-        if (cupo <= 0) {
-
-            mostrarAdvertencia(
-                    "El cupo debe ser mayor que 0."
-            );
-
-            return;
-        }
-
         DtTipoRegistro dtTipoRegistro =
                 new DtTipoRegistro(
                         nombre,
@@ -295,7 +263,8 @@ public class AltaTipoRegistro {
             boolean ok =
                     sistema.altaTipoRegistro(
                             dtTipoRegistro,
-                            nombreEdicion
+                            nombreEdicion,
+                            actor
                     );
 
             if (ok) {
@@ -319,6 +288,8 @@ public class AltaTipoRegistro {
                 );
             }
 
+        } catch (IllegalArgumentException e) {
+            mostrarAdvertencia(e.getMessage());
         } catch (Exception e) {
 
             JOptionPane.showMessageDialog(

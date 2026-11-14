@@ -30,7 +30,7 @@ public class VerificarBloqueD extends VerificarSwing {
                         LocalDate.now().plusDays(11), null, "Montevideo", "Uruguay", org), evento);
             }
             sistema.asociarImagen(TipoEntidadImagen.EDICION, aceptada, sistema.obtenerImagen(TipoEntidadImagen.EDICION, edicion));
-            sistema.altaTipoRegistro(new DtTipoRegistro("General D", "Descripción", 10, 20), aceptada);
+            sistema.altaTipoRegistro(new DtTipoRegistro("General D", "Descripción", 10, 20), aceptada, Actor.administradorLocal());
             String codigo = "codigo-d-" + sufijo;
             sistema.altaPatrocinio(new DtPatrocinio(null, 100, 1, codigo, NivelPatrocinio.ORO, institucion, aceptada, "General D"));
 

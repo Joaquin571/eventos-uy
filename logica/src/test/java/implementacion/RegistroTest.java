@@ -1,5 +1,7 @@
 package implementacion;
 
+import datatypes.Actor;
+
 import clases.NivelPatrocinio;
 import datatypes.DtAsistente;
 import datatypes.DtEdicion;
@@ -79,7 +81,7 @@ class RegistroTest extends soporte.PruebaConBaseSegura {
 
     private void agregarTipo(String edicion, String tipo, float costo, int cupo) {
         assertTrue(sistema.altaTipoRegistro(
-                new DtTipoRegistro(tipo, "Tipo " + tipo, costo, cupo), edicion));
+                new DtTipoRegistro(tipo, "Tipo " + tipo, costo, cupo), edicion, Actor.administradorLocal()));
     }
 
     private String crearInstitucion(String prefijo) {

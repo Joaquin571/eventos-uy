@@ -1,5 +1,7 @@
 package swing;
 
+import datatypes.Actor;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
@@ -45,7 +47,10 @@ public class principal {
     private ConsultaRegistroPanel panelConsultaRegistro;
     private AceptarRechazarEdicionPanel panelAceptarRechazarEdicion;
 
-    public principal() {
+    private final Actor actor;
+
+    public principal(Actor actor) {
+        this.actor = actor;
         panelPrincipal = new JPanel(new BorderLayout());
         desktopPane = new JDesktopPane();
 
@@ -285,7 +290,7 @@ public class principal {
         );
         agregarInterno(internoAltaCategoria);
 
-        panelAltaTipoRegistro = new AltaTipoRegistro();
+        panelAltaTipoRegistro = new AltaTipoRegistro(actor);
         internoAltaTipoRegistro = crearInterno(
                 "Alta Tipo de Registro",
                 panelAltaTipoRegistro.getMainPanel(),
@@ -587,7 +592,7 @@ public class principal {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            principal ventana = new principal();
+            principal ventana = new principal(Actor.administradorLocal());
 
             JFrame frame = new JFrame("eventos.uy");
             frame.setContentPane(ventana.panelPrincipal);

@@ -1,5 +1,7 @@
 package implementacion;
 
+import datatypes.Actor;
+
 import clases.NivelPatrocinio;
 import datatypes.DtAsistente;
 import datatypes.DtEdicion;
@@ -82,11 +84,11 @@ class ValidacionesAdicionalesTest extends soporte.PruebaConBaseSegura {
         assertThrows(IllegalArgumentException.class, () -> sistema.altaEdicion(dt, "evento"));
     }
     @Test void tipoRegistroNulo() {
-        assertThrows(IllegalArgumentException.class, () -> sistema.altaTipoRegistro(null, "edicion"));
+        assertThrows(IllegalArgumentException.class, () -> sistema.altaTipoRegistro(null, "edicion", Actor.administradorLocal()));
     }
     @Test void tipoRegistroSinNombre() {
         assertThrows(IllegalArgumentException.class,
-                () -> sistema.altaTipoRegistro(new DtTipoRegistro(" ", "Descripción", 10, 10), "edicion"));
+                () -> sistema.altaTipoRegistro(new DtTipoRegistro(" ", "Descripción", 10, 10), "edicion", Actor.administradorLocal()));
     }
     @Test void patrocinioNulo() {
         assertThrows(IllegalArgumentException.class, () -> sistema.altaPatrocinio(null));

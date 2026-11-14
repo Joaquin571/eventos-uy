@@ -41,7 +41,7 @@ public interface ISistema {
     Collection<DtCategoria> listarCategorias();
 
     // TIPOS DE REGISTRO
-    boolean altaTipoRegistro(DtTipoRegistro dtTipoRegistro, String nombreEdicion);
+    boolean altaTipoRegistro(DtTipoRegistro dtTipoRegistro, String nombreEdicion, Actor actor);
     Collection<DtTipoRegistro> obtenerTiposRegistroEdicion(String nombreEdicion);
     DtTipoRegistro consultarTipoRegistro(String nombreEdicion, String nombreTipoRegistro);
 

@@ -169,13 +169,13 @@ class EtapaUnoTest extends soporte.PruebaConBaseSegura {
                 null, "Ciudad", "País", org), evento));
         for (float costo : new float[]{Float.NaN, Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY}) {
             assertThrows(IllegalArgumentException.class,
-                    () -> sistema.altaTipoRegistro(new DtTipoRegistro("General", "Descripción", costo, 1), ed));
+                    () -> sistema.altaTipoRegistro(new DtTipoRegistro("General", "Descripción", costo, 1), ed, Actor.administradorLocal()));
             assertTrue(sistema.obtenerTiposRegistroEdicion(ed).isEmpty());
         }
         assertThrows(IllegalArgumentException.class,
-                () -> sistema.altaTipoRegistro(new DtTipoRegistro("General", " ", 0, 1), ed));
+                () -> sistema.altaTipoRegistro(new DtTipoRegistro("General", " ", 0, 1), ed, Actor.administradorLocal()));
         assertTrue(sistema.obtenerTiposRegistroEdicion(ed).isEmpty());
-        assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General", "Descripción", 0, 1), ed));
+        assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General", "Descripción", 0, 1), ed, Actor.administradorLocal()));
         assertEquals(0f, sistema.consultarTipoRegistro(ed, "General").getCosto());
         assertEquals(1, sistema.consultarTipoRegistro(ed, "General").getCupo());
     }

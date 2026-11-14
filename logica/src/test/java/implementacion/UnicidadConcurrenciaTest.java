@@ -32,7 +32,7 @@ class UnicidadConcurrenciaTest extends PruebaConBaseSegura {
         assertTrue(sistema.altaEvento(new DtEvento(evento,"EV","Descripción",null,List.of(cat))));
         assertTrue(sistema.altaEdicion(edicion(ed),evento));
         sistema.aceptarRechazarEdicion(ed,true);
-        assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General","Descripción",10,cupo),ed));
+        assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General","Descripción",10,cupo),ed, Actor.administradorLocal()));
     }
     private DtEdicion edicion(String nombre) {
         return new DtEdicion(nombre,"ED",LocalDate.now(),LocalDate.now(),null,"Ciudad","País",org);
@@ -95,7 +95,7 @@ class UnicidadConcurrenciaTest extends PruebaConBaseSegura {
     @Test void tipoEquivalenteSiguePermitidoEnEdicionesDiferentes()throws Exception {
         exigirIndicesH13();preparar(5);
         String otra="otraCi"+ed;assertTrue(sistema.altaEdicion(edicion(otra),evento));
-        assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("GENERAL","Otra edición",10,5),otra));
+        assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("GENERAL","Otra edición",10,5),otra, Actor.administradorLocal()));
         assertEquals("General",sistema.consultarTipoRegistro(ed,"GENERAL").getIdNombre());
         assertEquals("GENERAL",sistema.consultarTipoRegistro(otra,"general").getIdNombre());
     }
@@ -120,7 +120,7 @@ class UnicidadConcurrenciaTest extends PruebaConBaseSegura {
     @Test void patrociniosDeEdicionesDistintasPorMayusculasNoSeConfundenNiBloquean()throws Exception {
         exigirIndicesH13();preparar(5);String otra=ed.toUpperCase(java.util.Locale.ROOT),inst=institucion();
         assertTrue(sistema.altaEdicion(edicion(otra),evento));
-        assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General","Descripción",10,5),otra));
+        assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General","Descripción",10,5),otra, Actor.administradorLocal()));
         String a="patA"+sufijo,b="patB"+sufijo;
         assertTrue(sistema.altaPatrocinio(patrocinio(a,inst)));
         assertNull(sistema.consultarPatrocinio(otra,inst),"No debe devolver el patrocinio de otra clave.");
@@ -230,8 +230,8 @@ class UnicidadConcurrenciaTest extends PruebaConBaseSegura {
     @Test void tiposQueSoloDifierenEnMayusculasEsperanElMismoPadre()throws Exception {
         preparar(5);
         conBloqueo(Edicion.class,ed,
-                ()->sistema.altaTipoRegistro(new DtTipoRegistro("Preferente","Descripción",10,5),ed),
-                ()->sistema.altaTipoRegistro(new DtTipoRegistro("PREFERENTE","Descripción",10,5),ed));
+                ()->sistema.altaTipoRegistro(new DtTipoRegistro("Preferente","Descripción",10,5),ed, Actor.administradorLocal()),
+                ()->sistema.altaTipoRegistro(new DtTipoRegistro("PREFERENTE","Descripción",10,5),ed, Actor.administradorLocal()));
         assertEquals(1,contar("SELECT COUNT(t) FROM TipoRegistro t WHERE t.edicion.idNombre=:clave AND LOWER(t.idNombre)='preferente'",ed));
     }
     @Test void mismaInstitucionYEdicionNoAdmitenDosPatrocinios()throws Exception {
@@ -247,7 +247,7 @@ class UnicidadConcurrenciaTest extends PruebaConBaseSegura {
     }
     @Test void mismoAsistenteEnTiposDistintosEsperaYRecibeErrorDeNegocio()throws Exception {
         preparar(5);String nick=asistente(null);
-        assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("Especial","Descripción",10,5),ed));
+        assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("Especial","Descripción",10,5),ed, Actor.administradorLocal()));
         conBloqueo(Asistente.class,nick,()->registrar(nick,"General",null),()->registrar(nick,"Especial",null));
         assertEquals(1,contar("SELECT COUNT(r) FROM Registro r WHERE r.asistente.nickname=:clave",nick));
     }

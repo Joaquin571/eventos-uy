@@ -1,5 +1,7 @@
 package implementacion;
 
+import datatypes.Actor;
+
 import clases.NivelPatrocinio;
 import datatypes.DtEdicion;
 import datatypes.DtEvento;
@@ -152,10 +154,10 @@ class ReglasAltaTest extends soporte.PruebaConBaseSegura {
     void unTipoDeRegistroRepetidoEnLaEdicionSeRechaza() throws Exception {
         String edicion = crearEdicion();
 
-        assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General", "Tipo general", 100, 10), edicion));
+        assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General", "Tipo general", 100, 10), edicion, Actor.administradorLocal()));
 
         assertThrows(IllegalArgumentException.class, () -> sistema.altaTipoRegistro(
-                new DtTipoRegistro("General", "Otro", 200, 20), edicion));
+                new DtTipoRegistro("General", "Otro", 200, 20), edicion, Actor.administradorLocal()));
     }
 
     @Test
@@ -163,8 +165,8 @@ class ReglasAltaTest extends soporte.PruebaConBaseSegura {
         String primera = crearEdicion();
         String segunda = crearEdicion();
 
-        assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General", "Tipo general", 100, 10), primera));
-        assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General", "Tipo general", 100, 10), segunda));
+        assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General", "Tipo general", 100, 10), primera, Actor.administradorLocal()));
+        assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General", "Tipo general", 100, 10), segunda, Actor.administradorLocal()));
     }
 
     @Test
@@ -172,11 +174,11 @@ class ReglasAltaTest extends soporte.PruebaConBaseSegura {
         String edicion = crearEdicion();
 
         assertThrows(IllegalArgumentException.class, () -> sistema.altaTipoRegistro(
-                new DtTipoRegistro("General", "Tipo", 100, 10), "noexiste" + sufijo));
+                new DtTipoRegistro("General", "Tipo", 100, 10), "noexiste" + sufijo, Actor.administradorLocal()));
         assertThrows(IllegalArgumentException.class, () -> sistema.altaTipoRegistro(
-                new DtTipoRegistro("Negativo", "Tipo", -1, 10), edicion));
+                new DtTipoRegistro("Negativo", "Tipo", -1, 10), edicion, Actor.administradorLocal()));
         assertThrows(IllegalArgumentException.class, () -> sistema.altaTipoRegistro(
-                new DtTipoRegistro("SinCupo", "Tipo", 100, 0), edicion));
+                new DtTipoRegistro("SinCupo", "Tipo", 100, 0), edicion, Actor.administradorLocal()));
     }
 
     // ------------------------------------------------------------ instituciones
@@ -194,7 +196,7 @@ class ReglasAltaTest extends soporte.PruebaConBaseSegura {
     void unPatrocinioValidoSeRegistra() throws Exception {
         String edicion = crearEdicion();
         String institucion = crearInstitucion("instOk");
-        assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General", "Tipo", 1000, 50), edicion));
+        assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General", "Tipo", 1000, 50), edicion, Actor.administradorLocal()));
 
         // 2 gratuitos de $1000 = $2000, menos del 20 % de $100000
         assertTrue(sistema.altaPatrocinio(patrocinio("COD-OK-" + sufijo, institucion, edicion, "General", 100_000f, 2)));
@@ -205,7 +207,7 @@ class ReglasAltaTest extends soporte.PruebaConBaseSegura {
         String edicion = crearEdicion();
         String primera = crearInstitucion("instA");
         String segunda = crearInstitucion("instB");
-        assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General", "Tipo", 1000, 50), edicion));
+        assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General", "Tipo", 1000, 50), edicion, Actor.administradorLocal()));
 
         String codigo = "COD-UNICO-" + sufijo;
         assertTrue(sistema.altaPatrocinio(patrocinio(codigo, primera, edicion, "General", 100_000f, 2)));
@@ -218,7 +220,7 @@ class ReglasAltaTest extends soporte.PruebaConBaseSegura {
     void unaInstitucionNoPuedePatrocinarDosVecesLaMismaEdicion() throws Exception {
         String edicion = crearEdicion();
         String institucion = crearInstitucion("instDos");
-        assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General", "Tipo", 1000, 50), edicion));
+        assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General", "Tipo", 1000, 50), edicion, Actor.administradorLocal()));
 
         assertTrue(sistema.altaPatrocinio(patrocinio("COD-1-" + sufijo, institucion, edicion, "General", 100_000f, 2)));
 
@@ -230,7 +232,7 @@ class ReglasAltaTest extends soporte.PruebaConBaseSegura {
     void elCostoDeLosRegistrosGratuitosNoPuedeSuperarElVeintePorCientoDelAporte() throws Exception {
         String edicion = crearEdicion();
         String institucion = crearInstitucion("instTope");
-        assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General", "Tipo", 1000, 50), edicion));
+        assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General", "Tipo", 1000, 50), edicion, Actor.administradorLocal()));
 
         // 3 gratuitos de $1000 = $3000, más del 20 % de $10000 ($2000)
         assertThrows(IllegalArgumentException.class, () -> sistema.altaPatrocinio(
@@ -241,7 +243,7 @@ class ReglasAltaTest extends soporte.PruebaConBaseSegura {
     void unPatrocinioExigeEdicionTipoEInstitucionExistentes() throws Exception {
         String edicion = crearEdicion();
         String institucion = crearInstitucion("instExiste");
-        assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General", "Tipo", 1000, 50), edicion));
+        assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General", "Tipo", 1000, 50), edicion, Actor.administradorLocal()));
 
         assertThrows(IllegalArgumentException.class, () -> sistema.altaPatrocinio(
                 patrocinio("COD-A-" + sufijo, "noexiste" + sufijo, edicion, "General", 100_000f, 1)));

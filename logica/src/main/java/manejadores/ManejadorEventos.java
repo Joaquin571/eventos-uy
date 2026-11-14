@@ -13,6 +13,7 @@ import persistencia.BaseDeDatos;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class ManejadorEventos {
 
@@ -272,24 +273,27 @@ public class ManejadorEventos {
         }
     }
 
-    public boolean addTipoRegistro(TipoRegistro tipoRegistro) {
+    public static final class EdicionNoEncontradaException extends RuntimeException {
+        private EdicionNoEncontradaException(String nombreEdicion) {
+            super(nombreEdicion);
+        }
+    }
+
+    public boolean addTipoRegistro(TipoRegistro tipoRegistro, String nombreEdicion,
+                                   Consumer<String> comprobarPropietario) {
         EntityManager em = BaseDeDatos.getEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
             tx.begin();
-            if (tipoRegistro.getEdicion() == null || tipoRegistro.getEdicion().getIdNombre() == null) {
-                tx.rollback();
-                return false;
-            }
-
-            String nombreEdicion = tipoRegistro.getEdicion().getIdNombre();
 
             // Serializa altas del mismo padre, incluso con nombres que solo difieren en mayúsculas.
             Edicion edicionGestionada = em.find(Edicion.class, nombreEdicion, LockModeType.PESSIMISTIC_WRITE);
             if (edicionGestionada == null) {
-                tx.rollback();
-                return false;
+                throw new EdicionNoEncontradaException(nombreEdicion);
             }
+
+            var organizador = edicionGestionada.getOrganizador();
+            comprobarPropietario.accept(organizador == null ? null : organizador.getNickname());
 
             Long cantidad = em.createQuery(
                                     """

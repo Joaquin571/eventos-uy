@@ -23,7 +23,7 @@ public class AuditarFronteraLogica {
             s.altaCategoria(cat,null);comprobar(s.altaEvento(new DtEvento(ev,"EV","Auditoría",null,List.of(cat))),"Preparación de evento");
             for(String ed:List.of(ing,aceptada)) {
                 comprobar(s.altaEdicion(new DtEdicion(ed,"ED",LocalDate.now(),LocalDate.now(),null,"Ciudad","País",org),ev),"Preparación de edición");
-                comprobar(s.altaTipoRegistro(new DtTipoRegistro("General","Auditoría",100,1),ed),"Preparación de tipo");
+                comprobar(s.altaTipoRegistro(new DtTipoRegistro("General","Auditoría",100,1),ed, Actor.administradorLocal()),"Preparación de tipo");
             }
             boolean rechazo=false;
             try{s.registroAEdicion(asA,ing,"General",new DtRegistro(null,0));}

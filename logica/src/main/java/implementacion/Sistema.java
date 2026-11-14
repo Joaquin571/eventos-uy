@@ -628,7 +628,12 @@ public class Sistema implements ISistema {
 
     // TIPO REGISTRO
     @Override
-    public boolean altaTipoRegistro(DtTipoRegistro dt, String nombreEdicion) {
+    public boolean altaTipoRegistro(DtTipoRegistro dt, String nombreEdicion, Actor actor) {
+        if (actor == null || (!actor.esAdministradorLocal()
+                && (!actor.esOrganizador() || actor.nickname() == null || actor.nickname().isBlank()))) {
+            throw new IllegalArgumentException("Esta operación requiere un organizador o administrador local.");
+        }
+
         if (dt == null || dt.getIdNombre() == null || dt.getIdNombre().isBlank()) {
             throw new IllegalArgumentException("El nombre del tipo de registro es obligatorio.");
         }
@@ -637,16 +642,6 @@ public class Sistema implements ISistema {
 
         validarObligatorio(nombreEdicion, "Debe seleccionar una edición.");
         validarObligatorio(dt.getDescripcion(), "La descripción es obligatoria.");
-
-        Edicion edicion = manejadorEventos.obtenerEdicion(nombreEdicion);
-        if (edicion == null) {
-            throw new IllegalArgumentException("La edición indicada no existe.");
-        }
-
-        if (manejadorEventos.existeTipoRegistro(nombreEdicion, dt.getIdNombre())) {
-            throw new IllegalArgumentException(
-                    "Ya existe un tipo de registro con ese nombre en la edición.");
-        }
 
         if (!Float.isFinite(dt.getCosto())) {
             throw new IllegalArgumentException("El costo debe ser un número finito.");
@@ -665,14 +660,22 @@ public class Sistema implements ISistema {
                 dt.getCosto(),
                 dt.getCupo()
         );
-        tipoRegistro.setEdicion(edicion);
-
-        if (!manejadorEventos.addTipoRegistro(tipoRegistro)) {
-            throw new IllegalArgumentException(
-                    "Ya existe un tipo de registro con ese nombre en la edición.");
+        try {
+            boolean insertado = manejadorEventos.addTipoRegistro(tipoRegistro, nombreEdicion, propietario -> {
+                if (!actor.esAdministradorLocal() && !actor.nickname().equals(propietario)) {
+                    throw new IllegalArgumentException("La edición no pertenece al organizador.");
+                }
+            });
+            if (!insertado) {
+                throw new IllegalArgumentException(
+                        "Ya existe un tipo de registro con ese nombre en la edición.");
+            }
+        } catch (ManejadorEventos.EdicionNoEncontradaException e) {
+            throw new IllegalArgumentException(actor.esAdministradorLocal()
+                    ? "La edición indicada no existe."
+                    : "La edición no pertenece al organizador.", e);
         }
         return true;
-
     }
 
     @Override

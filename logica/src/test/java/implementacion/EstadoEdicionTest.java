@@ -1,5 +1,7 @@
 package implementacion;
 
+import datatypes.Actor;
+
 import datatypes.DtAsistente;
 import datatypes.DtEdicion;
 import datatypes.DtEvento;
@@ -164,7 +166,7 @@ class EstadoEdicionTest extends soporte.PruebaConBaseSegura {
     void soloSePuedeRegistrarEnUnaEdicionAceptada() throws Exception {
         String edicion = crearEdicion();
 
-        assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General", "Tipo general", 100, 10), edicion));
+        assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General", "Tipo general", 100, 10), edicion, Actor.administradorLocal()));
 
         String asistente = "asis" + sufijo;
         DtAsistente dt = new DtAsistente(asistente, "Ana", asistente + "@mail.com",

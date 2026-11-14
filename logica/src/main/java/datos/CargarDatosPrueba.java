@@ -1,5 +1,7 @@
 package datos;
 
+import datatypes.Actor;
+
 import clases.NivelPatrocinio;
 import datatypes.DtAsistente;
 import datatypes.DtEdicion;
@@ -131,16 +133,16 @@ public class CargarDatosPrueba {
         // ---- Tipos de registro
         intentar("tipo General (MC2026)", () -> sistema.altaTipoRegistro(new DtTipoRegistro(
                         "General", "Acceso general a los tres días de la convención", 1500, 100),
-                "Montevideo Comics 2026"));
+                "Montevideo Comics 2026", Actor.administradorLocal()));
         intentar("tipo Estudiante (MC2026)", () -> sistema.altaTipoRegistro(new DtTipoRegistro(
                         "Estudiante", "Acceso con descuento para estudiantes", 800, 50),
-                "Montevideo Comics 2026"));
+                "Montevideo Comics 2026", Actor.administradorLocal()));
         intentar("tipo Corredor 10K (Maratón 2026)", () -> sistema.altaTipoRegistro(new DtTipoRegistro(
                         "Corredor 10K", "Participación en la carrera de 10 kilómetros", 1000, 2),
-                "Maratón de Montevideo 2026"));
+                "Maratón de Montevideo 2026", Actor.administradorLocal()));
         intentar("tipo Corredor 21K (Maratón 2026)", () -> sistema.altaTipoRegistro(new DtTipoRegistro(
                         "Corredor 21K", "Participación en la media maratón", 1800, 50),
-                "Maratón de Montevideo 2026"));
+                "Maratón de Montevideo 2026", Actor.administradorLocal()));
 
         // ---- Estados de las ediciones: Aceptada, Rechazada y (el resto) Ingresada
         for (String nombre : List.of("Montevideo Comics 2026", "Maratón de Montevideo 2026")) {

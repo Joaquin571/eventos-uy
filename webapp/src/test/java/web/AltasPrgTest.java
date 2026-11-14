@@ -51,7 +51,23 @@ class AltasPrgTest {
         e.enviar(); assertTrue(e.forward); assertEquals(0, e.altas);
         assertEquals("no-numero", e.form().get("costo"));
         assertEquals("Descripción <guardada>", e.form().get("descripcion"));
-        assertEquals("Edicion", e.form().get("edicion")); assertNotNull(e.atributos.get("error"));
+        assertEquals("Edicion", e.form().get("edicion"));
+        assertEquals("El costo y el cupo deben ser números válidos.", e.atributos.get("error"));
+    }
+
+    @Test
+    void costoYCupoVaciosMuestranElMensajeDeSuCampo() throws Exception {
+        for (String campo : List.of("costo", "cupo")) {
+            Escenario e = new Escenario("/alta-tipo-registro");
+            e.formulario();
+            e.parametros.put(campo, " ");
+            e.enviar();
+
+            assertTrue(e.forward);
+            assertNull(e.actorRecibido);
+            assertEquals(" ", e.form().get(campo));
+            assertEquals("El campo " + campo + " es obligatorio.", e.atributos.get("error"));
+        }
     }
 
     @Test
@@ -83,8 +99,14 @@ class AltasPrgTest {
     @Test
     void tokenValidoNoPermiteCrearUnTipoEnEdicionAjena() throws Exception {
         Escenario e = new Escenario("/alta-tipo-registro"); e.formulario(); e.parametros.put("edicion", "Ajena");
+        e.parametros.put("nickname", "otro");
+        e.parametros.put("rol", "administrador");
         e.enviar(); assertEquals(0, e.altas); assertTrue(e.forward);
         assertEquals("La edición no pertenece al organizador.", e.atributos.get("error"));
+        assertEquals("Ajena", e.edicionRecibida);
+        assertEquals("org", e.actorRecibido.nickname());
+        assertTrue(e.actorRecibido.esOrganizador());
+        assertFalse(e.actorRecibido.esAdministradorLocal());
     }
 
     static final class Escenario {
@@ -92,6 +114,8 @@ class AltasPrgTest {
         String metodo = "GET", redirect;
         int estado = 200, altas;
         boolean forward, errorAlta, imagenFallida;
+        String edicionRecibida;
+        Actor actorRecibido;
         final Map<String,String> parametros = new HashMap<>();
         final Map<String,Object> atributos = new HashMap<>(), sesion = new HashMap<>();
         final DtEdicion edicion = new DtEdicion("Edicion", "ED", LocalDate.now(), LocalDate.now(),
@@ -106,7 +130,16 @@ class AltasPrgTest {
             case "listarCategorias" -> List.of();
             case "listarEventos" -> List.of(new DtEvento("Evento", "EV", "Descripción", null, List.of()));
             case "obtenerEdicionesOrganizador" -> List.of(edicion);
-            case "altaEdicion", "altaTipoRegistro" -> {
+            case "altaTipoRegistro" -> {
+                edicionRecibida = (String) a[1];
+                actorRecibido = (Actor) a[2];
+                if ("Ajena".equals(edicionRecibida)) {
+                    throw new IllegalArgumentException("La edición no pertenece al organizador.");
+                }
+                if (errorAlta) throw new IllegalArgumentException("Ya existe ese nombre.");
+                altas++; yield true;
+            }
+            case "altaEdicion" -> {
                 if (errorAlta) throw new IllegalArgumentException("Ya existe ese nombre.");
                 altas++; yield true;
             }
