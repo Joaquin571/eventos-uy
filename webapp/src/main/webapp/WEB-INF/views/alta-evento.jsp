@@ -32,12 +32,6 @@
                         </div>
                     </c:if>
 
-                    <c:if test="${param.imagen eq 'error'}">
-                        <div class="alert alert-warning">
-                            El evento se creó, pero no se pudo guardar la imagen.
-                        </div>
-                    </c:if>
-
                     <c:if test="${not empty error}">
                         <div class="alert alert-danger"><c:out value="${error}" /></div>
                     </c:if>

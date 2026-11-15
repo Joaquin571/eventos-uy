@@ -28,6 +28,10 @@ public class EventoServlet extends HttpServlet {
             throws ServletException, IOException {
 
         String nombre = req.getParameter("nombre");
+        if (nombre == null || nombre.isBlank()) {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
         ServicioPortal sistema = ContextoListener.central(req);
 
         var seleccion=sistema.consultarEdiciones(nombre, "");
