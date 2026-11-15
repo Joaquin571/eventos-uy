@@ -1,10 +1,10 @@
 package web;
 
+import datatypes.Actor;
 import datatypes.DtAsistente;
 import datatypes.DtImagen;
 import datatypes.DtOrganizador;
 import datatypes.DtUsuario;
-import datatypes.TipoEntidadImagen;
 import interfaces.ISistema;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -53,34 +53,22 @@ public class ModificarUsuarioServlet extends HttpServlet {
         try {
             DtImagen imagen = Subidas.leerImagen(req, "imagen");
 
-            if (imagen != null) {
-                sistema.validarImagen(imagen);
-            }
-
+            Actor actor = Actor.usuarioAutenticado(perfil);
             if (perfil instanceof DtAsistente) {
-                sistema.modificarAsistente(armarAsistente(req, form, perfil));
+                sistema.modificarAsistente(armarAsistente(req, form, perfil), imagen, actor);
             } else {
-                sistema.modificarOrganizador(armarOrganizador(req, form, perfil));
-            }
-
-            String advertencia = null;
-            if (imagen != null) {
-                try {
-                    sistema.asociarImagen(TipoEntidadImagen.USUARIO, perfil.getNickname(), imagen);
-                } catch (RuntimeException e) {
-                    getServletContext().log("Falló la imagen después de guardar el perfil.", e);
-                    advertencia = "Los datos del perfil y, si la cambiaste, la contraseña se guardaron. "
-                            + "La imagen no se pudo actualizar; intentá cargarla nuevamente.";
-                }
+                sistema.modificarOrganizador(armarOrganizador(req, form, perfil), imagen, actor);
             }
 
             // El cabezal muestra el nombre: se actualiza el usuario guardado en la sesión
             req.getSession().setAttribute("usuario", sistema.consultarUsuario(perfil.getNickname()));
 
-            MensajesFlash.guardar(req, "/usuario", "Los datos del perfil se guardaron.", advertencia);
+            MensajesFlash.guardar(req, "/usuario", "Los datos del perfil se guardaron.", null);
             resp.sendRedirect(req.getContextPath() + "/usuario?nick="
                     + URLEncoder.encode(perfil.getNickname(), StandardCharsets.UTF_8));
 
+        } catch (excepciones.AccesoDenegadoException e) {
+            resp.sendError(HttpServletResponse.SC_FORBIDDEN);
         } catch (IllegalArgumentException e) {
             mostrarFormulario(req, resp, perfil, form, e.getMessage());
         } catch (DateTimeParseException e) {
@@ -94,18 +82,9 @@ public class ModificarUsuarioServlet extends HttpServlet {
     }
 
     private DtAsistente armarAsistente(HttpServletRequest req, Map<String, String> form, DtUsuario perfil) {
-        if (form.get("nombre").isEmpty()) {
-            throw new IllegalArgumentException("El nombre es obligatorio.");
-        }
-        if (form.get("apellido").isEmpty()) {
-            throw new IllegalArgumentException("El apellido es obligatorio.");
-        }
 
         LocalDate fechaNacimiento = LocalDate.parse(form.get("fechaNac"));
 
-        if (fechaNacimiento.isAfter(LocalDate.now())) {
-            throw new IllegalArgumentException("La fecha de nacimiento no puede ser futura.");
-        }
 
         String institucion = form.get("institucion").isEmpty() ? null : form.get("institucion");
 
@@ -118,12 +97,6 @@ public class ModificarUsuarioServlet extends HttpServlet {
     }
 
     private DtOrganizador armarOrganizador(HttpServletRequest req, Map<String, String> form, DtUsuario perfil) {
-        if (form.get("nombre").isEmpty()) {
-            throw new IllegalArgumentException("El nombre es obligatorio.");
-        }
-        if (form.get("descripcion").isEmpty()) {
-            throw new IllegalArgumentException("La descripción es obligatoria.");
-        }
 
         DtOrganizador dt = new DtOrganizador(
                 perfil.getNickname(), form.get("nombre"), perfil.getCorreoElectronico(),

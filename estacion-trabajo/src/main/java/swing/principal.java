@@ -177,7 +177,7 @@ public class principal {
         );
         agregarInterno(internoAltaUsuario);
 
-        panelModificarUsuario = new ModificarUsuarioPanel();
+        panelModificarUsuario = new ModificarUsuarioPanel(actor);
         internoModificarUsuario = crearInterno(
                 "Modificar Datos de Usuario",
                 panelModificarUsuario.getMainPanel(),

@@ -70,10 +70,10 @@ class ValidacionesAdicionalesTest extends soporte.PruebaConBaseSegura {
         assertThrows(IllegalArgumentException.class, () -> sistema.autenticar("usuario", null));
     }
     @Test void cambiarContraseniaNula() {
-        assertThrows(IllegalArgumentException.class, () -> sistema.cambiarContrasenia("usuario", null, null));
+        assertThrows(IllegalArgumentException.class, () -> sistema.cambiarContrasenia("usuario", null, null, datatypes.Actor.administradorLocal()));
     }
     @Test void cambiarContraseniaDistinta() {
-        assertThrows(IllegalArgumentException.class, () -> sistema.cambiarContrasenia("usuario", "uno", "dos"));
+        assertThrows(IllegalArgumentException.class, () -> sistema.cambiarContrasenia("usuario", "uno", "dos", datatypes.Actor.administradorLocal()));
     }
     @Test void edicionNula() {
         assertThrows(IllegalArgumentException.class, () -> sistema.altaEdicion(null, "evento"));

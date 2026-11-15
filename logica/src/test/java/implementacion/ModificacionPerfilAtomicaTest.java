@@ -49,7 +49,7 @@ class ModificacionPerfilAtomicaTest extends PruebaConBaseSegura {
         DtOrganizador falso = new DtOrganizador(original.getNickname(), "No guardar", "otro@test.uy", "No guardar", "");
         nuevaClave(falso);
         assertEquals("El usuario no es un organizador.", assertThrows(IllegalArgumentException.class,
-                () -> sistema.modificarOrganizador(falso)).getMessage());
+                () -> sistema.modificarOrganizador(falso, datatypes.Actor.administradorLocal())).getMessage());
         DtAsistente actual = (DtAsistente) sistema.consultarUsuario(original.getNickname());
         assertEquals(original.getNombre(), actual.getNombre());
         assertEquals(original.getApellido(), actual.getApellido());
@@ -64,7 +64,7 @@ class ModificacionPerfilAtomicaTest extends PruebaConBaseSegura {
                 LocalDate.of(2001, 1, 1), null);
         nuevaClave(falso);
         assertEquals("El usuario no es un asistente.", assertThrows(IllegalArgumentException.class,
-                () -> sistema.modificarAsistente(falso)).getMessage());
+                () -> sistema.modificarAsistente(falso, datatypes.Actor.administradorLocal())).getMessage());
         DtOrganizador actual = (DtOrganizador) sistema.consultarUsuario(original.getNickname());
         assertEquals(original.getNombre(), actual.getNombre());
         assertEquals(original.getDescripcion(), actual.getDescripcion());
@@ -79,7 +79,7 @@ class ModificacionPerfilAtomicaTest extends PruebaConBaseSegura {
         assertTrue(sistema.altaInstitucion(new DtInstitucion(institucion, "Descripción", "")));
         DtAsistente cambio = new DtAsistente(original.getNickname(), "Nombre nuevo", "ignorar@test.uy", "Apellido nuevo",
                 LocalDate.of(2002, 2, 2), institucion);
-        nuevaClave(cambio); sistema.modificarAsistente(cambio);
+        nuevaClave(cambio); sistema.modificarAsistente(cambio, datatypes.Actor.administradorLocal());
         DtAsistente actual = (DtAsistente) sistema.consultarUsuario(original.getNickname());
         assertEquals(cambio.getNombre(), actual.getNombre());
         assertEquals(cambio.getApellido(), actual.getApellido());
@@ -96,7 +96,7 @@ class ModificacionPerfilAtomicaTest extends PruebaConBaseSegura {
         DtOrganizador original = crearOrganizador();
         DtOrganizador cambio = new DtOrganizador(original.getNickname(), "Nombre nuevo", "ignorar@test.uy",
                 "Descripción nueva", "https://nuevo.test");
-        nuevaClave(cambio); sistema.modificarOrganizador(cambio);
+        nuevaClave(cambio); sistema.modificarOrganizador(cambio, datatypes.Actor.administradorLocal());
         DtOrganizador actual = (DtOrganizador) sistema.consultarUsuario(original.getNickname());
         assertEquals(cambio.getNombre(), actual.getNombre());
         assertEquals(cambio.getDescripcion(), actual.getDescripcion());
@@ -150,7 +150,7 @@ class ModificacionPerfilAtomicaTest extends PruebaConBaseSegura {
         DtAsistente cambio = new DtAsistente(original.getNickname(), "No guardar", original.getCorreoElectronico(),
                 "Otro", LocalDate.of(2003, 3, 3), null);
         nuevaClave(cambio); cambio.setConfirmacionContrasenia("distinta");
-        assertThrows(IllegalArgumentException.class, () -> sistema.modificarAsistente(cambio));
+        assertThrows(IllegalArgumentException.class, () -> sistema.modificarAsistente(cambio, datatypes.Actor.administradorLocal()));
         DtAsistente actual = (DtAsistente) sistema.consultarUsuario(original.getNickname());
         assertEquals(original.getNombre(), actual.getNombre());
         assertEquals(original.getApellido(), actual.getApellido());

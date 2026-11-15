@@ -50,7 +50,7 @@ class LimitesTextoTest extends soporte.PruebaConBaseSegura {
         for (DtOrganizador dt : List.of(organizador(nick, excesivo, "D", null),
                 organizador(nick, "Nuevo", excesivo, null), organizador(nick, "Nuevo", "D", excesivo))) {
             dt.setContrasenia("nueva"); dt.setConfirmacionContrasenia("nueva");
-            assertThrows(IllegalArgumentException.class, () -> sistema.modificarOrganizador(dt));
+            assertThrows(IllegalArgumentException.class, () -> sistema.modificarOrganizador(dt, datatypes.Actor.administradorLocal()));
             assertEquals("Original", sistema.consultarUsuario(nick).getNombre());
             assertNotNull(sistema.autenticar(nick, "original"));
             assertThrows(IllegalArgumentException.class, () -> sistema.autenticar(nick, "nueva"));

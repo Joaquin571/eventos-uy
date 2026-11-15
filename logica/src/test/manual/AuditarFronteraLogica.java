@@ -43,7 +43,7 @@ public class AuditarFronteraLogica {
             comprobar(s.obtenerRegistrosEdicion(aceptada).size()==2 && s.obtenerRegistrosAsistente(asB).stream().anyMatch(x->x.getCosto()==-999),
                     "H07: costo negativo y sobrecupo quedan persistidos por acceso Java interno");
             var identidad=s.autenticar(asA,"clave");
-            s.cambiarContrasenia(asB,"cambiada","cambiada");
+            s.cambiarContrasenia(asB,"cambiada","cambiada", datatypes.Actor.administradorLocal());
             comprobar(identidad.getNickname().equals(asA) && s.autenticar(asB,"cambiada").getNickname().equals(asB),
                     "H08: autenticar devuelve un DTO, no instala un actor autorizado dentro de ISistema");
             String inst="frInst"+sufijo;

@@ -1,5 +1,6 @@
 package swing;
 
+import datatypes.Actor;
 import datatypes.DtAsistente;
 import datatypes.DtImagen;
 import datatypes.TipoEntidadImagen;
@@ -20,6 +21,7 @@ public class ModificarUsuarioPanel {
     private JPanel mainPanel;
 
     private final transient ISistema sistema;
+    private final Actor actor;
     private transient Runnable accionCerrar = () -> {};
 
     // Datos comunes
@@ -52,7 +54,8 @@ public class ModificarUsuarioPanel {
     private JButton btnCancelar;
 
 
-    public ModificarUsuarioPanel() {
+    public ModificarUsuarioPanel(Actor actor) {
+        this.actor = java.util.Objects.requireNonNull(actor);
         sistema = Fabrica.getInstance().getISistema();
     }
 
@@ -275,21 +278,16 @@ public class ModificarUsuarioPanel {
             String nickname = usuarioSeleccionado.getNickname();
             String correo = usuarioSeleccionado.getCorreoElectronico();
             if (usuarioSeleccionado instanceof DtAsistente) {
-                guardarAsistente(nickname, txtNombre.getText().trim(), correo, new String(clave), new String(confirmacion));
+                guardarAsistente(nickname, txtNombre.getText().trim(), correo, new String(clave), new String(confirmacion), nuevaImagen);
             } else {
-                guardarOrganizador(nickname, txtNombre.getText().trim(), correo, new String(clave), new String(confirmacion));
+                guardarOrganizador(nickname, txtNombre.getText().trim(), correo, new String(clave), new String(confirmacion), nuevaImagen);
             }
-            // No se repite el cambio de contraseña si la asociación posterior falla.
+            // El perfil, la contraseña y la imagen ya se confirmaron juntos.
             txtContrasenia.setText("");
             txtConfirmacion.setText("");
             usuarioSeleccionado = sistema.consultarUsuario(nickname);
-            String errorImagen = ImagenSwing.asociar(sistema, TipoEntidadImagen.USUARIO, nickname, nuevaImagen);
-            if (errorImagen == null) {
-                imagen.cargar(sistema, TipoEntidadImagen.USUARIO, nickname);
-                mostrarExito();
-            } else {
-                JOptionPane.showMessageDialog(mainPanel, errorImagen + " Puede reintentar guardar para asociarla.", "Modificación parcial", JOptionPane.WARNING_MESSAGE);
-            }
+            imagen.cargar(sistema, TipoEntidadImagen.USUARIO, nickname);
+            mostrarExito();
         } catch (DateTimeParseException ex) {
             JOptionPane.showMessageDialog(mainPanel, "La fecha debe tener formato AAAA-MM-DD.", "Modificar usuario", JOptionPane.WARNING_MESSAGE);
         } catch (IllegalArgumentException | IllegalStateException | IOException ex) {
@@ -300,21 +298,21 @@ public class ModificarUsuarioPanel {
         }
     }
 
-    private void guardarAsistente(String nickname, String nombre, String correo, String clave, String confirmacion) {
+    private void guardarAsistente(String nickname, String nombre, String correo, String clave, String confirmacion, DtImagen nuevaImagen) {
         String institucion = (String) comboInstitucion.getSelectedItem();
         if ("Sin Institución".equals(institucion)) institucion = null;
         DtAsistente dt = new DtAsistente(nickname, nombre, correo, txtApellido.getText().trim(),
                 LocalDate.parse(txtFechaNacimiento.getText().trim()), institucion);
         dt.setContrasenia(clave);
         dt.setConfirmacionContrasenia(confirmacion);
-        sistema.modificarAsistente(dt);
+        sistema.modificarAsistente(dt, nuevaImagen, actor);
     }
 
-    private void guardarOrganizador(String nickname, String nombre, String correo, String clave, String confirmacion) {
+    private void guardarOrganizador(String nickname, String nombre, String correo, String clave, String confirmacion, DtImagen nuevaImagen) {
         DtOrganizador dt = new DtOrganizador(nickname, nombre, correo, txtDescripcion.getText().trim(), txtSitioWeb.getText().trim());
         dt.setContrasenia(clave);
         dt.setConfirmacionContrasenia(confirmacion);
-        sistema.modificarOrganizador(dt);
+        sistema.modificarOrganizador(dt, nuevaImagen, actor);
     }
 
     private void mostrarExito() {

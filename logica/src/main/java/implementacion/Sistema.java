@@ -113,7 +113,8 @@ public class Sistema implements ISistema {
     }
 
     @Override
-    public void cambiarContrasenia(String nickname, String nueva, String confirmacion) {
+    public void cambiarContrasenia(String nickname, String nueva, String confirmacion, Actor actor) {
+        autorizarTitular(actor, nickname);
         validarContrasenia(nueva, confirmacion);
 
         if (!manejadorUsuarios.cambiarContrasenia(nickname, nueva)) {
@@ -312,8 +313,30 @@ public class Sistema implements ISistema {
         );
     }
 
+    private void autorizarTitular(Actor actor, String nickname) {
+        if (actor == null || (!actor.esAdministradorLocal()
+                && (actor.nickname() == null || actor.nickname().isBlank()
+                || !actor.nickname().equals(nickname)))) {
+            throw new excepciones.AccesoDenegadoException("Solo puede modificar su propio perfil o actuar como administrador local.");
+        }
+    }
+
+    private void autorizarModificacionPerfil(Actor actor, String nickname, boolean organizador) {
+        autorizarTitular(actor, nickname);
+        if (!actor.esAdministradorLocal() && actor.esOrganizador() != organizador) {
+            throw new excepciones.AccesoDenegadoException("El tipo de perfil no corresponde al actor autenticado.");
+        }
+    }
+
     @Override
-    public void modificarAsistente(DtAsistente dt) {
+    public void modificarAsistente(DtAsistente dt, Actor actor) {
+        modificarAsistente(dt, null, actor);
+    }
+
+    @Override
+    public void modificarAsistente(DtAsistente dt, DtImagen imagen, Actor actor) {
+        autorizarModificacionPerfil(actor, dt == null ? null : dt.getNickname(), false);
+        if (imagen != null) validarImagen(imagen);
         if (dt == null || dt.getNickname() == null || !existeUsuario(dt.getNickname())) {
             throw new IllegalArgumentException("El usuario no existe.");
         }
@@ -346,14 +369,23 @@ public class Sistema implements ISistema {
                 dt.getApellido(),
                 dt.getFechaNacimiento(),
                 institucion,
-                dt.getContrasenia()
+                dt.getContrasenia(),
+                imagen == null ? null : new Imagen(
+                        imagen.getTipoContenido().toLowerCase(Locale.ROOT), imagen.getContenido())
         )) {
             throw new IllegalArgumentException("El usuario no existe.");
         }
     }
 
     @Override
-    public void modificarOrganizador(DtOrganizador dt) {
+    public void modificarOrganizador(DtOrganizador dt, Actor actor) {
+        modificarOrganizador(dt, null, actor);
+    }
+
+    @Override
+    public void modificarOrganizador(DtOrganizador dt, DtImagen imagen, Actor actor) {
+        autorizarModificacionPerfil(actor, dt == null ? null : dt.getNickname(), true);
+        if (imagen != null) validarImagen(imagen);
         if (dt == null || dt.getNickname() == null || !existeUsuario(dt.getNickname())) {
             throw new IllegalArgumentException("El usuario no existe.");
         }
@@ -377,7 +409,9 @@ public class Sistema implements ISistema {
                 dt.getNombre(),
                 dt.getDescripcion(),
                 dt.getSitioWeb(),
-                dt.getContrasenia()
+                dt.getContrasenia(),
+                imagen == null ? null : new Imagen(
+                        imagen.getTipoContenido().toLowerCase(Locale.ROOT), imagen.getContenido())
         )) {
             throw new IllegalArgumentException("El usuario no existe.");
         }

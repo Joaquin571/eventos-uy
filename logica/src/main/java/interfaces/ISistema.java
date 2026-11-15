@@ -14,13 +14,15 @@ public interface ISistema {
     boolean altaOrganizador(DtOrganizador organizador);
     /** Alta atómica de datos, contraseña e imagen opcional. */
     boolean altaOrganizador(DtOrganizador organizador, DtImagen imagen);
-    void modificarAsistente(DtAsistente asistente);
-    void modificarOrganizador(DtOrganizador organizador);
+    void modificarAsistente(DtAsistente asistente, Actor actor);
+    void modificarAsistente(DtAsistente asistente, DtImagen imagen, Actor actor);
+    void modificarOrganizador(DtOrganizador organizador, Actor actor);
+    void modificarOrganizador(DtOrganizador organizador, DtImagen imagen, Actor actor);
     Collection<DtUsuario> listarUsuarios();
     DtUsuario consultarUsuario(String nickname);
     Collection<DtEdicion> obtenerEdicionesOrganizador(String nickname);
     DtUsuario autenticar(String nicknameOCorreo, String contrasenia);
-    void cambiarContrasenia(String nickname, String nueva, String confirmacion);
+    void cambiarContrasenia(String nickname, String nueva, String confirmacion, Actor actor);
     DtPatrocinio consultarPatrocinio(String nombreEdicion, String nombreInstitucion);
 
 

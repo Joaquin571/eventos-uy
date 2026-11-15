@@ -43,6 +43,17 @@ public class ManejadorImagenes {
         try {
             tx.begin();
 
+            // Bloquear antes de hidratar evita reescribir campos ajenos con una copia obsoleta.
+            String consulta = switch (tipo) {
+                case USUARIO -> "SELECT nickname FROM usuario WHERE nickname = :clave FOR UPDATE";
+                case EVENTO -> "SELECT nombre FROM evento WHERE nombre = :clave FOR UPDATE";
+                case EDICION -> "SELECT idNombre FROM edicion WHERE idNombre = :clave FOR UPDATE";
+                case INSTITUCION -> "SELECT nombre FROM institucion WHERE nombre = :clave FOR UPDATE";
+            };
+            if (em.createNativeQuery(consulta).setParameter("clave", clave).getResultList().isEmpty()) {
+                tx.rollback();
+                return false;
+            }
             ConImagen entidad = em.find(claseDe(tipo), clave);
 
             if (entidad == null) {

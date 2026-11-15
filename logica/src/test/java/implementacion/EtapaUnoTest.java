@@ -59,8 +59,8 @@ class EtapaUnoTest extends soporte.PruebaConBaseSegura {
         LocalDate fechaOrg = sistema.consultarUsuario(org).getFechaAlta();
         DtAsistente cambioAs = asistente(as); cambioAs.setNombre("Nombre nuevo");
         DtOrganizador cambioOrg = organizador(org); cambioOrg.setNombre("Organización nueva");
-        sistema.modificarAsistente(cambioAs);
-        sistema.modificarOrganizador(cambioOrg);
+        sistema.modificarAsistente(cambioAs, datatypes.Actor.administradorLocal());
+        sistema.modificarOrganizador(cambioOrg, datatypes.Actor.administradorLocal());
         assertEquals(fechaAs, sistema.consultarUsuario(as).getFechaAlta());
         assertEquals(fechaOrg, sistema.consultarUsuario(org).getFechaAlta());
         assertEquals("Nombre nuevo", sistema.consultarUsuario(as).getNombre());
@@ -86,7 +86,7 @@ class EtapaUnoTest extends soporte.PruebaConBaseSegura {
         String nick = "naceHoy" + sufijo;
         DtAsistente dt = asistente(nick); dt.setFechaNacimiento(LocalDate.now());
         assertTrue(sistema.altaAsistente(dt));
-        dt.setNombre("Nombre actualizado"); sistema.modificarAsistente(dt);
+        dt.setNombre("Nombre actualizado"); sistema.modificarAsistente(dt, datatypes.Actor.administradorLocal());
         DtAsistente resultado = (DtAsistente) sistema.consultarUsuario(nick);
         assertEquals(dt.getFechaNacimiento(), resultado.getFechaNacimiento());
         assertEquals(dt.getNombre(), resultado.getNombre());

@@ -62,7 +62,7 @@ class LoginTest extends soporte.PruebaConBaseSegura {
         String nick = "cambio" + sufijo;
         assertTrue(sistema.altaAsistente(asistente(nick, "clave1", "clave1")));
 
-        sistema.cambiarContrasenia(nick, "nueva1", "nueva1");
+        sistema.cambiarContrasenia(nick, "nueva1", "nueva1", datatypes.Actor.administradorLocal());
 
         assertEquals(nick, sistema.autenticar(nick, "nueva1").getNickname());
         assertThrows(IllegalArgumentException.class,

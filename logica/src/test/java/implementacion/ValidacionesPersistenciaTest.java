@@ -68,7 +68,7 @@ class ValidacionesPersistenciaTest extends soporte.PruebaConBaseSegura {
         cambio.setContrasenia("nueva");
         cambio.setConfirmacionContrasenia("nueva");
         assertEquals("La fecha de nacimiento es obligatoria.", assertThrows(IllegalArgumentException.class,
-                () -> sistema.modificarAsistente(cambio)).getMessage());
+                () -> sistema.modificarAsistente(cambio, datatypes.Actor.administradorLocal())).getMessage());
         DtAsistente consultado = (DtAsistente) sistema.consultarUsuario(nick);
         assertEquals("Ana", consultado.getNombre());
         assertEquals("Pérez", consultado.getApellido());

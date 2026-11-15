@@ -116,6 +116,13 @@ public class ManejadorUsuarios {
         }
     }
 
+    private Usuario obtenerUsuarioParaModificar(EntityManager em, String nickname) {
+        // Bloquear antes de hidratar: el bloqueo diferido de Hibernate puede leer una imagen ya reemplazada.
+        if (em.createNativeQuery("SELECT nickname FROM usuario WHERE nickname = :nickname FOR UPDATE")
+                .setParameter("nickname", nickname).getResultList().isEmpty()) return null;
+        return em.find(Usuario.class, nickname);
+    }
+
     public boolean modificarAsistente(String nickname, String nombre, String apellido, LocalDate fechaNacimiento, Institucion institucion) {
         return modificarAsistente(nickname, nombre, apellido, fechaNacimiento, institucion, null);
     }
@@ -123,12 +130,17 @@ public class ManejadorUsuarios {
     // Datos y contraseña opcional se confirman juntos; no llama a otra transacción.
     public boolean modificarAsistente(String nickname, String nombre, String apellido,
                                      LocalDate fechaNacimiento, Institucion institucion, String nuevaContrasenia) {
+        return modificarAsistente(nickname, nombre, apellido, fechaNacimiento, institucion, nuevaContrasenia, null);
+    }
+
+    public boolean modificarAsistente(String nickname, String nombre, String apellido,
+                                     LocalDate fechaNacimiento, Institucion institucion, String nuevaContrasenia, Imagen imagen) {
         EntityManager em = BaseDeDatos.getEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
 
             tx.begin();
-            Usuario usuario = em.find(Usuario.class, nickname);
+            Usuario usuario = obtenerUsuarioParaModificar(em, nickname);
             if (usuario == null) {
                 tx.rollback();
                 return false;
@@ -150,6 +162,7 @@ public class ManejadorUsuarios {
             if (nuevaContrasenia != null && !nuevaContrasenia.isEmpty()) {
                 asistente.setContrasenia(nuevaContrasenia);
             }
+            if (imagen != null) asistente.setImagen(imagen);
             tx.commit();
             return true;
         } catch (Exception e) {
@@ -168,11 +181,16 @@ public class ManejadorUsuarios {
 
     public boolean modificarOrganizador(String nickname, String nombre, String descripcion,
                                        String sitioWeb, String nuevaContrasenia) {
+        return modificarOrganizador(nickname, nombre, descripcion, sitioWeb, nuevaContrasenia, null);
+    }
+
+    public boolean modificarOrganizador(String nickname, String nombre, String descripcion,
+                                       String sitioWeb, String nuevaContrasenia, Imagen imagen) {
         EntityManager em = BaseDeDatos.getEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
             tx.begin();
-            Usuario usuario = em.find(Usuario.class, nickname);
+            Usuario usuario = obtenerUsuarioParaModificar(em, nickname);
             if (usuario == null) {
                 tx.rollback();
                 return false;
@@ -188,6 +206,7 @@ public class ManejadorUsuarios {
                 organizador.setContrasenia(nuevaContrasenia);
             }
 
+            if (imagen != null) organizador.setImagen(imagen);
             tx.commit();
             return true;
 
@@ -243,7 +262,7 @@ public class ManejadorUsuarios {
         try {
             tx.begin();
 
-            Usuario usuario = em.find(Usuario.class, nickname);
+            Usuario usuario = obtenerUsuarioParaModificar(em, nickname);
 
             if (usuario == null) {
                 tx.rollback();

@@ -54,7 +54,7 @@ public class VerificarSwing {
         }
     }
     static void probarModificacion() throws Exception {
-        var p = new swing.ModificarUsuarioPanel(); p.refrescarUsuarios();
+        var p = new swing.ModificarUsuarioPanel(datatypes.Actor.administradorLocal()); p.refrescarUsuarios();
         combo(p,"comboUsuarios").setSelectedItem(org);
         verificar(!texto(p,"txtNickname").isEditable() && !texto(p,"txtCorreo").isEditable(), "Nickname y correo no editables");
         texto(p,"txtNombre").setText("Organizador cambiado");
