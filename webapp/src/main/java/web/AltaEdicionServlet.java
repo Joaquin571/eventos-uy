@@ -21,10 +21,6 @@ public class AltaEdicionServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        DtOrganizador organizador = obtenerOrganizador(req, resp);
-        if (organizador == null) {
-            return;
-        }
 
         MensajesFlash.mostrar(req, "/alta-edicion");
 
@@ -41,10 +37,6 @@ public class AltaEdicionServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        DtOrganizador organizador = obtenerOrganizador(req, resp);
-        if (organizador == null) {
-            return;
-        }
 
         ServicioPortal sistema = ContextoListener.central(req);
 
@@ -80,7 +72,7 @@ public class AltaEdicionServlet extends HttpServlet {
                     LocalDate.now(),
                     ciudad,
                     pais,
-                    organizador.getNickname()
+                    SesionWeb.usuario(req) == null ? "" : SesionWeb.usuario(req).getNickname()
             );
 
             boolean creada = sistema.altaEdicion(edicion, evento, imagen);
@@ -108,34 +100,6 @@ public class AltaEdicionServlet extends HttpServlet {
         }
 
         doGet(req, resp);
-    }
-
-    private DtOrganizador obtenerOrganizador(
-            HttpServletRequest req,
-            HttpServletResponse resp
-    ) throws IOException {
-
-        HttpSession sesion = req.getSession(false);
-
-        if (sesion == null) {
-            resp.sendError(
-                    HttpServletResponse.SC_FORBIDDEN,
-                    "Debés iniciar sesión como organizador."
-            );
-            return null;
-        }
-
-        Object usuario = SesionWeb.usuario(req);
-
-        if (!(usuario instanceof DtOrganizador)) {
-            resp.sendError(
-                    HttpServletResponse.SC_FORBIDDEN,
-                    "Esta operación requiere un organizador."
-            );
-            return null;
-        }
-
-        return (DtOrganizador) usuario;
     }
 
     private String obligatorio(

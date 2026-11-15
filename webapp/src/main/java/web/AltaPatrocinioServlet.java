@@ -20,24 +20,14 @@ public class AltaPatrocinioServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        DtUsuario usuario = AccesoPatrocinios.usuarioDeSesion(req);
-        if (!(usuario instanceof DtOrganizador)) {
-            resp.sendError(HttpServletResponse.SC_FORBIDDEN);
-            return;
-        }
         Map<String, String> form = new HashMap<>();
         // El código y los importes solo se reciben por POST.
         for (String campo : new String[]{"evento", "edicion"}) form.put(campo, texto(req, campo));
-        mostrarFormulario(req, resp, usuario, form, null);
+        mostrarFormulario(req, resp, form, null);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        DtUsuario usuario = AccesoPatrocinios.usuarioDeSesion(req);
-        if (!(usuario instanceof DtOrganizador)) {
-            resp.sendError(HttpServletResponse.SC_FORBIDDEN);
-            return;
-        }
         ServicioPortal sistema = ContextoListener.central(req);
         String edicion = texto(req, "edicion");
         Map<String, String> form = new HashMap<>();
@@ -65,11 +55,11 @@ public class AltaPatrocinioServlet extends HttpServlet {
                     + URLEncoder.encode(edicion, StandardCharsets.UTF_8) + "&institucion="
                     + URLEncoder.encode(form.get("institucion"), StandardCharsets.UTF_8) + "&exito=true");
         } catch (IllegalArgumentException e) {
-            mostrarFormulario(req, resp, usuario, form, e.getMessage());
+            mostrarFormulario(req, resp, form, e.getMessage());
         }
     }
 
-    private void mostrarFormulario(HttpServletRequest req, HttpServletResponse resp, DtUsuario usuario,
+    private void mostrarFormulario(HttpServletRequest req, HttpServletResponse resp,
                                    Map<String, String> form, String error) throws ServletException, IOException {
         ServicioPortal sistema = ContextoListener.central(req);
         String edicion = form.getOrDefault("edicion", "");

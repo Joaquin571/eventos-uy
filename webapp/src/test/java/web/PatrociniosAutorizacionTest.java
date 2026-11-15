@@ -206,7 +206,7 @@ class PatrociniosAutorizacionTest {
     }
 
     private static DtOrganizador organizador(String nick) {
-        return new DtOrganizador(nick, nick, nick + "@ejemplo.uy", "Descripci?n", "");
+        return new DtOrganizador(nick, nick, nick + "@ejemplo.uy", "Descripción", "");
     }
 
     private static DtAsistente asistente(String nick) {
@@ -290,7 +290,7 @@ class PatrociniosAutorizacionTest {
         });
         final HttpSession httpSesion = doble(HttpSession.class, (p, m, a) -> {
             if (m.getName().equals("getAttribute")) return sesion.get(a[0]);
-            throw new AssertionError("Llamada inesperada a la sesi?n: " + m.getName());
+            throw new AssertionError("Llamada inesperada a la sesión: " + m.getName());
         });
         final RequestDispatcher despachador = doble(RequestDispatcher.class, (p, m, a) -> {
             if (m.getName().equals("forward")) { reenviado = true; return null; }
@@ -299,7 +299,7 @@ class PatrociniosAutorizacionTest {
         final HttpServletRequest request = doble(HttpServletRequest.class, (p, m, a) -> switch (m.getName()) {
             case "getSession" -> {
                 if (a == null || a.length != 1 || !Boolean.FALSE.equals(a[0]))
-                    throw new AssertionError("No se debe crear una sesi?n para autorizar.");
+                    throw new AssertionError("No se debe crear una sesión para autorizar.");
                 yield tieneSesion ? httpSesion : null;
             }
             case "getServletContext" -> contexto;

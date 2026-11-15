@@ -18,17 +18,13 @@ public class AltaTipoRegistroServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        DtOrganizador organizador = obtenerOrganizador(req, resp);
-        if (organizador == null) {
-            return;
-        }
 
         MensajesFlash.mostrar(req, "/alta-tipo-registro");
 
         ServicioPortal sistema = ContextoListener.central(req);
 
         Collection<DtEdicion> ediciones =
-                sistema.consultarPerfil(organizador.getNickname()).getEdiciones();
+                sistema.consultarPerfil(SesionWeb.usuario(req) == null ? "" : SesionWeb.usuario(req).getNickname()).getEdiciones();
 
         req.setAttribute("ediciones", ediciones);
 
@@ -41,10 +37,6 @@ public class AltaTipoRegistroServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        DtOrganizador organizador = obtenerOrganizador(req, resp);
-        if (organizador == null) {
-            return;
-        }
 
         ServicioPortal sistema = ContextoListener.central(req);
 
@@ -106,31 +98,4 @@ public class AltaTipoRegistroServlet extends HttpServlet {
         return valor.trim();
     }
 
-    private DtOrganizador obtenerOrganizador(
-            HttpServletRequest req,
-            HttpServletResponse resp
-    ) throws IOException {
-
-        HttpSession sesion = req.getSession(false);
-
-        if (sesion == null) {
-            resp.sendError(
-                    HttpServletResponse.SC_FORBIDDEN,
-                    "Debés iniciar sesión como organizador."
-            );
-            return null;
-        }
-
-        Object usuario = sesion.getAttribute("usuario");
-
-        if (!(usuario instanceof DtOrganizador)) {
-            resp.sendError(
-                    HttpServletResponse.SC_FORBIDDEN,
-                    "Esta operación requiere un organizador."
-            );
-            return null;
-        }
-
-        return (DtOrganizador) usuario;
-    }
 }

@@ -64,10 +64,12 @@ final class PortalDoble {
                     yield datos.obtenerImagen((TipoEntidadImagen)a[0],(String)a[1]);
                 }
                 case "obtenerOpcionesAltaPatrocinio" -> {
+                    if(actor==null||!actor.esOrganizador())throw new web.remoto.ErrorCentral("ACCESO_DENEGADO","Se requiere organizador");
                     try{yield datos.obtenerOpcionesAltaPatrocinio((String)a[0],(String)a[1],actor);}
                     catch(excepciones.AccesoDenegadoException e){throw new web.remoto.ErrorCentral("ACCESO_DENEGADO",e.getMessage());}
                 }
                 case "altaPatrocinio" -> {
+                    if(actor==null||!actor.esOrganizador())throw new web.remoto.ErrorCentral("ACCESO_DENEGADO","Se requiere organizador");
                     try{yield datos.altaPatrocinio((DtPatrocinio)a[0],(String)a[1],actor);}
                     catch(excepciones.AccesoDenegadoException e){throw new web.remoto.ErrorCentral("ACCESO_DENEGADO",e.getMessage());}
                 }
