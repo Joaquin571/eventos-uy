@@ -19,6 +19,29 @@ public class EventosPublicador {
     public EventosPublicador() { this(Fabrica.getInstance().getISistema()); }
     public EventosPublicador(ISistema sistema) { this.sistema = Objects.requireNonNull(sistema); }
 
+    /** Consulta pública: true significa que el identificador está disponible. */
+    @WebMethod
+    public boolean nicknameDisponible(String nickname) throws ConsultaException {
+        if (nickname == null || nickname.isBlank()) return false;
+        try {
+            return !sistema.existeUsuario(nickname.strip());
+        } catch (RuntimeException error) {
+            LOG.log(Level.SEVERE, "Error al verificar nickname.", error);
+            throw new ConsultaException("No se pudo comprobar la disponibilidad. Intentá nuevamente.");
+        }
+    }
+
+    @WebMethod
+    public boolean correoDisponible(String correo) throws ConsultaException {
+        if (correo == null || correo.isBlank()) return false;
+        try {
+            return !sistema.existeCorreoElectronico(correo.strip());
+        } catch (RuntimeException error) {
+            LOG.log(Level.SEVERE, "Error al verificar correo.", error);
+            throw new ConsultaException("No se pudo comprobar la disponibilidad. Intentá nuevamente.");
+        }
+    }
+
     @WebMethod
     public List<EventoSoap> listarEventos() throws ConsultaException {
         try {

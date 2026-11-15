@@ -12,6 +12,10 @@
   <message name="listarEventosResponse">
     <part name="parameters" element="tns:listarEventosResponse"/>
   </message>
+  <message name="nicknameDisponible"><part name="parameters" element="tns:nicknameDisponible"/></message>
+  <message name="nicknameDisponibleResponse"><part name="parameters" element="tns:nicknameDisponibleResponse"/></message>
+  <message name="correoDisponible"><part name="parameters" element="tns:correoDisponible"/></message>
+  <message name="correoDisponibleResponse"><part name="parameters" element="tns:correoDisponibleResponse"/></message>
   <message name="ConsultaException">
     <part name="fault" element="tns:ConsultaFault"/>
   </message>
@@ -20,6 +24,16 @@
       <input wsam:Action="https://eventos.uy/soap/eventos/EventosPublicos/listarEventosRequest" message="tns:listarEventos"/>
       <output wsam:Action="https://eventos.uy/soap/eventos/EventosPublicos/listarEventosResponse" message="tns:listarEventosResponse"/>
       <fault message="tns:ConsultaException" name="ConsultaException" wsam:Action="https://eventos.uy/soap/eventos/EventosPublicos/listarEventos/Fault/ConsultaException"/>
+    </operation>
+    <operation name="nicknameDisponible">
+      <input wsam:Action="https://eventos.uy/soap/eventos/EventosPublicos/nicknameDisponibleRequest" message="tns:nicknameDisponible"/>
+      <output wsam:Action="https://eventos.uy/soap/eventos/EventosPublicos/nicknameDisponibleResponse" message="tns:nicknameDisponibleResponse"/>
+      <fault message="tns:ConsultaException" name="ConsultaException" wsam:Action="https://eventos.uy/soap/eventos/EventosPublicos/nicknameDisponible/Fault/ConsultaException"/>
+    </operation>
+    <operation name="correoDisponible">
+      <input wsam:Action="https://eventos.uy/soap/eventos/EventosPublicos/correoDisponibleRequest" message="tns:correoDisponible"/>
+      <output wsam:Action="https://eventos.uy/soap/eventos/EventosPublicos/correoDisponibleResponse" message="tns:correoDisponibleResponse"/>
+      <fault message="tns:ConsultaException" name="ConsultaException" wsam:Action="https://eventos.uy/soap/eventos/EventosPublicos/correoDisponible/Fault/ConsultaException"/>
     </operation>
   </portType>
   <binding name="EventosPortBinding" type="tns:EventosPublicos">
@@ -35,6 +49,18 @@
       <fault name="ConsultaException">
         <soap:fault name="ConsultaException" use="literal"/>
       </fault>
+    </operation>
+    <operation name="nicknameDisponible">
+      <soap:operation soapAction=""/>
+      <input><soap:body use="literal"/></input>
+      <output><soap:body use="literal"/></output>
+      <fault name="ConsultaException"><soap:fault name="ConsultaException" use="literal"/></fault>
+    </operation>
+    <operation name="correoDisponible">
+      <soap:operation soapAction=""/>
+      <input><soap:body use="literal"/></input>
+      <output><soap:body use="literal"/></output>
+      <fault name="ConsultaException"><soap:fault name="ConsultaException" use="literal"/></fault>
     </operation>
   </binding>
   <service name="EventosService">

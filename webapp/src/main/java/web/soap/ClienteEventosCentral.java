@@ -23,12 +23,36 @@ public final class ClienteEventosCentral {
     public ClienteEventosCentral() { this.direccion = ClienteEventosCentral::leerDireccion; }
     public ClienteEventosCentral(URI direccion) { this.direccion = direccion::toString; }
 
-    public List<EventoSoap> listarEventos() {
-        var puerto = Servicio.INSTANCIA.getEventosPort();
+    public boolean nicknameDisponible(String nickname) {
+        try {
+            var puerto = Servicio.INSTANCIA.getEventosPort();
+            configurar(puerto);
+            return puerto.nicknameDisponible(nickname);
+        } catch (ConsultaException_Exception error) {
+            throw new WebServiceException("No se pudo comprobar la disponibilidad.", error);
+        }
+    }
+
+    public boolean correoDisponible(String correo) {
+        try {
+            var puerto = Servicio.INSTANCIA.getEventosPort();
+            configurar(puerto);
+            return puerto.correoDisponible(correo);
+        } catch (ConsultaException_Exception error) {
+            throw new WebServiceException("No se pudo comprobar la disponibilidad.", error);
+        }
+    }
+
+    private void configurar(Object puerto) {
         var contexto = ((BindingProvider) puerto).getRequestContext();
         contexto.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, direccion.get());
         contexto.put("com.sun.xml.ws.connect.timeout", 3000);
         contexto.put("com.sun.xml.ws.request.timeout", 10000);
+    }
+
+    public List<EventoSoap> listarEventos() {
+        var puerto = Servicio.INSTANCIA.getEventosPort();
+        configurar(puerto);
         try {
             return puerto.listarEventos();
         } catch (ConsultaException_Exception error) {

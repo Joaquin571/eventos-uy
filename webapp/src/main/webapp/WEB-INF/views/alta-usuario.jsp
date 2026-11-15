@@ -41,6 +41,7 @@
                             <label for="nickname" class="form-label fw-bold">Nickname *</label>
                             <input type="text" id="nickname" name="nickname" class="form-control" required
                                    value="<c:out value='${form.nickname}' />">
+                            <div id="nicknameDisponibilidad" class="form-text" role="status" aria-live="polite"></div>
                         </div>
 
                         <div class="mb-3">
@@ -53,6 +54,7 @@
                             <label for="correo" class="form-label fw-bold">Correo electrónico *</label>
                             <input type="email" id="correo" name="correo" class="form-control" required
                                    value="<c:out value='${form.correo}' />">
+                            <div id="correoDisponibilidad" class="form-text" role="status" aria-live="polite"></div>
                         </div>
 
                         <div id="camposAsistente">
@@ -169,6 +171,7 @@
         });
     })();
 </script>
+<script src="${raiz}/js/disponibilidad-usuario.js"></script>
 <script src="${raiz}/js/validacion-formularios.js"></script>
 </body>
 </html>

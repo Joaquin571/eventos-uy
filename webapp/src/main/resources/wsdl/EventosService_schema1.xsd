@@ -7,6 +7,14 @@
 
   <xs:element name="listarEventosResponse" type="tns:listarEventosResponse"/>
 
+  <xs:element name="nicknameDisponible" type="tns:nicknameDisponible"/>
+  <xs:element name="nicknameDisponibleResponse" type="tns:nicknameDisponibleResponse"/>
+  <xs:complexType name="nicknameDisponible"><xs:sequence><xs:element name="arg0" type="xs:string" minOccurs="0"/></xs:sequence></xs:complexType>
+  <xs:complexType name="nicknameDisponibleResponse"><xs:sequence><xs:element name="return" type="xs:boolean"/></xs:sequence></xs:complexType>
+  <xs:element name="correoDisponible" type="tns:correoDisponible"/>
+  <xs:element name="correoDisponibleResponse" type="tns:correoDisponibleResponse"/>
+  <xs:complexType name="correoDisponible"><xs:sequence><xs:element name="arg0" type="xs:string" minOccurs="0"/></xs:sequence></xs:complexType>
+  <xs:complexType name="correoDisponibleResponse"><xs:sequence><xs:element name="return" type="xs:boolean"/></xs:sequence></xs:complexType>
   <xs:complexType name="listarEventos">
     <xs:sequence/>
   </xs:complexType>
