@@ -85,4 +85,19 @@ public interface ISistema {
     void asociarImagen(TipoEntidadImagen tipo, String clave, DtImagen imagen);
     DtImagen obtenerImagen(TipoEntidadImagen tipo, String clave);
     void validarImagen(DtImagen imagen);
+
+    DtPerfilUsuario consultarPerfil(String nickname, Actor actor);
+    boolean disponibleNickname(String valor);
+    boolean disponibleCorreo(String valor);
+    DtInstitucion consultarInstitucion(String nombre);
+    java.util.List<DtEdicion> obtenerEdicionesVisibles(String evento, Actor actor);
+    DtSeleccionEdicion consultarEdiciones(String evento, String edicion, Actor actor);
+    DtDetalleEdicion consultarDetalleEdicion(String nombre, Actor actor);
+    DtTipoRegistro consultarTipoRegistroVisible(String edicion, String tipo, Actor actor);
+    DtImagen obtenerImagenVisible(TipoEntidadImagen tipo, String clave, Actor actor);
+    DtConsultaRegistros consultarRegistros(String edicion, String asistente, Actor actor);
+    DtFormularioRegistro formularioRegistro(String evento, String edicion, String tipo, Actor actor);
+    boolean registrarAutorizado(String edicion, String tipo, String modalidad, String codigo, Actor actor);
+    boolean altaEvento(DtEvento dt, DtImagen imagen, Actor actor) throws Exception;
+    boolean altaEdicion(DtEdicion dt, String nombreEvento, DtImagen imagen, Actor actor);
 }

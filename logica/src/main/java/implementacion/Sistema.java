@@ -527,6 +527,13 @@ public class Sistema implements ISistema {
     // EVENTOS
     @Override
     public boolean altaEvento(DtEvento dt) throws Exception {
+        return altaEvento(dt, null, Actor.administradorLocal());
+    }
+
+    @Override
+    public boolean altaEvento(DtEvento dt, DtImagen imagen, Actor actor) throws Exception {
+        requerirActorPatrocinio(actor);
+        if (imagen != null) validarImagen(imagen);
         if (dt == null) {
             throw new IllegalArgumentException("Los datos del evento son obligatorios.");
         }
@@ -556,6 +563,7 @@ public class Sistema implements ISistema {
             }
             evento.agregarCategoria(categoria);
         }
+        if (imagen != null) evento.setImagen(new Imagen(imagen.getTipoContenido().toLowerCase(Locale.ROOT), imagen.getContenido()));
         return manejadorEventos.addEvento(evento);
     }
 
@@ -581,6 +589,15 @@ public class Sistema implements ISistema {
     // EDICIONES
     @Override
     public boolean altaEdicion(DtEdicion dt, String nombreEvento) {
+        return altaEdicion(dt, nombreEvento, null, Actor.administradorLocal());
+    }
+
+    @Override
+    public boolean altaEdicion(DtEdicion dt, String nombreEvento, DtImagen imagen, Actor actor) {
+        requerirActorPatrocinio(actor);
+        if (dt != null && !actor.esAdministradorLocal() && !actor.nickname().equals(dt.getNombreOrganizador()))
+            throw new excepciones.AccesoDenegadoException("No puede crear una edici?n para otro organizador.");
+        if (imagen != null) validarImagen(imagen);
         if (dt == null || dt.getIdNombre() == null || dt.getIdNombre().isBlank()) {
             throw new IllegalArgumentException("El nombre de la edición es obligatorio.");
         }
@@ -627,6 +644,7 @@ public class Sistema implements ISistema {
                 organizador
         );
         edicion.setEvento(evento);
+        if (imagen != null) edicion.setImagen(new Imagen(imagen.getTipoContenido().toLowerCase(Locale.ROOT), imagen.getContenido()));
 
         if (!manejadorEventos.addEdicion(edicion)) {
             throw new IllegalArgumentException("Ya existe una edición con ese nombre.");
@@ -1042,4 +1060,159 @@ public class Sistema implements ISistema {
     public void validarImagen(DtImagen imagen) {
         ValidadorImagen.validar(imagen);
     }
+    // Casos autorizados del portal: la presentación no decide privacidad ni reglas de negocio.
+    @Override
+    public DtPerfilUsuario consultarPerfil(String nickname, Actor actor) {
+        DtUsuario usuario = consultarUsuario(nickname);
+        if (usuario == null) throw new excepciones.NoEncontradoException();
+        boolean propio = actor != null && (actor.esAdministradorLocal() || nickname.equals(actor.nickname()));
+        List<DtRegistro> registros = usuario instanceof DtAsistente && propio
+                ? new ArrayList<>(obtenerRegistrosAsistente(nickname)) : List.of();
+        List<DtEdicion> ediciones = usuario instanceof DtOrganizador
+                ? obtenerEdicionesOrganizador(nickname).stream()
+                    .filter(e -> propio || e.getEstado() == EstadoEdicion.ACEPTADA).toList() : List.of();
+        return new DtPerfilUsuario(usuario, propio, registros, ediciones);
+    }
+
+    @Override
+    public boolean disponibleNickname(String valor) {
+        return textoDisponible(valor) && !existeUsuario(valor);
+    }
+
+    @Override
+    public boolean disponibleCorreo(String valor) {
+        return textoDisponible(valor) && valor.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")
+                && !existeCorreoElectronico(valor);
+    }
+
+    private boolean textoDisponible(String valor) {
+        return valor != null && !valor.isBlank() && valor.equals(valor.trim())
+                && valor.indexOf('\0') < 0 && valor.codePointCount(0, valor.length()) <= 255;
+    }
+
+    @Override
+    public DtInstitucion consultarInstitucion(String nombre) {
+        return listarInstituciones().stream().filter(i -> i.getNombre().equals(nombre)).findFirst()
+                .orElseThrow(excepciones.NoEncontradoException::new);
+    }
+
+    @Override
+    public List<DtEdicion> obtenerEdicionesVisibles(String evento, Actor actor) {
+        return obtenerEdicionesEvento(evento).stream().filter(e -> e.getEstado() == EstadoEdicion.ACEPTADA
+                || actor != null && (actor.esAdministradorLocal()
+                || actor.esOrganizador() && e.getNombreOrganizador().equals(actor.nickname()))).toList();
+    }
+
+    @Override
+    public DtSeleccionEdicion consultarEdiciones(String evento, String nombre, Actor actor) {
+        evento = evento == null ? "" : evento; nombre = nombre == null ? "" : nombre;
+        List<DtEvento> eventos = new ArrayList<>(listarEventos());
+        String buscado = evento;
+        if (!evento.isEmpty() && eventos.stream().noneMatch(e -> e.getNombre().equals(buscado)))
+            throw new excepciones.NoEncontradoException();
+        DtEdicion seleccionada = null;
+        if (!nombre.isEmpty()) {
+            Edicion entidad = manejadorEventos.obtenerEdicion(nombre);
+            if (!esVisibleParaConsultaPatrocinio(actor, entidad)) throw new excepciones.NoEncontradoException();
+            String real = entidad.getEvento().getNombre();
+            if (!evento.isEmpty() && !evento.equals(real)) throw new excepciones.NoEncontradoException();
+            evento = real; seleccionada = aDt(entidad);
+        }
+        return new DtSeleccionEdicion(evento, seleccionada,
+                evento.isEmpty() ? List.of() : obtenerEdicionesVisibles(evento, actor), eventos);
+    }
+
+    @Override
+    public DtDetalleEdicion consultarDetalleEdicion(String nombre, Actor actor) {
+        DtEdicion edicion = consultarEdiciones("", nombre, actor).edicion();
+        if (edicion == null) throw new excepciones.NoEncontradoException();
+        boolean propietario = actor != null && (actor.esAdministradorLocal()
+                || actor.esOrganizador() && edicion.getNombreOrganizador().equals(actor.nickname()));
+        List<DtRegistro> registros = propietario ? new ArrayList<>(obtenerRegistrosEdicion(nombre)) : List.of();
+        DtRegistro propio = actor != null && !actor.esOrganizador() && !actor.esAdministradorLocal()
+                ? obtenerRegistrosAsistente(actor.nickname()).stream().filter(r -> nombre.equals(r.getNombreEdicion()))
+                    .findFirst().orElse(null) : null;
+        boolean puede = actor != null && !actor.esOrganizador() && !actor.esAdministradorLocal()
+                && propio == null && edicion.getEstado() == EstadoEdicion.ACEPTADA;
+        return new DtDetalleEdicion(edicion, consultarUsuario(edicion.getNombreOrganizador()),
+                obtenerImagen(TipoEntidadImagen.EDICION, nombre) != null,
+                new ArrayList<>(obtenerTiposRegistroEdicion(nombre)),
+                new ArrayList<>(obtenerInstitucionesPatrocinadoras(nombre, actor)), registros, propio, propietario, puede);
+    }
+
+    @Override
+    public DtTipoRegistro consultarTipoRegistroVisible(String edicion, String tipo, Actor actor) {
+        if (consultarEdiciones("", edicion, actor).edicion() == null) throw new excepciones.NoEncontradoException();
+        DtTipoRegistro resultado = consultarTipoRegistro(edicion, tipo);
+        if (resultado == null) throw new excepciones.NoEncontradoException();
+        return resultado;
+    }
+
+    @Override
+    public DtImagen obtenerImagenVisible(TipoEntidadImagen tipo, String clave, Actor actor) {
+        if (tipo == TipoEntidadImagen.EDICION && clave != null && !clave.isBlank())
+            consultarDetalleEdicion(clave, actor);
+        return obtenerImagen(tipo, clave);
+    }
+
+    private void requerirUsuarioRemoto(Actor actor) {
+        if (actor == null || actor.esAdministradorLocal() || actor.nickname() == null || actor.nickname().isBlank())
+            throw new excepciones.AccesoDenegadoException("Se requiere un usuario autenticado.");
+    }
+
+    private void requerirAsistente(Actor actor) {
+        requerirUsuarioRemoto(actor);
+        if (actor.esOrganizador()) throw new excepciones.AccesoDenegadoException("Esta operación requiere un asistente.");
+    }
+
+    @Override
+    public DtConsultaRegistros consultarRegistros(String edicion, String asistente, Actor actor) {
+        requerirUsuarioRemoto(actor);
+        edicion = edicion == null ? "" : edicion; asistente = asistente == null ? "" : asistente;
+        if (actor.esOrganizador()) {
+            List<DtEdicion> propias = new ArrayList<>(obtenerEdicionesOrganizador(actor.nickname()));
+            String elegida = edicion;
+            if (!edicion.isEmpty() && propias.stream().noneMatch(e -> e.getIdNombre().equals(elegida)))
+                throw new excepciones.AccesoDenegadoException("La edición no pertenece al organizador.");
+            List<DtRegistro> registros = edicion.isEmpty() ? List.of() : new ArrayList<>(obtenerRegistrosEdicion(edicion));
+            String nick = asistente;
+            DtRegistro detalle = asistente.isEmpty() ? null : registros.stream()
+                    .filter(reg -> nick.equals(reg.getNicknameAsistente())).findFirst()
+                    .orElseThrow(excepciones.NoEncontradoException::new);
+            List<DtUsuario> usuarios = registros.stream().map(reg -> consultarUsuario(reg.getNicknameAsistente())).toList();
+            return new DtConsultaRegistros(true, propias, registros, detalle, usuarios);
+        }
+        List<DtRegistro> registros = new ArrayList<>(obtenerRegistrosAsistente(actor.nickname()));
+        String elegida = edicion;
+        DtRegistro detalle = edicion.isEmpty() ? null : registros.stream()
+                .filter(reg -> elegida.equals(reg.getNombreEdicion())).findFirst().orElse(null);
+        return new DtConsultaRegistros(false, List.of(), registros, detalle,
+                List.of(consultarUsuario(actor.nickname())));
+    }
+
+    @Override
+    public DtFormularioRegistro formularioRegistro(String evento, String edicion, String tipo, Actor actor) {
+        requerirAsistente(actor);
+        DtSeleccionEdicion seleccion = consultarEdiciones(evento, edicion, actor);
+        if (seleccion.edicion() != null && seleccion.edicion().getEstado() != EstadoEdicion.ACEPTADA)
+            throw new excepciones.NoEncontradoException();
+        List<DtEdicion> ediciones = seleccion.ediciones().stream().filter(e -> e.getEstado() == EstadoEdicion.ACEPTADA).toList();
+        List<DtTipoRegistro> tipos = seleccion.edicion() == null ? List.of()
+                : new ArrayList<>(obtenerTiposRegistroEdicion(seleccion.edicion().getIdNombre()));
+        DtTipoRegistro elegido = tipo == null || tipo.isEmpty() ? null : tipos.stream()
+                .filter(t -> tipo.equals(t.getIdNombre())).findFirst().orElseThrow(excepciones.NoEncontradoException::new);
+        return new DtFormularioRegistro(seleccion.evento(), ediciones, tipos, seleccion.edicion(), elegido, seleccion.eventos());
+    }
+
+    @Override
+    public boolean registrarAutorizado(String edicion, String tipo, String modalidad, String codigo, Actor actor) {
+        requerirAsistente(actor);
+        if (!"general".equals(modalidad) && !"codigo".equals(modalidad))
+            throw new IllegalArgumentException("La modalidad de registro no es válida.");
+        if ("codigo".equals(modalidad)) validarObligatorio(codigo, "Ingresá el código de patrocinio.");
+        consultarTipoRegistroVisible(edicion, tipo, actor);
+        return registroAEdicion(actor.nickname(), edicion, tipo, new DtRegistro(null, 0),
+                "codigo".equals(modalidad) ? codigo : null);
+    }
+
 }
