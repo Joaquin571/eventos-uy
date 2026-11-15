@@ -47,7 +47,7 @@ public class AuditarFronteraLogica {
             comprobar(identidad.getNickname().equals(asA) && s.autenticar(asB,"cambiada").getNickname().equals(asB),
                     "H08: autenticar devuelve un DTO, no instala un actor autorizado dentro de ISistema");
             String inst="frInst"+sufijo;
-            comprobar(s.altaInstitucion(new DtInstitucion(inst,"Auditoría",null)),"Diferencia: la lógica permite sitio web de institución ausente");
+            comprobar(s.altaInstitucion(new DtInstitucion(inst,"Auditoría",null), datatypes.Actor.administradorLocal()),"Diferencia: la lógica permite sitio web de institución ausente");
             System.out.println("FRONTERA: "+comprobaciones+" caracterizaciones verificadas. Requieren ejecutar Java con la lógica y credenciales de BD; no prueban acceso HTTP.");
         } finally {BaseDeDatos.cerrar();}
     }

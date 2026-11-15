@@ -118,7 +118,7 @@ public class VerificarSwing {
         String categoria = "Categoría Swing " + sufijo;
         sistema.altaCategoria(categoria, null);
         institucion = "Institución Swing " + sufijo;
-        var inst = new swing.AltaInstitucionPanel();
+        var inst = new swing.AltaInstitucionPanel(datatypes.Actor.administradorLocal());
         texto(inst,"txtNombre").setText(institucion); ((JTextArea)campo(inst,"txtDescripcion")).setText("Descripción");
         seleccionarImagen(inst,png); accion(inst,"guardarInstitucion");
         verificar(sistema.existeInstitucion(institucion),"Alta de institución desde formulario");

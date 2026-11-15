@@ -28,7 +28,8 @@ public interface ISistema {
 
     // INSTITUCIONES
     boolean existeInstitucion(String nombre);
-    boolean altaInstitucion(DtInstitucion institucion);
+    boolean altaInstitucion(DtInstitucion institucion, Actor actor);
+    boolean altaInstitucion(DtInstitucion institucion, DtImagen imagen, Actor actor);
     Collection<DtInstitucion> listarInstituciones();
 
     // EVENTOS

@@ -101,7 +101,7 @@ class ImagenesTest extends soporte.PruebaConBaseSegura {
         String nombre = "Institucion" + sufijo;
 
         assertTrue(sistema.altaInstitucion(
-                new DtInstitucion(nombre, "Descripción", "https://ejemplo.com")));
+                new DtInstitucion(nombre, "Descripción", "https://ejemplo.com"), datatypes.Actor.administradorLocal()));
 
         sistema.asociarImagen(TipoEntidadImagen.INSTITUCION, nombre, new DtImagen("image/png", png()));
 

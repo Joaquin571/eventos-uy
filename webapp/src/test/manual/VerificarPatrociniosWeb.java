@@ -49,8 +49,8 @@ public class VerificarPatrociniosWeb {
             sistema.altaTipoRegistro(new DtTipoRegistro("General","General",100,50),nombre, Actor.administradorLocal());
         }
         sistema.aceptarRechazarEdicion(edicion,true);sistema.aceptarRechazarEdicion(rechazada,false);
-        sistema.altaInstitucion(new DtInstitucion(institucion,"Descripción","https://test.uy"));
-        sistema.altaInstitucion(new DtInstitucion(institucionNueva,"Descripción","https://test.uy"));
+        sistema.altaInstitucion(new DtInstitucion(institucion,"Descripción","https://test.uy"), datatypes.Actor.administradorLocal());
+        sistema.altaInstitucion(new DtInstitucion(institucionNueva,"Descripción","https://test.uy"), datatypes.Actor.administradorLocal());
         for (String nombre : List.of(edicion,oculta,rechazada)) {
             sistema.altaPatrocinio(new DtPatrocinio(LocalDate.of(1999,1,1),1000,1,codigo+nombre,
                     NivelPatrocinio.ORO,institucion,nombre,"General"), null, datatypes.Actor.administradorLocal());

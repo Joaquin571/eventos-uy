@@ -113,7 +113,7 @@ public class VerificarConsultasWeb {
 
     static void preparar(ISistema s)throws Exception {
         for(String nick:List.of(org,ajeno)) {DtOrganizador d=new DtOrganizador(nick,nick,nick+"@test.uy","Descripción","");d.setContrasenia("clave");d.setConfirmacionContrasenia("clave");s.altaOrganizador(d);}
-        s.altaInstitucion(new DtInstitucion(institucion,"Descripción","https://test.uy"));
+        s.altaInstitucion(new DtInstitucion(institucion,"Descripción","https://test.uy"), datatypes.Actor.administradorLocal());
         for(String nick:List.of(ana,bea,libre)) {DtAsistente d=new DtAsistente(nick,nick,nick+"@test.uy","Apellido",LocalDate.of(2000,1,1),nick.equals(bea)?institucion:null);d.setContrasenia("clave");d.setConfirmacionContrasenia("clave");s.altaAsistente(d);}
         String cat="000 Cat "+sufijo;s.altaCategoria(cat,null);
         for(String ev:List.of(evento,otroEvento))s.altaEvento(new DtEvento(ev,"EV","Descripción",LocalDate.now(),List.of(cat)));

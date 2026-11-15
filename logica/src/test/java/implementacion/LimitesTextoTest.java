@@ -69,7 +69,7 @@ class LimitesTextoTest extends soporte.PruebaConBaseSegura {
         String nombre = "inst" + sufijo;
         for (DtInstitucion dt : List.of(new DtInstitucion(excesivo,"D",null),
                 new DtInstitucion(nombre,excesivo,null),new DtInstitucion(nombre,"D",excesivo))) {
-            assertThrows(IllegalArgumentException.class, () -> sistema.altaInstitucion(dt));
+            assertThrows(IllegalArgumentException.class, () -> sistema.altaInstitucion(dt, datatypes.Actor.administradorLocal()));
         }
         assertFalse(sistema.existeInstitucion(nombre));
     }

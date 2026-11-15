@@ -30,7 +30,7 @@ class ConsultasSistemaTest extends soporte.PruebaConBaseSegura {
     void listarUsuariosDevuelveAmbosRolesConDatosCompletosYSinClaves() {
         String org = organizador("consultaOrg");
         String institucion = "Institución " + sufijo;
-        assertTrue(sistema.altaInstitucion(new DtInstitucion(institucion, "Institución", null)));
+        assertTrue(sistema.altaInstitucion(new DtInstitucion(institucion, "Institución", null), datatypes.Actor.administradorLocal()));
         String nick = "consultaAs" + sufijo;
         DtAsistente alta = new DtAsistente(nick, "Ana", nick + "@test.uy", "Pérez", LocalDate.of(2000, 2, 3), institucion);
         alta.setContrasenia("clave");
@@ -65,8 +65,8 @@ class ConsultasSistemaTest extends soporte.PruebaConBaseSegura {
     void listarInstitucionesConservaDescripcionYSitioOpcional() {
         String primera = "Consulta institución " + sufijo;
         String segunda = "Consulta sin sitio " + sufijo;
-        assertTrue(sistema.altaInstitucion(new DtInstitucion(primera, "Descripción completa", "https://institucion.test")));
-        assertTrue(sistema.altaInstitucion(new DtInstitucion(segunda, "Sin sitio", null)));
+        assertTrue(sistema.altaInstitucion(new DtInstitucion(primera, "Descripción completa", "https://institucion.test"), datatypes.Actor.administradorLocal()));
+        assertTrue(sistema.altaInstitucion(new DtInstitucion(segunda, "Sin sitio", null), datatypes.Actor.administradorLocal()));
         var instituciones = sistema.listarInstituciones();
         var una = instituciones.stream().filter(i -> primera.equals(i.getNombre())).findFirst().orElseThrow();
         var otra = instituciones.stream().filter(i -> segunda.equals(i.getNombre())).findFirst().orElseThrow();

@@ -86,7 +86,7 @@ class RegistroTest extends soporte.PruebaConBaseSegura {
     private String crearInstitucion(String prefijo) {
         String nombre = prefijo + sufijo;
         assertTrue(sistema.altaInstitucion(
-                new DtInstitucion(nombre, "Institución de prueba", "https://ejemplo.com")));
+                new DtInstitucion(nombre, "Institución de prueba", "https://ejemplo.com"), datatypes.Actor.administradorLocal()));
         return nombre;
     }
 

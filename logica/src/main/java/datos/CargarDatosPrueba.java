@@ -78,9 +78,9 @@ public class CargarDatosPrueba {
 
         // ---- Instituciones
         intentar("institución UTEC", () -> sistema.altaInstitucion(new DtInstitucion(
-                "UTEC", "Universidad Tecnológica", "https://www.utec.edu.uy")));
+                "UTEC", "Universidad Tecnológica", "https://www.utec.edu.uy"), datatypes.Actor.administradorLocal()));
         intentar("institución ANTEL", () -> sistema.altaInstitucion(new DtInstitucion(
-                "ANTEL", "Empresa de telecomunicaciones", "https://www.antel.com.uy")));
+                "ANTEL", "Empresa de telecomunicaciones", "https://www.antel.com.uy"), datatypes.Actor.administradorLocal()));
 
         // ---- Organizadores
         intentar("organizador imm", () -> sistema.altaOrganizador(conClave(new DtOrganizador(

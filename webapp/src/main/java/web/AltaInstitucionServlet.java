@@ -2,7 +2,6 @@ package web;
 
 import datatypes.DtImagen;
 import datatypes.DtInstitucion;
-import datatypes.TipoEntidadImagen;
 import interfaces.ISistema;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -16,14 +15,10 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 @WebServlet("/alta-institucion")
 @MultipartConfig(maxFileSize = 2L * 1024 * 1024, maxRequestSize = 3L * 1024 * 1024)
 public class AltaInstitucionServlet extends HttpServlet {
-
-    private static final Pattern URL =
-            Pattern.compile("^https?://[^\\s.]+\\.[^\\s]+$", Pattern.CASE_INSENSITIVE);
 
     private static final String[] CAMPOS = {"nombre", "descripcion", "sitioWeb"};
 
@@ -48,51 +43,21 @@ public class AltaInstitucionServlet extends HttpServlet {
         try {
             String nombre = form.get("nombre");
 
-            if (nombre.isEmpty()) {
-                throw new IllegalArgumentException("El nombre es obligatorio.");
-            }
-            if (form.get("descripcion").isEmpty()) {
-                throw new IllegalArgumentException("La descripción es obligatoria.");
-            }
-            if (form.get("sitioWeb").isEmpty()) {
-                throw new IllegalArgumentException("El sitio web es obligatorio.");
-            }
-            if (!URL.matcher(form.get("sitioWeb")).matches()) {
-                throw new IllegalArgumentException(
-                        "Ingresá una URL válida (por ejemplo, https://ejemplo.com).");
-            }
-
-            // La imagen se valida antes de crear la institución, para no dejarla a medias
             DtImagen imagen = Subidas.leerImagen(req, "imagen");
-
-            if (imagen != null) {
-                sistema.validarImagen(imagen);
-            }
-
-            if (sistema.existeInstitucion(nombre)) {
-                throw new IllegalArgumentException("Ya existe una institución con ese nombre.");
-            }
-
+            var sesion = req.getSession(false);
+            var usuario = sesion == null ? null : (datatypes.DtUsuario) sesion.getAttribute("usuario");
             boolean alta = sistema.altaInstitucion(
-                    new DtInstitucion(nombre, form.get("descripcion"), form.get("sitioWeb")));
-
-            if (!alta) {
-                throw new IllegalArgumentException("Ya existe una institución con ese nombre.");
-            }
+                    new DtInstitucion(nombre, form.get("descripcion"), form.get("sitioWeb")), imagen,
+                    usuario == null ? null : datatypes.Actor.usuarioAutenticado(usuario));
+            if (!alta) throw new IllegalArgumentException("Ya existe una instituci?n con ese nombre.");
 
             String destino = "/alta-institucion?creada="
                     + URLEncoder.encode(nombre, StandardCharsets.UTF_8);
 
-            if (imagen != null) {
-                try {
-                    sistema.asociarImagen(TipoEntidadImagen.INSTITUCION, nombre, imagen);
-                } catch (IllegalArgumentException e) {
-                    destino += "&imagen=error";
-                }
-            }
-
             resp.sendRedirect(req.getContextPath() + destino);
 
+        } catch (excepciones.AccesoDenegadoException e) {
+            resp.sendError(403);
         } catch (IllegalArgumentException e) {
             mostrarFormulario(req, resp, form, e.getMessage());
         }

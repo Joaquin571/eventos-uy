@@ -70,7 +70,7 @@ class ReglasAltaTest extends soporte.PruebaConBaseSegura {
 
     private String crearInstitucion(String prefijo) {
         String nombre = prefijo + sufijo;
-        assertTrue(sistema.altaInstitucion(new DtInstitucion(nombre, "Institución de prueba", "https://ejemplo.com")));
+        assertTrue(sistema.altaInstitucion(new DtInstitucion(nombre, "Institución de prueba", "https://ejemplo.com"), datatypes.Actor.administradorLocal()));
         return nombre;
     }
 
@@ -186,7 +186,7 @@ class ReglasAltaTest extends soporte.PruebaConBaseSegura {
     void unaInstitucionConNombreRepetidoSeRechaza() {
         String nombre = crearInstitucion("inst");
 
-        assertFalse(sistema.altaInstitucion(new DtInstitucion(nombre, "Otra descripción", "https://otra.com")));
+        assertFalse(sistema.altaInstitucion(new DtInstitucion(nombre, "Otra descripción", "https://otra.com"), datatypes.Actor.administradorLocal()));
     }
 
     // -------------------------------------------------------------- patrocinios

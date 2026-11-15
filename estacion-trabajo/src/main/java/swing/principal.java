@@ -201,7 +201,7 @@ public class principal {
         );
         agregarInterno(internoConsultaUsuario);
 
-        AltaInstitucionPanel panelAltaInstitucion = new AltaInstitucionPanel();
+        AltaInstitucionPanel panelAltaInstitucion = new AltaInstitucionPanel(actor);
         internoAltaInstitucion = crearInterno(
                 "Alta Institución",
                 panelAltaInstitucion.getMainPanel(),

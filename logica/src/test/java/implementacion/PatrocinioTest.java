@@ -28,7 +28,7 @@ class PatrocinioTest extends soporte.PruebaConBaseSegura {
         LocalDate hoy = LocalDate.now();
         assertTrue(sistema.altaEdicion(new DtEdicion(edicion, "ED", hoy, hoy, hoy, "Ciudad", "País", org), evento));
         assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General", "General", 100, 50), edicion, Actor.administradorLocal()));
-        assertTrue(sistema.altaInstitucion(new DtInstitucion(institucion, "Descripción", "https://ejemplo.uy")));
+        assertTrue(sistema.altaInstitucion(new DtInstitucion(institucion, "Descripción", "https://ejemplo.uy"), datatypes.Actor.administradorLocal()));
     }
 
     private DtPatrocinio datos(float aporte, int cantidad) {

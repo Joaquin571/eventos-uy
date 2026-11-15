@@ -76,7 +76,7 @@ class ModificacionPerfilAtomicaTest extends PruebaConBaseSegura {
     void asistenteActualizaPerfilInstitucionYClaveConservandoIdentidadYFechaAlta() {
         DtAsistente original = crearAsistente();
         String institucion = "Institución atómica " + sufijo;
-        assertTrue(sistema.altaInstitucion(new DtInstitucion(institucion, "Descripción", "")));
+        assertTrue(sistema.altaInstitucion(new DtInstitucion(institucion, "Descripción", ""), datatypes.Actor.administradorLocal()));
         DtAsistente cambio = new DtAsistente(original.getNickname(), "Nombre nuevo", "ignorar@test.uy", "Apellido nuevo",
                 LocalDate.of(2002, 2, 2), institucion);
         nuevaClave(cambio); sistema.modificarAsistente(cambio, datatypes.Actor.administradorLocal());

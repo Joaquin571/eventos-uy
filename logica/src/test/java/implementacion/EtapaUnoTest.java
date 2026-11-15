@@ -108,15 +108,15 @@ class EtapaUnoTest extends soporte.PruebaConBaseSegura {
     @Test
     void institucionExigeDatosBasicosSinReservarNombreTrasError() {
         String nombre = "Institución validada " + sufijo;
-        assertThrows(IllegalArgumentException.class, () -> sistema.altaInstitucion(null));
+        assertThrows(IllegalArgumentException.class, () -> sistema.altaInstitucion(null, datatypes.Actor.administradorLocal()));
         for (String invalido : new String[]{null, " "}) {
             assertThrows(IllegalArgumentException.class,
-                    () -> sistema.altaInstitucion(new DtInstitucion(invalido, "Descripción", "")));
+                    () -> sistema.altaInstitucion(new DtInstitucion(invalido, "Descripción", ""), datatypes.Actor.administradorLocal()));
             assertThrows(IllegalArgumentException.class,
-                    () -> sistema.altaInstitucion(new DtInstitucion(nombre, invalido, "")));
+                    () -> sistema.altaInstitucion(new DtInstitucion(nombre, invalido, ""), datatypes.Actor.administradorLocal()));
         }
         assertFalse(sistema.existeInstitucion(nombre));
-        assertTrue(sistema.altaInstitucion(new DtInstitucion(nombre, "Descripción", "")));
+        assertTrue(sistema.altaInstitucion(new DtInstitucion(nombre, "Descripción", ""), datatypes.Actor.administradorLocal()));
         assertEquals("Descripción", sistema.listarInstituciones().stream()
                 .filter(i -> nombre.equals(i.getNombre())).findFirst().orElseThrow().getDescripcion());
     }

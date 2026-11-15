@@ -419,18 +419,31 @@ public class Sistema implements ISistema {
 
     // INSTITUCIONES
     @Override
-    public boolean altaInstitucion(DtInstitucion dt) {
+    public boolean altaInstitucion(DtInstitucion dt, Actor actor) {
+        return altaInstitucion(dt, null, actor);
+    }
+
+    @Override
+    public boolean altaInstitucion(DtInstitucion dt, DtImagen imagen, Actor actor) {
+        requerirActorPatrocinio(actor);
+        if (imagen != null) validarImagen(imagen);
         if (dt == null) {
             throw new IllegalArgumentException("Los datos de la institución son obligatorios.");
         }
         validarObligatorio(dt.getNombre(), "El nombre de la institución es obligatorio.");
         validarObligatorio(dt.getDescripcion(), "La descripción es obligatoria.");
         validarTexto("sitio web", dt.getSitioWeb());
+        if (dt.getSitioWeb() != null && !dt.getSitioWeb().isBlank()
+                && !dt.getSitioWeb().matches("(?i)^https?://[^\\s.]+\\.[^\\s]+$")) {
+            throw new IllegalArgumentException("Ingres? una URL v?lida para la instituci?n.");
+        }
         Institucion institucion = new Institucion(
                 dt.getNombre(),
                 dt.getDescripcion(),
                 dt.getSitioWeb()
         );
+        if (imagen != null) institucion.setImagen(new Imagen(
+                imagen.getTipoContenido().toLowerCase(Locale.ROOT), imagen.getContenido()));
         return manejadorInstituciones.addInstitucion(institucion);
     }
 

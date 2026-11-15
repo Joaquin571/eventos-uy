@@ -45,7 +45,7 @@ class UnicidadConcurrenciaTest extends PruebaConBaseSegura {
     }
     private String institucion() {
         String nombre="instU"+(++secuencia)+sufijo;
-        assertTrue(sistema.altaInstitucion(new DtInstitucion(nombre,"Descripción","")));return nombre;
+        assertTrue(sistema.altaInstitucion(new DtInstitucion(nombre,"Descripción",""), datatypes.Actor.administradorLocal()));return nombre;
     }
     private DtPatrocinio patrocinio(String codigo,String institucion) {
         return new DtPatrocinio(null,1000,1,codigo,NivelPatrocinio.ORO,institucion,ed,"General");
@@ -105,9 +105,9 @@ class UnicidadConcurrenciaTest extends PruebaConBaseSegura {
         assertNotEquals(ed,otra);assertTrue(sistema.altaEdicion(edicion(otra),evento));
         assertEquals(2,sistema.obtenerEdicionesEvento(evento).size());
         String inst="InstCi"+sufijo,mayuscula=inst.toUpperCase(java.util.Locale.ROOT);
-        assertTrue(sistema.altaInstitucion(new DtInstitucion(inst,"Primera","https://test.uy")));
+        assertTrue(sistema.altaInstitucion(new DtInstitucion(inst,"Primera","https://test.uy"), datatypes.Actor.administradorLocal()));
         assertFalse(sistema.existeInstitucion(mayuscula));
-        assertTrue(sistema.altaInstitucion(new DtInstitucion(mayuscula,"Segunda","https://test.uy")));
+        assertTrue(sistema.altaInstitucion(new DtInstitucion(mayuscula,"Segunda","https://test.uy"), datatypes.Actor.administradorLocal()));
         assertTrue(sistema.existeInstitucion(inst));assertTrue(sistema.existeInstitucion(mayuscula));
     }
     @Test void consultaPatrocinioPorClaveExactaConservaSusReferencias()throws Exception {
@@ -133,8 +133,8 @@ class UnicidadConcurrenciaTest extends PruebaConBaseSegura {
     }
     @Test void patrociniosDeInstitucionesDistintasPorMayusculasNoSeConfundenNiBloquean()throws Exception {
         exigirIndicesH13();preparar(5);String inst="InstPat"+sufijo,otra=inst.toUpperCase(java.util.Locale.ROOT);
-        assertTrue(sistema.altaInstitucion(new DtInstitucion(inst,"Primera","https://test.uy")));
-        assertTrue(sistema.altaInstitucion(new DtInstitucion(otra,"Segunda","https://test.uy")));
+        assertTrue(sistema.altaInstitucion(new DtInstitucion(inst,"Primera","https://test.uy"), datatypes.Actor.administradorLocal()));
+        assertTrue(sistema.altaInstitucion(new DtInstitucion(otra,"Segunda","https://test.uy"), datatypes.Actor.administradorLocal()));
         String a="instPatA"+sufijo,b="instPatB"+sufijo;
         assertTrue(sistema.altaPatrocinio(patrocinio(a,inst), null, datatypes.Actor.administradorLocal()));
         assertNull(sistema.consultarPatrocinio(ed,otra, datatypes.Actor.administradorLocal()));
@@ -153,8 +153,8 @@ class UnicidadConcurrenciaTest extends PruebaConBaseSegura {
     }
     @Test void patrociniosConcurrentesDeParesDistintosPorMayusculasConfirmanAmbos()throws Exception {
         exigirIndicesH13();preparar(5);String inst="InstSim"+sufijo,otra=inst.toUpperCase(java.util.Locale.ROOT);
-        assertTrue(sistema.altaInstitucion(new DtInstitucion(inst,"Primera","https://test.uy")));
-        assertTrue(sistema.altaInstitucion(new DtInstitucion(otra,"Segunda","https://test.uy")));
+        assertTrue(sistema.altaInstitucion(new DtInstitucion(inst,"Primera","https://test.uy"), datatypes.Actor.administradorLocal()));
+        assertTrue(sistema.altaInstitucion(new DtInstitucion(otra,"Segunda","https://test.uy"), datatypes.Actor.administradorLocal()));
         var pool=Executors.newFixedThreadPool(2);var inicio=new CyclicBarrier(2);
         String a="simA"+sufijo,b="simB"+sufijo;
         try {
@@ -224,7 +224,7 @@ class UnicidadConcurrenciaTest extends PruebaConBaseSegura {
     }
     @Test void institucionIgualNoSeDuplicaConDosAltas()throws Exception {
         String nombre="instU"+sufijo;var dt=new DtInstitucion(nombre,"Descripción","");
-        unaSola(()->sistema.altaInstitucion(dt),()->sistema.altaInstitucion(dt));
+        unaSola(()->sistema.altaInstitucion(dt, datatypes.Actor.administradorLocal()),()->sistema.altaInstitucion(dt, datatypes.Actor.administradorLocal()));
         assertEquals(1,contar("SELECT COUNT(i) FROM Institucion i WHERE i.nombre=:clave",nombre));
     }
     @Test void tiposQueSoloDifierenEnMayusculasEsperanElMismoPadre()throws Exception {

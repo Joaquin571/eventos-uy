@@ -36,7 +36,7 @@ class ConsultaPatrociniosVisibilidadTest extends soporte.PruebaConBaseSegura {
         String categoria = "categoriaConsulta" + sufijo;
         sistema.altaCategoria(categoria, null);
         assertTrue(sistema.altaEvento(new DtEvento(evento, "EV", "Descripción", null, List.of(categoria))));
-        assertTrue(sistema.altaInstitucion(new DtInstitucion(institucion, "Descripción", "https://test.uy")));
+        assertTrue(sistema.altaInstitucion(new DtInstitucion(institucion, "Descripción", "https://test.uy"), datatypes.Actor.administradorLocal()));
         LocalDate hoy = LocalDate.now();
         for (EstadoEdicion estado : EstadoEdicion.values()) {
             String nombre = edicion(estado);
