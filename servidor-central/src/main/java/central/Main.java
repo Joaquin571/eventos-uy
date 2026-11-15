@@ -22,7 +22,8 @@ public final class Main {
             }, "cerrar-central"));
             System.out.println("WSDL de eventos: " + servidor.urlEventos() + "?wsdl");
             System.out.println("WSDL de sesiones: " + servidor.urlSesiones() + "?wsdl");
-            swing.principal.main(args);
+            System.out.println("WSDL del portal: " + servidor.urlPortal() + "?wsdl");
+            if (!java.util.Arrays.asList(args).contains("--sin-swing")) swing.principal.main(args);
         } catch (RuntimeException | Error error) {
             try {
                 servidor.close();

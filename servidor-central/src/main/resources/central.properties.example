@@ -13,3 +13,6 @@ tls.clave.password=
 db.url=jdbc:postgresql://localhost:5432/eventosuy_test
 db.usuario=COMPLETAR
 db.password=COMPLETAR
+
+# Casos de uso del portal, en el mismo listener HTTPS y registro P03
+central.ruta.portal=/portal

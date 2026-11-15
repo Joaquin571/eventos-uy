@@ -65,6 +65,12 @@ public final class ConfiguracionCentral {
         return requerida("central.escucha");
     }
 
+    public String rutaPortal() {
+        String valor=propiedades.getProperty("central.ruta.portal","/portal");
+        if(!valor.matches("/[A-Za-z0-9_-]+(?:/[A-Za-z0-9_-]+)*")) throw new IllegalStateException("Revis? central.ruta.portal.");
+        return valor;
+    }
+
     public String rutaEventos() { return ruta("central.ruta"); }
     public String rutaSesiones() { return ruta("central.ruta.sesiones"); }
 
@@ -91,6 +97,10 @@ public final class ConfiguracionCentral {
         urlSesiones();
         hostEscucha();
         duracionSesion();
+        String portal=rutaPortal();
+        for(String otra:new String[]{rutaEventos(),rutaSesiones()})
+            if(portal.equals(otra) || portal.startsWith(otra+"/") || otra.startsWith(portal+"/"))
+                throw new IllegalStateException("La ruta del portal debe ser independiente.");
         String eventos = rutaEventos(), sesiones = rutaSesiones();
         if (eventos.equals(sesiones) || eventos.startsWith(sesiones + "/") || sesiones.startsWith(eventos + "/")) {
             throw new IllegalStateException("Las rutas de eventos y sesiones deben ser independientes.");

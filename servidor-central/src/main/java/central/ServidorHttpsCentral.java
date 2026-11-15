@@ -3,6 +3,7 @@ package central;
 import central.seguridad.SesionesRemotas;
 import central.soap.EventosPublicador;
 import central.soap.SesionesPublicador;
+import central.soap.PortalPublicador;
 import com.sun.net.httpserver.HttpsConfigurator;
 import com.sun.net.httpserver.HttpsServer;
 import interfaces.ISistema;
@@ -50,6 +51,7 @@ public final class ServidorHttpsCentral implements AutoCloseable {
                     configuracion.duracionSesion());
             publicar(configuracion.rutaEventos(), new EventosPublicador(sistema));
             publicar(configuracion.rutaSesiones(), new SesionesPublicador(sesiones));
+            publicar(configuracion.rutaPortal(), new PortalPublicador(sistema, sesiones));
             servidor.start();
         } catch (RuntimeException | Error e) {
             try { close(); } catch (RuntimeException cierre) { e.addSuppressed(cierre); }
@@ -62,6 +64,8 @@ public final class ServidorHttpsCentral implements AutoCloseable {
         endpoints.add(endpoint);
         endpoint.publish(servidor.createContext(ruta));
     }
+
+    public String urlPortal() { return configuracion.urlServicio(servidor.getAddress().getPort(), configuracion.rutaPortal()); }
 
     public String urlEventos() {
         return configuracion.urlServicio(servidor.getAddress().getPort(), configuracion.rutaEventos());

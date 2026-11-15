@@ -11,15 +11,12 @@ import jakarta.xml.ws.handler.MessageContext;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.regex.Pattern;
 
 /** Adaptador SOAP de sesiones. Publicar únicamente en un contexto HTTPS. */
 @WebService(name = "Sesiones", serviceName = "SesionesService", portName = "SesionesPort",
         targetNamespace = SesionesPublicador.NAMESPACE)
 public class SesionesPublicador {
     static final String NAMESPACE = "https://eventos.uy/soap/sesiones";
-    private static final Pattern BEARER = Pattern.compile("Bearer +([A-Za-z0-9_-]{43})",
-            Pattern.CASE_INSENSITIVE);
     private final SesionesRemotas sesiones;
 
     @Resource
@@ -65,27 +62,6 @@ public class SesionesPublicador {
     }
 
     private static String leerBearer(MessageContext mensaje) throws SesionSoapException {
-        Object propiedad = mensaje.get(MessageContext.HTTP_REQUEST_HEADERS);
-        String valor = null;
-        if (propiedad instanceof Map<?, ?> encabezados) {
-            for (var entrada : encabezados.entrySet()) {
-                if (!(entrada.getKey() instanceof String nombre) || !"Authorization".equalsIgnoreCase(nombre)) {
-                    continue;
-                }
-                if (valor != null || !(entrada.getValue() instanceof List<?> valores) || valores.size() != 1
-                        || !(valores.getFirst() instanceof String texto)) {
-                    throw encabezadoInvalido();
-                }
-                valor = texto;
-            }
-        }
-        if (valor == null) throw encabezadoInvalido();
-        var coincidencia = BEARER.matcher(valor);
-        if (!coincidencia.matches()) throw encabezadoInvalido();
-        return coincidencia.group(1);
-    }
-
-    private static SesionSoapException encabezadoInvalido() {
-        return new SesionSoapException("SOLICITUD_MALFORMADA", "Se requiere un encabezado Authorization Bearer válido.");
+        return CredencialesSoap.leerRequerida(mensaje);
     }
 }
