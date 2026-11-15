@@ -22,6 +22,7 @@
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item"><a class="nav-link" href="${raiz}/">Eventos</a></li>
                     <li class="nav-item"><a class="nav-link" href="${raiz}/usuarios">Usuarios</a></li>
+                    <li class="nav-item"><a class="nav-link" href="${raiz}/consulta-institucion">Instituciones</a></li>
                     <li class="nav-item"><a class="nav-link" href="${raiz}/consulta-patrocinio">Patrocinios</a></li>
                     <c:url var="urlTiposRegistro" value="/tipo-registro"/>
                     <li class="nav-item"><a class="nav-link" href="${urlTiposRegistro}">Tipos de registro</a></li>

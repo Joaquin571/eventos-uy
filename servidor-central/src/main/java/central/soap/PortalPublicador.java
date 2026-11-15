@@ -60,6 +60,12 @@ public class PortalPublicador {
         return salida(sistema.consultarUsuario(usuario.getNickname()),DtUsuario.class);
     }
     @WebMethod
+    @jakarta.xml.ws.RequestWrapper(className="central.soap.portal.jaxws.ListarEventosPorCategoria")
+    @jakarta.xml.ws.ResponseWrapper(className="central.soap.portal.jaxws.ListarEventosPorCategoriaResponse")
+    public List<DtEvento> listarEventosPorCategoria(@WebParam(name="categoria") String categoria) throws OperacionSoapException {
+        return invocar(() -> lista(sistema.listarEventosPorCategoria(categoria), DtEvento.class));
+    }
+    @WebMethod
     @jakarta.xml.ws.RequestWrapper(className="central.soap.portal.jaxws.ListarEventos")
     @jakarta.xml.ws.ResponseWrapper(className="central.soap.portal.jaxws.ListarEventosResponse")
     public List<DtEvento> listarEventos() throws OperacionSoapException {

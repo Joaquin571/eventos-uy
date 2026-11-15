@@ -1,6 +1,6 @@
 package web;
 
-import datatypes.DtUsuario;
+import contratos.dto.DtUsuario;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 

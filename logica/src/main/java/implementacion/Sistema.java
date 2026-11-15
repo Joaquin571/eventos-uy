@@ -435,7 +435,7 @@ public class Sistema implements ISistema {
         validarTexto("sitio web", dt.getSitioWeb());
         if (dt.getSitioWeb() != null && !dt.getSitioWeb().isBlank()
                 && !dt.getSitioWeb().matches("(?i)^https?://[^\\s.]+\\.[^\\s]+$")) {
-            throw new IllegalArgumentException("Ingres? una URL v?lida para la instituci?n.");
+            throw new IllegalArgumentException("Ingresá una URL válida para la institución.");
         }
         Institucion institucion = new Institucion(
                 dt.getNombre(),
@@ -568,6 +568,11 @@ public class Sistema implements ISistema {
     }
 
     @Override
+    public Collection<DtEvento> listarEventosPorCategoria(String categoria) {
+        return listarEventos().stream().filter(e -> categoria == null || categoria.isBlank()
+                || e.getCategorias().contains(categoria)).toList();
+    }
+
     public Collection<DtEvento> listarEventos() {
         Collection<DtEvento> resultado = new ArrayList<>();
         for (Evento evento : manejadorEventos.obtenerEventos()) {
@@ -1144,14 +1149,16 @@ public class Sistema implements ISistema {
     public DtTipoRegistro consultarTipoRegistroVisible(String edicion, String tipo, Actor actor) {
         if (consultarEdiciones("", edicion, actor).edicion() == null) throw new excepciones.NoEncontradoException();
         DtTipoRegistro resultado = consultarTipoRegistro(edicion, tipo);
-        if (resultado == null) throw new excepciones.NoEncontradoException();
+        if (resultado == null || !resultado.getIdNombre().equals(tipo)) throw new excepciones.NoEncontradoException();
         return resultado;
     }
 
     @Override
     public DtImagen obtenerImagenVisible(TipoEntidadImagen tipo, String clave, Actor actor) {
-        if (tipo == TipoEntidadImagen.EDICION && clave != null && !clave.isBlank())
+        if (tipo == TipoEntidadImagen.EDICION) {
+            if (clave == null || clave.isBlank()) throw new excepciones.NoEncontradoException();
             consultarDetalleEdicion(clave, actor);
+        }
         return obtenerImagen(tipo, clave);
     }
 

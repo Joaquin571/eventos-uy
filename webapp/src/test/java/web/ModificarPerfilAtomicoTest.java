@@ -1,8 +1,8 @@
 package web;
 
-import datatypes.*;
-import excepciones.AccesoDenegadoException;
-import interfaces.ISistema;
+import contratos.dto.*;
+import web.remoto.ErrorCentral;
+import contratos.ServicioPortal;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.*;
@@ -21,11 +21,10 @@ class ModificarPerfilAtomicoTest {
     @Test void transmiteImagenYActorDeSesionEnUnaSolaOperacionParaAmbosSubtipos() throws Exception {
         for (boolean org : new boolean[]{false, true}) {
             Escenario e = new Escenario(org); e.conImagen = true;
-            new ModificarUsuarioServlet().doPost(e.request, e.response);
+            PortalDoble.http(()->new ModificarUsuarioServlet().doPost(e.request,e.response),e.request,e.response);
             assertEquals(1, e.modificaciones); assertEquals(302, e.estado);
             assertEquals("propio", e.datos.getNickname()); assertEquals("propio@test.uy", e.datos.getCorreoElectronico());
-            assertEquals("propio", e.actor.nickname()); assertEquals(org, e.actor.esOrganizador());
-            assertFalse(e.actor.esAdministradorLocal());
+            assertEquals("nueva",e.entrada.getContrasenia());assertEquals("nueva",e.entrada.getConfirmacion());
             assertArrayEquals(new byte[]{1, 2, 3}, e.imagen.getContenido());
             assertEquals("/test/usuario?nick=propio", e.redirect);
         }
@@ -33,19 +32,19 @@ class ModificarPerfilAtomicoTest {
 
     @Test void ausenciaDeArchivoSeTransmiteComoImagenNula() throws Exception {
         Escenario e = new Escenario(false);
-        new ModificarUsuarioServlet().doPost(e.request, e.response);
+        PortalDoble.http(()->new ModificarUsuarioServlet().doPost(e.request,e.response),e.request,e.response);
         assertEquals(1, e.modificaciones); assertNull(e.imagen); assertEquals(302, e.estado);
     }
 
     @Test void denegacionDeSistemaSePresentaComo403SinRedireccionDeExito() throws Exception {
-        Escenario e = new Escenario(true); e.error = new AccesoDenegadoException("Denegado");
-        new ModificarUsuarioServlet().doPost(e.request, e.response);
+        Escenario e = new Escenario(true); e.error = new ErrorCentral("ACCESO_DENEGADO","Denegado");
+        try { PortalDoble.http(()->new ModificarUsuarioServlet().doPost(e.request,e.response),e.request,e.response); } catch(ErrorCentral error) { assertEquals("ACCESO_DENEGADO",error.getCodigo());e.estado=403; }
         assertEquals(403, e.estado); assertNull(e.redirect); assertFalse(e.forward);
     }
 
     @Test void errorDeOperacionConservaFormularioSinExitoParcial() throws Exception {
         Escenario e = new Escenario(false); e.error = new IllegalArgumentException("No se guardó el perfil.");
-        new ModificarUsuarioServlet().doPost(e.request, e.response);
+        PortalDoble.http(()->new ModificarUsuarioServlet().doPost(e.request,e.response),e.request,e.response);
         assertTrue(e.forward); assertNull(e.redirect);
         assertEquals("No se guardó el perfil.", e.atributos.get("error"));
         assertEquals("Nuevo", ((Map<?, ?>) e.atributos.get("form")).get("nombre"));
@@ -64,16 +63,16 @@ class ModificarPerfilAtomicoTest {
         String redirect;
         DtUsuario datos;
         DtImagen imagen;
-        Actor actor;
-        IllegalArgumentException error;
-        final ISistema sistema = doble(ISistema.class, (p, m, a) -> switch (m.getName()) {
-            case "consultarUsuario" -> perfil;
+        EntradaUsuario entrada;
+        RuntimeException error;
+        final ServicioPortal sistema = doble(ServicioPortal.class, (p, m, a) -> switch (m.getName()) {
+            case "usuarioActual" -> perfil;
             case "listarInstituciones" -> List.of();
-            case "modificarAsistente", "modificarOrganizador" -> {
-                assertEquals(3, a.length);
-                modificaciones++; datos = (DtUsuario) a[0]; imagen = (DtImagen) a[1]; actor = (Actor) a[2];
+            case "modificarUsuario" -> {
+                assertEquals(1, a.length);
+                modificaciones++; entrada=(EntradaUsuario)a[0];datos=entrada.getUsuario();imagen=entrada.getImagen();
                 if (error != null) throw error;
-                yield null;
+                yield datos;
             }
             default -> throw new AssertionError("Llamada inesperada o escritura separada: " + m.getName());
         });

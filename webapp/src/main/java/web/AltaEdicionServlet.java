@@ -1,8 +1,7 @@
-
 package web;
 
-import datatypes.*;
-import interfaces.ISistema;
+import contratos.dto.*;
+import contratos.ServicioPortal;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -31,7 +30,7 @@ public class AltaEdicionServlet extends HttpServlet {
 
         req.setAttribute(
                 "eventos",
-                ContextoListener.sistema(req).listarEventos()
+                ContextoListener.central(req).listarEventos()
         );
 
         req.getRequestDispatcher("/WEB-INF/views/alta-edicion.jsp")
@@ -47,7 +46,7 @@ public class AltaEdicionServlet extends HttpServlet {
             return;
         }
 
-        ISistema sistema = ContextoListener.sistema(req);
+        ServicioPortal sistema = ContextoListener.central(req);
 
         Map<String, String> form = new HashMap<>();
         for (String campo : new String[]{"evento", "nombre", "sigla", "ciudad", "pais", "fechaInicio", "fechaFin"}) {
@@ -71,17 +70,7 @@ public class AltaEdicionServlet extends HttpServlet {
                     obligatorio(req, "fechaFin")
             );
 
-            if (fin.isBefore(inicio)) {
-                throw new IllegalArgumentException(
-                        "La fecha de fin no puede ser anterior al inicio."
-                );
-            }
-
             DtImagen imagen = Subidas.leerImagen(req, "imagen");
-
-            if (imagen != null) {
-                sistema.validarImagen(imagen);
-            }
 
             DtEdicion edicion = new DtEdicion(
                     nombre,
@@ -94,7 +83,7 @@ public class AltaEdicionServlet extends HttpServlet {
                     organizador.getNickname()
             );
 
-            boolean creada = sistema.altaEdicion(edicion, evento);
+            boolean creada = sistema.altaEdicion(edicion, evento, imagen);
 
             if (!creada) {
                 throw new IllegalArgumentException(
@@ -103,21 +92,8 @@ public class AltaEdicionServlet extends HttpServlet {
                 );
             }
 
-            String advertencia = null;
-            if (imagen != null) {
-                try {
-                    sistema.asociarImagen(
-                            TipoEntidadImagen.EDICION,
-                            nombre,
-                            imagen
-                    );
-                } catch (IllegalArgumentException e) {
-                    advertencia = "La edición se creó, pero no se pudo guardar su imagen.";
-                }
-            }
-
             MensajesFlash.guardar(req, "/alta-edicion",
-                    "Edición creada correctamente. Estado: Ingresada.", advertencia);
+                    "Edición creada correctamente. Estado: Ingresada.", null);
             resp.sendRedirect(req.getContextPath() + "/alta-edicion");
             return;
 
@@ -149,7 +125,7 @@ public class AltaEdicionServlet extends HttpServlet {
             return null;
         }
 
-        Object usuario = sesion.getAttribute("usuario");
+        Object usuario = SesionWeb.usuario(req);
 
         if (!(usuario instanceof DtOrganizador)) {
             resp.sendError(
@@ -168,12 +144,6 @@ public class AltaEdicionServlet extends HttpServlet {
     ) {
         String valor = req.getParameter(campo);
 
-        if (valor == null || valor.isBlank()) {
-            throw new IllegalArgumentException(
-                    "El campo " + campo + " es obligatorio."
-            );
-        }
-
-        return valor.trim();
+        return valor == null ? "" : valor.trim();
     }
 }

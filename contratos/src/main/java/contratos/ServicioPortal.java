@@ -4,6 +4,7 @@ import java.util.List;
 /** API del consumidor Web, independiente de lógica y persistencia. */
 public interface ServicioPortal {
     List<DtEvento> listarEventos();
+    List<DtEvento> listarEventosPorCategoria(String categoria);
     List<DtCategoria> listarCategorias();
     List<DtInstitucion> listarInstituciones();
     DtInstitucion consultarInstitucion(String nombre);

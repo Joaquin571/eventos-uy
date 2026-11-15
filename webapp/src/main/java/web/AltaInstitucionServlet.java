@@ -1,8 +1,8 @@
 package web;
 
-import datatypes.DtImagen;
-import datatypes.DtInstitucion;
-import interfaces.ISistema;
+import contratos.dto.DtImagen;
+import contratos.dto.DtInstitucion;
+import contratos.ServicioPortal;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -38,26 +38,21 @@ public class AltaInstitucionServlet extends HttpServlet {
             form.put(campo, valor == null ? "" : valor.trim());
         }
 
-        ISistema sistema = ContextoListener.sistema(req);
+        ServicioPortal sistema = ContextoListener.central(req);
 
         try {
             String nombre = form.get("nombre");
 
             DtImagen imagen = Subidas.leerImagen(req, "imagen");
-            var sesion = req.getSession(false);
-            var usuario = sesion == null ? null : (datatypes.DtUsuario) sesion.getAttribute("usuario");
             boolean alta = sistema.altaInstitucion(
-                    new DtInstitucion(nombre, form.get("descripcion"), form.get("sitioWeb")), imagen,
-                    usuario == null ? null : datatypes.Actor.usuarioAutenticado(usuario));
-            if (!alta) throw new IllegalArgumentException("Ya existe una instituci?n con ese nombre.");
+                    new DtInstitucion(nombre, form.get("descripcion"), form.get("sitioWeb")), imagen);
+            if (!alta) throw new IllegalArgumentException("Ya existe una institución con ese nombre.");
 
             String destino = "/alta-institucion?creada="
                     + URLEncoder.encode(nombre, StandardCharsets.UTF_8);
 
             resp.sendRedirect(req.getContextPath() + destino);
 
-        } catch (excepciones.AccesoDenegadoException e) {
-            resp.sendError(403);
         } catch (IllegalArgumentException e) {
             mostrarFormulario(req, resp, form, e.getMessage());
         }

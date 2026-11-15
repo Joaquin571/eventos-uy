@@ -35,6 +35,7 @@ public interface ISistema {
     // EVENTOS
     boolean altaEvento(DtEvento dt) throws Exception;
     Collection<DtEvento> listarEventos();
+    Collection<DtEvento> listarEventosPorCategoria(String categoria);
 
     // EDICIONES
     boolean altaEdicion(DtEdicion dtEdicion, String nombreEvento);

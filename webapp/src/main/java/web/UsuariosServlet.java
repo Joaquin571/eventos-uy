@@ -1,8 +1,8 @@
 package web;
 
-import datatypes.DtAsistente;
-import datatypes.DtOrganizador;
-import datatypes.DtUsuario;
+import contratos.dto.DtAsistente;
+import contratos.dto.DtOrganizador;
+import contratos.dto.DtUsuario;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -23,7 +23,7 @@ public class UsuariosServlet extends HttpServlet {
         List<DtAsistente> asistentes = new ArrayList<>();
         List<DtOrganizador> organizadores = new ArrayList<>();
 
-        for (DtUsuario usuario : ContextoListener.sistema(req).listarUsuarios()) {
+        for (DtUsuario usuario : ContextoListener.central(req).listarUsuarios()) {
             if (usuario instanceof DtAsistente asistente) {
                 asistentes.add(asistente);
             } else if (usuario instanceof DtOrganizador organizador) {

@@ -67,7 +67,7 @@ public final class ConfiguracionCentral {
 
     public String rutaPortal() {
         String valor=propiedades.getProperty("central.ruta.portal","/portal");
-        if(!valor.matches("/[A-Za-z0-9_-]+(?:/[A-Za-z0-9_-]+)*")) throw new IllegalStateException("Revis? central.ruta.portal.");
+        if(!valor.matches("/[A-Za-z0-9_-]+(?:/[A-Za-z0-9_-]+)*")) throw new IllegalStateException("Revisá central.ruta.portal.");
         return valor;
     }
 

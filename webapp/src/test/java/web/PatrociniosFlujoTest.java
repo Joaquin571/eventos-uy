@@ -1,6 +1,6 @@
 package web;
 
-import datatypes.*;
+import contratos.dto.*;
 import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.util.*;
@@ -23,7 +23,7 @@ class PatrociniosFlujoTest {
         }
         e.ediciones.add(edicion("Oculta ajena", "ajeno", EstadoEdicion.INGRESADA));
         e.parametros.clear(); e.parametros.put("evento", "Evento");
-        new AltaPatrocinioServlet().doGet(e.request, e.response);
+        PortalDoble.http(()->new AltaPatrocinioServlet().doGet(e.request,e.response),e.request,e.response);
         List<DtEdicion> opciones = ediciones(e);
         assertEquals(4, opciones.size());
         assertTrue(opciones.stream().allMatch(d -> d.getNombreOrganizador().equals("duenio")));
@@ -36,7 +36,7 @@ class PatrociniosFlujoTest {
     void cargaSoloTiposDeLaEdicionSeleccionadaYResuelveElEvento() throws Exception {
         Escenario e = propio();
         e.tiposPorEdicion.put("Otra", List.of(new DtTipoRegistro("Privado", "", 1, 1)));
-        new AltaPatrocinioServlet().doGet(e.request, e.response);
+        PortalDoble.http(()->new AltaPatrocinioServlet().doGet(e.request,e.response),e.request,e.response);
         assertEquals("Evento", form(e).get("evento"));
         List<DtTipoRegistro> tipos = (List<DtTipoRegistro>) e.atributos.get("tipos");
         assertEquals(List.of("General"), tipos.stream().map(DtTipoRegistro::getIdNombre).toList());
@@ -48,7 +48,7 @@ class PatrociniosFlujoTest {
         Escenario e = propio();
         e.ediciones.add(edicion("Ajena", "ajeno", EstadoEdicion.ACEPTADA));
         e.parametros.put("edicion", "Ajena");
-        new AltaPatrocinioServlet().doGet(e.request, e.response);
+        PortalDoble.http(()->new AltaPatrocinioServlet().doGet(e.request,e.response),e.request,e.response);
         assertEquals(403, e.estado);
         assertFalse(e.atributos.containsKey("tipos"));
     }
@@ -57,10 +57,10 @@ class PatrociniosFlujoTest {
     void eventoSinEdicionesPropiasYEdicionSinTiposSeRepresentanVacios() throws Exception {
         Escenario e = propio();
         e.parametros.clear();e.parametros.put("evento", "Sin ediciones");
-        new AltaPatrocinioServlet().doGet(e.request, e.response);
+        PortalDoble.http(()->new AltaPatrocinioServlet().doGet(e.request,e.response),e.request,e.response);
         assertTrue(ediciones(e).isEmpty());
         Escenario sinTipos = propio();sinTipos.tiposPorEdicion.clear();
-        new AltaPatrocinioServlet().doGet(sinTipos.request, sinTipos.response);
+        PortalDoble.http(()->new AltaPatrocinioServlet().doGet(sinTipos.request,sinTipos.response),sinTipos.request,sinTipos.response);
         assertTrue(((Collection<?>) sinTipos.atributos.get("tipos")).isEmpty());
     }
 
@@ -69,7 +69,7 @@ class PatrociniosFlujoTest {
         for (String valor : List.of("NaN", "Infinity", "-Infinity", "0", "-1", "texto")) {
             Escenario e = propio();e.parametros.put("aporte", valor);
             e.errorAlta = "El aporte económico debe ser un número finito mayor que cero.";
-            new AltaPatrocinioServlet().doPost(e.request, e.response);
+            PortalDoble.http(()->new AltaPatrocinioServlet().doPost(e.request,e.response),e.request,e.response);
             assertEquals(0, e.altas);assertTrue(e.reenviado);
             assertEquals(valor, form(e).get("aporte"));
             assertEquals("NUEVO", form(e).get("codigo"));
@@ -86,7 +86,7 @@ class PatrociniosFlujoTest {
         for (String valor : List.of("-1", "1.5", "2147483648", "texto")) {
             Escenario e = propio();e.parametros.put("registrograt", valor);
             e.errorAlta = "La cantidad de registros gratuitos no puede ser negativa.";
-            new AltaPatrocinioServlet().doPost(e.request, e.response);
+            PortalDoble.http(()->new AltaPatrocinioServlet().doPost(e.request,e.response),e.request,e.response);
             assertEquals(0, e.altas);assertEquals(valor, form(e).get("registrograt"));
             if (valor.equals("-1")) assertNotNull(e.creado, "El rango debe delegarse a Sistema.");
         }
@@ -96,11 +96,11 @@ class PatrociniosFlujoTest {
     void nivelInvalidoYCamposObligatoriosProducenMensajes() throws Exception {
         for (String campo : List.of("institucion", "nivel", "tipoRegistro", "aporte", "registrograt", "codigo")) {
             Escenario e = propio();e.parametros.remove(campo);
-            new AltaPatrocinioServlet().doPost(e.request, e.response);
+            PortalDoble.http(()->new AltaPatrocinioServlet().doPost(e.request,e.response),e.request,e.response);
             assertEquals(0, e.altas);assertNotNull(e.atributos.get("error"));
         }
         Escenario e = propio();e.parametros.put("nivel", "DIAMANTE");
-        new AltaPatrocinioServlet().doPost(e.request, e.response);
+        PortalDoble.http(()->new AltaPatrocinioServlet().doPost(e.request,e.response),e.request,e.response);
         assertTrue(e.atributos.get("error").toString().contains("nivel"));
     }
 
@@ -109,14 +109,14 @@ class PatrociniosFlujoTest {
         Escenario e = propio();e.parametros.put("tipoRegistro", "VIP");
         e.errorAlta = "El tipo de registro no pertenece a la edición seleccionada.";
         e.tiposPorEdicion.put("Otra", List.of(new DtTipoRegistro("VIP", "", 100, 10)));
-        new AltaPatrocinioServlet().doPost(e.request, e.response);
+        PortalDoble.http(()->new AltaPatrocinioServlet().doPost(e.request,e.response),e.request,e.response);
         assertEquals(0, e.altas);assertNotNull(e.atributos.get("error"));
     }
 
     @Test
     void eventoIncompatibleNoPermiteCrear() throws Exception {
         Escenario e = propio();e.parametros.put("evento", "Otro evento");
-        new AltaPatrocinioServlet().doPost(e.request, e.response);
+        PortalDoble.http(()->new AltaPatrocinioServlet().doPost(e.request,e.response),e.request,e.response);
         assertEquals(0, e.altas);assertNotNull(e.atributos.get("error"));
         assertEquals("Edicion", form(e).get("edicion"));
     }
@@ -125,7 +125,7 @@ class PatrociniosFlujoTest {
     void erroresDeNegocioSeMuestranSinPerderElFormulario() throws Exception {
         for (String mensaje : List.of("La institución ya patrocina la edición.", "El código ya existe.", "Supera el 20 % del aporte.")) {
             Escenario e = propio();e.errorAlta = mensaje;
-            new AltaPatrocinioServlet().doPost(e.request, e.response);
+            PortalDoble.http(()->new AltaPatrocinioServlet().doPost(e.request,e.response),e.request,e.response);
             assertEquals(mensaje, e.atributos.get("error"));
             assertEquals("NUEVO", form(e).get("codigo"));
             assertEquals("General", form(e).get("tipoRegistro"));
@@ -137,7 +137,7 @@ class PatrociniosFlujoTest {
     void ceroGratuitosYLimiteExactoLleganALaLogica() throws Exception {
         for (String cantidad : List.of("0", "10")) {
             Escenario e = propio();e.parametros.put("registrograt", cantidad);
-            new AltaPatrocinioServlet().doPost(e.request, e.response);
+            PortalDoble.http(()->new AltaPatrocinioServlet().doPost(e.request,e.response),e.request,e.response);
             assertEquals(1, e.altas);assertEquals(302, e.estado);
         }
     }
@@ -149,7 +149,7 @@ class PatrociniosFlujoTest {
         e.ediciones.add(edicion(nombre, "duenio", EstadoEdicion.INGRESADA));
         e.tiposPorEdicion.put(nombre, List.of(new DtTipoRegistro("General", "", 1, 10)));
         e.parametros.put("edicion", nombre);e.parametros.put("institucion", "UTEC & ANTEL");
-        new AltaPatrocinioServlet().doPost(e.request, e.response);
+        PortalDoble.http(()->new AltaPatrocinioServlet().doPost(e.request,e.response),e.request,e.response);
         assertTrue(e.redireccion.contains("Edici%C3%B3n+%26+m%C3%BAsica"));
         assertTrue(e.redireccion.contains("UTEC+%26+ANTEL"));
         assertFalse(e.redireccion.contains("NUEVO"));
@@ -160,7 +160,7 @@ class PatrociniosFlujoTest {
         Escenario e = propio();e.parametros.clear();e.parametros.put("evento", "Evento");
         e.ediciones.add(edicion("Oculta propia", "duenio", EstadoEdicion.INGRESADA));
         e.ediciones.add(edicion("Oculta ajena", "ajeno", EstadoEdicion.RECHAZADA));
-        new ConsultaPatrocinioServlet().doGet(e.request, e.response);
+        PortalDoble.http(()->new ConsultaPatrocinioServlet().doGet(e.request,e.response),e.request,e.response);
         assertEquals(List.of("Edicion"), ediciones(e).stream().map(DtEdicion::getIdNombre).toList());
     }
 
@@ -168,7 +168,7 @@ class PatrociniosFlujoTest {
     void selectorDePatrociniosSoloRecibeInstitucionesYFechaUsaDatoPersistido() throws Exception {
         Escenario e = propio();e.tieneSesion = false;
         e.patrocinio.setFecha(LocalDate.of(2026, 3, 7));
-        new ConsultaPatrocinioServlet().doGet(e.request, e.response);
+        PortalDoble.http(()->new ConsultaPatrocinioServlet().doGet(e.request,e.response),e.request,e.response);
         assertEquals(List.of("UTEC"), e.atributos.get("patrocinadoras"));
         assertEquals("07/03/2026", e.atributos.get("fechaAlta"));
         assertNull(((DtPatrocinio)e.atributos.get("patrocinio")).getCodigoPatrocinio());
@@ -178,14 +178,14 @@ class PatrociniosFlujoTest {
     @Test
     void consultaSinPatrociniosNoEntregaDatosPrivados() throws Exception {
         Escenario e = propio();e.existePatrocinio = false;e.parametros.remove("institucion");
-        new ConsultaPatrocinioServlet().doGet(e.request, e.response);
+        PortalDoble.http(()->new ConsultaPatrocinioServlet().doGet(e.request,e.response),e.request,e.response);
         assertEquals(List.of(), e.atributos.get("patrocinadoras"));assertEquals(200, e.estado);
     }
 
     @Test
     void edicionEnlazaPatrociniosSinEntregarCodigos() throws Exception {
         Escenario e = propio();e.parametros.put("nombre", "Edicion");
-        new ConsultaEdicionServlet().doGet(e.request, e.response);
+        PortalDoble.http(()->new ConsultaEdicionServlet().doGet(e.request,e.response),e.request,e.response);
         assertEquals(List.of("UTEC"), e.atributos.get("patrocinadoras"));
         assertFalse(e.atributos.containsKey("patrocinios"));
     }

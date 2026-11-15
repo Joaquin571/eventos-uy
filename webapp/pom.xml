@@ -25,6 +25,7 @@
             <groupId>uy.edu.utec</groupId>
             <artifactId>logica</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
             <exclusions><exclusion><groupId>org.glassfish.jaxb</groupId><artifactId>jaxb-runtime</artifactId></exclusion></exclusions>
         </dependency>
 
@@ -59,6 +60,7 @@
     </dependencies>
 
     <build>
+        <finalName>web</finalName>
         <plugins>
             <plugin>
                 <groupId>com.sun.xml.ws</groupId><artifactId>jaxws-maven-plugin</artifactId><version>4.0.5</version>

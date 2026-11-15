@@ -1,46 +1,28 @@
 package web;
-
-import datatypes.*;
-import interfaces.ISistema;
-import jakarta.servlet.ServletException;
+import contratos.dto.*;
+import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @WebServlet("/tipo-registro")
 public class ConsultaTipoRegistroServlet extends HttpServlet {
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        ISistema sistema = ContextoListener.sistema(req);
-        DtUsuario usuario = AccesoEdiciones.usuario(req);
-        String nombre = AccesoEdiciones.texto(req, "nombre");
-        String edicion = AccesoEdiciones.texto(req, "edicion");
-        if (!nombre.isEmpty() && edicion.isEmpty()) {
-            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
-            return;
+    protected void doGet(HttpServletRequest req,HttpServletResponse resp)throws ServletException,IOException {
+        var central=ContextoListener.central(req);String nombre=AccesoEdiciones.texto(req,"nombre");
+        String edicion=AccesoEdiciones.texto(req,"edicion");
+        // Central valida también el tipo cuando falta o no coincide la edición.
+        DtTipoRegistro tipo=nombre.isEmpty()?null:central.consultarTipoRegistro(edicion,nombre);
+        var seleccion=central.consultarEdiciones(AccesoEdiciones.texto(req,"evento"),edicion);
+        req.setAttribute("eventos",seleccion.getEventos());req.setAttribute("eventoElegido",seleccion.getEvento());
+        req.setAttribute("ediciones",seleccion.getEdiciones());
+        if(seleccion.getEdicion()!=null){
+            req.setAttribute("edicionElegida",seleccion.getEdicion());
+            req.setAttribute("tipos",central.consultarDetalleEdicion(edicion).getTipos());
         }
-        var eventos = sistema.listarEventos();
-        var seleccion = AccesoEdiciones.resolver(sistema, eventos, AccesoEdiciones.texto(req, "evento"), edicion, usuario);
-        if (seleccion == null) {
-            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
-            return;
-        }
-        req.setAttribute("eventos", eventos);
-        req.setAttribute("eventoElegido", seleccion.evento());
-        req.setAttribute("ediciones", AccesoEdiciones.aceptadas(sistema, seleccion.evento()));
-        if (seleccion.edicion() != null) {
-            req.setAttribute("edicionElegida", seleccion.edicion());
-            req.setAttribute("tipos", sistema.obtenerTiposRegistroEdicion(edicion));
-            if (!nombre.isEmpty()) {
-                DtTipoRegistro tipo = sistema.consultarTipoRegistro(edicion, nombre);
-                if (tipo == null || !nombre.equals(tipo.getIdNombre())) {
-                    resp.sendError(HttpServletResponse.SC_NOT_FOUND);
-                    return;
-                }
-                req.setAttribute("detalle", tipo);
-                req.setAttribute("costo", DetalleRegistroVista.formatearCosto(tipo.getCosto()));
-            }
-        }
-        req.getRequestDispatcher("/WEB-INF/views/tipo-registro.jsp").forward(req, resp);
+        if(tipo!=null){req.setAttribute("detalle",tipo);req.setAttribute("costo",DetalleRegistroVista.formatearCosto(tipo.getCosto()));}
+        req.getRequestDispatcher("/WEB-INF/views/tipo-registro.jsp").forward(req,resp);
     }
 }

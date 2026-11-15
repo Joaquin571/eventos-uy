@@ -1,8 +1,9 @@
 package web;
 
-import clases.NivelPatrocinio;
-import datatypes.*;
-import interfaces.ISistema;
+import contratos.dto.NivelPatrocinio;
+import contratos.dto.*;
+import web.PortalDoble.Datos;
+import datatypes.Actor;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import org.junit.jupiter.api.Test;
@@ -17,7 +18,7 @@ class ConsultasEdicionTest {
     void listasGeneralesSoloIncluyenAceptadasInclusoParaElDuenio() throws Exception {
         for (DtUsuario usuario : usuarios()) {
             Escenario e = new Escenario(usuario);e.parametros.put("evento", "Evento");
-            new ConsultaEdicionServlet().doGet(e.req,e.resp);
+            PortalDoble.http(()->new ConsultaEdicionServlet().doGet(e.req,e.resp),e.req,e.resp);
             assertEquals(200,e.estado);
             assertEquals(List.of("Aceptada"), ((List<DtEdicion>)e.atributos.get("ediciones")).stream().map(DtEdicion::getIdNombre).toList());
             assertEquals(0,e.imagenes);assertEquals(0,e.registrosEdicion);assertEquals(0,e.registrosAsistente);
@@ -29,7 +30,7 @@ class ConsultasEdicionTest {
         for (String nombre : List.of("Ingresada","Rechazada")) {
             for (DtUsuario usuario : usuarios()) {
                 Escenario e = new Escenario(usuario);e.parametros.put("nombre",nombre);
-                new ConsultaEdicionServlet().doGet(e.req,e.resp);
+                PortalDoble.http(()->new ConsultaEdicionServlet().doGet(e.req,e.resp),e.req,e.resp);
                 if (usuario instanceof DtOrganizador && usuario.getNickname().equals("duenio")) {
                     assertEquals(200,e.estado);assertTrue(e.reenviado);assertEquals(1,e.imagenes);
                     assertEquals(List.of("Aceptada"), ((List<DtEdicion>)e.atributos.get("ediciones")).stream().map(DtEdicion::getIdNombre).toList());
@@ -46,7 +47,7 @@ class ConsultasEdicionTest {
     @Test
     void detallePublicoMuestraFechasOrganizadorYResumenSinCodigo() throws Exception {
         Escenario e = new Escenario(null);e.parametros.put("nombre","Aceptada");
-        new ConsultaEdicionServlet().doGet(e.req,e.resp);
+        PortalDoble.http(()->new ConsultaEdicionServlet().doGet(e.req,e.resp),e.req,e.resp);
         assertEquals("Evento",e.atributos.get("eventoElegido"));
         assertEquals("07/03/2026",e.atributos.get("fechaInicio"));assertEquals("09/03/2026",e.atributos.get("fechaFin"));
         assertEquals("01/02/2026",e.atributos.get("fechaAlta"));
@@ -60,35 +61,35 @@ class ConsultasEdicionTest {
     void organizadorAjenoNoConsultaRegistros() throws Exception {
         Escenario e = new Escenario(organizador("ajeno"));e.parametros.put("nombre","Aceptada");
         e.parametros.put("usuario","duenio");e.parametros.put("esPropietario","true");
-        new ConsultaEdicionServlet().doGet(e.req,e.resp);
+        PortalDoble.http(()->new ConsultaEdicionServlet().doGet(e.req,e.resp),e.req,e.resp);
         assertEquals(0,e.registrosEdicion);assertEquals(0,e.registrosAsistente);
-        assertFalse(e.atributos.containsKey("registros"));assertFalse(e.atributos.containsKey("registroPropio"));
+        assertTrue(((List<?>)e.atributos.get("registros")).isEmpty());assertFalse(e.atributos.containsKey("registroPropio"));
     }
 
     @Test
     void propietarioVeListadoSinConsultarRegistrosDeAsistente() throws Exception {
         Escenario e = new Escenario(organizador("duenio"));e.parametros.put("nombre","Aceptada");
-        new ConsultaEdicionServlet().doGet(e.req,e.resp);
+        PortalDoble.http(()->new ConsultaEdicionServlet().doGet(e.req,e.resp),e.req,e.resp);
         assertEquals(true,e.atributos.get("esPropietario"));
         assertEquals(2,((List<?>)e.atributos.get("registros")).size());assertEquals(1,e.registrosEdicion);assertEquals(0,e.registrosAsistente);
-        assertFalse(e.atributos.containsKey("puedeRegistrarse"));
+        assertEquals(false,e.atributos.get("puedeRegistrarse"));
     }
 
     @Test
     void asistenteRegistradoVeSoloSuDetalleAunqueManipuleParametros() throws Exception {
         Escenario e = new Escenario(asistente("ana"));e.parametros.put("nombre","Aceptada");
         e.parametros.put("asistente","bea");e.parametros.put("nickname","bea");
-        new ConsultaEdicionServlet().doGet(e.req,e.resp);
+        PortalDoble.http(()->new ConsultaEdicionServlet().doGet(e.req,e.resp),e.req,e.resp);
         DetalleRegistroVista r=(DetalleRegistroVista)e.atributos.get("registroPropio");
         assertEquals("ana",r.getNickname());assertEquals("Sí",r.getUsoCodigo());assertEquals("0",r.getCosto());
         assertEquals("ana",e.nickConsultado);assertEquals(false,e.atributos.get("puedeRegistrarse"));
-        assertEquals(0,e.registrosEdicion);assertFalse(e.atributos.containsKey("registros"));
+        assertEquals(0,e.registrosEdicion);assertTrue(((List<?>)e.atributos.get("registros")).isEmpty());
     }
 
     @Test
     void asistenteNoRegistradoPuedeInscribirseSinRecibirRegistrosAjenos() throws Exception {
         Escenario e = new Escenario(asistente("nueva"));e.parametros.put("nombre","Aceptada");
-        new ConsultaEdicionServlet().doGet(e.req,e.resp);
+        PortalDoble.http(()->new ConsultaEdicionServlet().doGet(e.req,e.resp),e.req,e.resp);
         assertEquals(true,e.atributos.get("puedeRegistrarse"));assertFalse(e.atributos.containsKey("registroPropio"));assertEquals(0,e.registrosEdicion);
     }
 
@@ -97,7 +98,7 @@ class ConsultasEdicionTest {
         for (Map<String,String> p : List.of(Map.of("nombre","NoExiste"),Map.of("nombre","ACEPTADA"),
                 Map.of("evento","Otro","nombre","Aceptada"),Map.of("evento","NoExiste"))) {
             Escenario e = new Escenario(organizador("duenio"));e.parametros.putAll(p);
-            new ConsultaEdicionServlet().doGet(e.req,e.resp);
+            PortalDoble.http(()->new ConsultaEdicionServlet().doGet(e.req,e.resp),e.req,e.resp);
             assertEquals(404,e.estado);assertEquals(0,e.imagenes);assertEquals(0,e.registrosEdicion);
         }
     }
@@ -105,28 +106,28 @@ class ConsultasEdicionTest {
     @Test
     void sesionAntiguaNoAutorizaDetalleOculto() throws Exception {
         Escenario e = new Escenario(null);e.sesion.put("usuarioLogueado",organizador("duenio"));
-        e.parametros.put("nombre","Ingresada");new ConsultaEdicionServlet().doGet(e.req,e.resp);
+        e.parametros.put("nombre","Ingresada");PortalDoble.http(()->new ConsultaEdicionServlet().doGet(e.req,e.resp),e.req,e.resp);
         assertEquals(404,e.estado);assertEquals(0,e.imagenes);
     }
 
     @Test
     void tiposSeConsultanPorEdicionYNombreConDatosCompletos() throws Exception {
         Escenario e = new Escenario(null);e.parametros.putAll(Map.of("edicion","Aceptada","nombre","General"));
-        new ConsultaTipoRegistroServlet().doGet(e.req,e.resp);
+        PortalDoble.http(()->new ConsultaTipoRegistroServlet().doGet(e.req,e.resp),e.req,e.resp);
         DtTipoRegistro t=(DtTipoRegistro)e.atributos.get("detalle");
         assertEquals("Descripción pública",t.getDescripcion());assertEquals(50,t.getCupo());assertEquals("100",e.atributos.get("costo"));
         Escenario otra = new Escenario(null);otra.parametros.putAll(Map.of("edicion","OtraAceptada","nombre","General"));
-        new ConsultaTipoRegistroServlet().doGet(otra.req,otra.resp);
+        PortalDoble.http(()->new ConsultaTipoRegistroServlet().doGet(otra.req,otra.resp),otra.req,otra.resp);
         assertEquals("200",otra.atributos.get("costo"));assertEquals("Otro",otra.atributos.get("eventoElegido"));
     }
 
     @Test
     void recorridoDeTiposTieneListasPublicasYEstadosVacios() throws Exception {
         Escenario e = new Escenario(organizador("duenio"));e.parametros.put("evento","Evento");
-        new ConsultaTipoRegistroServlet().doGet(e.req,e.resp);
+        PortalDoble.http(()->new ConsultaTipoRegistroServlet().doGet(e.req,e.resp),e.req,e.resp);
         assertEquals(1,((List<?>)e.atributos.get("ediciones")).size());assertEquals(0,e.tipos);
         Escenario vacio = new Escenario(null);vacio.parametros.put("edicion","SinTipos");
-        new ConsultaTipoRegistroServlet().doGet(vacio.req,vacio.resp);
+        PortalDoble.http(()->new ConsultaTipoRegistroServlet().doGet(vacio.req,vacio.resp),vacio.req,vacio.resp);
         assertEquals(List.of(),vacio.atributos.get("tipos"));assertEquals(200,vacio.estado);
     }
 
@@ -134,7 +135,7 @@ class ConsultasEdicionTest {
     void tiposOcultosSoloParaElDuenioSinConsultaPreviaParaTerceros() throws Exception {
         for(String nombre:List.of("Ingresada","Rechazada")) for(DtUsuario usuario:usuarios()) {
             Escenario e = new Escenario(usuario);e.parametros.putAll(Map.of("edicion",nombre,"nombre","General"));
-            new ConsultaTipoRegistroServlet().doGet(e.req,e.resp);
+            PortalDoble.http(()->new ConsultaTipoRegistroServlet().doGet(e.req,e.resp),e.req,e.resp);
             boolean propio=usuario instanceof DtOrganizador && usuario.getNickname().equals("duenio");
             assertEquals(propio?200:404,e.estado);assertEquals(propio?1:0,e.consultasTipo);assertEquals(propio?1:0,e.tipos);
         }
@@ -145,7 +146,7 @@ class ConsultasEdicionTest {
         for(Map<String,String> p:List.of(Map.of("edicion","Aceptada","nombre","SoloOtra"),Map.of("nombre","General"),
                 Map.of("edicion","Aceptada","nombre","general"),Map.of("evento","Otro","edicion","Aceptada"))) {
             Escenario e = new Escenario(null);e.parametros.putAll(p);
-            new ConsultaTipoRegistroServlet().doGet(e.req,e.resp);assertEquals(404,e.estado);assertFalse(e.reenviado);
+            PortalDoble.http(()->new ConsultaTipoRegistroServlet().doGet(e.req,e.resp),e.req,e.resp);assertEquals(404,e.estado);assertFalse(e.reenviado);
         }
     }
 
@@ -153,7 +154,7 @@ class ConsultasEdicionTest {
     void imagenOcultaSeRechazaAntesDeLeerBytes() throws Exception {
         for(String nombre:List.of("Ingresada","Rechazada")) for(DtUsuario usuario:usuarios()) {
             Escenario e = new Escenario(usuario);e.parametros.putAll(Map.of("tipo","edicion","id",nombre));
-            new ImagenServlet().doGet(e.req,e.resp);
+            PortalDoble.http(()->new ImagenServlet().doGet(e.req,e.resp),e.req,e.resp);
             boolean propio=usuario instanceof DtOrganizador && usuario.getNickname().equals("duenio");
             assertEquals(propio?200:404,e.estado);assertEquals(propio?1:0,e.imagenes);
             assertArrayEquals(propio?e.imagen.getContenido():new byte[0],e.bytes.toByteArray());
@@ -163,23 +164,23 @@ class ConsultasEdicionTest {
     @Test
     void imagenPublicaYAusenteMantienenSuComportamiento() throws Exception {
         Escenario e = new Escenario(null);e.parametros.putAll(Map.of("tipo","edicion","id","Aceptada"));
-        new ImagenServlet().doGet(e.req,e.resp);assertArrayEquals(e.imagen.getContenido(),e.bytes.toByteArray());assertEquals("private, no-store",e.headers.get("Cache-Control"));
+        PortalDoble.http(()->new ImagenServlet().doGet(e.req,e.resp),e.req,e.resp);assertArrayEquals(e.imagen.getContenido(),e.bytes.toByteArray());assertEquals("private, no-store",e.headers.get("Cache-Control"));
         Escenario sinImagen=new Escenario(null);sinImagen.imagen=null;sinImagen.parametros.putAll(e.parametros);
-        new ImagenServlet().doGet(sinImagen.req,sinImagen.resp);assertEquals(302,sinImagen.estado);assertEquals("/pruebas/img/default-avatar.png",sinImagen.redireccion);
+        PortalDoble.http(()->new ImagenServlet().doGet(sinImagen.req,sinImagen.resp),sinImagen.req,sinImagen.resp);assertEquals(302,sinImagen.estado);assertEquals("/pruebas/img/default-avatar.png",sinImagen.redireccion);
     }
 
     @Test
     void imagenDeEdicionInexistenteOVaciaNoLeeBytes() throws Exception {
         for(String nombre:List.of("NoExiste","")) {
             Escenario e=new Escenario(organizador("duenio"));e.parametros.putAll(Map.of("tipo","edicion","id",nombre));
-            new ImagenServlet().doGet(e.req,e.resp);assertEquals(404,e.estado);assertEquals(0,e.imagenes);
+            PortalDoble.http(()->new ImagenServlet().doGet(e.req,e.resp),e.req,e.resp);assertEquals(404,e.estado);assertEquals(0,e.imagenes);
         }
     }
 
     @Test
     void imagenDeUsuarioNoAdquiereRestriccionesDeEdicion() throws Exception {
         Escenario e=new Escenario(null);e.parametros.putAll(Map.of("tipo","usuario","id","ana"));
-        new ImagenServlet().doGet(e.req,e.resp);assertEquals(200,e.estado);assertEquals(1,e.imagenes);assertEquals("no-cache",e.headers.get("Cache-Control"));
+        PortalDoble.http(()->new ImagenServlet().doGet(e.req,e.resp),e.req,e.resp);assertEquals(200,e.estado);assertEquals(1,e.imagenes);assertEquals("no-cache",e.headers.get("Cache-Control"));
     }
 
     static DtOrganizador organizador(String nick) {return new DtOrganizador(nick,nick,nick+"@test.uy","Descripción","");}
@@ -197,7 +198,7 @@ class ConsultasEdicionTest {
         boolean reenviado;String nickConsultado,redireccion;
         final LocalDate fecha=LocalDate.of(2026,3,7);
         final List<DtRegistro> registros=List.of(new DtRegistro(fecha,0,"General","Aceptada","ana",true),new DtRegistro(fecha,100,"General","Aceptada","bea",false));
-        final ISistema sistema=doble(ISistema.class,(p,m,a)->switch(m.getName()) {
+        final Datos sistema=doble(Datos.class,(p,m,a)->switch(m.getName()) {
             case "listarEventos" -> List.of(new DtEvento("Evento","EV","Descripción",fecha,List.of()),new DtEvento("Otro","OT","",fecha,List.of()));
             case "obtenerEdicionesEvento" -> ediciones.getOrDefault(a[0],List.of());
             case "consultarUsuario" -> organizador((String)a[0]);
@@ -209,7 +210,7 @@ class ConsultasEdicionTest {
             case "obtenerRegistrosAsistente" -> {registrosAsistente++;nickConsultado=(String)a[0];yield registros.stream().filter(r->r.getNicknameAsistente().equals(a[0])).toList();}
             default -> throw new AssertionError("Consulta inesperada: "+m.getName());
         });
-        final ServletContext contexto=doble(ServletContext.class,(p,m,a)->{if(m.getName().equals("getAttribute")&&a[0].equals("sistema"))return sistema;throw new AssertionError(m.getName());});
+        final ServletContext contexto=doble(ServletContext.class,(p,m,a)->{if(m.getName().equals("getAttribute")&&a[0].equals("central"))return PortalDoble.crear(sistema,sesion);throw new AssertionError(m.getName());});
         final HttpSession httpSesion=doble(HttpSession.class,(p,m,a)->{if(m.getName().equals("getAttribute"))return sesion.get(a[0]);throw new AssertionError(m.getName());});
         final RequestDispatcher dispatcher=doble(RequestDispatcher.class,(p,m,a)->{if(m.getName().equals("forward")){reenviado=true;return null;}throw new AssertionError(m.getName());});
         final HttpServletRequest req=doble(HttpServletRequest.class,(p,m,a)->switch(m.getName()) {

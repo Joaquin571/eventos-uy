@@ -1,12 +1,12 @@
 package web;
 
-import datatypes.DtAsistente;
-import datatypes.DtEdicion;
-import datatypes.DtOrganizador;
-import datatypes.DtUsuario;
-import datatypes.EstadoEdicion;
-import datatypes.DtRegistro;
-import interfaces.ISistema;
+import contratos.dto.DtAsistente;
+import contratos.dto.DtEdicion;
+import contratos.dto.DtOrganizador;
+import contratos.dto.DtUsuario;
+import contratos.dto.EstadoEdicion;
+import contratos.dto.DtRegistro;
+import contratos.ServicioPortal;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -29,19 +29,10 @@ public class UsuarioServlet extends HttpServlet {
             throws ServletException, IOException {
 
         String nick = req.getParameter("nick");
-        ISistema sistema = ContextoListener.sistema(req);
+        ServicioPortal sistema = ContextoListener.central(req);
 
-        DtUsuario perfil = (nick == null || nick.isBlank()) ? null : sistema.consultarUsuario(nick);
-
-        if (perfil == null) {
-            resp.sendError(HttpServletResponse.SC_NOT_FOUND, "El usuario no existe.");
-            return;
-        }
-
-        HttpSession sesion = req.getSession(false);
-        DtUsuario actual = sesion == null ? null : (DtUsuario) sesion.getAttribute("usuario");
-        boolean esPropio = actual != null && actual.getNickname().equals(perfil.getNickname());
-
+        var consulta=sistema.consultarPerfil(nick);
+        DtUsuario perfil=consulta.getUsuario();boolean esPropio=consulta.isPropio();
         req.setAttribute("fechaAlta", perfil.getFechaAlta() == null
                 ? "No registrada" : perfil.getFechaAlta().format(FECHA));
         req.setAttribute("perfil", perfil);
@@ -55,7 +46,7 @@ public class UsuarioServlet extends HttpServlet {
             if (esPropio) {
                 Collection<RegistroVista> registros = new ArrayList<>();
 
-                for (DtRegistro registro : sistema.obtenerRegistrosAsistente(perfil.getNickname())) {
+                for (DtRegistro registro : consulta.getRegistros()) {
                     float costo = registro.getCosto();
 
                     registros.add(new RegistroVista(
@@ -70,12 +61,7 @@ public class UsuarioServlet extends HttpServlet {
         } else if (perfil instanceof DtOrganizador) {
             req.setAttribute("esOrganizador", true);
 
-            Collection<DtEdicion> ediciones = new ArrayList<>();
-            for (DtEdicion edicion : sistema.obtenerEdicionesOrganizador(perfil.getNickname())) {
-                if (esPropio || edicion.getEstado() == EstadoEdicion.ACEPTADA) {
-                    ediciones.add(edicion);
-                }
-            }
+            var ediciones=consulta.getEdiciones();
             req.setAttribute("ediciones", ediciones);
         }
 

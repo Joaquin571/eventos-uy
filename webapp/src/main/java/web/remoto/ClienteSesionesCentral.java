@@ -10,7 +10,7 @@ import java.net.URI;
 import java.util.*;
 
 /** P03: credencial solo en encabezados HTTP, fija y nunca en el cuerpo SOAP. */
-public final class ClienteSesionesCentral {
+public final class ClienteSesionesCentral implements ServicioSesiones {
     private final URI destino;
     private final SSLSocketFactory sockets;
     public ClienteSesionesCentral(URI destino){this(destino,null);}
@@ -43,7 +43,7 @@ public final class ClienteSesionesCentral {
             return new Inicio(usuario.getNickname(),usuario.getNombre(),usuario.getRol().value(),credencial);
         }catch(SesionSoapException e){
             if("CREDENCIALES_INVALIDAS".equals(e.getFaultInfo().getCodigo()) || "SOLICITUD_MALFORMADA".equals(e.getFaultInfo().getCodigo()))
-                throw new IllegalArgumentException("El nickname, el correo o la contrase?a no son correctos.");
+                throw new IllegalArgumentException("El nickname, el correo o la contraseña no son correctos.");
             throw new ErrorCentral("SERVICIO_NO_DISPONIBLE","No se pudo iniciar la sesión.");
         }catch(WebServiceException e){throw new ErrorCentral("SERVICIO_NO_DISPONIBLE","El servidor Central no está disponible.");}
     }

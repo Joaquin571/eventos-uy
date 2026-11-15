@@ -1,8 +1,7 @@
-
 package web;
 
-import datatypes.*;
-import interfaces.ISistema;
+import contratos.dto.*;
+import contratos.ServicioPortal;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -26,12 +25,10 @@ public class AltaTipoRegistroServlet extends HttpServlet {
 
         MensajesFlash.mostrar(req, "/alta-tipo-registro");
 
-        ISistema sistema = ContextoListener.sistema(req);
+        ServicioPortal sistema = ContextoListener.central(req);
 
         Collection<DtEdicion> ediciones =
-                sistema.obtenerEdicionesOrganizador(
-                        organizador.getNickname()
-                );
+                sistema.consultarPerfil(organizador.getNickname()).getEdiciones();
 
         req.setAttribute("ediciones", ediciones);
 
@@ -49,7 +46,7 @@ public class AltaTipoRegistroServlet extends HttpServlet {
             return;
         }
 
-        ISistema sistema = ContextoListener.sistema(req);
+        ServicioPortal sistema = ContextoListener.central(req);
 
         Map<String, String> form = new HashMap<>();
         for (String campo : new String[]{"edicion", "nombre", "descripcion", "costo", "cupo"}) {
@@ -74,8 +71,7 @@ public class AltaTipoRegistroServlet extends HttpServlet {
 
             boolean creado = sistema.altaTipoRegistro(
                     tipo,
-                    edicion,
-                    Actor.usuarioAutenticado(organizador)
+                    edicion
             );
 
             if (!creado) {

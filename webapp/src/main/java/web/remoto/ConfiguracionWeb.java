@@ -18,7 +18,10 @@ public final class ConfiguracionWeb {
         return uri;
     }
     public static ConfiguracionWeb cargar(){
-        try(var lector=Files.newBufferedReader(Path.of(System.getProperty("user.home"),".eventosUy","web.properties"))){
+        Path archivo=System.getProperty("eventos.web.config")==null
+                ?Path.of(System.getProperty("user.home"),".eventosUy","web.properties")
+                :Path.of(System.getProperty("eventos.web.config"));
+        try(var lector=Files.newBufferedReader(archivo)){
             Properties p=new Properties();p.load(lector);String host=p.getProperty("central.host");int puerto=Integer.parseInt(p.getProperty("central.puerto"));
             if(host==null || host.isBlank() || puerto<1 || puerto>65535)throw new IllegalArgumentException();
             URI portal=new URI("https",null,host,puerto,p.getProperty("central.ruta.portal","/portal"),null,null);

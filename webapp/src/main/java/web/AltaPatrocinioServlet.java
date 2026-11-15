@@ -1,9 +1,9 @@
 package web;
 
-import clases.NivelPatrocinio;
-import datatypes.*;
-import interfaces.ISistema;
-import excepciones.AccesoDenegadoException;
+import contratos.dto.NivelPatrocinio;
+import contratos.dto.*;
+import contratos.ServicioPortal;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -38,15 +38,12 @@ public class AltaPatrocinioServlet extends HttpServlet {
             resp.sendError(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
-        ISistema sistema = ContextoListener.sistema(req);
+        ServicioPortal sistema = ContextoListener.central(req);
         String edicion = texto(req, "edicion");
         Map<String, String> form = new HashMap<>();
         for (String campo : CAMPOS) form.put(campo, texto(req, campo));
         try {
             String evento = form.get("evento");
-            for (String campo : new String[]{"institucion", "nivel", "tipoRegistro", "aporte", "registrograt", "codigo"}) {
-                if (form.get(campo).isBlank()) throw new IllegalArgumentException("Todos los campos del patrocinio son obligatorios.");
-            }
             float aporte;
             int gratuitos;
             try {
@@ -63,12 +60,10 @@ public class AltaPatrocinioServlet extends HttpServlet {
             }
             DtPatrocinio dt = new DtPatrocinio(LocalDate.now(), aporte, gratuitos, form.get("codigo"),
                     nivel, form.get("institucion"), edicion, form.get("tipoRegistro"));
-            sistema.altaPatrocinio(dt, evento, Actor.usuarioAutenticado(usuario));
+            sistema.altaPatrocinio(dt, evento);
             resp.sendRedirect(req.getContextPath() + "/consulta-patrocinio?edicion="
                     + URLEncoder.encode(edicion, StandardCharsets.UTF_8) + "&institucion="
                     + URLEncoder.encode(form.get("institucion"), StandardCharsets.UTF_8) + "&exito=true");
-        } catch (AccesoDenegadoException e) {
-            resp.sendError(HttpServletResponse.SC_FORBIDDEN);
         } catch (IllegalArgumentException e) {
             mostrarFormulario(req, resp, usuario, form, e.getMessage());
         }
@@ -76,23 +71,17 @@ public class AltaPatrocinioServlet extends HttpServlet {
 
     private void mostrarFormulario(HttpServletRequest req, HttpServletResponse resp, DtUsuario usuario,
                                    Map<String, String> form, String error) throws ServletException, IOException {
-        ISistema sistema = ContextoListener.sistema(req);
+        ServicioPortal sistema = ContextoListener.central(req);
         String edicion = form.getOrDefault("edicion", "");
         DtOpcionesAltaPatrocinio opciones;
-        try {
-            opciones = sistema.obtenerOpcionesAltaPatrocinio(form.getOrDefault("evento", ""), edicion,
-                    Actor.usuarioAutenticado(usuario));
-        } catch (AccesoDenegadoException e) {
-            resp.sendError(HttpServletResponse.SC_FORBIDDEN);
-            return;
-        }
-        form.put("evento", opciones.evento());
+        opciones = sistema.obtenerOpcionesAltaPatrocinio(form.getOrDefault("evento", ""), edicion);
+        form.put("evento", opciones.getEvento());
         req.setAttribute("form", form);
         req.setAttribute("error", error);
-        req.setAttribute("eventos", opciones.eventos());
-        req.setAttribute("ediciones", opciones.ediciones());
-        Collection<DtTipoRegistro> tipos = opciones.tipos();
-        Collection<DtInstitucion> instituciones = opciones.instituciones();
+        req.setAttribute("eventos", opciones.getEventos());
+        req.setAttribute("ediciones", opciones.getEdiciones());
+        Collection<DtTipoRegistro> tipos = opciones.getTipos();
+        Collection<DtInstitucion> instituciones = opciones.getInstituciones();
         req.setAttribute("tipos", tipos);
         req.setAttribute("instituciones", instituciones);
         req.setAttribute("tipoNoDisponible", !form.getOrDefault("tipoRegistro", "").isEmpty()

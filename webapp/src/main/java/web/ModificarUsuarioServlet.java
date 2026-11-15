@@ -1,11 +1,11 @@
 package web;
 
-import datatypes.Actor;
-import datatypes.DtAsistente;
-import datatypes.DtImagen;
-import datatypes.DtOrganizador;
-import datatypes.DtUsuario;
-import interfaces.ISistema;
+
+import contratos.dto.DtAsistente;
+import contratos.dto.DtImagen;
+import contratos.dto.DtOrganizador;
+import contratos.dto.DtUsuario;
+import contratos.ServicioPortal;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -41,7 +41,7 @@ public class ModificarUsuarioServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        ISistema sistema = ContextoListener.sistema(req);
+        ServicioPortal sistema = ContextoListener.central(req);
         DtUsuario perfil = perfilActual(req);
 
         Map<String, String> form = new HashMap<>();
@@ -53,22 +53,16 @@ public class ModificarUsuarioServlet extends HttpServlet {
         try {
             DtImagen imagen = Subidas.leerImagen(req, "imagen");
 
-            Actor actor = Actor.usuarioAutenticado(perfil);
-            if (perfil instanceof DtAsistente) {
-                sistema.modificarAsistente(armarAsistente(req, form, perfil), imagen, actor);
-            } else {
-                sistema.modificarOrganizador(armarOrganizador(req, form, perfil), imagen, actor);
-            }
-
-            // El cabezal muestra el nombre: se actualiza el usuario guardado en la sesión
-            req.getSession().setAttribute("usuario", sistema.consultarUsuario(perfil.getNickname()));
-
+            contratos.dto.EntradaUsuario entrada = new contratos.dto.EntradaUsuario();
+            entrada.setUsuario(perfil instanceof DtAsistente ? armarAsistente(req, form, perfil) : armarOrganizador(req, form, perfil));
+            entrada.setImagen(imagen);entrada.setContrasenia(req.getParameter("contrasenia"));
+            entrada.setConfirmacion(req.getParameter("confirmacion"));
+            DtUsuario actualizado = sistema.modificarUsuario(entrada);
+            SesionWeb.guardar(req.getSession(), actualizado);
             MensajesFlash.guardar(req, "/usuario", "Los datos del perfil se guardaron.", null);
             resp.sendRedirect(req.getContextPath() + "/usuario?nick="
                     + URLEncoder.encode(perfil.getNickname(), StandardCharsets.UTF_8));
 
-        } catch (excepciones.AccesoDenegadoException e) {
-            resp.sendError(HttpServletResponse.SC_FORBIDDEN);
         } catch (IllegalArgumentException e) {
             mostrarFormulario(req, resp, perfil, form, e.getMessage());
         } catch (DateTimeParseException e) {
@@ -77,8 +71,7 @@ public class ModificarUsuarioServlet extends HttpServlet {
     }
 
     private DtUsuario perfilActual(HttpServletRequest req) {
-        DtUsuario enSesion = (DtUsuario) req.getSession(false).getAttribute("usuario");
-        return ContextoListener.sistema(req).consultarUsuario(enSesion.getNickname());
+        return ContextoListener.central(req).usuarioActual();
     }
 
     private DtAsistente armarAsistente(HttpServletRequest req, Map<String, String> form, DtUsuario perfil) {
@@ -92,7 +85,7 @@ public class ModificarUsuarioServlet extends HttpServlet {
                 perfil.getNickname(), form.get("nombre"), perfil.getCorreoElectronico(),
                 form.get("apellido"), fechaNacimiento, institucion);
 
-        agregarContrasenia(req, dt);
+
         return dt;
     }
 
@@ -102,18 +95,8 @@ public class ModificarUsuarioServlet extends HttpServlet {
                 perfil.getNickname(), form.get("nombre"), perfil.getCorreoElectronico(),
                 form.get("descripcion"), form.get("sitioWeb"));
 
-        agregarContrasenia(req, dt);
+
         return dt;
-    }
-
-    // La contraseña solo se cambia si el usuario escribió una nueva
-    private void agregarContrasenia(HttpServletRequest req, DtUsuario dt) {
-        String nueva = req.getParameter("contrasenia");
-
-        if (nueva != null && !nueva.isEmpty()) {
-            dt.setContrasenia(nueva);
-            dt.setConfirmacionContrasenia(req.getParameter("confirmacion"));
-        }
     }
 
     private Map<String, String> formularioDesde(DtUsuario perfil) {
@@ -145,7 +128,7 @@ public class ModificarUsuarioServlet extends HttpServlet {
         req.setAttribute("esOrganizador", perfil instanceof DtOrganizador);
         req.setAttribute("form", form);
         req.setAttribute("error", error);
-        req.setAttribute("instituciones", ContextoListener.sistema(req).listarInstituciones());
+        req.setAttribute("instituciones", ContextoListener.central(req).listarInstituciones());
         req.getRequestDispatcher("/WEB-INF/views/modificar-usuario.jsp").forward(req, resp);
     }
 }

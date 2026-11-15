@@ -70,6 +70,12 @@ class PortalAutorizacionTest extends PruebaConBaseSegura {
         assertFalse(s.disponibleNickname(org.nickname()));assertFalse(s.disponibleCorreo((org.nickname()+"@test.uy").toUpperCase()));
         assertTrue(s.disponibleNickname("libre"+sufijo));assertFalse(s.disponibleNickname(" "));assertFalse(s.disponibleCorreo("invalido"));
     }
+    @Test void categoriaSeFiltraEnCentralYLaImagenSinEdicionNoExponeDatos(){
+        assertEquals(List.of(evento),s.listarEventosPorCategoria("portalCat"+sufijo).stream().map(DtEvento::getNombre).toList());
+        assertTrue(s.listarEventosPorCategoria("inexistente"+sufijo).isEmpty());
+        assertThrows(NoEncontradoException.class,()->s.obtenerImagenVisible(TipoEntidadImagen.EDICION,"",org));
+        assertThrows(NoEncontradoException.class,()->s.consultarTipoRegistroVisible("","General",org));
+    }
     @Test void imagenInvalidaNoDejaEventoNiEdicion(){
         var mala=new DtImagen("image/png",new byte[]{1});String nuevo="fallido"+sufijo;
         assertThrows(IllegalArgumentException.class,()->s.altaEvento(new DtEvento(nuevo,"EV","Desc",null,List.of("portalCat"+sufijo)),mala,org));

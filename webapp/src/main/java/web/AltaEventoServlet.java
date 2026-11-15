@@ -1,9 +1,9 @@
 package web;
 
-import datatypes.DtEvento;
-import datatypes.DtImagen;
-import datatypes.TipoEntidadImagen;
-import interfaces.ISistema;
+import contratos.dto.DtEvento;
+import contratos.dto.DtImagen;
+import contratos.dto.TipoEntidadImagen;
+import contratos.ServicioPortal;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -53,58 +53,15 @@ public class AltaEventoServlet extends HttpServlet {
             }
         }
 
-        ISistema sistema = ContextoListener.sistema(req);
+        ServicioPortal sistema = ContextoListener.central(req);
 
         try {
             String nombre = form.get("nombre");
 
-            if (nombre.isEmpty()) {
-                throw new IllegalArgumentException("El nombre es obligatorio.");
-            }
-            if (form.get("sigla").isEmpty()) {
-                throw new IllegalArgumentException("La sigla es obligatoria.");
-            }
-            if (form.get("descripcion").isEmpty()) {
-                throw new IllegalArgumentException("La descripción es obligatoria.");
-            }
-            if (categorias.isEmpty()) {
-                throw new IllegalArgumentException("Elegí al menos una categoría.");
-            }
-
-            // La imagen se valida antes del alta, para no dejar el evento a medias
             DtImagen imagen = Subidas.leerImagen(req, "imagen");
-            if (imagen != null) {
-                sistema.validarImagen(imagen);
-            }
-
-            // La fecha de alta la asigna el sistema con la fecha del día
-            DtEvento dt = new DtEvento(
-                    nombre, form.get("sigla"), form.get("descripcion"),
-                    LocalDate.now(), categorias);
-
-            try {
-                if (!sistema.altaEvento(dt)) {
-                    throw new IllegalArgumentException("No se pudo dar de alta el evento.");
-                }
-            } catch (IllegalArgumentException e) {
-                throw e;
-            } catch (RuntimeException e) {
-                throw e;
-            } catch (Exception e) {
-                // La lógica informa con mensaje claro (nombre repetido, categoría inexistente)
-                throw new IllegalArgumentException(e.getMessage());
-            }
-
+            DtEvento dt = new DtEvento(nombre, form.get("sigla"), form.get("descripcion"), null, categorias);
+            sistema.altaEvento(dt, imagen);
             String destino = "/alta-evento?creada=" + URLEncoder.encode(nombre, StandardCharsets.UTF_8);
-
-            if (imagen != null) {
-                try {
-                    sistema.asociarImagen(TipoEntidadImagen.EVENTO, nombre, imagen);
-                } catch (IllegalArgumentException e) {
-                    destino += "&imagen=error";
-                }
-            }
-
             resp.sendRedirect(req.getContextPath() + destino);
 
         } catch (IllegalArgumentException e) {
@@ -117,7 +74,7 @@ public class AltaEventoServlet extends HttpServlet {
             throws ServletException, IOException {
         req.setAttribute("form", form);
         req.setAttribute("seleccionadas", seleccionadas);
-        req.setAttribute("categorias", ContextoListener.sistema(req).listarCategorias());
+        req.setAttribute("categorias", ContextoListener.central(req).listarCategorias());
         req.setAttribute("error", error);
         req.getRequestDispatcher("/WEB-INF/views/alta-evento.jsp").forward(req, resp);
     }

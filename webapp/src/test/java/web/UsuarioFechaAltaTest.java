@@ -1,7 +1,7 @@
 package web;
 
-import datatypes.DtOrganizador;
-import interfaces.ISistema;
+import contratos.dto.DtOrganizador;
+import contratos.ServicioPortal;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,13 +33,13 @@ class UsuarioFechaAltaTest {
         DtOrganizador perfil = new DtOrganizador("organizador", "Nombre", "org@test.uy",
                 "Descripción", "", fecha);
         Map<String, Object> atributos = new HashMap<>();
-        ISistema sistema = doble(ISistema.class, (p, m, a) -> switch (m.getName()) {
-            case "consultarUsuario" -> { assertEquals("organizador", a[0]); yield perfil; }
+        ServicioPortal sistema = doble(ServicioPortal.class, (p, m, a) -> switch (m.getName()) {
+            case "consultarPerfil" -> { assertEquals("organizador", a[0]); var dato=new contratos.dto.DtPerfilUsuario();dato.setUsuario(perfil);yield dato; }
             case "obtenerEdicionesOrganizador" -> List.of();
             default -> throw new AssertionError("Caso de uso inesperado: " + m.getName());
         });
         ServletContext contexto = doble(ServletContext.class, (p, m, a) -> {
-            assertEquals("getAttribute", m.getName()); assertEquals("sistema", a[0]);
+            assertEquals("getAttribute", m.getName()); assertEquals("central", a[0]);
             return sistema;
         });
         RequestDispatcher vista = doble(RequestDispatcher.class, (p, m, a) -> {

@@ -19,9 +19,14 @@ public final class ClienteEventosCentral {
     }
 
     private final Supplier<String> direccion;
+    private final javax.net.ssl.SSLSocketFactory sockets;
 
-    public ClienteEventosCentral() { this.direccion = ClienteEventosCentral::leerDireccion; }
-    public ClienteEventosCentral(URI direccion) { this.direccion = direccion::toString; }
+    public ClienteEventosCentral() { this.direccion = ClienteEventosCentral::leerDireccion; this.sockets=null; }
+    public ClienteEventosCentral(URI direccion) { this(direccion,null); }
+    public ClienteEventosCentral(URI direccion, javax.net.ssl.SSLSocketFactory sockets) {
+        URI segura=web.remoto.ConfiguracionWeb.validar(direccion);
+        this.direccion=segura::toString;this.sockets=sockets;
+    }
 
     public List<EventoSoap> listarEventos() {
         var puerto = Servicio.INSTANCIA.getEventosPort();
@@ -29,6 +34,7 @@ public final class ClienteEventosCentral {
         contexto.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, direccion.get());
         contexto.put("com.sun.xml.ws.connect.timeout", 3000);
         contexto.put("com.sun.xml.ws.request.timeout", 10000);
+        if(sockets!=null)contexto.put(com.sun.xml.ws.developer.JAXWSProperties.SSL_SOCKET_FACTORY,sockets);
         try {
             return puerto.listarEventos();
         } catch (ConsultaException_Exception error) {
@@ -47,7 +53,7 @@ public final class ClienteEventosCentral {
             String ruta = requerida(propiedades, "central.ruta");
             if (puerto < 1 || puerto > 65535 || !ruta.startsWith("/") || ruta.contains("?") || ruta.contains("#"))
                 throw new IllegalArgumentException();
-            return new URI("http", null, host, puerto, ruta, null, null).toString();
+            return web.remoto.ConfiguracionWeb.validar(new URI("https", null, host, puerto, ruta, null, null)).toString();
         } catch (Exception error) {
             throw new WebServiceException("Revisá ~/.eventosUy/web.properties.", error);
         }

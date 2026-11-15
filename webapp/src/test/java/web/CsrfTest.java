@@ -1,8 +1,8 @@
 package web;
 
-import datatypes.DtAsistente;
-import datatypes.DtOrganizador;
-import interfaces.ISistema;
+import contratos.dto.DtAsistente;
+import contratos.dto.DtOrganizador;
+import contratos.ServicioPortal;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.*;
 import org.junit.jupiter.api.Test;
@@ -64,6 +64,7 @@ class CsrfTest {
     @Test
     void tokenValidoNoSustituyeElRol() throws Exception {
         Escenario e = new Escenario(); e.prepararPost(); e.ruta = "/alta-edicion";
+        e.sesion.put("_credencialCentral","credencial-fixture");
         e.sesion.put("usuario", new DtAsistente("ana", "Ana", "a@test.uy", "Pérez", null, null));
         e.filtrar(); assertEquals(403, e.estado); assertEquals(0, e.continuaciones);
     }
@@ -71,6 +72,7 @@ class CsrfTest {
     @Test
     void multipartUsaParametrosDelContenedorSinLeerFlujoNiPart() throws Exception {
         Escenario e = new Escenario(); e.prepararPost(); e.ruta = "/alta-edicion";
+        e.sesion.put("_credencialCentral","credencial-fixture");
         e.sesion.put("usuario", new DtOrganizador("org", "Org", "o@test.uy", "Descripción", ""));
         e.filtrar(); assertEquals(1, e.continuaciones); assertEquals(1, e.lecturasParametros);
         // El doble falla si el filtro intenta getReader/getInputStream/getPart/getParts.
@@ -90,6 +92,7 @@ class CsrfTest {
     @Test
     void logoutGetNoInvalidaYPostValidoSiLoHace() throws Exception {
         Escenario e = new Escenario(); e.prepararPost();
+        e.sesion.put("_credencialCentral","credencial-fixture");
         e.sesion.put("usuario", new DtOrganizador("org", "Org", "o@test.uy", "Descripción", ""));
         new LogoutServlet().doGet(e.req, e.resp);
         assertEquals(405, e.estado); assertTrue(e.sesionExiste); assertFalse(e.sesion.isEmpty());
@@ -116,14 +119,18 @@ class CsrfTest {
         final HttpSession session = doble(HttpSession.class, (p,m,a) -> switch (m.getName()) {
             case "getAttribute" -> sesion.get(a[0]);
             case "setAttribute" -> { sesion.put((String)a[0], a[1]); yield null; }
+            case "removeAttribute" -> { sesion.remove(a[0]); yield null; }
             case "invalidate" -> { sesion.clear(); sesionExiste = false; yield null; }
             default -> throw new AssertionError(m.getName());
         });
-        final ISistema sistema = doble(ISistema.class, (p,m,a) -> {
+        final ServicioPortal sistema = doble(ServicioPortal.class, (p,m,a) -> {
+            if(m.getName().equals("usuarioActual"))return sesion.get("usuario");
             assertEquals("listarCategorias", m.getName()); return List.of();
         });
         final ServletContext contexto = doble(ServletContext.class, (p,m,a) -> {
-            assertEquals("getAttribute", m.getName()); return sistema;
+            assertEquals("getAttribute",m.getName());
+            if(a[0].equals("sesionesCentral"))return new web.remoto.ServicioSesiones(){public web.remoto.ClienteSesionesCentral.Inicio iniciar(String i,String c){throw new AssertionError();}public void cerrar(String c){assertEquals("credencial-fixture",c);}};
+            return sistema;
         });
         final HttpServletRequest req = doble(HttpServletRequest.class, (p,m,a) -> switch (m.getName()) {
             case "getMethod" -> metodo;
