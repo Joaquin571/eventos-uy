@@ -1,5 +1,12 @@
 # Contratos y acuerdos de trabajo del equipo — Laboratorio 3
 
+> Actualización 15/11/2026: la autorización expresa de desarrollo integral
+> permitió concretar P01/P02 para los casos integrados, conservando P03.
+> PortalService usa DTO independientes, faults controlados y Actor derivado de
+> la sesión en Central; los 21 Servlet son remotos y el WAR no incluye JPA.
+> [Informe vigente, decisiones, contratos y validación](INTEGRACION-2026-11-15.md).
+> Las propuestas de otros dominios siguen sujetas a sus acuerdos específicos.
+
 ## 1. Alcance y estados
 
 Reparto por dominios aprobado por el equipo. Base funcional compartida: commit `586eab4` (primer corte SOAP). Este documento no agrega operaciones ni modifica el WSDL existente.
@@ -21,12 +28,15 @@ Fuente normativa: letra local del Laboratorio 3, §§3–8. Trazabilidad complet
 | Operación | `listarEventos()`; sin parámetros; devuelve lista de `EventoSoap`; declara `ConsultaException`. |
 | Campos de `EventoSoap` | `nombre`, `sigla`, `descripcion`, `fechaAlta` como String ISO opcional y lista `categorias` de String. |
 | Fault | Elemento XML `ConsultaFault`; excepción generada del consumidor `ConsultaException_Exception`. |
-| Consumidor | `InicioServlet` → `ClienteEventosCentral` → `web.soap.generado`, generado por wsimport. |
+| Consumidor | `ClienteEventosCentral` y regresiones de compatibilidad → `web.soap.generado`, generado por wsimport. La portada actual usa PortalService para filtrar categorías en Central. |
 | Contrato local | `webapp/src/main/resources/wsdl/EventosService.wsdl` y `EventosService_schema1.xsd`. |
 
 No renombrar estos elementos, cambiar tipos o ampliar el contrato mientras se trabaja en documentación. La propuesta de servicios de la sección 3 no autoriza una sustitución automática de este servicio.
 
-La web sigue incluyendo lógica local para el resto de los casos. `ContextoListener` inicia JPA; `FiltroAcceso` consulta categorías localmente. La separación final todavía está pendiente, no es un cumplimiento ya alcanzado.
+Desde la integración del 15/11, `ContextoListener` configura exclusivamente
+clientes remotos; las categorías y los demás casos se consultan por HTTPS.
+EventosService y SesionesService mantienen sus contratos. PortalService agrega
+26 operaciones, namespace `https://eventos.uy/soap/portal`, ruta `/portal`.
 
 ## 3. Servicios por dominio y responsables
 
@@ -105,6 +115,8 @@ Reglas de trabajo:
 4. Un organizador consulta registros/códigos solo de sus ediciones; asistente consulta sus registros y constancia; imagen privada respeta visibilidad. Autorizar GET y POST cuando corresponda, además de ocultar botones.
 5. Móvil vuelve a comprobar que la sesión es de asistente; no admitir una sesión de organizador tomada del escritorio.
 6. Swing conserva acceso administrativo directo a ISistema en el mismo proceso. Ese contexto local no convierte las operaciones HTTP en administrativas.
+
+Para el alta de tipo de registro, el arranque de Swing establece el actor administrativo local y el Servlet transitorio adapta al usuario de sesión. La operación SOAP protegida requiere cerrar P03 antes de publicarse. El Central deberá verificar la identidad y construir el actor internamente. El cliente no puede suministrar un actor ni atribuirse un rol administrativo mediante el contrato.
 7. Las reglas transaccionales siguen en lógica. No reintentar automáticamente escrituras tras timeout: puede haberse confirmado la operación aunque no llegara la respuesta.
 
 ## 8. Imágenes y multipart
@@ -148,9 +160,9 @@ Guías individuales y procedimiento en [EQUIPO/GUIA-GIT](EQUIPO/GUIA-GIT.md).
 
 | ID | Decisión | Responsable que presenta propuesta | Bloquea |
 | --- | --- | --- | --- |
-| P01 | Campos/tipo de respuesta de autenticación, usuario/rol de sesión y perfiles de transporte. | 2 con Joaquín; revisan 3/5. | W01/W02 y login móvil real. |
-| P02 | Nombres XML, namespaces/rutas de servicios nuevos, DTO y esquema común de errores de negocio. | Dueños de dominio con Joaquín. | Publicación de operaciones nuevas; no bloquea tests locales de negocio. |
-| P03 | Identidad remota verificable y frontera de confianza Web–Central para operaciones protegidas. | Joaquín con 2 y revisión del equipo. | Escrituras SOAP protegidas. |
+| P01 | Implementado para Web: datos públicos de P03 y DTO JAXB de perfiles; sin contraseñas de salida. Extensiones móviles requieren sus contratos. | Integración autorizada por el usuario el 15/11. | No bloquea W01/W02 integrados. |
+| P02 | Implementado para los casos de PortalService: namespace/ruta independientes, DTO sin persistencia y OperacionFault controlado. | Integración autorizada por el usuario el 15/11. | Otros dominios requieren acuerdos propios. |
+| P03 | Implementado y conservado: Bearer, vencimiento fijo, revocación e identidad derivada por Central; sin administradores remotos. | Registro P03 compartido entre fachadas. | No bloquea las operaciones protegidas integradas. |
 | P04 | Autorización para finalizar evento: la letra no define propiedad del evento como sí lo hace para archivar edición propia. | 3; aclaración con docentes si hace falta. | Regla final de D04. |
 | P05 | Fuente/modelado de descripción de edición para búsqueda; hoy no está en Edicion/DtEdicion. | 5 con 3/4. | Cierre de M03; no sustituir por descripción del evento sin acuerdo. |
 | P06 | Conteo de consultas inválidas/refresh, dispatchers del filtro y desempates del ranking. | 1 y 5. | Aceptación conjunta J04/M04. No inventar visitantes únicos diarios. |

@@ -1,5 +1,7 @@
 # Primer corte vertical SOAP — listado público de eventos
 
+> Documento histórico del primer corte con HTTP. Desde el 15/11 todos los Servlet consumen SOAP/HTTPS y el WAR no incluye persistencia. Las instrucciones HTTP siguientes describen exclusivamente el estado anterior: para la versión vigente seguir [Integración y ejecución](INTEGRACION-2026-11-15.md) y [Arranque HTTPS](ARRANQUE-CENTRAL-HTTPS.md).
+
 ## Alcance implementado
 
 Se expone únicamente `ISistema.listarEventos()` para la portada existente (`GET /` y `/inicio`, relativos al contexto web). Es una consulta pública de solo lectura, sin identidad ni parámetros sensibles. Permite comprobar una lista de DTO con categorías, texto Unicode y fechas, sin cambiar reglas ni incorporar casos funcionales del Lab 3.

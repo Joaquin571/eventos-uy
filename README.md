@@ -2,14 +2,20 @@
 
 Programación de Aplicaciones · Tecnólogo en Informática · UTEC · 2026
 
-## Laboratorio 3 — primer corte SOAP
+## Laboratorio 3 — Web remota e integración de usuarios
 
-En `lab3-desarrollo`, el listado de eventos de la portada consulta al nuevo
-Servidor Central por SOAP. El resto de la web sigue utilizando lógica local
-durante esta transición. Para compilar, configurar e iniciar el Central y probar
-la consulta, ver [Primer corte vertical SOAP](docs/lab3/CORTE-SOAP.md).
-Las instrucciones del Laboratorio 2 que siguen continúan aplicándose a los casos
-que todavía no se migraron.
+En `lab3-desarrollo`, todos los Servlet consumen Central mediante SOAP/HTTPS.
+Tomcat no ejecuta lógica ni persistencia; Swing llama a ISistema en el proceso
+de Central. Se conservan Actor, sesiones P03, Java 25 y Metro 4.0.5.
+
+Ver [resultado, pruebas, commits e instrucciones vigentes](docs/lab3/INTEGRACION-2026-11-15.md)
+y [configuración TLS externa](docs/lab3/ARRANQUE-CENTRAL-HTTPS.md).
+El WAR se genera como `webapp/target/web.war` y Central como
+`servidor-central/target/servidor.jar`.
+
+Las secciones siguientes conservan la referencia histórica del Laboratorio 2.
+Para desplegar Laboratorio 3, usar las instrucciones del informe vigente;
+PostgreSQL y los lectores de imágenes pertenecen exclusivamente a Central.
 
 ## Requisitos
 
@@ -169,7 +175,7 @@ se decodifican completas y se rechazan archivos corruptos o incompletos. Límite
 2 MiB comprimidos, 4096 píxeles por lado, 8 millones de píxeles por imagen,
 100 fotogramas y 32 millones de píxeles acumulados por animación.
 El lector WEBP es `com.twelvemonkeys.imageio:imageio-webp:3.15.3`, dependencia
-transitiva de Swing y del WAR; no basta copiar solo el JAR de lógica al ejecutar.
+de Central y Swing. No se incluye en el WAR de Laboratorio 3.
 No se migran ni reescriben imágenes existentes. Si una imagen antigua no supera
 la validación, Swing muestra «Vista previa no disponible»; su recuperación
 mantiene los bytes almacenados. Una nueva asociación sí debe cumplir los límites.
