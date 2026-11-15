@@ -8,12 +8,14 @@ el filtro y el listener usan clientes remotos; Tomcat no inicia JPA ni incluye
 lógica o PostgreSQL en el WAR. Central publica eventos, Portal y P03 sobre HTTPS.
 Swing continúa usando ISistema dentro del proceso Central.
 
-Validación: **436 JUnit + 1 integración Tomcat/HTTPS**, 61 JavaScript y
-5 comprobaciones Swing, sin fallos. La IT verificó 49 solicitudes HTTP y el
+Validación tras integrar al equipo: **453 JUnit + 1 integración Tomcat/HTTPS**, 62 JavaScript y
+5 comprobaciones Swing, sin fallos. La IT verificó 51 solicitudes HTTP y el
 comportamiento sin Central. Antes de las pruebas persistentes se confirmó
 `eventosuy_test` por JDBC. No se hizo push ni integración destructiva.
 
-Ver [el informe de integración](INTEGRACION-2026-11-15.md) para funcionalidades,
+Ver [la integración de Emmanuel y Valentina](INTEGRACION-EQUIPO-2026-11-15.md)
+para referencias remotas, conflictos, commits y cobertura de lógica (85,79 %).
+Ver [el informe anterior de integración](INTEGRACION-2026-11-15.md) para funcionalidades,
 seguridad, commits, límites, evidencia y comandos de ejecución. Los dominios
 ajenos a esta integración mantienen el alcance del roadmap del equipo.
 
