@@ -230,6 +230,7 @@ class PatrociniosAutorizacionTest {
         boolean reenviado;
         DtPatrocinio creado;
         Actor actorRecibido;
+        Actor actorConsulta;
         boolean existePatrocinio = true;
         final DtPatrocinio patrocinio = new DtPatrocinio(LocalDate.now(), 5000, 1,
                 "SECRETO-UTEC", NivelPatrocinio.ORO, "UTEC", "Edicion", "General");
@@ -245,7 +246,11 @@ class PatrociniosAutorizacionTest {
             case "obtenerTiposRegistroEdicion" -> tiposPorEdicion.getOrDefault(a[0], List.of());
             case "consultarTipoRegistro" -> tiposPorEdicion.getOrDefault(a[0], List.of()).stream()
                     .filter(t -> t.getIdNombre().equals(a[1])).findFirst().orElse(null);
-            case "obtenerPatrociniosEdicion" -> existePatrocinio ? List.of(patrocinio) : List.of();
+            case "obtenerInstitucionesPatrocinadoras" -> existePatrocinio ? List.of("UTEC") : List.of();
+            case "consultarPatrocinios" -> {
+                actorConsulta = (Actor) a[3];
+                yield consultaDelDoble((String) a[0], (String) a[1], (String) a[2], actorConsulta);
+            }
             case "altaPatrocinio" -> {
                 creado = (DtPatrocinio) a[0];
                 actorRecibido = (Actor) a[2];
@@ -275,7 +280,6 @@ class PatrociniosAutorizacionTest {
                         tiposPorEdicion.getOrDefault(edicion, List.of()),
                         List.of(new DtInstitucion("UTEC", "Institución", "https://utec.edu.uy")));
             }
-            case "consultarPatrocinio" -> { consultas++; yield existePatrocinio ? patrocinio : null; }
             default -> throw new AssertionError("Llamada inesperada a ISistema: " + m.getName());
         });
         final ServletContext contexto = doble(ServletContext.class, (p, m, a) -> {
@@ -325,6 +329,7 @@ class PatrociniosAutorizacionTest {
             tieneSesion = true;
             sesion.put("usuario", usuario);
         }
+
         private void comprobarDestino(String edicion, Actor actor) {
             if (ediciones.stream().noneMatch(e -> e.getIdNombre().equals(edicion)
                     && actor.esOrganizador() && actor.nickname().equals(e.getNombreOrganizador()))) {
@@ -332,7 +337,33 @@ class PatrociniosAutorizacionTest {
             }
         }
 
-
+        // Solo doble de adaptación HTTP. La política real se prueba contra Sistema y PostgreSQL en lógica.
+        private DtConsultaPatrocinios consultaDelDoble(String evento, String edicion, String institucion, Actor actor) {
+            DtEdicion seleccionada = ediciones.stream().filter(e -> edicion.equals(e.getIdNombre())).findFirst().orElse(null);
+            boolean propio = seleccionada != null && actor != null && actor.esOrganizador()
+                    && Objects.equals(actor.nickname(), seleccionada.getNombreOrganizador());
+            DtPatrocinio visible = null;
+            List<String> instituciones = List.of();
+            if (!edicion.isEmpty()) {
+                if (seleccionada == null || (seleccionada.getEstado() != EstadoEdicion.ACEPTADA && !propio)) return null;
+                for (var entrada : edicionesPorEvento.entrySet()) {
+                    if (entrada.getValue().contains(seleccionada)) { evento = entrada.getKey(); break; }
+                }
+                instituciones = existePatrocinio ? List.of("UTEC") : List.of();
+                if (!institucion.isEmpty()) {
+                    consultas++;
+                    if (!existePatrocinio) return null;
+                    visible = new DtPatrocinio(patrocinio.getFecha(), patrocinio.getMontoAporte(),
+                            patrocinio.getCantRegistrosGrat(), propio ? patrocinio.getCodigoPatrocinio() : null,
+                            patrocinio.getNivel(), patrocinio.getNombreInstituto(), patrocinio.getNombreEdicion(),
+                            patrocinio.getNombreTipoRegistro());
+                }
+            }
+            List<DtEdicion> opciones = new ArrayList<>(edicionesPorEvento.getOrDefault(evento, List.of()).stream()
+                    .filter(e -> e.getEstado() == EstadoEdicion.ACEPTADA).toList());
+            if (seleccionada != null && seleccionada.getEstado() != EstadoEdicion.ACEPTADA) opciones.add(seleccionada);
+            return new DtConsultaPatrocinios(evento, eventos, opciones, instituciones, visible, propio);
+        }
     }
 
     private static <T> T doble(Class<T> tipo, InvocationHandler manejador) {

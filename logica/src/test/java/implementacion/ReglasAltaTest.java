@@ -1,8 +1,7 @@
 package implementacion;
 
-import datatypes.Actor;
-
 import clases.NivelPatrocinio;
+import datatypes.Actor;
 import datatypes.DtEdicion;
 import datatypes.DtEvento;
 import datatypes.DtInstitucion;

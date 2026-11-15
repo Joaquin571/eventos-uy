@@ -909,77 +909,84 @@ public class Sistema implements ISistema {
         });
     }
 
-    @Override
-    public DtPatrocinio consultarPatrocinio(String codigo) {
-        Patrocinio patrocinio = manejadorPatrocinios.obtenerPatrocinio(codigo);
-        if (patrocinio == null) { return null; }
+    private boolean puedeVerCodigoPatrocinio(Actor actor, Edicion edicion) {
+        if (actor == null || edicion == null || edicion.getOrganizador() == null) return false;
+        return (actor.esAdministradorLocal() || (actor.esOrganizador() && actor.nickname() != null))
+                && puedeGestionarPatrocinio(actor, edicion.getOrganizador().getNickname());
+    }
 
-        String nombreInstitucion = null;
-        if (patrocinio.getInstitucion() != null) {
-            nombreInstitucion = patrocinio.getInstitucion().getNombre();
-        }
+    private boolean esVisibleParaConsultaPatrocinio(Actor actor, Edicion edicion) {
+        return edicion != null && (edicion.getEstado() == EstadoEdicion.ACEPTADA
+                || puedeVerCodigoPatrocinio(actor, edicion));
+    }
 
-        return new DtPatrocinio(
-                patrocinio.getFecha(),
-                patrocinio.getMontoAporte(),
-                patrocinio.getCantRegistrosGrat(),
-                patrocinio.getCodigoPatrocinio(),
-                patrocinio.getNivel(),
-                nombreInstitucion,
-                patrocinio.getEdicion() != null ? patrocinio.getEdicion().getIdNombre() : null,
-                patrocinio.getTipoRegistro() != null ? patrocinio.getTipoRegistro().getIdNombre() : null
-        );
+    private DtPatrocinio aDtPatrocinioVisible(Patrocinio patrocinio, Actor actor) {
+        if (patrocinio == null || !esVisibleParaConsultaPatrocinio(actor, patrocinio.getEdicion())) return null;
+        return new DtPatrocinio(patrocinio.getFecha(), patrocinio.getMontoAporte(), patrocinio.getCantRegistrosGrat(),
+                puedeVerCodigoPatrocinio(actor, patrocinio.getEdicion()) ? patrocinio.getCodigoPatrocinio() : null,
+                patrocinio.getNivel(), patrocinio.getInstitucion() == null ? null : patrocinio.getInstitucion().getNombre(),
+                patrocinio.getEdicion().getIdNombre(),
+                patrocinio.getTipoRegistro() == null ? null : patrocinio.getTipoRegistro().getIdNombre());
     }
 
     @Override
-    public DtPatrocinio consultarPatrocinio(String nombreEdicion, String nombreInstitucion) {
+    public DtPatrocinio consultarPatrocinio(String codigo, Actor actor) {
+        if (codigo == null || codigo.isBlank()) return null;
+        return aDtPatrocinioVisible(manejadorPatrocinios.obtenerPatrocinio(codigo), actor);
+    }
+
+    @Override
+    public DtPatrocinio consultarPatrocinio(String nombreEdicion, String nombreInstitucion, Actor actor) {
         if (nombreEdicion == null || nombreEdicion.isBlank() || nombreInstitucion == null || nombreInstitucion.isBlank()) {
             return null;
         }
-
-        Patrocinio patrocinio = manejadorPatrocinios.obtenerPatrocinio(nombreEdicion, nombreInstitucion);
-        if (patrocinio == null) {
-            return null;
-        }
-
-        String instNombre = patrocinio.getInstitucion() != null ? patrocinio.getInstitucion().getNombre() : null;
-        String edicNombre = patrocinio.getEdicion() != null ? patrocinio.getEdicion().getIdNombre() : null;
-        String tipoRegNombre = patrocinio.getTipoRegistro() != null ? patrocinio.getTipoRegistro().getIdNombre() : null;
-
-        return new DtPatrocinio(
-                patrocinio.getFecha(),
-                patrocinio.getMontoAporte(),
-                patrocinio.getCantRegistrosGrat(),
-                patrocinio.getCodigoPatrocinio(),
-                patrocinio.getNivel(),
-                instNombre,
-                edicNombre,
-                tipoRegNombre
-        );
+        return aDtPatrocinioVisible(manejadorPatrocinios.obtenerPatrocinio(nombreEdicion, nombreInstitucion), actor);
     }
 
     @Override
-    public Collection<DtPatrocinio> obtenerPatrociniosEdicion(String nombreEdicion) {
+    public Collection<DtPatrocinio> obtenerPatrociniosEdicion(String nombreEdicion, Actor actor) {
         Collection<DtPatrocinio> resultado = new ArrayList<>();
+        if (nombreEdicion == null || nombreEdicion.isBlank()) return resultado;
         for (Patrocinio patrocinio : manejadorPatrocinios.obtenerPatrociniosEdicion(nombreEdicion)) {
-            String nombreInstitucion = null;
-            if (patrocinio.getInstitucion() != null) {
-                nombreInstitucion = patrocinio.getInstitucion().getNombre();
-            }
-            resultado.add(
-                    new DtPatrocinio(
-                            patrocinio.getFecha(),
-                            patrocinio.getMontoAporte(),
-                            patrocinio.getCantRegistrosGrat(),
-                            patrocinio.getCodigoPatrocinio(),
-                            patrocinio.getNivel(),
-                            nombreInstitucion,
-                            patrocinio.getEdicion() != null ? patrocinio.getEdicion().getIdNombre() : null,
-                            patrocinio.getTipoRegistro() != null ? patrocinio.getTipoRegistro().getIdNombre() : null
-                    )
-            );
+            DtPatrocinio visible = aDtPatrocinioVisible(patrocinio, actor);
+            if (visible != null) resultado.add(visible);
         }
         return resultado;
+    }
+
+    @Override
+    public Collection<String> obtenerInstitucionesPatrocinadoras(String nombreEdicion, Actor actor) {
+        // La Web recibe solo nombres, incluso cuando el actor está autorizado a conocer códigos.
+        return obtenerPatrociniosEdicion(nombreEdicion, actor).stream()
+                .map(DtPatrocinio::getNombreInstituto).toList();
+    }
+
+    @Override
+    public DtConsultaPatrocinios consultarPatrocinios(String nombreEvento, String nombreEdicion,
+                                                     String nombreInstitucion, Actor actor) {
+        String evento = nombreEvento == null ? "" : nombreEvento;
+        String edicion = nombreEdicion == null ? "" : nombreEdicion;
+        String institucion = nombreInstitucion == null ? "" : nombreInstitucion;
+        Edicion seleccionada = null;
+        DtPatrocinio detalle = null;
+        Collection<String> patrocinadoras = List.of();
+        if (!edicion.isEmpty()) {
+            seleccionada = manejadorEventos.obtenerEdicion(edicion);
+            if (!esVisibleParaConsultaPatrocinio(actor, seleccionada)) return null;
+            // La relación real tiene prioridad sobre el evento recibido por HTTP.
+            evento = seleccionada.getEvento().getNombre();
+            patrocinadoras = obtenerInstitucionesPatrocinadoras(edicion, actor);
+            if (!institucion.isEmpty()) {
+                detalle = consultarPatrocinio(edicion, institucion, actor);
+                if (detalle == null) return null;
+            }
+        }
+        List<DtEdicion> opciones = new ArrayList<>();
+        if (!evento.isEmpty()) opciones.addAll(obtenerEdicionesEvento(evento, EstadoEdicion.ACEPTADA));
+        // No listar todas las privadas del dueño: solo conservar la selección privada autorizada.
+        if (seleccionada != null && seleccionada.getEstado() != EstadoEdicion.ACEPTADA) opciones.add(aDt(seleccionada));
+        return new DtConsultaPatrocinios(evento, listarEventos(), opciones, patrocinadoras, detalle,
+                puedeVerCodigoPatrocinio(actor, seleccionada));
     }
 
     @Override

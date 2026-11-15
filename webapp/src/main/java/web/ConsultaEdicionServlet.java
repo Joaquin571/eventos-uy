@@ -39,12 +39,8 @@ public class ConsultaEdicionServlet extends HttpServlet {
             req.setAttribute("organizador", sistema.consultarUsuario(edicion.getNombreOrganizador()));
             req.setAttribute("tieneImagen", sistema.obtenerImagen(TipoEntidadImagen.EDICION, nombre) != null);
             req.setAttribute("tipos", sistema.obtenerTiposRegistroEdicion(nombre));
-            // El resumen conserva el contrato de la etapa anterior: solo instituciones, nunca códigos.
-            List<String> patrocinadoras = new ArrayList<>();
-            for (DtPatrocinio patrocinio : sistema.obtenerPatrociniosEdicion(nombre)) {
-                patrocinadoras.add(patrocinio.getNombreInstituto());
-            }
-            req.setAttribute("patrocinadoras", patrocinadoras);
+            req.setAttribute("patrocinadoras", sistema.obtenerInstitucionesPatrocinadoras(nombre,
+                    usuario == null ? null : Actor.usuarioAutenticado(usuario)));
             prepararRegistros(req, sistema, usuario, edicion);
         }
         req.getRequestDispatcher("/WEB-INF/views/edicion.jsp").forward(req, resp);

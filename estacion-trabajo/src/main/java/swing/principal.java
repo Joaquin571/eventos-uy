@@ -248,7 +248,7 @@ public class principal {
         );
         agregarInterno(internoAltaPatrocinio);
 
-        panelConsultaPatrocinio = new ConsultaPatrocinioPanel();
+        panelConsultaPatrocinio = new ConsultaPatrocinioPanel(actor);
         internoConsultaPatrocinio = crearInterno(
                 "Consulta Patrocinio",
                 panelConsultaPatrocinio.getMainPanel(),
@@ -269,7 +269,7 @@ public class principal {
         );
         agregarInterno(internoAltaEdicion);
 
-        panelConsultaEdicion = new ConsultaEdicionEventoPanel();
+        panelConsultaEdicion = new ConsultaEdicionEventoPanel(actor);
         internoConsultaEdicion = crearInterno(
                 "Consulta Edición de Evento",
                 panelConsultaEdicion,

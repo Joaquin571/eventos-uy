@@ -15,7 +15,6 @@ class PatrocinioTest extends soporte.PruebaConBaseSegura {
     private final String edicion = "Edición patrocinio " + sufijo;
     private final String institucion = "Institución " + sufijo;
     private final String codigo = "COD-" + sufijo;
-
     private final String org = "orgPat" + sufijo;
     private final String evento = "Evento patrocinio " + sufijo;
 
@@ -41,7 +40,7 @@ class PatrocinioTest extends soporte.PruebaConBaseSegura {
     void propietarioAutenticadoCreaConLaMismaOperacionQueSwing() {
         Actor propietario = Actor.usuarioAutenticado(sistema.autenticar(org, "clave"));
         assertTrue(sistema.altaPatrocinio(datos(1000, 1), evento, propietario));
-        assertEquals(codigo, sistema.consultarPatrocinio(edicion, institucion).getCodigoPatrocinio());
+        assertEquals(codigo, sistema.consultarPatrocinio(edicion, institucion, datatypes.Actor.administradorLocal()).getCodigoPatrocinio());
     }
 
     @Test
@@ -82,10 +81,10 @@ class PatrocinioTest extends soporte.PruebaConBaseSegura {
             DtPatrocinio nuevo = datos(1000, 1); nuevo.setCodigoPatrocinio(codigo + "-denegado");
             assertThrows(excepciones.AccesoDenegadoException.class,
                     () -> sistema.altaPatrocinio(nuevo, evento, actor));
-            assertNull(sistema.consultarPatrocinio(nuevo.getCodigoPatrocinio()));
-            assertEquals(1, sistema.obtenerPatrociniosEdicion(edicion).size());
-            assertEquals(1000f, sistema.consultarPatrocinio(codigo).getMontoAporte());
-            assertEquals(1, sistema.consultarPatrocinio(codigo).getCantRegistrosGrat());
+            assertNull(sistema.consultarPatrocinio(nuevo.getCodigoPatrocinio(), datatypes.Actor.administradorLocal()));
+            assertEquals(1, sistema.obtenerPatrociniosEdicion(edicion, datatypes.Actor.administradorLocal()).size());
+            assertEquals(1000f, sistema.consultarPatrocinio(codigo, datatypes.Actor.administradorLocal()).getMontoAporte());
+            assertEquals(1, sistema.consultarPatrocinio(codigo, datatypes.Actor.administradorLocal()).getCantRegistrosGrat());
         }
     }
 
@@ -103,8 +102,8 @@ class PatrocinioTest extends soporte.PruebaConBaseSegura {
                 case "gratuitos" -> invalido.setCantRegistrosGrat(-1);
             }
             assertThrows(IllegalArgumentException.class, () -> sistema.altaPatrocinio(invalido, evento, propietario));
-            assertNull(sistema.consultarPatrocinio(codigo));
-            assertTrue(sistema.obtenerPatrociniosEdicion(edicion).isEmpty());
+            assertNull(sistema.consultarPatrocinio(codigo, datatypes.Actor.administradorLocal()));
+            assertTrue(sistema.obtenerPatrociniosEdicion(edicion, datatypes.Actor.administradorLocal()).isEmpty());
         }
         // Una operación válida posterior demuestra también que la transacción rechazada no quedó abierta.
         assertTrue(sistema.altaPatrocinio(datos(1000, 1), evento, propietario));
@@ -127,13 +126,13 @@ class PatrocinioTest extends soporte.PruebaConBaseSegura {
     @Test
     void altaConsultaYListadoPersistenDatosYAsignanFechaActual() {
         assertTrue(sistema.altaPatrocinio(datos(1000, 2), null, datatypes.Actor.administradorLocal()));
-        DtPatrocinio p = sistema.consultarPatrocinio(edicion, institucion);
+        DtPatrocinio p = sistema.consultarPatrocinio(edicion, institucion, datatypes.Actor.administradorLocal());
         assertNotNull(p);assertEquals(LocalDate.now(), p.getFecha());
         assertEquals(codigo, p.getCodigoPatrocinio());assertEquals(1000f, p.getMontoAporte());
         assertEquals(2, p.getCantRegistrosGrat());assertEquals("General", p.getNombreTipoRegistro());
         assertEquals(NivelPatrocinio.ORO, p.getNivel());
-        assertEquals(edicion, sistema.consultarPatrocinio(codigo).getNombreEdicion());
-        assertEquals(List.of(institucion), sistema.obtenerPatrociniosEdicion(edicion).stream().map(DtPatrocinio::getNombreInstituto).toList());
+        assertEquals(edicion, sistema.consultarPatrocinio(codigo, datatypes.Actor.administradorLocal()).getNombreEdicion());
+        assertEquals(List.of(institucion), sistema.obtenerPatrociniosEdicion(edicion, datatypes.Actor.administradorLocal()).stream().map(DtPatrocinio::getNombreInstituto).toList());
     }
 
     @Test
@@ -142,7 +141,7 @@ class PatrocinioTest extends soporte.PruebaConBaseSegura {
     @Test
     void rechazaExcesoDelVeintePorCientoSinGuardar() {
         var error = assertThrows(IllegalArgumentException.class, () -> sistema.altaPatrocinio(datos(1000, 3), null, datatypes.Actor.administradorLocal()));
-        assertTrue(error.getMessage().contains("20%"));assertNull(sistema.consultarPatrocinio(codigo));
+        assertTrue(error.getMessage().contains("20%"));assertNull(sistema.consultarPatrocinio(codigo, datatypes.Actor.administradorLocal()));
     }
 
     @Test
@@ -157,7 +156,7 @@ class PatrocinioTest extends soporte.PruebaConBaseSegura {
         assertTrue(sistema.altaPatrocinio(datos(1000, 1), null, datatypes.Actor.administradorLocal()));
         DtPatrocinio otro = datos(1000, 1);otro.setCodigoPatrocinio(codigo + "-OTRO");
         var error = assertThrows(IllegalArgumentException.class, () -> sistema.altaPatrocinio(otro, null, datatypes.Actor.administradorLocal()));
-        assertTrue(error.getMessage().contains("ya posee"));assertNull(sistema.consultarPatrocinio(codigo + "-OTRO"));
+        assertTrue(error.getMessage().contains("ya posee"));assertNull(sistema.consultarPatrocinio(codigo + "-OTRO", datatypes.Actor.administradorLocal()));
     }
 
     @Test
@@ -166,7 +165,7 @@ class PatrocinioTest extends soporte.PruebaConBaseSegura {
             var error = assertThrows(IllegalArgumentException.class, () -> sistema.altaPatrocinio(datos(aporte, 1), null, datatypes.Actor.administradorLocal()));
             assertTrue(error.getMessage().contains("aporte"));
         }
-        assertNull(sistema.consultarPatrocinio(codigo));
+        assertNull(sistema.consultarPatrocinio(codigo, datatypes.Actor.administradorLocal()));
     }
 
     @Test
@@ -174,7 +173,7 @@ class PatrocinioTest extends soporte.PruebaConBaseSegura {
 
     @Test
     void consultaInexistenteDevuelveNullYListadoVacio() {
-        assertNull(sistema.consultarPatrocinio(edicion, institucion));
-        assertTrue(sistema.obtenerPatrociniosEdicion(edicion).isEmpty());
+        assertNull(sistema.consultarPatrocinio(edicion, institucion, datatypes.Actor.administradorLocal()));
+        assertTrue(sistema.obtenerPatrociniosEdicion(edicion, datatypes.Actor.administradorLocal()).isEmpty());
     }
 }

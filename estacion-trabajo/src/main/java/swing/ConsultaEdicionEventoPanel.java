@@ -10,13 +10,16 @@ import java.util.Collection;
 
 public class ConsultaEdicionEventoPanel extends JPanel {
 
+    private final datatypes.Actor actor;
+
     private final ISistema sistema;
     private final ImagenSwing imagen = new ImagenSwing(false);
     private JComboBox<String> comboEventos;
     private JComboBox<String> comboEdiciones;
     private JTextArea areaDetalles;
 
-    public ConsultaEdicionEventoPanel() {
+    public ConsultaEdicionEventoPanel(datatypes.Actor actor) {
+        this.actor = java.util.Objects.requireNonNull(actor);
         this.sistema = Fabrica.getInstance().getISistema();
         initUI();
         cargarEventos();
@@ -113,7 +116,7 @@ public class ConsultaEdicionEventoPanel extends JPanel {
             }
 
             sb.append("\n--- Patrocinios ---\n");
-            Collection<DtPatrocinio> patrocinios = sistema.obtenerPatrociniosEdicion(edicionSel);
+            Collection<DtPatrocinio> patrocinios = sistema.obtenerPatrociniosEdicion(edicionSel, actor);
             if (patrocinios.isEmpty()) {
                 sb.append("No hay patrocinios para esta edición.\n");
             } else {

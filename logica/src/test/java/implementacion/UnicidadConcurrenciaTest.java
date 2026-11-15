@@ -113,7 +113,7 @@ class UnicidadConcurrenciaTest extends PruebaConBaseSegura {
     @Test void consultaPatrocinioPorClaveExactaConservaSusReferencias()throws Exception {
         exigirIndicesH13();preparar(5);String inst=institucion(),codigo="consultaCi"+sufijo;
         assertTrue(sistema.altaPatrocinio(patrocinio(codigo,inst), null, datatypes.Actor.administradorLocal()));
-        var dt=sistema.consultarPatrocinio(ed,inst);
+        var dt=sistema.consultarPatrocinio(ed,inst, datatypes.Actor.administradorLocal());
         assertNotNull(dt);assertEquals(ed,dt.getNombreEdicion());
         assertEquals(inst,dt.getNombreInstituto());assertEquals(codigo,dt.getCodigoPatrocinio());
     }
@@ -123,13 +123,13 @@ class UnicidadConcurrenciaTest extends PruebaConBaseSegura {
         assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General","Descripción",10,5),otra, Actor.administradorLocal()));
         String a="patA"+sufijo,b="patB"+sufijo;
         assertTrue(sistema.altaPatrocinio(patrocinio(a,inst), null, datatypes.Actor.administradorLocal()));
-        assertNull(sistema.consultarPatrocinio(otra,inst),"No debe devolver el patrocinio de otra clave.");
+        assertNull(sistema.consultarPatrocinio(otra,inst, datatypes.Actor.administradorLocal()),"No debe devolver el patrocinio de otra clave.");
         assertFalse(manejadores.ManejadorPatrocinios.getInstance().existePatrocinioInstitucionEdicion(inst,otra));
         var nuevo=new DtPatrocinio(null,1000,1,b,NivelPatrocinio.ORO,inst,otra,"General");
         assertTrue(sistema.altaPatrocinio(nuevo, null, datatypes.Actor.administradorLocal()));
-        assertEquals(a,sistema.consultarPatrocinio(ed,inst).getCodigoPatrocinio());
-        assertEquals(b,sistema.consultarPatrocinio(otra,inst).getCodigoPatrocinio());
-        assertEquals(otra,sistema.consultarPatrocinio(otra,inst).getNombreEdicion());
+        assertEquals(a,sistema.consultarPatrocinio(ed,inst, datatypes.Actor.administradorLocal()).getCodigoPatrocinio());
+        assertEquals(b,sistema.consultarPatrocinio(otra,inst, datatypes.Actor.administradorLocal()).getCodigoPatrocinio());
+        assertEquals(otra,sistema.consultarPatrocinio(otra,inst, datatypes.Actor.administradorLocal()).getNombreEdicion());
     }
     @Test void patrociniosDeInstitucionesDistintasPorMayusculasNoSeConfundenNiBloquean()throws Exception {
         exigirIndicesH13();preparar(5);String inst="InstPat"+sufijo,otra=inst.toUpperCase(java.util.Locale.ROOT);
@@ -137,19 +137,19 @@ class UnicidadConcurrenciaTest extends PruebaConBaseSegura {
         assertTrue(sistema.altaInstitucion(new DtInstitucion(otra,"Segunda","https://test.uy")));
         String a="instPatA"+sufijo,b="instPatB"+sufijo;
         assertTrue(sistema.altaPatrocinio(patrocinio(a,inst), null, datatypes.Actor.administradorLocal()));
-        assertNull(sistema.consultarPatrocinio(ed,otra));
+        assertNull(sistema.consultarPatrocinio(ed,otra, datatypes.Actor.administradorLocal()));
         assertFalse(manejadores.ManejadorPatrocinios.getInstance().existePatrocinioInstitucionEdicion(otra,ed));
         assertTrue(sistema.altaPatrocinio(patrocinio(b,otra), null, datatypes.Actor.administradorLocal()));
-        assertEquals(a,sistema.consultarPatrocinio(ed,inst).getCodigoPatrocinio());
-        assertEquals(b,sistema.consultarPatrocinio(ed,otra).getCodigoPatrocinio());
-        assertEquals(otra,sistema.consultarPatrocinio(ed,otra).getNombreInstituto());
+        assertEquals(a,sistema.consultarPatrocinio(ed,inst, datatypes.Actor.administradorLocal()).getCodigoPatrocinio());
+        assertEquals(b,sistema.consultarPatrocinio(ed,otra, datatypes.Actor.administradorLocal()).getCodigoPatrocinio());
+        assertEquals(otra,sistema.consultarPatrocinio(ed,otra, datatypes.Actor.administradorLocal()).getNombreInstituto());
     }
     @Test void patrocinioNoSeEncuentraMedianteUnaClaveInexistenteConOtraMayuscula()throws Exception {
         exigirIndicesH13();preparar(5);String inst=institucion();
         assertTrue(sistema.altaPatrocinio(patrocinio("sinAlias"+sufijo,inst), null, datatypes.Actor.administradorLocal()));
-        assertNull(sistema.consultarPatrocinio(ed.toUpperCase(java.util.Locale.ROOT),inst));
-        assertNull(sistema.consultarPatrocinio(ed,inst.toUpperCase(java.util.Locale.ROOT)));
-        assertNotNull(sistema.consultarPatrocinio(ed,inst));
+        assertNull(sistema.consultarPatrocinio(ed.toUpperCase(java.util.Locale.ROOT),inst, datatypes.Actor.administradorLocal()));
+        assertNull(sistema.consultarPatrocinio(ed,inst.toUpperCase(java.util.Locale.ROOT), datatypes.Actor.administradorLocal()));
+        assertNotNull(sistema.consultarPatrocinio(ed,inst, datatypes.Actor.administradorLocal()));
     }
     @Test void patrociniosConcurrentesDeParesDistintosPorMayusculasConfirmanAmbos()throws Exception {
         exigirIndicesH13();preparar(5);String inst="InstSim"+sufijo,otra=inst.toUpperCase(java.util.Locale.ROOT);
@@ -162,8 +162,8 @@ class UnicidadConcurrenciaTest extends PruebaConBaseSegura {
             var y=pool.submit(()->{inicio.await(10,TimeUnit.SECONDS);return sistema.altaPatrocinio(patrocinio(b,otra), null, datatypes.Actor.administradorLocal());});
             assertTrue(x.get(15,TimeUnit.SECONDS));assertTrue(y.get(15,TimeUnit.SECONDS));
             assertEquals(2,contar("SELECT COUNT(p) FROM Patrocinio p WHERE p.edicion.idNombre=:clave",ed));
-            assertEquals(a,sistema.consultarPatrocinio(ed,inst).getCodigoPatrocinio());
-            assertEquals(b,sistema.consultarPatrocinio(ed,otra).getCodigoPatrocinio());
+            assertEquals(a,sistema.consultarPatrocinio(ed,inst, datatypes.Actor.administradorLocal()).getCodigoPatrocinio());
+            assertEquals(b,sistema.consultarPatrocinio(ed,otra, datatypes.Actor.administradorLocal()).getCodigoPatrocinio());
         } finally {pool.shutdownNow();assertTrue(pool.awaitTermination(15,TimeUnit.SECONDS));}
     }
     private void exigirIndicesH13() {

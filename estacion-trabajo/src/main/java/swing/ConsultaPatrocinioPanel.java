@@ -11,6 +11,8 @@ import javax.swing.*;
 
 public class ConsultaPatrocinioPanel {
 
+    private final datatypes.Actor actor;
+
     private final transient ISistema sistema;
     private transient Runnable accionCerrar = () -> {};
 
@@ -34,7 +36,8 @@ public class ConsultaPatrocinioPanel {
     private JPanel panelBotones;
     private JButton btnCancelar;
 
-    public ConsultaPatrocinioPanel() {
+    public ConsultaPatrocinioPanel(datatypes.Actor actor) {
+        this.actor = java.util.Objects.requireNonNull(actor);
 
         sistema =
                 Fabrica.getInstance()
@@ -189,7 +192,7 @@ public class ConsultaPatrocinioPanel {
 
         for (DtPatrocinio patrocinio :
                 sistema.obtenerPatrociniosEdicion(
-                        nombreEdicion
+                        nombreEdicion, actor
                 )) {
 
             comboPatrocinio.addItem(
@@ -218,7 +221,7 @@ public class ConsultaPatrocinioPanel {
 
         DtPatrocinio patrocinio =
                 sistema.consultarPatrocinio(
-                        codigo
+                        codigo, actor
                 );
 
         if (patrocinio == null) {

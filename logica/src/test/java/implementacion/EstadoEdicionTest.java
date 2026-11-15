@@ -1,7 +1,6 @@
 package implementacion;
 
 import datatypes.Actor;
-
 import datatypes.DtAsistente;
 import datatypes.DtEdicion;
 import datatypes.DtEvento;

@@ -23,7 +23,7 @@ public interface ISistema {
     Collection<DtEdicion> obtenerEdicionesOrganizador(String nickname);
     DtUsuario autenticar(String nicknameOCorreo, String contrasenia);
     void cambiarContrasenia(String nickname, String nueva, String confirmacion, Actor actor);
-    DtPatrocinio consultarPatrocinio(String nombreEdicion, String nombreInstitucion);
+    DtPatrocinio consultarPatrocinio(String nombreEdicion, String nombreInstitucion, Actor actor);
 
 
     // INSTITUCIONES
@@ -74,8 +74,11 @@ public interface ISistema {
     // PATROCINIOS
     boolean altaPatrocinio(DtPatrocinio patrocinio, String nombreEvento, Actor actor);
     DtOpcionesAltaPatrocinio obtenerOpcionesAltaPatrocinio(String nombreEvento, String nombreEdicion, Actor actor);
-    Collection<DtPatrocinio> obtenerPatrociniosEdicion(String nombreEdicion);
-    DtPatrocinio consultarPatrocinio(String codigo);
+    /** En consultas de patrocinios, actor null representa un visitante anónimo. */
+    Collection<DtPatrocinio> obtenerPatrociniosEdicion(String nombreEdicion, Actor actor);
+    DtPatrocinio consultarPatrocinio(String codigo, Actor actor);
+    Collection<String> obtenerInstitucionesPatrocinadoras(String nombreEdicion, Actor actor);
+    DtConsultaPatrocinios consultarPatrocinios(String evento, String edicion, String institucion, Actor actor);
 
     //IMAGEN
     void asociarImagen(TipoEntidadImagen tipo, String clave, DtImagen imagen);

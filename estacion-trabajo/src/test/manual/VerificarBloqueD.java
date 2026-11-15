@@ -101,7 +101,7 @@ public class VerificarBloqueD extends VerificarSwing {
     }
 
     static void probarConsultas(String codigo) throws Exception {
-        var ed = new swing.ConsultaEdicionEventoPanel();
+        var ed = new swing.ConsultaEdicionEventoPanel(datatypes.Actor.administradorLocal());
         for (var par : Map.of(pendiente, "Ingresada", aceptada, "Aceptada", rechazada, "Rechazada").entrySet()) {
             ed.seleccionarEventoYEdicion(evento, par.getKey());
             verificar(((JTextArea)campo(ed, "areaDetalles")).getText().contains("Estado: " + par.getValue()), "Consulta muestra estado " + par.getValue());
@@ -119,7 +119,7 @@ public class VerificarBloqueD extends VerificarSwing {
         for (int i = 0; i < usuarios.getItemCount(); i++) if (((DtUsuario)usuarios.getItemAt(i)).getNickname().equals(org)) usuarios.setSelectedIndex(i);
         comprobarVista(usuario, true);
         usuarios.setSelectedIndex(-1); comprobarVista(usuario, false);
-        var patrocinio = new swing.ConsultaPatrocinioPanel(); patrocinio.refrescarDatos();
+        var patrocinio = new swing.ConsultaPatrocinioPanel(datatypes.Actor.administradorLocal()); patrocinio.refrescarDatos();
         combo(patrocinio, "comboEvento").setSelectedItem(evento);
         combo(patrocinio, "comboEdicion").setSelectedItem(aceptada);
         combo(patrocinio, "comboPatrocinio").setSelectedItem(codigo);

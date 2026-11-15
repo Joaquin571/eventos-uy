@@ -1,8 +1,7 @@
 package datos;
 
-import datatypes.Actor;
-
 import clases.NivelPatrocinio;
+import datatypes.Actor;
 import datatypes.DtAsistente;
 import datatypes.DtEdicion;
 import datatypes.DtEvento;

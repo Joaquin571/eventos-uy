@@ -204,7 +204,7 @@ class ConsultasEdicionTest {
             case "obtenerImagen" -> {imagenes++;yield imagen;}
             case "obtenerTiposRegistroEdicion" -> {tipos++;yield a[0].equals("SinTipos")?List.of():List.of(tipo((String)a[0],"General"));}
             case "consultarTipoRegistro" -> {consultasTipo++;yield ((String)a[1]).equalsIgnoreCase("General")?tipo((String)a[0],"General"):null;}
-            case "obtenerPatrociniosEdicion" -> {patrocinios++;yield List.of(new DtPatrocinio(fecha,1000,1,"NO-PUBLICAR",NivelPatrocinio.ORO,"UTEC",(String)a[0],"General"));}
+            case "obtenerInstitucionesPatrocinadoras" -> {patrocinios++;yield List.of("UTEC");}
             case "obtenerRegistrosEdicion" -> {registrosEdicion++;yield a[0].equals("Aceptada")?registros:List.of();}
             case "obtenerRegistrosAsistente" -> {registrosAsistente++;nickConsultado=(String)a[0];yield registros.stream().filter(r->r.getNicknameAsistente().equals(a[0])).toList();}
             default -> throw new AssertionError("Consulta inesperada: "+m.getName());

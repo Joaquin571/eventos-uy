@@ -85,7 +85,7 @@ public class VerificarPatrociniosWeb {
             comprobar(r.statusCode()==200 && r.body().contains("NUEVO-"+sufijo)
                     && r.body().contains(LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))
                     && r.body().contains("Nueva &lt;UTEC&gt;"),"Detalle persistido, fecha y escape HTML");
-            comprobar(sistema.obtenerPatrociniosEdicion(edicion).size()==2,"Persistencia sin duplicar al consultar");
+            comprobar(sistema.obtenerPatrociniosEdicion(edicion, datatypes.Actor.administradorLocal()).size()==2,"Persistencia sin duplicar al consultar");
             datos.put("codigo","OTRO-"+sufijo);
             r=post(propietario,"/alta-patrocinio",datos);
             comprobar(r.statusCode()==200 && r.body().contains("ya posee") && r.body().contains("value=\"OTRO-"+sufijo+"\"")
