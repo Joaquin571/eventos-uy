@@ -18,7 +18,7 @@ class ConfiguracionCentralTest {
     @Test void construyeEndpointExternoYPropiedadesSinCrearEsquema() throws Exception {
         var config = configurar("central.host=192.0.2.25\ncentral.puerto=9876\ncentral.ruta=/consulta\n"
                 + "db.url=jdbc:postgresql://db-prueba:5432/eventosuy_test\ndb.usuario=prueba\ndb.password=valor-simulado\n");
-        assertEquals("http://192.0.2.25:9876/consulta", config.urlServicio());
+        assertEquals("https://192.0.2.25:9876/consulta", config.urlServicio());
         var props = config.propiedadesJpa();
         assertEquals("validate", props.get("hibernate.hbm2ddl.auto"));
         assertEquals("jdbc:postgresql://db-prueba:5432/eventosuy_test", props.get("jakarta.persistence.jdbc.url"));

@@ -61,12 +61,19 @@
         <plugins>
             <plugin>
                 <groupId>com.sun.xml.ws</groupId><artifactId>jaxws-maven-plugin</artifactId><version>4.0.5</version>
-                <executions><execution><goals><goal>wsimport</goal></goals><configuration>
+                <executions><execution><id>eventos</id><goals><goal>wsimport</goal></goals><configuration>
                     <wsdlDirectory>${project.basedir}/src/main/resources/wsdl</wsdlDirectory>
                     <wsdlFiles><wsdlFile>EventosService.wsdl</wsdlFile></wsdlFiles>
                     <packageName>web.soap.generado</packageName>
                     <wsdlLocation>/wsdl/EventosService.wsdl</wsdlLocation>
-                </configuration></execution></executions>
+                </configuration></execution>
+                    <execution><id>sesiones</id><goals><goal>wsimport</goal></goals><configuration>
+                        <wsdlDirectory>${project.basedir}/src/main/resources/wsdl</wsdlDirectory>
+                        <wsdlFiles><wsdlFile>SesionesService.wsdl</wsdlFile></wsdlFiles>
+                        <packageName>web.soap.generado.sesiones</packageName>
+                        <wsdlLocation>/wsdl/SesionesService.wsdl</wsdlLocation>
+                    </configuration></execution>
+                </executions>
             </plugin>
 
             <plugin>

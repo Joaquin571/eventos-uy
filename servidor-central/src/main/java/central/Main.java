@@ -1,7 +1,7 @@
 package central;
 
-import central.soap.EventosPublicador;
-import jakarta.xml.ws.Endpoint;
+import implementacion.Fabrica;
+import interfaces.ISistema;
 import persistencia.BaseDeDatos;
 import java.nio.file.Path;
 
@@ -11,20 +11,27 @@ public final class Main {
     public static void main(String[] args) {
         ConfiguracionCentral configuracion = new ConfiguracionCentral(
                 Path.of(System.getProperty("user.home"), ".eventosUy", "central.properties"));
-        String url = configuracion.urlServicio();
-        BaseDeDatos.inicializar(configuracion.propiedadesJpa());
-        Endpoint endpoint;
+        // Configuración TLS y listener preparados antes de intentar inicializar persistencia.
+        ServidorHttpsCentral servidor = new ServidorHttpsCentral(configuracion);
         try {
-            endpoint = Endpoint.publish(url, new EventosPublicador());
-        } catch (RuntimeException error) {
-            BaseDeDatos.cerrar();
+            BaseDeDatos.inicializar(configuracion.propiedadesJpa());
+            ISistema sistema = Fabrica.getInstance().getISistema();
+            servidor.iniciar(sistema);
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                try { servidor.close(); } finally { BaseDeDatos.cerrar(); }
+            }, "cerrar-central"));
+            System.out.println("WSDL de eventos: " + servidor.urlEventos() + "?wsdl");
+            System.out.println("WSDL de sesiones: " + servidor.urlSesiones() + "?wsdl");
+            swing.principal.main(args);
+        } catch (RuntimeException | Error error) {
+            try {
+                servidor.close();
+            } catch (RuntimeException cierre) {
+                error.addSuppressed(cierre);
+            } finally {
+                BaseDeDatos.cerrar();
+            }
             throw error;
         }
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            endpoint.stop();
-            BaseDeDatos.cerrar();
-        }));
-        System.out.println("Servicio de eventos publicado. WSDL: " + url + "?wsdl");
-        swing.principal.main(args);
     }
 }

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xs:schema version="1.0" targetNamespace="https://eventos.uy/soap/sesiones" xmlns:tns="https://eventos.uy/soap/sesiones" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="SesionFault" nillable="true" type="tns:detalle"/>
+
+  <xs:element name="cerrarSesion" type="tns:cerrarSesion"/>
+
+  <xs:element name="cerrarSesionResponse" type="tns:cerrarSesionResponse"/>
+
+  <xs:element name="iniciarSesion" type="tns:iniciarSesion"/>
+
+  <xs:element name="iniciarSesionResponse" type="tns:iniciarSesionResponse"/>
+
+  <xs:complexType name="cerrarSesion">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:complexType name="cerrarSesionResponse">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:complexType name="detalle">
+    <xs:sequence>
+      <xs:element name="codigo" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="iniciarSesion">
+    <xs:sequence>
+      <xs:element name="identificador" type="xs:string" minOccurs="0"/>
+      <xs:element name="contrasenia" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="iniciarSesionResponse">
+    <xs:sequence>
+      <xs:element name="return" type="tns:usuarioSesionSoap" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="usuarioSesionSoap">
+    <xs:sequence>
+      <xs:element name="nickname" type="xs:string" minOccurs="0"/>
+      <xs:element name="nombre" type="xs:string" minOccurs="0"/>
+      <xs:element name="rol" type="tns:rol" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="rol">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ASISTENTE"/>
+      <xs:enumeration value="ORGANIZADOR"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>

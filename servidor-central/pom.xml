@@ -13,10 +13,15 @@
         <plugins>
             <plugin>
                 <groupId>com.sun.xml.ws</groupId><artifactId>jaxws-maven-plugin</artifactId><version>4.0.5</version>
-                <executions><execution><goals><goal>wsgen</goal></goals><configuration>
+                <executions><execution><id>eventos</id><goals><goal>wsgen</goal></goals><configuration>
                     <sei>central.soap.EventosPublicador</sei><genWsdl>true</genWsdl>
                     <resourceDestDir>${project.build.directory}/wsdl</resourceDestDir>
-                </configuration></execution></executions>
+                </configuration></execution>
+                    <execution><id>sesiones</id><goals><goal>wsgen</goal></goals><configuration>
+                        <sei>central.soap.SesionesPublicador</sei><genWsdl>true</genWsdl>
+                        <resourceDestDir>${project.build.directory}/wsdl</resourceDestDir>
+                    </configuration></execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId><artifactId>maven-shade-plugin</artifactId><version>3.6.0</version>
