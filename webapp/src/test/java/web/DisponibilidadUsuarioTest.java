@@ -19,16 +19,26 @@ class DisponibilidadUsuarioTest {
     @Test void campoDesconocidoEsErrorHttpSinInvocarCentral()throws Exception {
         var e=new Escenario("rol",true);new DisponibilidadUsuarioServlet().doGet(e.req,e.resp);assertEquals(400,e.estado);assertEquals(0,e.consultas);
     }
+    @Test void centralCaidoDevuelveJson503SinCrearSesionNiConsultarCategorias()throws Exception {
+        var e=new Escenario("nickname",true);e.fallo=true;
+        new FiltroAcceso().doFilter(e.req,e.resp,(req,resp)->new DisponibilidadUsuarioServlet().doGet(e.req,e.resp));
+        assertEquals(503,e.estado);assertEquals("{\"error\":\"Servicio no disponible\"}",e.cuerpo.toString());
+        assertFalse(e.cuerpo.toString().contains("detalle-reservado"));assertEquals(1,e.consultas);
+    }
     private static class Escenario {
-        String campo;boolean disponible;int consultas,estado=200;
+        String campo;boolean disponible,fallo;int consultas,estado=200;
         final StringWriter cuerpo=new StringWriter();final Map<String,String> headers=new HashMap<>();
         final ServicioPortal portal=CsrfTest.doble(ServicioPortal.class,(p,m,a)->{
-            assertEquals(campo.equals("nickname")?"disponibleNickname":"disponibleCorreo",m.getName());assertEquals("<script>",a[0]);consultas++;return disponible;
+            assertEquals(campo.equals("nickname")?"disponibleNickname":"disponibleCorreo",m.getName());assertEquals("<script>",a[0]);consultas++;
+            if(fallo)throw new web.remoto.ErrorCentral("SERVICIO_NO_DISPONIBLE","detalle-reservado");return disponible;
         });
         final ServletContext contexto=CsrfTest.doble(ServletContext.class,(p,m,a)->portal);
         final HttpServletRequest req=CsrfTest.doble(HttpServletRequest.class,(p,m,a)->switch(m.getName()){
             case "getParameter"->a[0].equals("campo")?campo:"<script>";
             case "getServletContext"->contexto;
+            case "getServletPath"->"/disponibilidad-usuario";
+            case "getMethod"->"GET";
+            case "setCharacterEncoding"->null;
             default->throw new AssertionError(m.getName());
         });
         final HttpServletResponse resp=CsrfTest.doble(HttpServletResponse.class,(p,m,a)->switch(m.getName()){

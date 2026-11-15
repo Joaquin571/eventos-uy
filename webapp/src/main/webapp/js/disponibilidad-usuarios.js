@@ -23,16 +23,16 @@
                 url.searchParams.set('campo', campo);
                 url.searchParams.set('valor', valor);
                 try {
-                    const respuesta = await fetch(url, {signal: peticion.signal, headers: {'Accept': 'application/json'}});
+                    const respuesta = await fetch(url, {signal: peticion.signal, cache: 'no-store', headers: {'Accept': 'application/json'}});
                     if (!respuesta.ok) throw new Error('Sin respuesta');
                     const datos = await respuesta.json();
-                    if (actual !== version) return;
+                    if (actual !== version || input.value.trim() !== valor) return;
                     if (typeof datos.disponible !== 'boolean') throw new Error('Respuesta inválida');
                     mensaje.textContent = datos.disponible ? 'Disponible.' : 'No disponible o no válido.';
                     mensaje.className = datos.disponible ? 'form-text text-success' : 'form-text text-danger';
                     input.setCustomValidity(datos.disponible ? '' : 'Este valor no está disponible o no es válido.');
                 } catch (error) {
-                    if (error.name === 'AbortError' || actual !== version) return;
+                    if (error.name === 'AbortError' || actual !== version || input.value.trim() !== valor) return;
                     mensaje.textContent = 'No pudimos verificarlo ahora. Se comprobará al registrar el usuario.';
                     mensaje.className = 'form-text text-muted';
                     input.setCustomValidity('');

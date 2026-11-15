@@ -1081,11 +1081,13 @@ public class Sistema implements ISistema {
 
     @Override
     public boolean disponibleNickname(String valor) {
+        valor = valor == null ? null : valor.strip();
         return textoDisponible(valor) && !existeUsuario(valor);
     }
 
     @Override
     public boolean disponibleCorreo(String valor) {
+        valor = valor == null ? null : valor.strip();
         return textoDisponible(valor) && valor.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")
                 && !existeCorreoElectronico(valor);
     }

@@ -21,11 +21,18 @@ public class DisponibilidadUsuarioServlet extends HttpServlet {
         String campo = req.getParameter("campo");
         String valor = req.getParameter("valor");
         boolean disponible;
-        if ("nickname".equals(campo)) disponible = ContextoListener.central(req).disponibleNickname(valor);
-        else if ("correo".equals(campo)) disponible = ContextoListener.central(req).disponibleCorreo(valor);
-        else {
+        if (!("nickname".equals(campo) || "correo".equals(campo))) {
             resp.setStatus(400);
             resp.getWriter().write("{\"error\":\"Campo inválido\"}");
+            return;
+        }
+        try {
+            disponible = "nickname".equals(campo)
+                    ? ContextoListener.central(req).disponibleNickname(valor)
+                    : ContextoListener.central(req).disponibleCorreo(valor);
+        } catch (web.remoto.ErrorCentral error) {
+            resp.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+            resp.getWriter().write("{\"error\":\"Servicio no disponible\"}");
             return;
         }
         resp.getWriter().write("{\"disponible\":" + disponible + "}");

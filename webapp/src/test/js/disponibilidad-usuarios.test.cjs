@@ -24,9 +24,11 @@ function escenario(){
         async responder(i,disponible){peticiones[i].resolve({ok:true,json:async()=>({disponible})});await new Promise(resolve=>setImmediate(resolve));}
     };
 }
+// Incluye los dos escenarios de Emmanuel (2911ab1), adaptados al contrato vigente.
 test('espera y envía solamente campo y valor codificados',async()=>{
     const e=escenario();e.escribir('nickname','nombre & ñ');assert.equal(e.peticiones.length,0);await e.consultar();
     const url=e.peticiones[0].url;assert.equal(url.pathname,'/web/disponibilidad-usuario');assert.equal(url.searchParams.get('valor'),'nombre & ñ');
+    assert.equal(e.peticiones[0].opciones.cache,'no-store');
     assert.deepEqual([...url.searchParams.keys()],['campo','valor']);await e.responder(0,true);assert.equal(e.campos.nickname.mensaje,'');
 });
 test('no disponible impide enviar y editar limpia el error anterior',async()=>{
@@ -44,4 +46,8 @@ test('un fallo de red permite que Central valide al confirmar',async()=>{
 });
 test('vacíos y formatos inválidos no originan consultas',async()=>{
     const e=escenario();e.escribir('nickname','  ');e.campos.correo.validity.valid=false;e.escribir('correo','invalido');await e.consultar();assert.equal(e.peticiones.length,0);
+});
+test('cambiar el valor sin evento también descarta una respuesta obsoleta',async()=>{
+    const e=escenario();e.escribir('nickname','anterior');await e.consultar();e.campos.nickname.value='actual';
+    await e.responder(0,false);assert.equal(e.campos.nickname.mensaje,'');
 });

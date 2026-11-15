@@ -83,7 +83,9 @@ public class FiltroAcceso implements Filter {
 
         if ("POST".equals(req.getMethod()) && !Csrf.validarPost(req, resp)) return;
 
-        if (esEstatico(ruta)) {
+        // La consulta AJAX pública no necesita cabezal, categorías ni una sesión HTTP.
+        // Su Servlet conserva la respuesta JSON incluso si Central no está disponible.
+        if (esEstatico(ruta) || "/disponibilidad-usuario".equals(ruta)) {
             chain.doFilter(req, resp);
             return;
         }
