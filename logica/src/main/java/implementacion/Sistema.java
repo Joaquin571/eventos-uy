@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.time.LocalDate;
 
@@ -138,6 +139,12 @@ public class Sistema implements ISistema {
     // ALTA USUARIO
     @Override
     public boolean altaAsistente(DtAsistente dt) {
+        return altaAsistente(dt, null);
+    }
+
+    @Override
+    public boolean altaAsistente(DtAsistente dt, DtImagen imagen) {
+        if (imagen != null) validarImagen(imagen);
         if (dt == null) {
             throw new IllegalArgumentException("Los datos del asistente son obligatorios.");
         }
@@ -165,11 +172,22 @@ public class Sistema implements ISistema {
                 institucion
         );
         asistente.setContrasenia(dt.getContrasenia());
+        // La cascada guarda usuario e imagen en la misma transacción del manejador.
+        if (imagen != null) {
+            asistente.setImagen(new Imagen(
+                    imagen.getTipoContenido().toLowerCase(Locale.ROOT), imagen.getContenido()));
+        }
         return manejadorUsuarios.addUsuario(asistente);
     }
 
     @Override
     public boolean altaOrganizador(DtOrganizador dt) {
+        return altaOrganizador(dt, null);
+    }
+
+    @Override
+    public boolean altaOrganizador(DtOrganizador dt, DtImagen imagen) {
+        if (imagen != null) validarImagen(imagen);
         if (dt == null) {
             throw new IllegalArgumentException("Los datos del organizador son obligatorios.");
         }
@@ -188,6 +206,11 @@ public class Sistema implements ISistema {
                 dt.getSitioWeb()
         );
         organizador.setContrasenia(dt.getContrasenia());
+        // La cascada guarda usuario e imagen en la misma transacción del manejador.
+        if (imagen != null) {
+            organizador.setImagen(new Imagen(
+                    imagen.getTipoContenido().toLowerCase(Locale.ROOT), imagen.getContenido()));
+        }
         return manejadorUsuarios.addUsuario(organizador);
     }
 

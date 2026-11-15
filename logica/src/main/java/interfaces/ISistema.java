@@ -9,7 +9,11 @@ public interface ISistema {
     boolean existeUsuario(String nickname);
     boolean existeCorreoElectronico(String correoElectronico);
     boolean altaAsistente(DtAsistente asistente);
+    /** Alta atómica de datos, contraseña e imagen opcional. */
+    boolean altaAsistente(DtAsistente asistente, DtImagen imagen);
     boolean altaOrganizador(DtOrganizador organizador);
+    /** Alta atómica de datos, contraseña e imagen opcional. */
+    boolean altaOrganizador(DtOrganizador organizador, DtImagen imagen);
     void modificarAsistente(DtAsistente asistente);
     void modificarOrganizador(DtOrganizador organizador);
     Collection<DtUsuario> listarUsuarios();
