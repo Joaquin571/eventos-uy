@@ -11,94 +11,55 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class BaseDeDatos {
-    private static final String HOST = env("EVENTOS_DB_HOST", "localhost");
-    private static final String PORT = env("EVENTOS_DB_PORT", "5432");
-    private static final String NAME = env("EVENTOS_DB_NAME", "eventosuy");
-    private static final String USER = env("EVENTOS_DB_USER", "postgres");
-    private static final String PASSWORD = env("EVENTOS_DB_PASSWORD", "root");
-
-    private static final String JDBC_URL =
-            "jdbc:postgresql://" +
-                    HOST + ":" +
-                    PORT + "/" +
-                    NAME;
-
     private static EntityManagerFactory emf;
 
     private BaseDeDatos() {
     }
 
-    private static String env(
-            String key,
-            String valorPorDefecto
-    ) {
-
-        String valor = System.getenv(key);
-
-        if (valor != null && !valor.isBlank()) {
-            return valor;
-        }
-        return valorPorDefecto;
+    public static Map<String, String> propiedadesJpa() {
+        return propiedadesJpa(System.getenv());
     }
 
-    public static Map<String, String> propiedadesJpa() {
-
+    static Map<String, String> propiedadesJpa(Map<String, String> entorno) {
+        for (String clave : new String[]{"HOST", "PORT", "NAME", "USER", "PASSWORD"}) {
+            String nombre = "EVENTOS_DB_" + clave;
+            String valor = entorno.get(nombre);
+            if (valor == null || (!clave.equals("PASSWORD") && valor.isBlank()))
+                throw new IllegalStateException("Falta configurar " + nombre + ". No se utilizan valores de respaldo.");
+        }
+        String url;
+        try {
+            int puerto = Integer.parseInt(entorno.get("EVENTOS_DB_PORT"));
+            if (puerto < 1 || puerto > 65535) throw new IllegalArgumentException();
+            var uri = new java.net.URI("postgresql", null, entorno.get("EVENTOS_DB_HOST"), puerto,
+                    "/" + entorno.get("EVENTOS_DB_NAME"), null, null);
+            if (uri.getHost() == null) throw new IllegalArgumentException();
+            url = "jdbc:" + uri.toASCIIString();
+        } catch (Exception error) {
+            throw new IllegalStateException("Revisar el host y puerto de la configuración externa de PostgreSQL.");
+        }
         Map<String, String> props = new HashMap<>();
-
         props.put("jakarta.persistence.jdbc.driver", "org.postgresql.Driver");
-        props.put("jakarta.persistence.jdbc.url", JDBC_URL);
-        props.put("jakarta.persistence.jdbc.user", USER);
-        props.put("jakarta.persistence.jdbc.password", PASSWORD);
-
+        props.put("jakarta.persistence.jdbc.url", url);
+        props.put("jakarta.persistence.jdbc.user", entorno.get("EVENTOS_DB_USER"));
+        props.put("jakarta.persistence.jdbc.password", entorno.get("EVENTOS_DB_PASSWORD"));
         return props;
     }
 
     public static void asegurarDisponible() {
 
-        // Dentro de Tomcat el driver está en WEB-INF/lib y DriverManager no lo
-        // registra solo: se carga explícitamente con el cargador de esta clase.
+        Map<String, String> props = propiedadesJpa();
         try {
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException(
-                    "No se encontró el driver de PostgreSQL (org.postgresql.Driver) " +
-                            "en el classpath.",
-                    e
-            );
+            throw new IllegalStateException("No se encontró el driver PostgreSQL en el proceso Central.");
         }
-
         DriverManager.setLoginTimeout(3);
-
-        try (
-                Connection conexion =
-                        DriverManager.getConnection(
-                                JDBC_URL,
-                                USER,
-                                PASSWORD
-                        )
-        ) {
-
-            System.out.println(
-                    "[BD] PostgreSQL disponible en " +
-                            HOST + ":" + PORT
-            );
-
-            System.out.println(
-                    "[BD] Base de datos: " + NAME
-            );
-
+        try (Connection conexion = DriverManager.getConnection(props.get("jakarta.persistence.jdbc.url"),
+                props.get("jakarta.persistence.jdbc.user"), props.get("jakarta.persistence.jdbc.password"))) {
+            System.out.println("[BD] PostgreSQL disponible mediante configuración externa.");
         } catch (SQLException e) {
-
-            throw new RuntimeException(
-                    "No se pudo conectar a PostgreSQL.\n" +
-                            "URL: " + JDBC_URL + "\n" +
-                            "Usuario: " + USER + "\n" +
-                            "Causa: " + e.getMessage() + "\n\n" +
-                            "Verifique que PostgreSQL esté iniciado " +
-                            "y que exista la base de datos '" +
-                            NAME + "'.",
-                    e
-            );
+            throw new IllegalStateException("No se pudo conectar a PostgreSQL. Revisar la configuración externa.");
         }
     }
 
