@@ -177,7 +177,6 @@ public class AltaEdicionEventoPanel extends JPanel {
     // =====================================================
 
     private void guardarEdicion() {
-        if (imagen.reintentarAlta(sistema, this::limpiarFormulario, actor)) return;
 
         String eventoSel = (String) comboEventos.getSelectedItem();
         String organizadorSel = (String) comboOrganizadores.getSelectedItem();
@@ -232,10 +231,9 @@ public class AltaEdicionEventoPanel extends JPanel {
         try {
 
             DtImagen nuevaImagen = imagen.leerValidada(sistema);
-            boolean okEdicion = sistema.altaEdicion(dtEdicion, eventoSel, actor);
+            boolean okEdicion = sistema.altaEdicion(dtEdicion, eventoSel, nuevaImagen, actor);
 
             if (okEdicion) {
-                if (!imagen.completarAlta(sistema, TipoEntidadImagen.EDICION, nombre, nuevaImagen, actor)) return;
 
                 JOptionPane.showMessageDialog(
                         this,

@@ -122,7 +122,6 @@ public class AltaEventoPanel {
     }
 
     private void agregarEvento() {
-        if (imagen.reintentarAlta(sistema, () -> { limpiarCampos(); if (accionCerrar != null) accionCerrar.run(); }, actor)) return;
         String nombre = txtNombre.getText().trim();
         String sigla = txtSigla.getText().trim();
         String descripcion = txtDescripcion.getText().trim();
@@ -151,9 +150,8 @@ public class AltaEventoPanel {
             DtImagen nuevaImagen = imagen.leerValidada(sistema);
             DtEvento dt = new DtEvento(nombre, sigla, descripcion, LocalDate.now(), categoriasSeleccionadas);
 
-            if (!sistema.altaEvento(dt, actor)) throw new IllegalArgumentException("No se pudo crear el evento.");
+            if (!sistema.altaEvento(dt, nuevaImagen, actor)) throw new IllegalArgumentException("No se pudo crear el evento.");
 
-            if (!imagen.completarAlta(sistema, TipoEntidadImagen.EVENTO, nombre, nuevaImagen, actor)) return;
             JOptionPane.showMessageDialog(mainPanel, "Evento registrado con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
             limpiarCampos();
             if (accionCerrar != null) accionCerrar.run();
