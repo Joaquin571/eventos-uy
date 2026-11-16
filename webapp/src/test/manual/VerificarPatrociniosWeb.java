@@ -41,14 +41,14 @@ public class VerificarPatrociniosWeb {
         }
         DtAsistente a = new DtAsistente(asistente, "Asistente", asistente + "@test.uy", "Apellido", LocalDate.of(2000,1,1), null);
         a.setContrasenia("clave");a.setConfirmacionContrasenia("clave");sistema.altaAsistente(a);
-        sistema.altaCategoria("catWeb" + sufijo, null);
-        sistema.altaEvento(new DtEvento(evento,"EV","Descripción",LocalDate.now(),List.of("catWeb"+sufijo)));
+        sistema.altaCategoria("catWeb" + sufijo, null, datatypes.Actor.administradorLocal());
+        sistema.altaEvento(new DtEvento(evento,"EV","Descripción",LocalDate.now(),List.of("catWeb"+sufijo)), datatypes.Actor.administradorLocal());
         for (String nombre : List.of(edicion, oculta, rechazada)) {
             LocalDate h = LocalDate.now();
-            sistema.altaEdicion(new DtEdicion(nombre,"ED",h,h,h,"Ciudad","País",duenio),evento);
+            sistema.altaEdicion(new DtEdicion(nombre,"ED",h,h,h,"Ciudad","País",duenio),evento, datatypes.Actor.administradorLocal());
             sistema.altaTipoRegistro(new DtTipoRegistro("General","General",100,50),nombre, Actor.administradorLocal());
         }
-        sistema.aceptarRechazarEdicion(edicion,true);sistema.aceptarRechazarEdicion(rechazada,false);
+        sistema.aceptarRechazarEdicion(edicion,true, datatypes.Actor.administradorLocal());sistema.aceptarRechazarEdicion(rechazada,false, datatypes.Actor.administradorLocal());
         sistema.altaInstitucion(new DtInstitucion(institucion,"Descripción","https://test.uy"), datatypes.Actor.administradorLocal());
         sistema.altaInstitucion(new DtInstitucion(institucionNueva,"Descripción","https://test.uy"), datatypes.Actor.administradorLocal());
         for (String nombre : List.of(edicion,oculta,rechazada)) {

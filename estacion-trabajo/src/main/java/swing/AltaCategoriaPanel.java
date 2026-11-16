@@ -1,5 +1,7 @@
 package swing;
 
+import datatypes.Actor;
+
 import interfaces.ISistema;
 import implementacion.Fabrica;
 import datatypes.DtCategoria;
@@ -19,8 +21,15 @@ public class AltaCategoriaPanel extends JPanel {
     private ISistema sistema;
     private Runnable accionCerrar;
 
-    public AltaCategoriaPanel() {
-        sistema = Fabrica.getInstance().getISistema();
+    private final Actor actor;
+
+    public AltaCategoriaPanel(Actor actor) {
+        this(actor, Fabrica.getInstance().getISistema());
+    }
+
+    AltaCategoriaPanel(Actor actor, ISistema sistema) {
+        this.actor = java.util.Objects.requireNonNull(actor, "Se requiere Actor.");
+        this.sistema = java.util.Objects.requireNonNull(sistema);
         setLayout(new BorderLayout(10, 10));
 
         // Panel de Árbol (Izquierda/Centro)
@@ -106,7 +115,7 @@ public class AltaCategoriaPanel extends JPanel {
         }
 
         try {
-            sistema.altaCategoria(nombre, nombrePadre);
+            sistema.altaCategoria(nombre, nombrePadre, actor);
             JOptionPane.showMessageDialog(this, "Categoría creada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
             txtNombre.setText("");
             cargarArbolCategorias();

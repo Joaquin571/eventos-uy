@@ -105,13 +105,13 @@ class TomcatPortalHttpsIT {
     private void prepararDatos()throws Exception {
         sufijo=Long.toString(System.nanoTime());org="httpOrg"+sufijo;evento="httpEv"+sufijo;edicion="httpEd"+sufijo;institucion="httpIn"+sufijo;categoria="httpCat"+sufijo;
         var usuario=new DtOrganizador(org,"Organización",org+"@test.uy","Descripción","");usuario.setContrasenia(CLAVE);usuario.setConfirmacionContrasenia(CLAVE);sistema.altaOrganizador(usuario);
-        var actor=Actor.usuarioAutenticado(sistema.autenticar(org,CLAVE));sistema.altaCategoria(categoria,null);
+        var actor=Actor.usuarioAutenticado(sistema.autenticar(org,CLAVE));sistema.altaCategoria(categoria,null, datatypes.Actor.administradorLocal());
         sistema.altaEvento(new DtEvento(evento,"EV","Evento",null,List.of(categoria)),null,actor);
         for(String nombre:List.of(edicion,"privada"+sufijo)){
             sistema.altaEdicion(new DtEdicion(nombre,"ED",LocalDate.now(),LocalDate.now(),null,"Ciudad","País",org),evento,null,actor);
             sistema.altaTipoRegistro(new DtTipoRegistro("General","Entrada",100,10),nombre,actor);
         }
-        sistema.aceptarRechazarEdicion(edicion,true);sistema.altaInstitucion(new DtInstitucion(institucion,"Institución","https://test.uy"),actor);
+        sistema.aceptarRechazarEdicion(edicion,true, datatypes.Actor.administradorLocal());sistema.altaInstitucion(new DtInstitucion(institucion,"Institución","https://test.uy"),actor);
     }
     private void iniciarTomcat(Path base,Path almacen,String clave,Path war)throws Exception {
         Path home=Path.of(System.getenv("TOMCAT_HOME")).toAbsolutePath();assertTrue(Files.isRegularFile(home.resolve("bin/bootstrap.jar")));

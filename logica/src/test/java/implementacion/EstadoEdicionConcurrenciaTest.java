@@ -27,10 +27,10 @@ class EstadoEdicionConcurrenciaTest extends PruebaConBaseSegura {
         DtOrganizador usuario = new DtOrganizador(org, "Organización", org + "@test.uy", "Descripción", "");
         usuario.setContrasenia("clave"); usuario.setConfirmacionContrasenia("clave");
         assertTrue(sistema.altaOrganizador(usuario));
-        sistema.altaCategoria(categoria, null);
-        assertTrue(sistema.altaEvento(new DtEvento(evento, "EV", "Descripción", null, List.of(categoria))));
+        sistema.altaCategoria(categoria, null, datatypes.Actor.administradorLocal());
+        assertTrue(sistema.altaEvento(new DtEvento(evento, "EV", "Descripción", null, List.of(categoria)), datatypes.Actor.administradorLocal()));
         assertTrue(sistema.altaEdicion(new DtEdicion(edicion, "ED", LocalDate.now(), LocalDate.now(),
-                null, "Ciudad", "País", org), evento));
+                null, "Ciudad", "País", org), evento, datatypes.Actor.administradorLocal()));
     }
 
     @Test
@@ -54,7 +54,7 @@ class EstadoEdicionConcurrenciaTest extends PruebaConBaseSegura {
                 int pid = ((Number) em.createNativeQuery("SELECT pg_backend_pid()").getSingleResult()).intValue();
                 if (primeraAcepta) bloqueada.aceptar(); else bloqueada.rechazar();
                 Future<?> segunda = ejecutor.submit(() ->
-                        Fabrica.getInstance().getISistema().aceptarRechazarEdicion(edicion, !primeraAcepta));
+                        Fabrica.getInstance().getISistema().aceptarRechazarEdicion(edicion, !primeraAcepta, datatypes.Actor.administradorLocal()));
 
                 esperarBloqueoReal(pid, segunda);
                 assertFalse(segunda.isDone(), "La segunda decisión debe esperar al primer commit.");
@@ -112,7 +112,7 @@ class EstadoEdicionConcurrenciaTest extends PruebaConBaseSegura {
             boolean rechazo = rechazar.get(15, TimeUnit.SECONDS);
             assertNotEquals(acepto, rechazo, "Una sola operación debe confirmar; la otra debe rechazar la transición.");
             assertEquals(acepto ? EstadoEdicion.ACEPTADA : EstadoEdicion.RECHAZADA, estadoPersistido());
-            assertThrows(IllegalStateException.class, () -> sistema.aceptarRechazarEdicion(edicion, !acepto));
+            assertThrows(IllegalStateException.class, () -> sistema.aceptarRechazarEdicion(edicion, !acepto, datatypes.Actor.administradorLocal()));
             assertEquals(acepto ? EstadoEdicion.ACEPTADA : EstadoEdicion.RECHAZADA, estadoPersistido());
         } finally {
             ejecutor.shutdownNow();
@@ -123,7 +123,7 @@ class EstadoEdicionConcurrenciaTest extends PruebaConBaseSegura {
     private boolean decidir(CyclicBarrier inicio, boolean aceptar) throws Exception {
         inicio.await(10, TimeUnit.SECONDS);
         try {
-            Fabrica.getInstance().getISistema().aceptarRechazarEdicion(edicion, aceptar);
+            Fabrica.getInstance().getISistema().aceptarRechazarEdicion(edicion, aceptar, datatypes.Actor.administradorLocal());
             return true;
         } catch (IllegalStateException esperada) {
             assertEquals("Solo se puede aceptar o rechazar una edición en estado Ingresada.", esperada.getMessage());

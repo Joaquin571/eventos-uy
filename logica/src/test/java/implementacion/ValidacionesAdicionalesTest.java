@@ -75,12 +75,12 @@ class ValidacionesAdicionalesTest extends soporte.PruebaConBaseSegura {
         assertThrows(IllegalArgumentException.class, () -> sistema.cambiarContrasenia("usuario", "uno", "dos", datatypes.Actor.administradorLocal()));
     }
     @Test void edicionNula() {
-        assertThrows(IllegalArgumentException.class, () -> sistema.altaEdicion(null, "evento"));
+        assertThrows(IllegalArgumentException.class, () -> sistema.altaEdicion(null, "evento", datatypes.Actor.administradorLocal()));
     }
     @Test void edicionSinNombre() {
         DtEdicion dt = new DtEdicion(" ", "ED", LocalDate.now(), LocalDate.now(),
                 LocalDate.now(), "Montevideo", "Uruguay", "organizador");
-        assertThrows(IllegalArgumentException.class, () -> sistema.altaEdicion(dt, "evento"));
+        assertThrows(IllegalArgumentException.class, () -> sistema.altaEdicion(dt, "evento", datatypes.Actor.administradorLocal()));
     }
     @Test void tipoRegistroNulo() {
         assertThrows(IllegalArgumentException.class, () -> sistema.altaTipoRegistro(null, "edicion", Actor.administradorLocal()));

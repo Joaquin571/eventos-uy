@@ -27,9 +27,9 @@ public class VerificarBloqueD extends VerificarSwing {
             rechazada = "Rechazada D " + sufijo;
             for (String nombre : List.of(pendiente, aceptada, rechazada)) {
                 sistema.altaEdicion(new DtEdicion(nombre, "D", LocalDate.now().plusDays(10),
-                        LocalDate.now().plusDays(11), null, "Montevideo", "Uruguay", org), evento);
+                        LocalDate.now().plusDays(11), null, "Montevideo", "Uruguay", org), evento, datatypes.Actor.administradorLocal());
             }
-            sistema.asociarImagen(TipoEntidadImagen.EDICION, aceptada, sistema.obtenerImagen(TipoEntidadImagen.EDICION, edicion));
+            sistema.asociarImagen(TipoEntidadImagen.EDICION, aceptada, sistema.obtenerImagen(TipoEntidadImagen.EDICION, edicion), datatypes.Actor.administradorLocal());
             sistema.altaTipoRegistro(new DtTipoRegistro("General D", "Descripción", 10, 20), aceptada, Actor.administradorLocal());
             String codigo = "codigo-d-" + sufijo;
             sistema.altaPatrocinio(new DtPatrocinio(null, 100, 1, codigo, NivelPatrocinio.ORO, institucion, aceptada, "General D"), null, datatypes.Actor.administradorLocal());
@@ -81,7 +81,7 @@ public class VerificarBloqueD extends VerificarSwing {
     }
 
     static void cambiarEstado(String nombre, boolean aceptar) throws Exception {
-        var panel = new swing.AceptarRechazarEdicionPanel();
+        var panel = new swing.AceptarRechazarEdicionPanel(datatypes.Actor.administradorLocal());
         combo(panel, "comboEvento").setSelectedItem(evento);
         ((JList)campo(panel, "listaEdiciones")).setSelectedValue(nombre, true);
         // La utilidad cierra confirmación con YES (0) y el mensaje posterior con OK (0).

@@ -49,14 +49,14 @@ class PortalPersistenciaHttpsTest {
         publicar("/portal",new PortalPublicador(sistema,registro));publicar("/sesiones",new SesionesPublicador(registro));servidor.start();
         String base="https://127.0.0.1:"+servidor.getAddress().getPort();portal=URI.create(base+"/portal");sesiones=URI.create(base+"/sesiones");
         orgNick="tlsOrg"+sufijo;org=organizador(orgNick);ajeno=organizador("tlsAj"+sufijo);
-        categoria="tlsCat"+sufijo;sistema.altaCategoria(categoria,null);
+        categoria="tlsCat"+sufijo;sistema.altaCategoria(categoria,null, datatypes.Actor.administradorLocal());
         evento="tlsEv"+sufijo;org.altaEvento(new DtEvento(evento,"EV","Descripción",null,List.of(categoria)),imagen());
         edicion="tlsEd"+sufijo;privada="tlsPr"+sufijo;
         for(String nombre:List.of(edicion,privada)){
             org.altaEdicion(new DtEdicion(nombre,"ED",LocalDate.now(),LocalDate.now(),null,"Ciudad","País",orgNick),evento,imagen());
             org.altaTipoRegistro(new DtTipoRegistro("General","Entrada",100,20),nombre);
         }
-        sistema.aceptarRechazarEdicion(edicion,true);
+        sistema.aceptarRechazarEdicion(edicion,true, datatypes.Actor.administradorLocal());
         institucion="tlsInst"+sufijo;org.altaInstitucion(new DtInstitucion(institucion,"Institución","https://test.uy"),imagen());
     }
     static void verificarBase()throws Exception {

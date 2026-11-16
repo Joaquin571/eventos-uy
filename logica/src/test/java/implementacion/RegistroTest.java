@@ -56,11 +56,11 @@ class RegistroTest extends soporte.PruebaConBaseSegura {
         assertTrue(sistema.altaOrganizador(dtOrganizador));
 
         String categoria = "cat" + sufijo;
-        sistema.altaCategoria(categoria, null);
+        sistema.altaCategoria(categoria, null, datatypes.Actor.administradorLocal());
 
         evento = "evento" + sufijo;
         assertTrue(sistema.altaEvento(new DtEvento(evento, "EV" + sufijo,
-                "Evento de prueba", hoy, List.of(categoria))));
+                "Evento de prueba", hoy, List.of(categoria)), datatypes.Actor.administradorLocal()));
     }
 
     /** Edición del evento, ya Aceptada, con un tipo de registro. Devuelve el nombre de la edición. */
@@ -70,8 +70,8 @@ class RegistroTest extends soporte.PruebaConBaseSegura {
         String edicion = "edicion" + (++contadorEdiciones) + "_" + sufijo;
 
         assertTrue(sistema.altaEdicion(new DtEdicion(edicion, "ED" + contadorEdiciones,
-                hoy.plusDays(10), hoy.plusDays(12), hoy, "Montevideo", "Uruguay", organizador), evento));
-        sistema.aceptarRechazarEdicion(edicion, true);
+                hoy.plusDays(10), hoy.plusDays(12), hoy, "Montevideo", "Uruguay", organizador), evento, datatypes.Actor.administradorLocal()));
+        sistema.aceptarRechazarEdicion(edicion, true, datatypes.Actor.administradorLocal());
 
         agregarTipo(edicion, tipo, costo, cupo);
 
@@ -111,7 +111,7 @@ class RegistroTest extends soporte.PruebaConBaseSegura {
     }
 
     private boolean registrar(String asistente, String edicion, String tipo, String codigo) {
-        return sistema.registroAEdicion(asistente, edicion, tipo, new DtRegistro(hoy, 0), codigo);
+        return sistema.registroAEdicion(asistente, edicion, tipo, new DtRegistro(hoy, 0), codigo, datatypes.Actor.administradorLocal());
     }
 
     /** Ejecuta la acción, comprueba que la lógica la rechaza y devuelve el motivo. */
@@ -134,7 +134,7 @@ class RegistroTest extends soporte.PruebaConBaseSegura {
     void sobrecargaDeCuatroParametrosRegistraYRechazaDuplicadoSinAlterarElOriginal() throws Exception {
         String edicion = crearEdicion("General", 1250, 2);
         String asistente = crearAsistente("cuatro", null);
-        assertTrue(sistema.registroAEdicion(asistente, edicion, "General", new DtRegistro(hoy.minusYears(1), 1)));
+        assertTrue(sistema.registroAEdicion(asistente, edicion, "General", new DtRegistro(hoy.minusYears(1), 1), datatypes.Actor.administradorLocal()));
         DtRegistro original = registroDe(asistente, edicion);
         assertNotNull(original);
         assertEquals(asistente, original.getNicknameAsistente());
@@ -143,12 +143,12 @@ class RegistroTest extends soporte.PruebaConBaseSegura {
         assertEquals(hoy, original.getFechaRegistro());
         assertEquals(1250f, original.getCosto());
         assertFalse(original.isUsoCodigo());
-        assertTrue(motivoDelRechazo(() -> sistema.registroAEdicion(asistente, edicion, "General", new DtRegistro(hoy, 0)))
+        assertTrue(motivoDelRechazo(() -> sistema.registroAEdicion(asistente, edicion, "General", new DtRegistro(hoy, 0), datatypes.Actor.administradorLocal()))
                 .contains("ya está registrado"));
         assertEquals(1, sistema.obtenerRegistrosEdicion(edicion).size());
         assertEquals(1250f, registroDe(asistente, edicion).getCosto());
         String segundo = crearAsistente("cuatroSegundo", null);
-        assertTrue(sistema.registroAEdicion(segundo, edicion, "General", new DtRegistro(hoy, 0)));
+        assertTrue(sistema.registroAEdicion(segundo, edicion, "General", new DtRegistro(hoy, 0), datatypes.Actor.administradorLocal()));
         assertEquals(2, sistema.obtenerRegistrosEdicion(edicion).size());
     }
 
@@ -156,10 +156,10 @@ class RegistroTest extends soporte.PruebaConBaseSegura {
     void registroDeAsistenteInexistenteNoConsumeCupo() throws Exception {
         String edicion = crearEdicion("General", 100, 1);
         assertEquals("El asistente o la edición no existen.", motivoDelRechazo(() -> sistema.registroAEdicion(
-                "ausente" + sufijo, edicion, "General", new DtRegistro(hoy, 0))));
+                "ausente" + sufijo, edicion, "General", new DtRegistro(hoy, 0), datatypes.Actor.administradorLocal())));
         assertTrue(sistema.obtenerRegistrosEdicion(edicion).isEmpty());
         String asistente = crearAsistente("trasAusente", null);
-        assertTrue(sistema.registroAEdicion(asistente, edicion, "General", new DtRegistro(hoy, 0)));
+        assertTrue(sistema.registroAEdicion(asistente, edicion, "General", new DtRegistro(hoy, 0), datatypes.Actor.administradorLocal()));
         assertNotNull(registroDe(asistente, edicion));
     }
 
@@ -167,7 +167,7 @@ class RegistroTest extends soporte.PruebaConBaseSegura {
     void registroDeEdicionInexistenteNoCreaRegistrosDelAsistente() {
         String asistente = crearAsistente("sinEdicion", null);
         assertEquals("La edición no existe.", motivoDelRechazo(() -> sistema.registroAEdicion(
-                asistente, "ausente" + sufijo, "General", new DtRegistro(hoy, 0))));
+                asistente, "ausente" + sufijo, "General", new DtRegistro(hoy, 0), datatypes.Actor.administradorLocal())));
         assertTrue(sistema.obtenerRegistrosAsistente(asistente).isEmpty());
     }
 
@@ -176,10 +176,10 @@ class RegistroTest extends soporte.PruebaConBaseSegura {
         String edicion = crearEdicion("General", 100, 1);
         String asistente = crearAsistente("sinTipo", null);
         assertEquals("El tipo de registro no existe.", motivoDelRechazo(() -> sistema.registroAEdicion(
-                asistente, edicion, "Ausente", new DtRegistro(hoy, 0))));
+                asistente, edicion, "Ausente", new DtRegistro(hoy, 0), datatypes.Actor.administradorLocal())));
         assertTrue(sistema.obtenerRegistrosEdicion(edicion).isEmpty());
         assertTrue(sistema.obtenerRegistrosAsistente(asistente).isEmpty());
-        assertTrue(sistema.registroAEdicion(asistente, edicion, "General", new DtRegistro(hoy, 0)));
+        assertTrue(sistema.registroAEdicion(asistente, edicion, "General", new DtRegistro(hoy, 0), datatypes.Actor.administradorLocal()));
         assertEquals(100f, registroDe(asistente, edicion).getCosto());
     }
 
@@ -188,7 +188,7 @@ class RegistroTest extends soporte.PruebaConBaseSegura {
         String edicion = crearEdicion("General", 100, 1);
         String asistente = crearAsistente("sinDt", null);
         assertEquals("Los datos del registro no son válidos.", motivoDelRechazo(() ->
-                sistema.registroAEdicion(asistente, edicion, "General", null)));
+                sistema.registroAEdicion(asistente, edicion, "General", null, datatypes.Actor.administradorLocal())));
         assertTrue(sistema.obtenerRegistrosEdicion(edicion).isEmpty());
         assertTrue(sistema.obtenerRegistrosAsistente(asistente).isEmpty());
     }
@@ -218,7 +218,7 @@ class RegistroTest extends soporte.PruebaConBaseSegura {
         String asistente = crearAsistente("costo", null);
 
         assertTrue(sistema.registroAEdicion(asistente, edicion, "General",
-                new DtRegistro(hoy, 1), null));
+                new DtRegistro(hoy, 1), null, datatypes.Actor.administradorLocal()));
 
         assertEquals(900f, registroDe(asistente, edicion).getCosto());
     }

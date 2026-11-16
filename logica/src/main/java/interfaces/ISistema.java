@@ -33,18 +33,18 @@ public interface ISistema {
     Collection<DtInstitucion> listarInstituciones();
 
     // EVENTOS
-    boolean altaEvento(DtEvento dt) throws Exception;
+    boolean altaEvento(DtEvento dt, Actor actor) throws Exception;
     Collection<DtEvento> listarEventos();
     Collection<DtEvento> listarEventosPorCategoria(String categoria);
 
     // EDICIONES
-    boolean altaEdicion(DtEdicion dtEdicion, String nombreEvento);
+    boolean altaEdicion(DtEdicion dtEdicion, String nombreEvento, Actor actor);
     Collection<DtEdicion> obtenerEdicionesEvento(String nombreEvento);
-    void aceptarRechazarEdicion(String nombreEdicion, boolean aceptar);
+    void aceptarRechazarEdicion(String nombreEdicion, boolean aceptar, Actor actor);
     Collection<DtEdicion> obtenerEdicionesEvento(String nombreEvento, EstadoEdicion estado);
 
     // CATEGORÍAS
-    void altaCategoria(String nombre, String nombrePadre) throws Exception;
+    void altaCategoria(String nombre, String nombrePadre, Actor actor) throws Exception;
     Collection<String> listarCategoriasFormateadas();
     Collection<DtCategoria> listarCategorias();
 
@@ -59,7 +59,7 @@ public interface ISistema {
             String nicknameAsistente,
             String nombreEdicion,
             String nombreTipoRegistro,
-            DtRegistro dt
+            DtRegistro dt, Actor actor
     );
 
     boolean registroAEdicion(
@@ -67,7 +67,7 @@ public interface ISistema {
             String nombreEdicion,
             String nombreTipoRegistro,
             DtRegistro dt,
-            String codigoPatrocinio
+            String codigoPatrocinio, Actor actor
     );
 
     Collection<DtRegistro> obtenerRegistrosAsistente(String nickname);
@@ -83,7 +83,7 @@ public interface ISistema {
     DtConsultaPatrocinios consultarPatrocinios(String evento, String edicion, String institucion, Actor actor);
 
     //IMAGEN
-    void asociarImagen(TipoEntidadImagen tipo, String clave, DtImagen imagen);
+    void asociarImagen(TipoEntidadImagen tipo, String clave, DtImagen imagen, Actor actor);
     DtImagen obtenerImagen(TipoEntidadImagen tipo, String clave);
     void validarImagen(DtImagen imagen);
 

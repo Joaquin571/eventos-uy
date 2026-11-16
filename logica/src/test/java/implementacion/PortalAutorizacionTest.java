@@ -22,10 +22,10 @@ class PortalAutorizacionTest extends PruebaConBaseSegura {
         org=organizador("portalOrg");ajeno=organizador("portalAj");
         String nick="portalAs"+sufijo;var u=new DtAsistente(nick,"As",nick+"@test.uy","Apellido",LocalDate.of(2000,1,1),null);
         u.setContrasenia("clave");u.setConfirmacionContrasenia("clave");assertTrue(s.altaAsistente(u));asistente=Actor.usuarioAutenticado(s.autenticar(nick,"clave"));
-        String cat="portalCat"+sufijo;s.altaCategoria(cat,null);s.altaEvento(new DtEvento(evento,"EV","Descripción",null,List.of(cat)),null,org);
+        String cat="portalCat"+sufijo;s.altaCategoria(cat,null, datatypes.Actor.administradorLocal());s.altaEvento(new DtEvento(evento,"EV","Descripción",null,List.of(cat)),null,org);
         for(String nombre:List.of(aceptada,privada)){s.altaEdicion(new DtEdicion(nombre,"ED",LocalDate.now(),LocalDate.now(),null,"Ciudad","País",org.nickname()),evento,null,org);
             s.altaTipoRegistro(new DtTipoRegistro("General","Entrada",10,10),nombre,org);}
-        s.aceptarRechazarEdicion(aceptada,true);
+        s.aceptarRechazarEdicion(aceptada,true, datatypes.Actor.administradorLocal());
     }
     @Test void perfilNoEntregaEdicionesPrivadasNiRegistrosAjenos(){
         assertEquals(1,s.consultarPerfil(org.nickname(),null).ediciones().size());
@@ -57,7 +57,7 @@ class PortalAutorizacionTest extends PruebaConBaseSegura {
         assertTrue(s.obtenerRegistrosAsistente(asistente.nickname()).isEmpty());
     }
     @Test void imagenDeEdicionPrivadaNoSeEntregaATerceros(){
-        var foto=new DtImagen("image/png",ImagenesPrueba.imagen("png"));s.asociarImagen(TipoEntidadImagen.EDICION,privada,foto);
+        var foto=new DtImagen("image/png",ImagenesPrueba.imagen("png"));s.asociarImagen(TipoEntidadImagen.EDICION,privada,foto, datatypes.Actor.administradorLocal());
         assertThrows(NoEncontradoException.class,()->s.obtenerImagenVisible(TipoEntidadImagen.EDICION,privada,null));
         assertArrayEquals(foto.getContenido(),s.obtenerImagenVisible(TipoEntidadImagen.EDICION,privada,org).getContenido());
     }

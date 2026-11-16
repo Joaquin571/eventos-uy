@@ -210,7 +210,7 @@ public class RegistroEdicionEventoPanel extends JPanel {
                     tipoRegistroSeleccionado,
                     dtRegistro,
                     codigoPatrocinio
-            );
+            , datatypes.Actor.administradorLocal());
 
             JOptionPane.showMessageDialog(
                     this,

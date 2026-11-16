@@ -34,14 +34,14 @@ class ConsultaPatrociniosVisibilidadTest extends soporte.PruebaConBaseSegura {
         assertTrue(sistema.altaAsistente(usuario));
         asistente = Actor.usuarioAutenticado(sistema.autenticar(nick, "clave"));
         String categoria = "categoriaConsulta" + sufijo;
-        sistema.altaCategoria(categoria, null);
-        assertTrue(sistema.altaEvento(new DtEvento(evento, "EV", "Descripción", null, List.of(categoria))));
+        sistema.altaCategoria(categoria, null, datatypes.Actor.administradorLocal());
+        assertTrue(sistema.altaEvento(new DtEvento(evento, "EV", "Descripción", null, List.of(categoria)), datatypes.Actor.administradorLocal()));
         assertTrue(sistema.altaInstitucion(new DtInstitucion(institucion, "Descripción", "https://test.uy"), datatypes.Actor.administradorLocal()));
         LocalDate hoy = LocalDate.now();
         for (EstadoEdicion estado : EstadoEdicion.values()) {
             String nombre = edicion(estado);
-            assertTrue(sistema.altaEdicion(new DtEdicion(nombre, "ED", hoy, hoy, hoy, "Ciudad", "País", propietario.nickname()), evento));
-            if (estado != EstadoEdicion.INGRESADA) sistema.aceptarRechazarEdicion(nombre, estado == EstadoEdicion.ACEPTADA);
+            assertTrue(sistema.altaEdicion(new DtEdicion(nombre, "ED", hoy, hoy, hoy, "Ciudad", "País", propietario.nickname()), evento, datatypes.Actor.administradorLocal()));
+            if (estado != EstadoEdicion.INGRESADA) sistema.aceptarRechazarEdicion(nombre, estado == EstadoEdicion.ACEPTADA, datatypes.Actor.administradorLocal());
             assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General", "Descripción", 100, 50), nombre, propietario));
             assertTrue(sistema.altaPatrocinio(new DtPatrocinio(null, 1000, 1, codigo(estado), NivelPatrocinio.ORO,
                     institucion, nombre, "General"), evento, propietario));

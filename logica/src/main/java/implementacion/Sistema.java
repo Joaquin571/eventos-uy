@@ -463,9 +463,15 @@ public class Sistema implements ISistema {
         return resultado;
     }
 
+    private void requerirAdministrador(Actor actor) {
+        if (actor == null || !actor.esAdministradorLocal())
+            throw new excepciones.AccesoDenegadoException("Esta operación requiere un administrador local.");
+    }
+
     // CATEGORÍAS
     @Override
-    public void altaCategoria(String nombre, String nombrePadre) throws Exception {
+    public void altaCategoria(String nombre, String nombrePadre, Actor actor) throws Exception {
+        requerirAdministrador(actor);
         validarTexto("nombre de categoría", nombre);
         if (nombre == null || nombre.trim().isEmpty()) {
             throw new Exception("El nombre de la categoría no puede estar vacío.");
@@ -526,8 +532,8 @@ public class Sistema implements ISistema {
 
     // EVENTOS
     @Override
-    public boolean altaEvento(DtEvento dt) throws Exception {
-        return altaEvento(dt, null, Actor.administradorLocal());
+    public boolean altaEvento(DtEvento dt, Actor actor) throws Exception {
+        return altaEvento(dt, null, actor);
     }
 
     @Override
@@ -593,15 +599,15 @@ public class Sistema implements ISistema {
 
     // EDICIONES
     @Override
-    public boolean altaEdicion(DtEdicion dt, String nombreEvento) {
-        return altaEdicion(dt, nombreEvento, null, Actor.administradorLocal());
+    public boolean altaEdicion(DtEdicion dt, String nombreEvento, Actor actor) {
+        return altaEdicion(dt, nombreEvento, null, actor);
     }
 
     @Override
     public boolean altaEdicion(DtEdicion dt, String nombreEvento, DtImagen imagen, Actor actor) {
         requerirActorPatrocinio(actor);
         if (dt != null && !actor.esAdministradorLocal() && !actor.nickname().equals(dt.getNombreOrganizador()))
-            throw new excepciones.AccesoDenegadoException("No puede crear una edici?n para otro organizador.");
+            throw new excepciones.AccesoDenegadoException("No puede crear una edición para otro organizador.");
         if (imagen != null) validarImagen(imagen);
         if (dt == null || dt.getIdNombre() == null || dt.getIdNombre().isBlank()) {
             throw new IllegalArgumentException("El nombre de la edición es obligatorio.");
@@ -709,7 +715,8 @@ public class Sistema implements ISistema {
     }
 
     @Override
-    public void aceptarRechazarEdicion(String nombreEdicion, boolean aceptar) {
+    public void aceptarRechazarEdicion(String nombreEdicion, boolean aceptar, Actor actor) {
+        requerirAdministrador(actor);
         if (nombreEdicion == null || nombreEdicion.isBlank()) {
             throw new IllegalArgumentException("Debe indicar la edición.");
         }
@@ -804,14 +811,14 @@ public class Sistema implements ISistema {
             String nicknameAsistente,
             String nombreEdicion,
             String nombreTipoRegistro,
-            DtRegistro dt
+            DtRegistro dt, Actor actor
     ) {
         return registroAEdicion(
                 nicknameAsistente,
                 nombreEdicion,
                 nombreTipoRegistro,
                 dt,
-                null
+                null, actor
         );
     }
 
@@ -821,8 +828,11 @@ public class Sistema implements ISistema {
             String nombreEdicion,
             String nombreTipoRegistro,
             DtRegistro dt,
-            String codigoPatrocinio
+            String codigoPatrocinio, Actor actor
     ) {
+        if (actor == null || (!actor.esAdministradorLocal()
+                && (actor.esOrganizador() || !java.util.Objects.equals(actor.nickname(), nicknameAsistente))))
+            throw new excepciones.AccesoDenegadoException("No puede registrar a otro asistente.");
         if (dt == null) {
             throw new IllegalArgumentException("Los datos del registro no son válidos.");
         }
@@ -1037,7 +1047,10 @@ public class Sistema implements ISistema {
 
     // IMÁGENES
     @Override
-    public void asociarImagen(TipoEntidadImagen tipo, String clave, DtImagen imagen) {
+    public void asociarImagen(TipoEntidadImagen tipo, String clave, DtImagen imagen, Actor actor) {
+        if (actor == null || (!actor.esAdministradorLocal()
+                && (tipo != TipoEntidadImagen.USUARIO || !java.util.Objects.equals(actor.nickname(), clave))))
+            throw new excepciones.AccesoDenegadoException("No puede modificar la imagen indicada.");
         if (tipo == null || clave == null || clave.isBlank()) {
             throw new IllegalArgumentException("Debe indicar a qué pertenece la imagen.");
         }
@@ -1221,7 +1234,7 @@ public class Sistema implements ISistema {
         if ("codigo".equals(modalidad)) validarObligatorio(codigo, "Ingresá el código de patrocinio.");
         consultarTipoRegistroVisible(edicion, tipo, actor);
         return registroAEdicion(actor.nickname(), edicion, tipo, new DtRegistro(null, 0),
-                "codigo".equals(modalidad) ? codigo : null);
+                "codigo".equals(modalidad) ? codigo : null, actor);
     }
 
 }

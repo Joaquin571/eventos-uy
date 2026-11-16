@@ -23,10 +23,10 @@ class PatrocinioTest extends soporte.PruebaConBaseSegura {
         DtOrganizador usuario = new DtOrganizador(org, "Organizador", org + "@test.uy", "Descripción", "");
         usuario.setContrasenia("clave");usuario.setConfirmacionContrasenia("clave");
         assertTrue(sistema.altaOrganizador(usuario));
-        sistema.altaCategoria("catPat" + sufijo, null);
-        assertTrue(sistema.altaEvento(new DtEvento(evento, "EV", "Descripción", LocalDate.now(), List.of("catPat" + sufijo))));
+        sistema.altaCategoria("catPat" + sufijo, null, datatypes.Actor.administradorLocal());
+        assertTrue(sistema.altaEvento(new DtEvento(evento, "EV", "Descripción", LocalDate.now(), List.of("catPat" + sufijo)), datatypes.Actor.administradorLocal()));
         LocalDate hoy = LocalDate.now();
-        assertTrue(sistema.altaEdicion(new DtEdicion(edicion, "ED", hoy, hoy, hoy, "Ciudad", "País", org), evento));
+        assertTrue(sistema.altaEdicion(new DtEdicion(edicion, "ED", hoy, hoy, hoy, "Ciudad", "País", org), evento, datatypes.Actor.administradorLocal()));
         assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General", "General", 100, 50), edicion, Actor.administradorLocal()));
         assertTrue(sistema.altaInstitucion(new DtInstitucion(institucion, "Descripción", "https://ejemplo.uy"), datatypes.Actor.administradorLocal()));
     }
@@ -49,9 +49,9 @@ class PatrocinioTest extends soporte.PruebaConBaseSegura {
         for (EstadoEdicion estado : EstadoEdicion.values()) {
             String nombre = edicion + estado;
             LocalDate hoy = LocalDate.now();
-            assertTrue(sistema.altaEdicion(new DtEdicion(nombre, "ED", hoy, hoy, hoy, "Ciudad", "País", org), evento));
+            assertTrue(sistema.altaEdicion(new DtEdicion(nombre, "ED", hoy, hoy, hoy, "Ciudad", "País", org), evento, datatypes.Actor.administradorLocal()));
             if (estado != EstadoEdicion.INGRESADA) {
-                sistema.aceptarRechazarEdicion(nombre, estado == EstadoEdicion.ACEPTADA);
+                sistema.aceptarRechazarEdicion(nombre, estado == EstadoEdicion.ACEPTADA, datatypes.Actor.administradorLocal());
             }
             assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General", "Descripción", 100, 50), nombre, propietario));
             DtPatrocinio nuevo = datos(1000, 1);

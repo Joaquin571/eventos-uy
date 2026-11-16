@@ -28,10 +28,10 @@ class UnicidadConcurrenciaTest extends PruebaConBaseSegura {
     }
     private void preparar(int cupo)throws Exception {
         assertTrue(sistema.altaOrganizador(organizador(org,org+"@test.uy")));
-        String cat="catU"+sufijo;sistema.altaCategoria(cat,null);
-        assertTrue(sistema.altaEvento(new DtEvento(evento,"EV","Descripción",null,List.of(cat))));
-        assertTrue(sistema.altaEdicion(edicion(ed),evento));
-        sistema.aceptarRechazarEdicion(ed,true);
+        String cat="catU"+sufijo;sistema.altaCategoria(cat,null, datatypes.Actor.administradorLocal());
+        assertTrue(sistema.altaEvento(new DtEvento(evento,"EV","Descripción",null,List.of(cat)), datatypes.Actor.administradorLocal()));
+        assertTrue(sistema.altaEdicion(edicion(ed),evento, datatypes.Actor.administradorLocal()));
+        sistema.aceptarRechazarEdicion(ed,true, datatypes.Actor.administradorLocal());
         assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General","Descripción",10,cupo),ed, Actor.administradorLocal()));
     }
     private DtEdicion edicion(String nombre) {
@@ -94,7 +94,7 @@ class UnicidadConcurrenciaTest extends PruebaConBaseSegura {
     }
     @Test void tipoEquivalenteSiguePermitidoEnEdicionesDiferentes()throws Exception {
         exigirIndicesH13();preparar(5);
-        String otra="otraCi"+ed;assertTrue(sistema.altaEdicion(edicion(otra),evento));
+        String otra="otraCi"+ed;assertTrue(sistema.altaEdicion(edicion(otra),evento, datatypes.Actor.administradorLocal()));
         assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("GENERAL","Otra edición",10,5),otra, Actor.administradorLocal()));
         assertEquals("General",sistema.consultarTipoRegistro(ed,"GENERAL").getIdNombre());
         assertEquals("GENERAL",sistema.consultarTipoRegistro(otra,"general").getIdNombre());
@@ -102,7 +102,7 @@ class UnicidadConcurrenciaTest extends PruebaConBaseSegura {
     @Test void institucionesYEdicionesConservanSusClavesExactas()throws Exception {
         exigirIndicesH13();preparar(5);
         String otra=ed.toUpperCase(java.util.Locale.ROOT);
-        assertNotEquals(ed,otra);assertTrue(sistema.altaEdicion(edicion(otra),evento));
+        assertNotEquals(ed,otra);assertTrue(sistema.altaEdicion(edicion(otra),evento, datatypes.Actor.administradorLocal()));
         assertEquals(2,sistema.obtenerEdicionesEvento(evento).size());
         String inst="InstCi"+sufijo,mayuscula=inst.toUpperCase(java.util.Locale.ROOT);
         assertTrue(sistema.altaInstitucion(new DtInstitucion(inst,"Primera","https://test.uy"), datatypes.Actor.administradorLocal()));
@@ -119,7 +119,7 @@ class UnicidadConcurrenciaTest extends PruebaConBaseSegura {
     }
     @Test void patrociniosDeEdicionesDistintasPorMayusculasNoSeConfundenNiBloquean()throws Exception {
         exigirIndicesH13();preparar(5);String otra=ed.toUpperCase(java.util.Locale.ROOT),inst=institucion();
-        assertTrue(sistema.altaEdicion(edicion(otra),evento));
+        assertTrue(sistema.altaEdicion(edicion(otra),evento, datatypes.Actor.administradorLocal()));
         assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General","Descripción",10,5),otra, Actor.administradorLocal()));
         String a="patA"+sufijo,b="patB"+sufijo;
         assertTrue(sistema.altaPatrocinio(patrocinio(a,inst), null, datatypes.Actor.administradorLocal()));
@@ -212,14 +212,14 @@ class UnicidadConcurrenciaTest extends PruebaConBaseSegura {
         return null;
     }
     @Test void eventoIgualNoSeDuplicaConDosAltas()throws Exception {
-        String cat="catU"+sufijo;sistema.altaCategoria(cat,null);
+        String cat="catU"+sufijo;sistema.altaCategoria(cat,null, datatypes.Actor.administradorLocal());
         DtEvento dt=new DtEvento(evento,"EV","Descripción",null,List.of(cat));
-        unaSola(()->sistema.altaEvento(dt),()->sistema.altaEvento(dt));
+        unaSola(()->sistema.altaEvento(dt, datatypes.Actor.administradorLocal()),()->sistema.altaEvento(dt, datatypes.Actor.administradorLocal()));
         assertEquals(1,contar("SELECT COUNT(e) FROM Evento e WHERE e.nombre=:clave",evento));
     }
     @Test void edicionIgualNoSeDuplicaConDosAltas()throws Exception {
         preparar(5);String nueva="otra"+ed;
-        unaSola(()->sistema.altaEdicion(edicion(nueva),evento),()->sistema.altaEdicion(edicion(nueva),evento));
+        unaSola(()->sistema.altaEdicion(edicion(nueva),evento, datatypes.Actor.administradorLocal()),()->sistema.altaEdicion(edicion(nueva),evento, datatypes.Actor.administradorLocal()));
         assertEquals(1,contar("SELECT COUNT(e) FROM Edicion e WHERE e.idNombre=:clave",nueva));
     }
     @Test void institucionIgualNoSeDuplicaConDosAltas()throws Exception {
@@ -271,7 +271,7 @@ class UnicidadConcurrenciaTest extends PruebaConBaseSegura {
         assertEquals(0f,java.util.stream.Stream.concat(registro.stream(),otro.stream()).findFirst().orElseThrow().getCosto());
     }
     private boolean registrar(String nick,String tipo,String codigo) {
-        return sistema.registroAEdicion(nick,ed,tipo,new DtRegistro(null,999),codigo);
+        return sistema.registroAEdicion(nick,ed,tipo,new DtRegistro(null,999),codigo, datatypes.Actor.administradorLocal());
     }
     private void unaSola(Callable<Boolean> a,Callable<Boolean> b)throws Exception { competir(a,b,null); }
     private void conBloqueo(Class<?> tipo,Object clave,Callable<Boolean> a,Callable<Boolean> b)throws Exception {

@@ -124,17 +124,17 @@ final class ImagenSwing extends JPanel {
         }
     }
 
-    boolean completarAlta(ISistema sistema, TipoEntidadImagen tipo, String clave, DtImagen imagen) {
-        String error = asociar(sistema, tipo, clave, imagen);
+    boolean completarAlta(ISistema sistema, TipoEntidadImagen tipo, String clave, DtImagen imagen, datatypes.Actor actor) {
+        String error = asociar(sistema, tipo, clave, imagen, actor);
         if (error == null) return true;
         tipoPendiente = tipo; clavePendiente = clave; imagenPendiente = imagen;
         JOptionPane.showMessageDialog(this, error + " Pulse nuevamente Aceptar/Confirmar para reintentar sólo la imagen, sin repetir el alta.", "Alta parcial", JOptionPane.WARNING_MESSAGE);
         return false;
     }
 
-    boolean reintentarAlta(ISistema sistema, Runnable finalizar) {
+    boolean reintentarAlta(ISistema sistema, Runnable finalizar, datatypes.Actor actor) {
         if (clavePendiente == null) return false;
-        if (completarAlta(sistema, tipoPendiente, clavePendiente, imagenPendiente)) {
+        if (completarAlta(sistema, tipoPendiente, clavePendiente, imagenPendiente, actor)) {
             JOptionPane.showMessageDialog(this, "Imagen asociada correctamente.", "Imagen", JOptionPane.INFORMATION_MESSAGE);
             mostrar(null);
             finalizar.run();
@@ -142,10 +142,10 @@ final class ImagenSwing extends JPanel {
         return true;
     }
 
-    static String asociar(ISistema sistema, TipoEntidadImagen tipo, String clave, DtImagen imagen) {
+    static String asociar(ISistema sistema, TipoEntidadImagen tipo, String clave, DtImagen imagen, datatypes.Actor actor) {
         if (imagen != null) {
             try {
-                sistema.asociarImagen(tipo, clave, imagen);
+                sistema.asociarImagen(tipo, clave, imagen, actor);
             } catch (RuntimeException ex) {
                 return "Los datos se guardaron, pero no se pudo asociar la imagen: " + ex.getMessage();
             }

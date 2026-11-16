@@ -49,11 +49,11 @@ class ReglasAltaTest extends soporte.PruebaConBaseSegura {
         assertTrue(sistema.altaOrganizador(dtOrganizador));
 
         categoria = "cat" + sufijo;
-        sistema.altaCategoria(categoria, null);
+        sistema.altaCategoria(categoria, null, datatypes.Actor.administradorLocal());
 
         evento = "evento" + sufijo;
         assertTrue(sistema.altaEvento(new DtEvento(evento, "EV" + sufijo,
-                "Evento de prueba", hoy, List.of(categoria))));
+                "Evento de prueba", hoy, List.of(categoria)), datatypes.Actor.administradorLocal()));
     }
 
     private DtEdicion dtEdicion(String nombre, LocalDate inicio, LocalDate fin) {
@@ -64,7 +64,7 @@ class ReglasAltaTest extends soporte.PruebaConBaseSegura {
         prepararEvento();
 
         String edicion = "edicion" + (++contador) + "_" + sufijo;
-        assertTrue(sistema.altaEdicion(dtEdicion(edicion, hoy.plusDays(10), hoy.plusDays(12)), evento));
+        assertTrue(sistema.altaEdicion(dtEdicion(edicion, hoy.plusDays(10), hoy.plusDays(12)), evento, datatypes.Actor.administradorLocal()));
         return edicion;
     }
 
@@ -87,7 +87,7 @@ class ReglasAltaTest extends soporte.PruebaConBaseSegura {
         prepararEvento();
 
         assertThrows(Exception.class, () -> sistema.altaEvento(new DtEvento(evento, "OTRA",
-                "Otro evento", hoy, List.of(categoria))));
+                "Otro evento", hoy, List.of(categoria)), datatypes.Actor.administradorLocal()));
     }
 
     @Test
@@ -95,7 +95,7 @@ class ReglasAltaTest extends soporte.PruebaConBaseSegura {
         prepararEvento();
 
         assertThrows(Exception.class, () -> sistema.altaEvento(new DtEvento("sinCat" + sufijo,
-                "SC", "Sin categorías", hoy, List.of())));
+                "SC", "Sin categorías", hoy, List.of()), datatypes.Actor.administradorLocal()));
     }
 
     @Test
@@ -103,14 +103,14 @@ class ReglasAltaTest extends soporte.PruebaConBaseSegura {
         prepararEvento();
 
         assertThrows(Exception.class, () -> sistema.altaEvento(new DtEvento("catMala" + sufijo,
-                "CM", "Categoría inexistente", hoy, List.of("noexiste" + sufijo))));
+                "CM", "Categoría inexistente", hoy, List.of("noexiste" + sufijo)), datatypes.Actor.administradorLocal()));
     }
 
     @Test
     void unaCategoriaRepetidaSeRechaza() throws Exception {
         prepararEvento();
 
-        assertThrows(Exception.class, () -> sistema.altaCategoria(categoria, null));
+        assertThrows(Exception.class, () -> sistema.altaCategoria(categoria, null, datatypes.Actor.administradorLocal()));
     }
 
     // ---------------------------------------------------------------- ediciones
@@ -120,7 +120,7 @@ class ReglasAltaTest extends soporte.PruebaConBaseSegura {
         String edicion = crearEdicion();
 
         assertThrows(IllegalArgumentException.class, () -> sistema.altaEdicion(
-                dtEdicion(edicion, hoy.plusDays(20), hoy.plusDays(22)), evento));
+                dtEdicion(edicion, hoy.plusDays(20), hoy.plusDays(22)), evento, datatypes.Actor.administradorLocal()));
     }
 
     @Test
@@ -128,7 +128,7 @@ class ReglasAltaTest extends soporte.PruebaConBaseSegura {
         prepararEvento();
 
         assertThrows(IllegalArgumentException.class, () -> sistema.altaEdicion(
-                dtEdicion("sinEvento" + sufijo, hoy.plusDays(10), hoy.plusDays(12)), "noexiste" + sufijo));
+                dtEdicion("sinEvento" + sufijo, hoy.plusDays(10), hoy.plusDays(12)), "noexiste" + sufijo, datatypes.Actor.administradorLocal()));
     }
 
     @Test
@@ -136,7 +136,7 @@ class ReglasAltaTest extends soporte.PruebaConBaseSegura {
         prepararEvento();
 
         assertThrows(IllegalArgumentException.class, () -> sistema.altaEdicion(
-                dtEdicion("fechas" + sufijo, hoy.plusDays(12), hoy.plusDays(10)), evento));
+                dtEdicion("fechas" + sufijo, hoy.plusDays(12), hoy.plusDays(10)), evento, datatypes.Actor.administradorLocal()));
     }
 
     @Test
@@ -144,7 +144,7 @@ class ReglasAltaTest extends soporte.PruebaConBaseSegura {
         prepararEvento();
 
         assertTrue(sistema.altaEdicion(
-                dtEdicion("mismoDia" + sufijo, hoy.plusDays(10), hoy.plusDays(10)), evento));
+                dtEdicion("mismoDia" + sufijo, hoy.plusDays(10), hoy.plusDays(10)), evento, datatypes.Actor.administradorLocal()));
     }
 
     // -------------------------------------------------------- tipos de registro

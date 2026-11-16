@@ -31,7 +31,7 @@ class AsociacionImagenConcurrenciaTest extends PruebaConBaseSegura {
             var tx=em.getTransaction(); tx.begin();
             try {
                 em.createNativeQuery("LOCK TABLE imagen IN SHARE MODE").executeUpdate();
-                Future<?> foto=pool.submit(()->sistema.asociarImagen(TipoEntidadImagen.USUARIO,dt.getNickname(),imagen()));
+                Future<?> foto=pool.submit(()->sistema.asociarImagen(TipoEntidadImagen.USUARIO,dt.getNickname(),imagen(), datatypes.Actor.administradorLocal()));
                 boolean esperando=false; long limite=System.nanoTime()+TimeUnit.SECONDS.toNanos(10);
                 while(System.nanoTime()<limite) {
                     em.createNativeQuery("SELECT pg_stat_clear_snapshot()").getSingleResult();

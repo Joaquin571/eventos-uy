@@ -35,7 +35,7 @@ class EventosYCategoriasTest extends soporte.PruebaConBaseSegura {
 
     private String categoria(String prefijo, String padre) throws Exception {
         String nombre = prefijo + " " + sufijo;
-        sistema.altaCategoria(nombre, padre);
+        sistema.altaCategoria(nombre, padre, datatypes.Actor.administradorLocal());
         return nombre;
     }
 
@@ -45,7 +45,7 @@ class EventosYCategoriasTest extends soporte.PruebaConBaseSegura {
 
     private String evento(String prefijo, List<String> categorias) throws Exception {
         String nombre = prefijo + " " + sufijo;
-        assertTrue(sistema.altaEvento(dtEvento(nombre, "SG", "Descripción de " + prefijo, categorias)));
+        assertTrue(sistema.altaEvento(dtEvento(nombre, "SG", "Descripción de " + prefijo, categorias), datatypes.Actor.administradorLocal()));
         return nombre;
     }
 
@@ -71,16 +71,16 @@ class EventosYCategoriasTest extends soporte.PruebaConBaseSegura {
 
     @Test
     void unaCategoriaSinNombreSeRechaza() {
-        assertThrows(Exception.class, () -> sistema.altaCategoria(null, null));
-        assertThrows(Exception.class, () -> sistema.altaCategoria("", null));
-        assertThrows(Exception.class, () -> sistema.altaCategoria("   ", null));
+        assertThrows(Exception.class, () -> sistema.altaCategoria(null, null, datatypes.Actor.administradorLocal()));
+        assertThrows(Exception.class, () -> sistema.altaCategoria("", null, datatypes.Actor.administradorLocal()));
+        assertThrows(Exception.class, () -> sistema.altaCategoria("   ", null, datatypes.Actor.administradorLocal()));
     }
 
     @Test
     void unaCategoriaConPadreInexistenteSeRechazaYNoQuedaRegistrada() {
         String nombre = "Huérfana " + sufijo;
 
-        assertThrows(Exception.class, () -> sistema.altaCategoria(nombre, "NoExiste " + sufijo));
+        assertThrows(Exception.class, () -> sistema.altaCategoria(nombre, "NoExiste " + sufijo, datatypes.Actor.administradorLocal()));
 
         assertTrue(categoriasLlamadas(nombre).isEmpty());
     }
@@ -100,7 +100,7 @@ class EventosYCategoriasTest extends soporte.PruebaConBaseSegura {
         String hija = categoria("Hija", padre);
 
         // Se intenta volver a crear la hija como raíz: se rechaza y sigue colgando de su padre
-        assertThrows(Exception.class, () -> sistema.altaCategoria(hija, null));
+        assertThrows(Exception.class, () -> sistema.altaCategoria(hija, null, datatypes.Actor.administradorLocal()));
 
         var existentes = categoriasLlamadas(hija);
         assertEquals(1, existentes.size());
@@ -116,7 +116,7 @@ class EventosYCategoriasTest extends soporte.PruebaConBaseSegura {
         String nombre = evento("Evento repetido", List.of(categoriaOriginal));
 
         assertThrows(Exception.class, () -> sistema.altaEvento(
-                dtEvento(nombre, "OTRA", "Otra descripción", List.of(categoriaNueva))));
+                dtEvento(nombre, "OTRA", "Otra descripción", List.of(categoriaNueva)), datatypes.Actor.administradorLocal()));
 
         var existentes = eventosLlamados(nombre);
         assertEquals(1, existentes.size());
@@ -132,7 +132,7 @@ class EventosYCategoriasTest extends soporte.PruebaConBaseSegura {
 
         // La primera categoría existe y la segunda no: no tiene que quedar nada guardado
         assertThrows(Exception.class, () -> sistema.altaEvento(
-                dtEvento(nombre, "AM", "Evento a medias", List.of(valida, "NoExiste " + sufijo))));
+                dtEvento(nombre, "AM", "Evento a medias", List.of(valida, "NoExiste " + sufijo)), datatypes.Actor.administradorLocal()));
 
         assertTrue(eventosLlamados(nombre).isEmpty());
     }
@@ -142,9 +142,9 @@ class EventosYCategoriasTest extends soporte.PruebaConBaseSegura {
         String nombre = "Evento sin categorías " + sufijo;
 
         assertThrows(Exception.class, () -> sistema.altaEvento(
-                dtEvento(nombre, "SC", "Sin categorías", List.of())));
+                dtEvento(nombre, "SC", "Sin categorías", List.of()), datatypes.Actor.administradorLocal()));
         assertThrows(Exception.class, () -> sistema.altaEvento(
-                dtEvento(nombre, "SC", "Sin categorías", null)));
+                dtEvento(nombre, "SC", "Sin categorías", null), datatypes.Actor.administradorLocal()));
 
         assertTrue(eventosLlamados(nombre).isEmpty());
     }
@@ -201,7 +201,7 @@ class EventosYCategoriasTest extends soporte.PruebaConBaseSegura {
         String edicion = "Edición " + sufijo;
 
         assertTrue(sistema.altaEdicion(new DtEdicion(edicion, "ED", hoy.plusDays(10), hoy.plusDays(12),
-                hoy, "Montevideo", "Uruguay", organizador), conEdicion));
+                hoy, "Montevideo", "Uruguay", organizador), conEdicion, datatypes.Actor.administradorLocal()));
 
         assertTrue(sistema.obtenerEdicionesEvento(conEdicion).stream()
                 .anyMatch(e -> edicion.equals(e.getIdNombre())));

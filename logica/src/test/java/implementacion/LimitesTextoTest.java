@@ -76,9 +76,9 @@ class LimitesTextoTest extends soporte.PruebaConBaseSegura {
 
     @Test void eventoYEdicionRechazanTextoAntesDeResolverReferencias() {
         assertThrows(IllegalArgumentException.class, () -> sistema.altaEvento(new DtEvento(
-                "ev" + sufijo, excesivo, "D", null, List.of("inexistente"))));
+                "ev" + sufijo, excesivo, "D", null, List.of("inexistente")), datatypes.Actor.administradorLocal()));
         assertThrows(IllegalArgumentException.class, () -> sistema.altaEdicion(new DtEdicion(
-                "ed" + sufijo,"ED",LocalDate.now(),LocalDate.now(),null,excesivo,"País","org"),"evento"));
+                "ed" + sufijo,"ED",LocalDate.now(),LocalDate.now(),null,excesivo,"País","org"),"evento", datatypes.Actor.administradorLocal()));
     }
 
     @Test void tipoYCodigoExcesivosSeRechazanSinInsertar() {

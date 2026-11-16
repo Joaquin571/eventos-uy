@@ -19,10 +19,10 @@ class ConsultaTipoRegistroTest extends soporte.PruebaConBaseSegura {
         DtOrganizador d = new DtOrganizador(nick,"Organizador",nick+"@test.uy","Descripción","");
         d.setContrasenia("clave");d.setConfirmacionContrasenia("clave");assertTrue(sistema.altaOrganizador(d));
         String cat = "catTipo"+sufijo, evento="Evento tipos "+sufijo;
-        sistema.altaCategoria(cat,null);LocalDate hoy=LocalDate.now();
-        assertTrue(sistema.altaEvento(new DtEvento(evento,"EV","Descripción",hoy,List.of(cat))));
+        sistema.altaCategoria(cat,null, datatypes.Actor.administradorLocal());LocalDate hoy=LocalDate.now();
+        assertTrue(sistema.altaEvento(new DtEvento(evento,"EV","Descripción",hoy,List.of(cat)), datatypes.Actor.administradorLocal()));
         for (String nombre : List.of(primera,segunda)) {
-            assertTrue(sistema.altaEdicion(new DtEdicion(nombre,"ED",hoy,hoy,hoy,"Ciudad","País",nick),evento));
+            assertTrue(sistema.altaEdicion(new DtEdicion(nombre,"ED",hoy,hoy,hoy,"Ciudad","País",nick),evento, datatypes.Actor.administradorLocal()));
         }
         assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General","Primera descripción",100,25),primera, Actor.administradorLocal()));
         assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General","Segunda descripción",200,50),segunda, Actor.administradorLocal()));

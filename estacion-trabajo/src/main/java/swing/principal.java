@@ -215,7 +215,7 @@ public class principal {
         internoAltaInstitucion.setMinimumSize(new Dimension(500, 350));
         agregarInterno(internoAltaInstitucion);
 
-        panelAltaEvento = new AltaEventoPanel();
+        panelAltaEvento = new AltaEventoPanel(actor);
         internoAltaEvento = crearInterno(
                 "Alta Evento",
                 panelAltaEvento.getMainPanel(),
@@ -260,7 +260,7 @@ public class principal {
         );
         agregarInterno(internoConsultaPatrocinio);
 
-        panelAltaEdicion = new AltaEdicionEventoPanel();
+        panelAltaEdicion = new AltaEdicionEventoPanel(actor);
         internoAltaEdicion = crearInterno(
                 "Alta Edición de Evento",
                 panelAltaEdicion,
@@ -278,7 +278,7 @@ public class principal {
         );
         agregarInterno(internoConsultaEdicion);
 
-        panelAltaCategoria = new AltaCategoriaPanel();
+        panelAltaCategoria = new AltaCategoriaPanel(actor);
         internoAltaCategoria = crearInterno(
                 "Alta Categoría",
                 panelAltaCategoria.getMainPanel(),
@@ -331,7 +331,7 @@ public class principal {
         );
         agregarInterno(internoConsultaRegistro);
 
-        panelAceptarRechazarEdicion = new AceptarRechazarEdicionPanel();
+        panelAceptarRechazarEdicion = new AceptarRechazarEdicionPanel(actor);
         internoAceptarRechazarEdicion = crearInterno(
                 "Aceptar/Rechazar Edición de Evento",
                 panelAceptarRechazarEdicion.getMainPanel(),

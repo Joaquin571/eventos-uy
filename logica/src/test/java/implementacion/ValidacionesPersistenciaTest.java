@@ -24,9 +24,9 @@ class ValidacionesPersistenciaTest extends soporte.PruebaConBaseSegura {
 
     private String crearEvento() throws Exception {
         String categoria = "Categoría validación " + sufijo;
-        sistema.altaCategoria(categoria, null);
+        sistema.altaCategoria(categoria, null, datatypes.Actor.administradorLocal());
         String evento = "Evento validación " + sufijo;
-        assertTrue(sistema.altaEvento(new DtEvento(evento, "VA", "Descripción", hoy, List.of(categoria))));
+        assertTrue(sistema.altaEvento(new DtEvento(evento, "VA", "Descripción", hoy, List.of(categoria)), datatypes.Actor.administradorLocal()));
         return evento;
     }
 
@@ -34,7 +34,7 @@ class ValidacionesPersistenciaTest extends soporte.PruebaConBaseSegura {
     void categoriaSinNombreNoSePersiste() {
         for (String nombre : new String[]{null, " "}) {
             assertEquals("El nombre de la categoría no puede estar vacío.", assertThrows(Exception.class,
-                    () -> sistema.altaCategoria(nombre, null)).getMessage());
+                    () -> sistema.altaCategoria(nombre, null, datatypes.Actor.administradorLocal())).getMessage());
         }
         assertTrue(sistema.listarCategorias().stream().noneMatch(c -> c.getIdNombre() == null || c.getIdNombre().isBlank()));
     }
@@ -43,7 +43,7 @@ class ValidacionesPersistenciaTest extends soporte.PruebaConBaseSegura {
     void categoriaConPadreInexistenteNoDejaUnaCategoriaHuerfana() {
         String nombre = "Hija inválida " + sufijo;
         assertEquals("La categoría padre especificada no existe.", assertThrows(Exception.class,
-                () -> sistema.altaCategoria(nombre, "ausente" + sufijo)).getMessage());
+                () -> sistema.altaCategoria(nombre, "ausente" + sufijo, datatypes.Actor.administradorLocal())).getMessage());
         assertTrue(sistema.listarCategorias().stream().noneMatch(c -> nombre.equals(c.getIdNombre())));
         assertTrue(sistema.listarCategoriasFormateadas().stream().noneMatch(c -> c.endsWith(nombre)));
     }
@@ -83,7 +83,7 @@ class ValidacionesPersistenciaTest extends soporte.PruebaConBaseSegura {
         String nombre = "Sin organizador " + sufijo;
         DtEdicion dt = new DtEdicion(nombre, "VA", hoy.plusDays(1), hoy.plusDays(2), hoy, "Montevideo", "Uruguay", "ausente" + sufijo);
         assertEquals("El organizador indicado no existe.", assertThrows(IllegalArgumentException.class,
-                () -> sistema.altaEdicion(dt, evento)).getMessage());
+                () -> sistema.altaEdicion(dt, evento, datatypes.Actor.administradorLocal())).getMessage());
         assertTrue(sistema.obtenerEdicionesEvento(evento).isEmpty());
     }
 
@@ -100,12 +100,12 @@ class ValidacionesPersistenciaTest extends soporte.PruebaConBaseSegura {
             DtEdicion dt = new DtEdicion(nombre, "VA", faltaInicio ? null : hoy.plusDays(1),
                     faltaInicio ? hoy.plusDays(2) : null, hoy, "Montevideo", "Uruguay", nick);
             assertEquals("Las fechas de inicio y de fin son obligatorias.", assertThrows(IllegalArgumentException.class,
-                    () -> sistema.altaEdicion(dt, evento)).getMessage());
+                    () -> sistema.altaEdicion(dt, evento, datatypes.Actor.administradorLocal())).getMessage());
             assertTrue(sistema.obtenerEdicionesEvento(evento).isEmpty());
             assertTrue(sistema.obtenerEdicionesOrganizador(nick).isEmpty());
         }
         assertTrue(sistema.altaEdicion(new DtEdicion(nombre, "VA", hoy.plusDays(1), hoy.plusDays(2), hoy,
-                "Montevideo", "Uruguay", nick), evento));
+                "Montevideo", "Uruguay", nick), evento, datatypes.Actor.administradorLocal()));
         var persistida = sistema.obtenerEdicionesEvento(evento).iterator().next();
         assertEquals(nombre, persistida.getIdNombre());
         assertEquals(EstadoEdicion.INGRESADA, persistida.getEstado());

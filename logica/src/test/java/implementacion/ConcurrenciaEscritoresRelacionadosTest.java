@@ -18,11 +18,11 @@ class ConcurrenciaEscritoresRelacionadosTest extends PruebaConBaseSegura {
     private void preparar(boolean aceptar)throws Exception {
         var org=new DtOrganizador(organizador,"Organizador",organizador+"@test.uy","Descripción","");
         org.setContrasenia("clave");org.setConfirmacionContrasenia("clave");sistema.altaOrganizador(org);
-        String cat="ceCat"+sufijo,ev="ceEv"+sufijo;sistema.altaCategoria(cat,null);
-        sistema.altaEvento(new DtEvento(ev,"EV","Evento",null,List.of(cat)));
-        sistema.altaEdicion(new DtEdicion(edicion,"ED",LocalDate.now(),LocalDate.now(),null,"Ciudad","País",organizador),ev);
+        String cat="ceCat"+sufijo,ev="ceEv"+sufijo;sistema.altaCategoria(cat,null, datatypes.Actor.administradorLocal());
+        sistema.altaEvento(new DtEvento(ev,"EV","Evento",null,List.of(cat)), datatypes.Actor.administradorLocal());
+        sistema.altaEdicion(new DtEdicion(edicion,"ED",LocalDate.now(),LocalDate.now(),null,"Ciudad","País",organizador),ev, datatypes.Actor.administradorLocal());
         sistema.altaTipoRegistro(new DtTipoRegistro("General","Entrada",100,10),edicion,Actor.administradorLocal());
-        if(aceptar)sistema.aceptarRechazarEdicion(edicion,true);
+        if(aceptar)sistema.aceptarRechazarEdicion(edicion,true, datatypes.Actor.administradorLocal());
     }
     private void esperar(jakarta.persistence.EntityManager em,String consulta,Future<?> tarea)throws Exception {
         long fin=System.nanoTime()+TimeUnit.SECONDS.toNanos(10);
@@ -41,9 +41,9 @@ class ConcurrenciaEscritoresRelacionadosTest extends PruebaConBaseSegura {
             var tx=em.getTransaction();tx.begin();
             try{
                 em.createNativeQuery("LOCK TABLE imagen IN SHARE MODE").executeUpdate();
-                var imagen=pool.submit(()->sistema.asociarImagen(TipoEntidadImagen.EDICION,edicion,foto));
+                var imagen=pool.submit(()->sistema.asociarImagen(TipoEntidadImagen.EDICION,edicion,foto, datatypes.Actor.administradorLocal()));
                 esperar(em,"%insert into imagen%",imagen);
-                var estado=pool.submit(()->sistema.aceptarRechazarEdicion(edicion,true));
+                var estado=pool.submit(()->sistema.aceptarRechazarEdicion(edicion,true, datatypes.Actor.administradorLocal()));
                 assertThrows(TimeoutException.class,()->estado.get(300,TimeUnit.MILLISECONDS));
                 tx.rollback();imagen.get(15,TimeUnit.SECONDS);estado.get(15,TimeUnit.SECONDS);
             }finally{if(tx.isActive())tx.rollback();}
@@ -64,7 +64,7 @@ class ConcurrenciaEscritoresRelacionadosTest extends PruebaConBaseSegura {
         }finally{pool.shutdownNow();}
         assertEquals(EstadoEdicion.ACEPTADA,sistema.consultarDetalleEdicion(edicion,Actor.administradorLocal()).edicion().getEstado());
     }
-    private boolean decidir(boolean aceptar){try{sistema.aceptarRechazarEdicion(edicion,aceptar);return true;}catch(IllegalArgumentException | IllegalStateException e){return false;}}
+    private boolean decidir(boolean aceptar){try{sistema.aceptarRechazarEdicion(edicion,aceptar, datatypes.Actor.administradorLocal());return true;}catch(IllegalArgumentException | IllegalStateException e){return false;}}
     @Test void registroNoUsaInstitucionObsoletaTrasModificacionConfirmadaDelPerfil()throws Exception {
         preparar(true);String anterior="ceAntes"+sufijo,nueva="ceNueva"+sufijo,nick="ceAs"+sufijo,codigo="CE-COD-"+sufijo;
         for(String n:List.of(anterior,nueva))sistema.altaInstitucion(new DtInstitucion(n,"Institución",""),Actor.administradorLocal());
