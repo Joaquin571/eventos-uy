@@ -1,4 +1,4 @@
-# eventos.uy – Laboratorio 2 (Grupo 04)
+# eventos.uy – Laboratorio 3 (Grupo 04)
 
 ## Instalación vigente del Laboratorio 3
 
@@ -45,9 +45,16 @@ requiere probar SAN, firewall, SOAP, Tomcat y navegador en la LAN de entrega.
 Las secciones de Laboratorio 2 que siguen son históricas y no describen el
 procedimiento de instalación del Laboratorio 3.
 
+Para ensayar en un esquema aislado de `eventosuy_test`, crear primero un esquema
+vacío y ejecutar el preparador con `--base-vacia --schema nombre_del_esquema`.
+Configurar `db.url` de Central con `?currentSchema=nombre_del_esquema,public`.
+Aplicar los SQL en una sesión `psql` con `SET search_path TO nombre_del_esquema`
+y comprobar `SELECT current_database()` antes de escribir. Al terminar el ensayo,
+retirar únicamente ese esquema temporal.
+
 Programación de Aplicaciones · Tecnólogo en Informática · UTEC · 2026
 
-## Laboratorio 3 — Web remota e integración de usuarios
+## Arquitectura vigente
 
 En `lab3-desarrollo`, todos los Servlet consumen Central mediante SOAP/HTTPS.
 Tomcat no ejecuta lógica ni persistencia; Swing llama a ISistema en el proceso
@@ -62,7 +69,12 @@ Las secciones siguientes conservan la referencia histórica del Laboratorio 2.
 Para desplegar Laboratorio 3, usar las instrucciones del informe vigente;
 PostgreSQL y los lectores de imágenes pertenecen exclusivamente a Central.
 
-## Requisitos
+## Referencia histórica del Laboratorio 2
+
+Los pasos de esta sección documentan el proyecto anterior. Para instalar el
+Laboratorio 3 se utiliza el procedimiento al comienzo de este README.
+
+### Requisitos históricos
 
 - JDK 25
 - Apache Maven 3 (en el PATH o el Maven integrado de IntelliJ)
@@ -76,9 +88,9 @@ PostgreSQL y los lectores de imágenes pertenecen exclusivamente a Central.
 |---|---|
 | `logica` | JAR con las reglas de negocio, los tipos de datos y el acceso a PostgreSQL (JPA/Hibernate) |
 | `estacion-trabajo` | Aplicación Swing del administrador |
-| `webapp` | Sitio web (servlets y JSP), que lleva el JAR de la lógica dentro |
+| `webapp` | Sitio web (servlets y JSP); en Laboratorio 3 consume Central por SOAP/HTTPS |
 
-La estación de trabajo y la web comparten la misma base PostgreSQL.
+En Laboratorio 3, solamente Central accede a PostgreSQL; Swing está en su proceso.
 
 ## 1. Crear la base de datos
 
@@ -88,16 +100,13 @@ Crear una base vacía llamada `eventosuy`. Con pgAdmin: *Databases → Create �
 psql -U postgres -c "CREATE DATABASE eventosuy;"
 ```
 
-Las tablas las crea Hibernate la primera vez que se inicializa JPA. Los índices
-funcionales H13 **no** los crea Hibernate: antes de cargar datos o habilitar la
-aplicación en una base nueva hay que preparar el esquema y aplicar el SQL según
-[el procedimiento H13](docs/migraciones/H13-procedimiento.md). No repetirlo sobre
-índices existentes. La aplicación en otra base requiere su revisión y autorización;
-las pruebas automatizadas solo utilizan `eventosuy_test`.
+Para Laboratorio 3, `Main` valida un esquema existente. El preparador y los dos
+SQL versionados se describen al comienzo de este README.
 
 ### Credenciales
 
-Por defecto el sistema se conecta con:
+La tabla siguiente documenta valores utilizados en la versión anterior;
+**no son valores predeterminados del Laboratorio 3**:
 
 | Dato | Valor por defecto | Variable de entorno |
 |---|---|---|
@@ -105,10 +114,10 @@ Por defecto el sistema se conecta con:
 | Puerto | `5432` | `EVENTOS_DB_PORT` |
 | Base | `eventosuy` | `EVENTOS_DB_NAME` |
 | Usuario | `postgres` | `EVENTOS_DB_USER` |
-| Contraseña | `root` | `EVENTOS_DB_PASSWORD` |
+| Contraseña | Sin valor vigente | `EVENTOS_DB_PASSWORD` |
 
-Si la instalación de PostgreSQL usa otros valores, definir las variables de entorno en la
-configuración de ejecución de IntelliJ (campo *Environment variables*).
+El preparador actual exige las cinco variables; Central toma sus credenciales
+de `central.properties`.
 
 ## 2. Compilar
 
@@ -122,13 +131,12 @@ En una instalación nueva, compilar primero **sin ejecutar pruebas**:
 mvn clean install -DskipTests
 ```
 
-Esto genera `logica/target/logica-1.0-SNAPSHOT.jar`,
-`estacion-trabajo/target/estacion-trabajo-1.0-SNAPSHOT.jar` y
-`webapp/target/webapp-1.0-SNAPSHOT.war`. El WAR incluye la lógica y sus dependencias.
-Todavía no inicializa una base ni ejecuta el seed.
+En Laboratorio 3 los artefactos para distribuir son
+`servidor-central/target/servidor.jar` y `webapp/target/web.war`.
+El WAR no incluye lógica ni persistencia.
 
 Después crear/configurar `eventosuy_test`, inicializar su esquema con la protección
-JDBC y aplicar H13 siguiendo [el procedimiento](docs/migraciones/H13-procedimiento.md).
+JDBC y aplicar los dos SQL indicados al comienzo de este README.
 **Solo después**, y con todas las variables de conexión de pruebas configuradas en
 el mismo proceso Maven, ejecutar:
 
@@ -138,7 +146,7 @@ mvn -Pcobertura clean install
 ```
 
 Configurar también `EVENTOS_DB_HOST`, `EVENTOS_DB_PORT`, `EVENTOS_DB_USER` y
-`EVENTOS_DB_PASSWORD` cuando difieran de los valores locales. No registrar ni
+`EVENTOS_DB_PASSWORD`. No registrar ni
 versionar contraseñas reales. Sin la base de pruebas verificada, H02 bloquea la
 suite antes de JPA. No ejecutar `install` con pruebas contra la base habitual.
 
@@ -147,8 +155,9 @@ Node.js solo se necesita para las pruebas adicionales de JavaScript:
 
 ## 3. Cargar los datos de prueba
 
-Ejecutar `logica/src/main/java/datos/CargarDatosPrueba.java` (clic derecho → *Run*). Se puede
-repetir: lo que ya existe se omite. Para partir de cero, borrar la base y volver a crearla.
+El seed histórico está en `logica/src/main/java/datos/CargarDatosPrueba.java`.
+No cubre todos los casos nuevos del Laboratorio 3 y no debe utilizarse para
+reinicializar una base con datos existentes.
 
 | Usuario | Rol | Contraseña |
 |---|---|---|
@@ -164,11 +173,14 @@ registro con código de patrocinio.
 
 ## 4. Estación de trabajo
 
-Ejecutar `estacion-trabajo/src/main/java/swing/principal.java` (método `main`). El administrador
+En Laboratorio 3, `java -jar servidor-central/target/servidor.jar` abre Swing. El administrador
 no tiene usuario ni contraseña: entra directamente. El menú **Eventos → Aceptar/Rechazar
 Edición** pasa una edición de Ingresada a Aceptada o a Rechazada.
 
 ## 5. Sitio web
+
+La configuración siguiente corresponde al desarrollo del Laboratorio 2; para
+Laboratorio 3 desplegar `webapp/target/web.war` en Tomcat 11.
 
 1. **Run → Edit Configurations → + → Smart Tomcat**.
 2. *Tomcat server*: la carpeta de Tomcat que contiene `bin` y `lib` (con `lib/catalina.jar`).
@@ -189,7 +201,7 @@ Las pruebas JUnit están en `logica/src/test/java` y usan una base aparte:
 Los índices funcionales de H13 deben existir antes de ejecutar las nuevas pruebas
 de concurrencia. En una base `eventosuy_test` nueva, primero compilar sin ejecutar
 pruebas, inicializar el esquema con la protección JDBC y aplicar la migración
-controlada según [el procedimiento H13](docs/migraciones/H13-procedimiento.md).
+controlada mediante los SQL versionados indicados arriba.
 JUnit no ejecuta migraciones. En la base de pruebas local ya se aplicó el 03/11/2026;
 no repetir el script sobre índices existentes. No se aplicó en otra base.
 
@@ -229,6 +241,6 @@ mantiene los bytes almacenados. Una nueva asociación sí debe cumplir los lími
 |---|---|
 | Error 404 en `/` | La aplicación no arrancó: mirar la consola de Tomcat |
 | «No se pudo conectar a PostgreSQL» | El servicio no está iniciado, la base no existe o la contraseña no coincide |
-| «No suitable driver found» | Reconstruir el proyecto (`install`) y reiniciar Tomcat |
+| «No suitable driver found» | En Laboratorio 3, revisar el JAR de Central y su configuración JDBC; Tomcat no usa driver PostgreSQL |
 | «Address already in use» | El puerto 8080 está ocupado: cambiarlo en la configuración |
-| El seed omite todo | Los datos ya existían: recrear la base para empezar de cero |
+| El seed omite todo | Los datos ya existían; revisar la base elegida sin borrar datos |
