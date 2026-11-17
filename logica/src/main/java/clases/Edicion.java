@@ -19,6 +19,8 @@ public class Edicion implements ConImagen{
     private LocalDate fechaAlta;
     private String ciudad;
     private String pais;
+    @Column(length = 255)
+    private String videoYoutube;
     @Enumerated(EnumType.STRING)
     private EstadoEdicion estado = EstadoEdicion.INGRESADA;
 
@@ -113,6 +115,8 @@ public class Edicion implements ConImagen{
     public String getCiudad() {
         return ciudad;
     }
+    public String getVideoYoutube() { return videoYoutube; }
+    public void setVideoYoutube(String valor) { this.videoYoutube = valor; }
     public String getPais() {
         return pais;
     }

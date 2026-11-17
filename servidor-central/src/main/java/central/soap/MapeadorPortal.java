@@ -24,7 +24,10 @@ final class MapeadorPortal {
         return d==null?null:new datatypes.DtEvento(d.getNombre(),d.getSigla(),d.getDescripcion(),d.getFechaAlta(),d.getCategorias());
     }
     static datatypes.DtEdicion edicion(DtEdicion d) {
-        return d==null?null:new datatypes.DtEdicion(d.getIdNombre(),d.getSigla(),d.getFechaInicio(),d.getFechaFin(),d.getFechaAlta(),d.getCiudad(),d.getPais(),d.getNombreOrganizador());
+        if (d == null) return null;
+        datatypes.DtEdicion resultado = new datatypes.DtEdicion(d.getIdNombre(),d.getSigla(),d.getFechaInicio(),d.getFechaFin(),d.getFechaAlta(),d.getCiudad(),d.getPais(),d.getNombreOrganizador());
+        resultado.setVideoYoutube(d.getVideoYoutube());
+        return resultado;
     }
     static datatypes.DtTipoRegistro tipo(DtTipoRegistro d) {
         return d==null?null:new datatypes.DtTipoRegistro(d.getIdNombre(),d.getDescripcion(),d.getCosto(),d.getCupo());

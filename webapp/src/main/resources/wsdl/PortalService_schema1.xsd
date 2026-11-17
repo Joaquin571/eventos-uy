@@ -188,6 +188,7 @@
       <xs:element name="fechaAlta" type="xs:string" minOccurs="0"/>
       <xs:element name="ciudad" type="xs:string" minOccurs="0"/>
       <xs:element name="pais" type="xs:string" minOccurs="0"/>
+      <xs:element name="videoYoutube" type="xs:string" minOccurs="0"/>
       <xs:element name="nombreOrganizador" type="xs:string" minOccurs="0"/>
       <xs:element name="estado" type="tns:estadoEdicion" minOccurs="0"/>
     </xs:sequence>

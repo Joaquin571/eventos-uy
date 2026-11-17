@@ -655,6 +655,7 @@ public class Sistema implements ISistema {
                 organizador
         );
         edicion.setEvento(evento);
+        edicion.setVideoYoutube(VideoYoutube.normalizar(dt.getVideoYoutube()));
         if (imagen != null) edicion.setImagen(new Imagen(imagen.getTipoContenido().toLowerCase(Locale.ROOT), imagen.getContenido()));
 
         if (!manejadorEventos.addEdicion(edicion)) {
@@ -682,6 +683,7 @@ public class Sistema implements ISistema {
                 nombreOrganizador
         );
         dt.setEstado(edicion.getEstado());
+        dt.setVideoYoutube(edicion.getVideoYoutube());
         return dt;
     }
 

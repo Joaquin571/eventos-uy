@@ -11,6 +11,7 @@ public class DtEdicion {
     private LocalDate fechaAlta;
     private String ciudad;
     private String pais;
+    private String videoYoutube;
     private String nombreOrganizador;
     private EstadoEdicion estado = EstadoEdicion.INGRESADA;
 
@@ -57,6 +58,9 @@ public class DtEdicion {
     public String getCiudad() {
         return ciudad;
     }
+
+    public String getVideoYoutube() { return videoYoutube; }
+    public void setVideoYoutube(String valor) { this.videoYoutube = valor; }
 
     public String getPais() {
         return pais;

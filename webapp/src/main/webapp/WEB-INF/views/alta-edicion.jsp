@@ -20,6 +20,7 @@
 <label class="form-label">País<input name="pais" value="<c:out value='${form.pais}'/>" class="form-control" required></label>
 <label class="form-label">Fecha de inicio<input type="date" name="fechaInicio" value="<c:out value='${form.fechaInicio}'/>" class="form-control" required></label>
 <label class="form-label">Fecha de fin<input type="date" name="fechaFin" value="<c:out value='${form.fechaFin}'/>" class="form-control" required></label>
+<label class="form-label">Video YouTube (opcional)<input type="url" name="videoYoutube" maxlength="2048" value="<c:out value='${form.videoYoutube}'/>" class="form-control" placeholder="https://www.youtube.com/watch?v=..."></label>
 <label class="form-label">Imagen opcional<input type="file" name="imagen" accept="image/png,image/jpeg,image/gif,image/webp" class="form-control"></label>
 <div class="mt-3"><button class="btn btn-primary">Confirmar alta</button> <a class="btn btn-outline-secondary" href="${raiz}/">Cancelar</a></div></form>
 </main><script src="${raiz}/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>

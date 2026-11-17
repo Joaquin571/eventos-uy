@@ -41,7 +41,7 @@ public class AltaEdicionServlet extends HttpServlet {
         ServicioPortal sistema = ContextoListener.central(req);
 
         Map<String, String> form = new HashMap<>();
-        for (String campo : new String[]{"evento", "nombre", "sigla", "ciudad", "pais", "fechaInicio", "fechaFin"}) {
+        for (String campo : new String[]{"evento", "nombre", "sigla", "ciudad", "pais", "fechaInicio", "fechaFin", "videoYoutube"}) {
             String valor = req.getParameter(campo);
             form.put(campo, valor == null ? "" : valor);
         }
@@ -75,6 +75,7 @@ public class AltaEdicionServlet extends HttpServlet {
                     SesionWeb.usuario(req) == null ? "" : SesionWeb.usuario(req).getNickname()
             );
 
+            edicion.setVideoYoutube(req.getParameter("videoYoutube"));
             boolean creada = sistema.altaEdicion(edicion, evento, imagen);
 
             if (!creada) {
