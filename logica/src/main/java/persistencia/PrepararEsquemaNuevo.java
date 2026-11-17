@@ -9,9 +9,16 @@ public final class PrepararEsquemaNuevo {
     private PrepararEsquemaNuevo() { }
 
     public static void main(String[] args) throws Exception {
-        if (args.length != 1 || !"--base-vacia".equals(args[0]))
-            throw new IllegalArgumentException("Uso: PrepararEsquemaNuevo --base-vacia");
-        preparar(BaseDeDatos.propiedadesJpa());
+        if (args.length != 1 && args.length != 3 || !"--base-vacia".equals(args[0]))
+            throw new IllegalArgumentException("Uso: PrepararEsquemaNuevo --base-vacia [--schema nombre]");
+        var propiedades = BaseDeDatos.propiedadesJpa();
+        if (args.length == 3) {
+            if (!"--schema".equals(args[1]) || !args[2].matches("[a-z][a-z0-9_]{0,62}"))
+                throw new IllegalArgumentException("El nombre del esquema debe ser un identificador PostgreSQL simple.");
+            propiedades.put("jakarta.persistence.jdbc.url",
+                    propiedades.get("jakarta.persistence.jdbc.url") + "?currentSchema=" + args[2] + ",public");
+        }
+        preparar(propiedades);
     }
 
     static void preparar(java.util.Map<String, String> propiedades) throws Exception {
