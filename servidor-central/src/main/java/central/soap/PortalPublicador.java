@@ -138,6 +138,14 @@ public class PortalPublicador {
         return invocar(() -> sistema.altaEdicion(MapeadorPortal.edicion(datos), evento, MapeadorPortal.imagen(imagen), actor(true)));
     }
     @WebMethod
+    @jakarta.xml.ws.RequestWrapper(className="central.soap.portal.jaxws.BuscarEventosYEdiciones")
+    @jakarta.xml.ws.ResponseWrapper(className="central.soap.portal.jaxws.BuscarEventosYEdicionesResponse")
+    public List<DtResultadoBusqueda> buscarEventosYEdiciones(@WebParam(name="texto") String texto,
+            @WebParam(name="orden") OrdenBusqueda orden) throws OperacionSoapException {
+        return invocar(() -> lista(sistema.buscarEventosYEdiciones(texto,
+                orden == null ? null : datatypes.OrdenBusqueda.valueOf(orden.name())), DtResultadoBusqueda.class));
+    }
+    @WebMethod
     @jakarta.xml.ws.RequestWrapper(className="central.soap.portal.jaxws.FinalizarEvento")
     @jakarta.xml.ws.ResponseWrapper(className="central.soap.portal.jaxws.FinalizarEventoResponse")
     public void finalizarEvento(@WebParam(name="evento") String evento) throws OperacionSoapException {

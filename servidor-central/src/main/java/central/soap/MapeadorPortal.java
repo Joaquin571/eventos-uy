@@ -27,6 +27,7 @@ final class MapeadorPortal {
         if (d == null) return null;
         datatypes.DtEdicion resultado = new datatypes.DtEdicion(d.getIdNombre(),d.getSigla(),d.getFechaInicio(),d.getFechaFin(),d.getFechaAlta(),d.getCiudad(),d.getPais(),d.getNombreOrganizador());
         resultado.setVideoYoutube(d.getVideoYoutube());
+        resultado.setDescripcion(d.getDescripcion());
         return resultado;
     }
     static datatypes.DtTipoRegistro tipo(DtTipoRegistro d) {

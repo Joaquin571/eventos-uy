@@ -11,6 +11,7 @@ import manejadores.ManejadorUsuarios;
 import manejadores.ManejadorImagenes;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -613,6 +614,39 @@ public class Sistema implements ISistema {
         manejadorEventos.finalizarEvento(evento);
     }
 
+    @Override
+    public List<DtResultadoBusqueda> buscarEventosYEdiciones(String texto, OrdenBusqueda orden) {
+        String patron = texto == null ? "" : texto.strip().toLowerCase(Locale.ROOT);
+        if (patron.length() > 255) throw new IllegalArgumentException("La búsqueda es demasiado larga.");
+        List<DtResultadoBusqueda> resultados = new ArrayList<>();
+        for (Evento evento : manejadorEventos.obtenerEventos()) {
+            if (evento.isFinalizado()) continue;
+            if (coincideBusqueda(evento.getNombre(), evento.getDescripcion(), patron))
+                resultados.add(new DtResultadoBusqueda("EVENTO", evento.getNombre(), evento.getDescripcion(), evento.getFechaAlta(), evento.getNombre()));
+            for (Edicion edicion : manejadorEventos.obtenerEdicionesEvento(evento.getNombre())) {
+                if (edicion.getEstado() != EstadoEdicion.ACEPTADA) continue;
+                if (coincideBusqueda(edicion.getIdNombre(), edicion.getDescripcion(), patron))
+                    resultados.add(new DtResultadoBusqueda("EDICION", edicion.getIdNombre(), edicion.getDescripcion(), edicion.getFechaAlta(), evento.getNombre()));
+            }
+        }
+        Comparator<DtResultadoBusqueda> comparador;
+        OrdenBusqueda ordenEfectivo = orden == null ? OrdenBusqueda.FECHA_DESC : orden;
+        switch (ordenEfectivo) {
+            case NOMBRE_ASC -> comparador = Comparator.comparing(DtResultadoBusqueda::getNombre, String.CASE_INSENSITIVE_ORDER);
+            case NOMBRE_DESC -> comparador = Comparator.comparing(DtResultadoBusqueda::getNombre, String.CASE_INSENSITIVE_ORDER).reversed();
+            default -> comparador = Comparator.comparing(DtResultadoBusqueda::getFechaAlta,
+                    Comparator.nullsLast(Comparator.reverseOrder()));
+        }
+        resultados.sort(comparador.thenComparing(DtResultadoBusqueda::getNombre, String.CASE_INSENSITIVE_ORDER)
+                .thenComparing(DtResultadoBusqueda::getTipo));
+        return resultados;
+    }
+
+    private boolean coincideBusqueda(String nombre, String descripcion, String patron) {
+        return (nombre != null && nombre.toLowerCase(Locale.ROOT).contains(patron))
+                || (descripcion != null && descripcion.toLowerCase(Locale.ROOT).contains(patron));
+    }
+
     // EDICIONES
     @Override
     public boolean altaEdicion(DtEdicion dt, String nombreEvento, Actor actor) {
@@ -674,6 +708,9 @@ public class Sistema implements ISistema {
         );
         edicion.setEvento(evento);
         edicion.setVideoYoutube(VideoYoutube.normalizar(dt.getVideoYoutube()));
+        if (dt.getDescripcion() != null && dt.getDescripcion().length() > 2048)
+            throw new IllegalArgumentException("La descripción de edición es demasiado larga.");
+        edicion.setDescripcion(dt.getDescripcion());
         if (imagen != null) edicion.setImagen(new Imagen(imagen.getTipoContenido().toLowerCase(Locale.ROOT), imagen.getContenido()));
 
         if (!manejadorEventos.addEdicion(edicion)) {
@@ -702,6 +739,7 @@ public class Sistema implements ISistema {
         );
         dt.setEstado(edicion.getEstado());
         dt.setVideoYoutube(edicion.getVideoYoutube());
+        dt.setDescripcion(edicion.getDescripcion());
         return dt;
     }
 
@@ -1196,6 +1234,11 @@ public class Sistema implements ISistema {
 
     @Override
     public DtImagen obtenerImagenVisible(TipoEntidadImagen tipo, String clave, Actor actor) {
+        if (tipo == TipoEntidadImagen.EVENTO) {
+            Evento evento = clave == null ? null : manejadorEventos.obtenerEvento(clave);
+            if (evento == null || evento.isFinalizado() && (actor == null || !actor.esAdministradorLocal()))
+                throw new excepciones.NoEncontradoException();
+        }
         if (tipo == TipoEntidadImagen.EDICION) {
             if (clave == null || clave.isBlank()) throw new excepciones.NoEncontradoException();
             consultarDetalleEdicion(clave, actor);

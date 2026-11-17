@@ -21,6 +21,8 @@ public class Edicion implements ConImagen{
     private String pais;
     @Column(length = 255)
     private String videoYoutube;
+    @Column(length = 2048)
+    private String descripcion;
     @Enumerated(EnumType.STRING)
     private EstadoEdicion estado = EstadoEdicion.INGRESADA;
 
@@ -115,6 +117,8 @@ public class Edicion implements ConImagen{
     public String getCiudad() {
         return ciudad;
     }
+    public String getDescripcion() { return descripcion; }
+    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
     public String getVideoYoutube() { return videoYoutube; }
     public void setVideoYoutube(String valor) { this.videoYoutube = valor; }
     public String getPais() {

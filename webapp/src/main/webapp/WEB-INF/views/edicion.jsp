@@ -28,6 +28,7 @@
 <c:if test="${tieneImagen}"><c:url var="urlImagen" value="/imagen"><c:param name="tipo" value="edicion"/><c:param name="id" value="${detalle.idNombre}"/></c:url>
 <img src="${urlImagen}" alt="Imagen de la edición" class="rounded mb-3" style="max-width: 320px; max-height: 240px; object-fit: contain;"></c:if>
 <c:if test="${not empty detalle.videoYoutube}"><div class="ratio ratio-16x9 mb-3"><iframe src="<c:out value='${detalle.videoYoutube}'/>" title="Video de la edición" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div></c:if>
+<c:if test="${not empty detalle.descripcion}"><p><c:out value="${detalle.descripcion}"/></p></c:if>
 <p>Estado: <c:out value="${detalle.estado}"/></p>
 <p>Sigla: <c:out value="${detalle.sigla}"/></p>
 <p>Ciudad: <c:out value="${detalle.ciudad}"/> — País: <c:out value="${detalle.pais}"/></p>

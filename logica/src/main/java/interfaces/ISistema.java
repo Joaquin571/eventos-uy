@@ -37,6 +37,7 @@ public interface ISistema {
     Collection<DtEvento> listarEventos();
     Collection<DtEvento> listarEventosPublicos();
     void finalizarEvento(String evento, Actor actor);
+    java.util.List<DtResultadoBusqueda> buscarEventosYEdiciones(String texto, OrdenBusqueda orden);
     Collection<DtEvento> listarEventosPorCategoria(String categoria);
 
     // EDICIONES

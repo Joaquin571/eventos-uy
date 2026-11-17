@@ -21,6 +21,7 @@ public class DtEdicion {
     private String ciudad;
     private String pais;
     private String videoYoutube;
+    private String descripcion;
     private String nombreOrganizador;
     private EstadoEdicion estado = EstadoEdicion.INGRESADA;
 
@@ -68,6 +69,8 @@ public class DtEdicion {
         return ciudad;
     }
 
+    public String getDescripcion() { return descripcion; }
+    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
     public String getVideoYoutube() { return videoYoutube; }
     public void setVideoYoutube(String valor) { this.videoYoutube = valor; }
 

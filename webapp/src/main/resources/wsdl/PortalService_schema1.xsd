@@ -3,6 +3,8 @@
 
   <xs:element name="OperacionFault" nillable="true" type="tns:operacionFault"/>
 
+  <xs:element name="buscarEventosYEdiciones" type="tns:buscarEventosYEdiciones"/>
+  <xs:element name="buscarEventosYEdicionesResponse" type="tns:buscarEventosYEdicionesResponse"/>
   <xs:element name="finalizarEvento" type="tns:finalizarEvento"/>
   <xs:element name="finalizarEventoResponse" type="tns:finalizarEventoResponse"/>
   <xs:element name="altaEdicion" type="tns:altaEdicion"/>
@@ -191,6 +193,7 @@
       <xs:element name="ciudad" type="xs:string" minOccurs="0"/>
       <xs:element name="pais" type="xs:string" minOccurs="0"/>
       <xs:element name="videoYoutube" type="xs:string" minOccurs="0"/>
+      <xs:element name="descripcion" type="xs:string" minOccurs="0"/>
       <xs:element name="nombreOrganizador" type="xs:string" minOccurs="0"/>
       <xs:element name="estado" type="tns:estadoEdicion" minOccurs="0"/>
     </xs:sequence>
@@ -584,6 +587,20 @@
     </xs:sequence>
   </xs:complexType>
 
+  <xs:simpleType name="ordenBusqueda"><xs:restriction base="xs:string"><xs:enumeration value="FECHA_DESC"/><xs:enumeration value="NOMBRE_ASC"/><xs:enumeration value="NOMBRE_DESC"/></xs:restriction></xs:simpleType>
+  <xs:complexType name="dtResultadoBusqueda">
+    <xs:sequence>
+      <xs:element name="tipo" type="xs:string" minOccurs="0"/>
+      <xs:element name="nombre" type="xs:string" minOccurs="0"/>
+      <xs:element name="descripcion" type="xs:string" minOccurs="0"/>
+      <xs:element name="fechaAlta" type="xs:string" minOccurs="0"/>
+      <xs:element name="evento" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="buscarEventosYEdiciones">
+    <xs:sequence><xs:element name="texto" type="xs:string" minOccurs="0"/><xs:element name="orden" type="tns:ordenBusqueda" minOccurs="0"/></xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="buscarEventosYEdicionesResponse"><xs:sequence><xs:element name="return" type="tns:dtResultadoBusqueda" minOccurs="0" maxOccurs="unbounded"/></xs:sequence></xs:complexType>
   <xs:complexType name="finalizarEvento"><xs:sequence><xs:element name="evento" type="xs:string" minOccurs="0"/></xs:sequence></xs:complexType>
   <xs:complexType name="finalizarEventoResponse"><xs:sequence/></xs:complexType>
   <xs:complexType name="altaEdicion">

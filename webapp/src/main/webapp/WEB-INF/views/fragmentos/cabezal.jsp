@@ -19,6 +19,10 @@
             </button>
 
             <div class="collapse navbar-collapse" id="navbarPrincipal">
+                <form class="d-flex me-3" method="get" action="${raiz}/buscar" role="search">
+                    <input type="search" name="texto" class="form-control" placeholder="Buscar eventos y ediciones" aria-label="Buscar">
+                    <button class="btn btn-outline-light" type="submit">Buscar</button>
+                </form>
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item"><a class="nav-link" href="${raiz}/">Eventos</a></li>
                     <li class="nav-item"><a class="nav-link" href="${raiz}/usuarios">Usuarios</a></li>

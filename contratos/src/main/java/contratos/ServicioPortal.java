@@ -17,6 +17,7 @@ public interface ServicioPortal {
     boolean altaEvento(DtEvento datos, DtImagen imagen);
     boolean altaEdicion(DtEdicion datos, String evento, DtImagen imagen);
     void finalizarEvento(String evento);
+    List<DtResultadoBusqueda> buscarEventosYEdiciones(String texto, OrdenBusqueda orden);
     boolean altaTipoRegistro(DtTipoRegistro datos, String edicion);
     boolean altaPatrocinio(DtPatrocinio datos, String evento);
     DtOpcionesAltaPatrocinio obtenerOpcionesAltaPatrocinio(String evento, String edicion);
