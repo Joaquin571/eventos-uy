@@ -42,8 +42,10 @@ class EventosEdicionesBusquedaLab3Test extends soporte.PruebaConBaseSegura {
         String evento = "finalEvento" + sufijo;
         Actor actor = preparar(evento);
         assertThrows(excepciones.AccesoDenegadoException.class, () -> sistema.finalizarEvento(evento, null));
+        assertThrows(excepciones.AccesoDenegadoException.class,
+                () -> sistema.finalizarEvento(evento, Actor.administradorLocal()));
         sistema.finalizarEvento(evento, actor);
-        assertTrue(sistema.listarEventos().stream().anyMatch(e -> e.getNombre().equals(evento)));
+        assertTrue(sistema.listarEventos().stream().anyMatch(e -> e.getNombre().equals(evento) && e.isFinalizado()));
         assertTrue(sistema.listarEventosPublicos().stream().noneMatch(e -> e.getNombre().equals(evento)));
         assertTrue(sistema.buscarEventosYEdiciones(sufijo, OrdenBusqueda.FECHA_DESC).stream()
                 .noneMatch(e -> e.getNombre().equals(evento)));
@@ -67,5 +69,9 @@ class EventosEdicionesBusquedaLab3Test extends soporte.PruebaConBaseSegura {
         var desc = sistema.buscarEventosYEdiciones(sufijo, OrdenBusqueda.NOMBRE_DESC);
         assertEquals(b, desc.getFirst().getNombre());
         assertTrue(sistema.buscarEventosYEdiciones("no-existe-" + sufijo, OrdenBusqueda.FECHA_DESC).isEmpty());
+        assertEquals(2, sistema.buscarEventosYEdiciones(sufijo, null).stream()
+                .filter(r -> r.getTipo().equals("EVENTO")).count());
+        assertThrows(IllegalArgumentException.class,
+                () -> sistema.buscarEventosYEdiciones("x".repeat(256), OrdenBusqueda.FECHA_DESC));
     }
 }

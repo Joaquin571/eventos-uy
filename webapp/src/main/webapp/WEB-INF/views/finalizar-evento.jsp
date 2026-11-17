@@ -5,7 +5,7 @@
 <main class="container py-4"><h1>Finalizar evento</h1>
 <c:if test="${not empty error}"><p class="alert alert-danger"><c:out value="${error}"/></p></c:if>
 <c:if test="${not empty exito}"><p class="alert alert-success"><c:out value="${exito}"/></p></c:if>
-<form method="post"><jsp:include page="/WEB-INF/views/fragmentos/csrf.jsp"/>
+<c:choose><c:when test="${empty eventos}"><p>No hay eventos vigentes para finalizar.</p></c:when><c:otherwise><form method="post"><jsp:include page="/WEB-INF/views/fragmentos/csrf.jsp"/>
 <label for="evento">Evento sin finalizar</label><select id="evento" name="evento" required>
 <c:forEach items="${eventos}" var="e"><option value="<c:out value='${e.nombre}'/>"><c:out value="${e.nombre}"/></option></c:forEach>
-</select><button type="submit">Finalizar</button></form></main></body></html>
+</select><button type="submit">Finalizar</button></form></c:otherwise></c:choose></main></body></html>

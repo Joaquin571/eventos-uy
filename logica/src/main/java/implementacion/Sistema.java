@@ -587,13 +587,15 @@ public class Sistema implements ISistema {
             for (Categoria categoria : evento.getCategorias()) {
                 categorias.add(categoria.getNombre());
             }
-            resultado.add(new DtEvento(
+            DtEvento datos = new DtEvento(
                     evento.getNombre(),
                     evento.getSigla(),
                     evento.getDescripcion(),
                     evento.getFechaAlta(),
                     categorias
-            ));
+            );
+            datos.setFinalizado(evento.isFinalizado());
+            resultado.add(datos);
         }
         return resultado;
     }

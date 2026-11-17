@@ -194,7 +194,7 @@ public class ConsultaEventoPanel extends JPanel {
         imagen.cargar(sistema, TipoEntidadImagen.EVENTO, evento.getNombre());
         txtNombre.setText(evento.getNombre());
         txtSigla.setText(evento.getSigla());
-        txtDescripcion.setText(evento.getDescripcion());
+        txtDescripcion.setText((evento.isFinalizado() ? "[FINALIZADO] " : "[VIGENTE] ") + evento.getDescripcion());
         txtFechaAlta.setText(
                 evento.getFechaAlta() != null
                         ? evento.getFechaAlta().toString()
