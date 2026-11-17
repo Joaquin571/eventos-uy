@@ -18,6 +18,11 @@ import java.util.Set;
 import java.time.LocalDate;
 
 public class Sistema implements ISistema {
+    @Override
+    public List<DtEventoVisitado> obtenerEventosMasVisitados(Actor actor) {
+        requerirAdministrador(actor);
+        return manejadorEventos.obtenerEventosMasVisitados();
+    }
 
     private final ManejadorUsuarios manejadorUsuarios;
     private final ManejadorInstituciones manejadorInstituciones;

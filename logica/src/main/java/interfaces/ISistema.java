@@ -4,6 +4,8 @@ import datatypes.*;
 import java.util.Collection;
 
 public interface ISistema {
+    /** Top cinco administrativo; incluye finalizados y no registra visitas. */
+    java.util.List<DtEventoVisitado> obtenerEventosMasVisitados(Actor actor);
 
     // USUARIOS
     boolean existeUsuario(String nickname);

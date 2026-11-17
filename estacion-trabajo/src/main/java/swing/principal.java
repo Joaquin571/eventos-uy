@@ -48,6 +48,8 @@ public class principal {
     private AceptarRechazarEdicionPanel panelAceptarRechazarEdicion;
 
     private final Actor actor;
+    private EventosMasVisitadosPanel panelEventosMasVisitados;
+    private JInternalFrame internoEventosMasVisitados;
 
     public principal(Actor actor) {
         this.actor = actor;
@@ -165,6 +167,9 @@ public class principal {
     }
 
     private void inicializarVentanasInternas() {
+        panelEventosMasVisitados = new EventosMasVisitadosPanel(actor);
+        internoEventosMasVisitados = crearInterno("Eventos más visitados", panelEventosMasVisitados, 80, 80);
+        agregarInterno(internoEventosMasVisitados);
         panelAltaUsuario = new AltaUsuarioPanel();
         internoAltaUsuario = crearInterno(
                 "Alta Usuario",
@@ -476,6 +481,13 @@ public class principal {
 
         menuEventos.add(altaEvento);
         menuEventos.add(consultaEvento);
+        JMenuItem ranking = new JMenuItem("Eventos más visitados");
+        ranking.setEnabled(actor != null && actor.esAdministradorLocal());
+        ranking.addActionListener(e -> {
+            mostrar(internoEventosMasVisitados);
+            panelEventosMasVisitados.actualizar();
+        });
+        menuEventos.add(ranking);
         menuEventos.addSeparator();
         menuEventos.add(altaEdicion);
         menuEventos.add(consultaEdicion);

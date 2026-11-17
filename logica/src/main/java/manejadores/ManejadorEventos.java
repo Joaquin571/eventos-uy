@@ -16,6 +16,16 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class ManejadorEventos {
+    public List<datatypes.DtEventoVisitado> obtenerEventosMasVisitados() {
+        try (EntityManager em = BaseDeDatos.getEntityManager()) {
+            // §6.1: las consultas administrativas incluyen eventos finalizados.
+            return em.createQuery("""
+                    SELECT new datatypes.DtEventoVisitado(e.nombre, e.visitas, e.finalizado)
+                    FROM Evento e
+                    ORDER BY e.visitas DESC, e.nombre ASC
+                    """, datatypes.DtEventoVisitado.class).setMaxResults(5).getResultList();
+        }
+    }
 
     private static ManejadorEventos instancia = null;
     private ManejadorEventos() {}
