@@ -48,6 +48,7 @@
                                     <formats>
                                         <format>HTML</format>
                                         <format>XML</format>
+                                        <format>CSV</format>
                                     </formats>
                                 </configuration>
                             </execution>
