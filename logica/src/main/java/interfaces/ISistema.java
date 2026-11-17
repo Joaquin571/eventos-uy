@@ -35,6 +35,8 @@ public interface ISistema {
     // EVENTOS
     boolean altaEvento(DtEvento dt, Actor actor) throws Exception;
     Collection<DtEvento> listarEventos();
+    Collection<DtEvento> listarEventosPublicos();
+    void finalizarEvento(String evento, Actor actor);
     Collection<DtEvento> listarEventosPorCategoria(String categoria);
 
     // EDICIONES

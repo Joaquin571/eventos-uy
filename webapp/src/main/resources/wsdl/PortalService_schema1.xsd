@@ -3,6 +3,8 @@
 
   <xs:element name="OperacionFault" nillable="true" type="tns:operacionFault"/>
 
+  <xs:element name="finalizarEvento" type="tns:finalizarEvento"/>
+  <xs:element name="finalizarEventoResponse" type="tns:finalizarEventoResponse"/>
   <xs:element name="altaEdicion" type="tns:altaEdicion"/>
 
   <xs:element name="altaEdicionResponse" type="tns:altaEdicionResponse"/>
@@ -582,6 +584,8 @@
     </xs:sequence>
   </xs:complexType>
 
+  <xs:complexType name="finalizarEvento"><xs:sequence><xs:element name="evento" type="xs:string" minOccurs="0"/></xs:sequence></xs:complexType>
+  <xs:complexType name="finalizarEventoResponse"><xs:sequence/></xs:complexType>
   <xs:complexType name="altaEdicion">
     <xs:sequence>
       <xs:element name="datos" type="tns:dtEdicion" minOccurs="0"/>

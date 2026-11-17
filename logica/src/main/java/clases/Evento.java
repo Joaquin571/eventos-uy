@@ -16,6 +16,8 @@ public class Evento implements ConImagen {
     private String sigla;
     private String descripcion;
     private LocalDate fechaAlta;
+    @Column(nullable = false)
+    private boolean finalizado = false;
 
     @ManyToMany
     @JoinTable(
@@ -80,6 +82,8 @@ public class Evento implements ConImagen {
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
     }
+    public boolean isFinalizado() { return finalizado; }
+    public void finalizar() { this.finalizado = true; }
     public LocalDate getFechaAlta() {
         return fechaAlta;
     }

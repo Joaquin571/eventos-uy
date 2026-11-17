@@ -93,6 +93,8 @@
   <message name="consultarInstitucionResponse">
     <part name="parameters" element="tns:consultarInstitucionResponse"/>
   </message>
+  <message name="finalizarEvento"><part name="parameters" element="tns:finalizarEvento"/></message>
+  <message name="finalizarEventoResponse"><part name="parameters" element="tns:finalizarEventoResponse"/></message>
   <message name="altaEdicion">
     <part name="parameters" element="tns:altaEdicion"/>
   </message>
@@ -235,6 +237,10 @@
       <input wsam:Action="https://eventos.uy/soap/portal/Portal/consultarInstitucionRequest" message="tns:consultarInstitucion"/>
       <output wsam:Action="https://eventos.uy/soap/portal/Portal/consultarInstitucionResponse" message="tns:consultarInstitucionResponse"/>
       <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/consultarInstitucion/Fault/OperacionSoapException"/>
+    </operation>
+    <operation name="finalizarEvento">
+      <input message="tns:finalizarEvento"/><output message="tns:finalizarEventoResponse"/>
+      <fault message="tns:OperacionSoapException" name="OperacionSoapException"/>
     </operation>
     <operation name="altaEdicion">
       <input wsam:Action="https://eventos.uy/soap/portal/Portal/altaEdicionRequest" message="tns:altaEdicion"/>
@@ -466,6 +472,11 @@
       <fault name="OperacionSoapException">
         <soap:fault name="OperacionSoapException" use="literal"/>
       </fault>
+    </operation>
+    <operation name="finalizarEvento">
+      <soap:operation soapAction=""/>
+      <input><soap:body use="literal"/></input><output><soap:body use="literal"/></output>
+      <fault name="OperacionSoapException"><soap:fault name="OperacionSoapException" use="literal"/></fault>
     </operation>
     <operation name="altaEdicion">
       <soap:operation soapAction=""/>

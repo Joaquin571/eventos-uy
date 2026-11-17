@@ -34,6 +34,7 @@
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="${raiz}/alta-evento">Alta Evento</a></li>
                                 <li><a class="dropdown-item" href="${raiz}/alta-edicion">Alta Edición</a></li>
+                                <li><a class="dropdown-item" href="${raiz}/finalizar-evento">Finalizar Evento</a></li>
                                 <li><a class="dropdown-item" href="${raiz}/alta-tipo-registro">Alta Tipo Registro</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="${raiz}/alta-institucion">Alta Institución</a></li>

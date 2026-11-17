@@ -575,7 +575,7 @@ public class Sistema implements ISistema {
 
     @Override
     public Collection<DtEvento> listarEventosPorCategoria(String categoria) {
-        return listarEventos().stream().filter(e -> categoria == null || categoria.isBlank()
+        return listarEventosPublicos().stream().filter(e -> categoria == null || categoria.isBlank()
                 || e.getCategorias().contains(categoria)).toList();
     }
 
@@ -595,6 +595,22 @@ public class Sistema implements ISistema {
             ));
         }
         return resultado;
+    }
+
+    @Override
+    public Collection<DtEvento> listarEventosPublicos() {
+        return listarEventos().stream().filter(e -> {
+            Evento entidad = manejadorEventos.obtenerEvento(e.getNombre());
+            return entidad != null && !entidad.isFinalizado();
+        }).toList();
+    }
+
+    @Override
+    public void finalizarEvento(String evento, Actor actor) {
+        if (actor == null || !actor.esOrganizador() || actor.esAdministradorLocal())
+            throw new excepciones.AccesoDenegadoException("Solo un organizador puede finalizar eventos.");
+        validarObligatorio(evento, "Debe seleccionar un evento.");
+        manejadorEventos.finalizarEvento(evento);
     }
 
     // EDICIONES
@@ -626,6 +642,8 @@ public class Sistema implements ISistema {
         if (evento == null) {
             throw new IllegalArgumentException("El evento indicado no existe.");
         }
+
+        if (evento.isFinalizado()) throw new IllegalArgumentException("El evento está finalizado.");
 
         if (manejadorEventos.existeEdicion(dt.getIdNombre())) {
             throw new IllegalArgumentException("Ya existe una edición con ese nombre.");
@@ -1120,6 +1138,9 @@ public class Sistema implements ISistema {
 
     @Override
     public List<DtEdicion> obtenerEdicionesVisibles(String evento, Actor actor) {
+        Evento entidadEvento = manejadorEventos.obtenerEvento(evento);
+        if (entidadEvento == null || entidadEvento.isFinalizado() && (actor == null || !actor.esAdministradorLocal()))
+            return List.of();
         return obtenerEdicionesEvento(evento).stream().filter(e -> e.getEstado() == EstadoEdicion.ACEPTADA
                 || actor != null && (actor.esAdministradorLocal()
                 || actor.esOrganizador() && e.getNombreOrganizador().equals(actor.nickname()))).toList();
@@ -1128,7 +1149,8 @@ public class Sistema implements ISistema {
     @Override
     public DtSeleccionEdicion consultarEdiciones(String evento, String nombre, Actor actor) {
         evento = evento == null ? "" : evento; nombre = nombre == null ? "" : nombre;
-        List<DtEvento> eventos = new ArrayList<>(listarEventos());
+        List<DtEvento> eventos = new ArrayList<>(actor != null && actor.esAdministradorLocal()
+                ? listarEventos() : listarEventosPublicos());
         String buscado = evento;
         if (!evento.isEmpty() && eventos.stream().noneMatch(e -> e.getNombre().equals(buscado)))
             throw new excepciones.NoEncontradoException();
@@ -1136,6 +1158,8 @@ public class Sistema implements ISistema {
         if (!nombre.isEmpty()) {
             Edicion entidad = manejadorEventos.obtenerEdicion(nombre);
             if (!esVisibleParaConsultaPatrocinio(actor, entidad)) throw new excepciones.NoEncontradoException();
+            if (entidad.getEvento().isFinalizado() && (actor == null || !actor.esAdministradorLocal()))
+                throw new excepciones.NoEncontradoException();
             String real = entidad.getEvento().getNombre();
             if (!evento.isEmpty() && !evento.equals(real)) throw new excepciones.NoEncontradoException();
             evento = real; seleccionada = aDt(entidad);
