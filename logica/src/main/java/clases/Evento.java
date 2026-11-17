@@ -17,6 +17,19 @@ public class Evento implements ConImagen {
     private String descripcion;
     private LocalDate fechaAlta;
 
+    // Solo el UPDATE atómico de visitas escribe este campo; los merges no lo restauran.
+    @Column(name = "visitas", nullable = false, insertable = false, updatable = false,
+            columnDefinition = "bigint default 0")
+    private long visitas;
+
+    // Marca compartida con la futura operación de finalización; no implica implementar ese caso.
+    @Column(name = "finalizado", nullable = false, columnDefinition = "boolean default false")
+    private boolean finalizado;
+
+    public long getVisitas() { return visitas; }
+    public boolean isFinalizado() { return finalizado; }
+    public void setFinalizado(boolean finalizado) { this.finalizado = finalizado; }
+
     @ManyToMany
     @JoinTable(
             name = "evento_categoria",

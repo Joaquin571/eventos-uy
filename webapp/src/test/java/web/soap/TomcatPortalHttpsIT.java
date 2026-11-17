@@ -103,7 +103,9 @@ class TomcatPortalHttpsIT {
         System.out.println("[IT] Solicitudes HTTP verificadas: "+solicitudes+"; WAR sin lógica/JPA/JDBC; Central HTTPS real.");
     }
     private void prepararDatos()throws Exception {
-        sufijo=Long.toString(System.nanoTime());org="httpOrg"+sufijo;evento="httpEv"+sufijo;edicion="httpEd"+sufijo;institucion="httpIn"+sufijo;categoria="httpCat"+sufijo;
+        // El selector legado recorre eventos ordenados; esta IT de transporte no mide su escalabilidad.
+        // Evitar que miles de fixtures históricos agoten el timeout SOAP antes de probar el flujo.
+        sufijo=Long.toString(System.nanoTime());org="httpOrg"+sufijo;evento="000_httpEv"+sufijo;edicion="httpEd"+sufijo;institucion="httpIn"+sufijo;categoria="httpCat"+sufijo;
         var usuario=new DtOrganizador(org,"Organización",org+"@test.uy","Descripción","");usuario.setContrasenia(CLAVE);usuario.setConfirmacionContrasenia(CLAVE);sistema.altaOrganizador(usuario);
         var actor=Actor.usuarioAutenticado(sistema.autenticar(org,CLAVE));sistema.altaCategoria(categoria,null, datatypes.Actor.administradorLocal());
         sistema.altaEvento(new DtEvento(evento,"EV","Evento",null,List.of(categoria)),null,actor);

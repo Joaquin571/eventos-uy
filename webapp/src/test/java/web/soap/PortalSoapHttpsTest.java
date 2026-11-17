@@ -43,6 +43,10 @@ class PortalSoapHttpsTest {
                     recibido=(Actor)a[2];
                     if(fallo)throw new IllegalStateException("SQL-secreto");
                     return true;
+                case "registrarVisitaEvento":
+                    recibido=(Actor)a[1];
+                    if(fallo)throw new IllegalStateException("SQL-secreto");
+                    return null;
                 case "obtenerOpcionesAltaPatrocinio":
                     recibido=(Actor)a[2];return new datatypes.DtOpcionesAltaPatrocinio("Evento",List.of(),List.of(),List.of(),List.of());
                 case "consultarPerfil":
@@ -67,6 +71,18 @@ class PortalSoapHttpsTest {
     private ClienteSesionesCentral login(){return new ClienteSesionesCentral(sesiones,confianza);}
     private ClienteCentral cliente(String credencial){return new ClienteCentral(portal,credencial,confianza);}
     @Test void consultaPublicaConvierteFechasColeccionesYUnicode(){var e=cliente(null).listarEventos().getFirst();assertEquals("Encuentro ñ",e.getNombre());assertEquals(LocalDate.of(2026,11,5),e.getFechaAlta());assertEquals(List.of("Arte"),new ArrayList<>(e.getCategorias()));}
+    @Test void visitaPropagaActorOpcionalSinInventarUnAdministrador(){
+        recibido=Actor.administradorLocal();cliente(null).registrarVisitaEvento("Evento");assertNull(recibido);
+        var credencial=login().iniciar("org","clave-sintetica").credencial();
+        cliente(credencial).registrarVisitaEvento("Evento");
+        assertEquals("org",recibido.nickname());assertTrue(recibido.esOrganizador());assertFalse(recibido.esAdministradorLocal());
+    }
+    @Test void errorTecnicoDeVisitasSeSanitiza(){
+        fallo=true;
+        try{var error=assertThrows(ErrorCentral.class,()->cliente(null).registrarVisitaEvento("Evento"));
+            assertEquals("SERVICIO_NO_DISPONIBLE",error.getCodigo());assertFalse(error.getMessage().contains("SQL-secreto"));
+        }finally{fallo=false;}
+    }
     @Test void salidaDeUsuarioNuncaIncluyeContraseniaDelDtoLogico(){var u=cliente(null).listarUsuarios().getFirst();assertInstanceOf(DtOrganizador.class,u);assertNull(u.getContrasenia());assertNull(u.getConfirmacionContrasenia());}
     @Test void entradaProtegidaSinSesionSeRechaza(){var error=assertThrows(ErrorCentral.class,()->cliente(null).altaTipoRegistro(new DtTipoRegistro("General","Desc",1,1),"Edición"));assertEquals("SESION_INVALIDA",error.getCodigo());}
     @Test void loginP03AutorizaYLogoutRevocaEnElMismoRegistro(){var inicio=login().iniciar("org","clave-sintetica");var c=cliente(inicio.credencial());assertTrue(c.altaTipoRegistro(new DtTipoRegistro("General","Desc",1,1),"Edición"));assertEquals("org",recibido.nickname());assertFalse(recibido.esAdministradorLocal());login().cerrar(inicio.credencial());assertEquals("SESION_INVALIDA",assertThrows(ErrorCentral.class,()->c.altaTipoRegistro(new DtTipoRegistro("General","Desc",1,1),"Edición")).getCodigo());}

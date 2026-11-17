@@ -33,6 +33,8 @@ public interface ISistema {
     Collection<DtInstitucion> listarInstituciones();
 
     // EVENTOS
+    /** Visita explícita al detalle público; actor null representa un visitante anónimo. */
+    void registrarVisitaEvento(String evento, Actor actor);
     boolean altaEvento(DtEvento dt, Actor actor) throws Exception;
     Collection<DtEvento> listarEventos();
     Collection<DtEvento> listarEventosPorCategoria(String categoria);

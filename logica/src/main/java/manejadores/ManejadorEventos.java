@@ -47,6 +47,26 @@ public class ManejadorEventos {
         }
     }
 
+    /** PostgreSQL serializa los UPDATE de la misma fila, también entre procesos Central. */
+    public boolean incrementarVisitaPublica(String nombre) {
+        EntityManager em = BaseDeDatos.getEntityManager();
+        EntityTransaction tx = em.getTransaction();
+        try {
+            tx.begin();
+            int filas = em.createNativeQuery("""
+                    UPDATE evento SET visitas = visitas + 1
+                    WHERE nombre = :nombre AND finalizado = FALSE
+                    """).setParameter("nombre", nombre).executeUpdate();
+            tx.commit();
+            return filas == 1;
+        } catch (RuntimeException e) {
+            if (tx.isActive()) tx.rollback();
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
     public Evento obtenerEvento(String nombre) {
         EntityManager em = BaseDeDatos.getEntityManager();
         try {

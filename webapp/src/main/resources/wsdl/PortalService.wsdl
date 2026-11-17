@@ -296,6 +296,11 @@
       <output wsam:Action="https://eventos.uy/soap/portal/Portal/registrarResponse" message="tns:registrarResponse"/>
       <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/registrar/Fault/OperacionSoapException"/>
     </operation>
+    <operation name="registrarVisitaEvento">
+      <input wsam:Action="https://eventos.uy/soap/portal/Portal/registrarVisitaEventoRequest" message="tns:registrarVisitaEvento"/>
+      <output wsam:Action="https://eventos.uy/soap/portal/Portal/registrarVisitaEventoResponse" message="tns:registrarVisitaEventoResponse"/>
+      <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/registrarVisitaEvento/Fault/OperacionSoapException"/>
+    </operation>
   </portType>
   <binding name="PortalPortBinding" type="tns:Portal">
     <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
@@ -611,10 +616,28 @@
         <soap:fault name="OperacionSoapException" use="literal"/>
       </fault>
     </operation>
+    <operation name="registrarVisitaEvento">
+      <soap:operation soapAction=""/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+      <fault name="OperacionSoapException">
+        <soap:fault name="OperacionSoapException" use="literal"/>
+      </fault>
+    </operation>
   </binding>
   <service name="PortalService">
     <port name="PortalPort" binding="tns:PortalPortBinding">
       <soap:address location="REPLACE_WITH_ACTUAL_URL"/>
     </port>
   </service>
+  <message name="registrarVisitaEvento">
+    <part name="parameters" element="tns:registrarVisitaEvento"/>
+  </message>
+  <message name="registrarVisitaEventoResponse">
+    <part name="parameters" element="tns:registrarVisitaEventoResponse"/>
+  </message>
 </definitions>

@@ -3,6 +3,7 @@ import contratos.dto.*;
 import java.util.List;
 /** API del consumidor Web, independiente de lógica y persistencia. */
 public interface ServicioPortal {
+    void registrarVisitaEvento(String evento);
     List<DtEvento> listarEventos();
     List<DtEvento> listarEventosPorCategoria(String categoria);
     List<DtCategoria> listarCategorias();

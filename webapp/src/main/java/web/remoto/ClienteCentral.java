@@ -35,6 +35,7 @@ public final class ClienteCentral implements ServicioPortal {
   }catch(WebServiceException e){throw new ErrorCentral("SERVICIO_NO_DISPONIBLE","El servidor Central no está disponible.");}
  }
  @Override public List<DtEvento> listarEventos(){return invocar(p->p.listarEventos()).stream().map(v->ConversorDatos.convertir(v,DtEvento.class)).toList();}
+ @Override public void registrarVisitaEvento(String evento){invocar(p->{p.registrarVisitaEvento(evento);return null;});}
  @Override public List<DtCategoria> listarCategorias(){return invocar(p->p.listarCategorias()).stream().map(v->ConversorDatos.convertir(v,DtCategoria.class)).toList();}
  @Override public List<DtInstitucion> listarInstituciones(){return invocar(p->p.listarInstituciones()).stream().map(v->ConversorDatos.convertir(v,DtInstitucion.class)).toList();}
  @Override public DtInstitucion consultarInstitucion(String nombre){return ConversorDatos.convertir(invocar(p->p.consultarInstitucion(nombre)),DtInstitucion.class);}

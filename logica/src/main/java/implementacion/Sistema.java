@@ -532,6 +532,17 @@ public class Sistema implements ISistema {
 
     // EVENTOS
     @Override
+    public void registrarVisitaEvento(String evento, Actor actor) {
+        validarObligatorio(evento, "El nombre del evento es obligatorio.");
+        if (evento.codePointCount(0, evento.length()) > 255 || evento.indexOf('\0') >= 0)
+            throw new IllegalArgumentException("El nombre del evento no es válido.");
+        // El contexto siempre es público: ni el dueño ni un administrador eluden la visibilidad.
+        // La comprobación de estado forma parte del mismo UPDATE que incrementa, sin TOCTOU.
+        if (!manejadorEventos.incrementarVisitaPublica(evento))
+            throw new excepciones.NoEncontradoException();
+    }
+
+    @Override
     public boolean altaEvento(DtEvento dt, Actor actor) throws Exception {
         return altaEvento(dt, null, actor);
     }
