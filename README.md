@@ -1,5 +1,50 @@
 # eventos.uy – Laboratorio 2 (Grupo 04)
 
+## Instalación vigente del Laboratorio 3
+
+Requiere JDK 25, Maven 3, PostgreSQL y Tomcat 11. Para el preparador de esquema,
+configurar `EVENTOS_DB_HOST`, `EVENTOS_DB_PORT`, `EVENTOS_DB_NAME`,
+`EVENTOS_DB_USER` y `EVENTOS_DB_PASSWORD` sin valores predeterminados.
+Central usa `~/.eventosUy/central.properties` (plantilla en
+`servidor-central/src/main/resources/central.properties.example`); allí se
+configuran `db.url`, usuario, clave, host de publicación, interfaz de escucha,
+puerto y PKCS#12. La dirección de PostgreSQL puede ser remota. La plantilla
+contiene `eventosuy_test` solo como ejemplo: sustituirla por la base prevista.
+
+Para una **base nueva y vacía**, compilar y ejecutar el preparador explícito
+con las variables de esa base configuradas:
+
+```powershell
+mvn -DskipTests package
+java -cp servidor-central/target/servidor.jar persistencia.PrepararEsquemaNuevo --base-vacia
+```
+
+El preparador se niega a actuar si el esquema ya contiene tablas. Aplicar con
+`psql -v ON_ERROR_STOP=1 -f` los archivos
+`logica/src/main/resources/db/migration/V20261116_01__visitas_evento.sql` y
+`V20261116_02__unicidad_ci.sql`, en ese orden, sobre la base prevista. El segundo
+requiere resolver antes cualquier correo o nombre de tipo duplicado sin distinguir
+mayúsculas. En una base **existente**, conservar sus tablas y aplicar solo las
+migraciones pendientes después de revisar respaldo, esquema y duplicados.
+`Main` usa `validate` y nunca crea tablas en el arranque.
+
+Configurar TLS y confianza según
+[arranque HTTPS](docs/lab3/ARRANQUE-CENTRAL-HTTPS.md). Ejecutar
+`java -jar servidor-central/target/servidor.jar` para Central con Swing, o
+agregar `--sin-swing` para ejecutarlo sin ventana. Swing comparte proceso y
+`ISistema` con Central; una máquina distinta ejecuta Tomcat y `web.war`, no
+Swing separado. En Tomcat, crear `~/.eventosUy/web.properties` desde
+`webapp/src/main/resources/web.properties.example`, apuntar al host y puerto
+HTTPS del Central y configurar el truststore público en su JVM. Desplegar
+`webapp/target/web.war`; no requiere acceso JDBC en Tomcat.
+
+Las pruebas persistentes solo se ejecutan con `EVENTOS_DB_NAME=eventosuy_test`
+y verifican `current_database()` por JDBC. La validación física entre máquinas
+requiere probar SAN, firewall, SOAP, Tomcat y navegador en la LAN de entrega.
+
+Las secciones de Laboratorio 2 que siguen son históricas y no describen el
+procedimiento de instalación del Laboratorio 3.
+
 Programación de Aplicaciones · Tecnólogo en Informática · UTEC · 2026
 
 ## Laboratorio 3 — Web remota e integración de usuarios
