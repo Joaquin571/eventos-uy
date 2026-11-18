@@ -54,6 +54,13 @@ class InstalacionLimpiaIT {
                     String texto = Files.readString(Path.of("../logica/src/main/resources/db/migration", nombre));
                     sql.execute(texto);
                 }
+                for (String nombre : List.of("lab3-emmanuel-busqueda.sql", "lab3-emmanuel-video.sql")) {
+                    String texto = Files.readString(Path.of("../sql", nombre));
+                    for (String sentencia : texto.split(";")) {
+                        String ejecutable = sentencia.replaceAll("(?m)^--.*$", "").trim();
+                        if (!ejecutable.isEmpty()) sql.execute(ejecutable);
+                    }
+                }
                 sql.execute("INSERT INTO evento(nombre,visitas,finalizado) VALUES ('Evento instalación',0,false)");
 
                 Path configuracion = temporal.resolve(".eventosUy"); Files.createDirectories(configuracion);

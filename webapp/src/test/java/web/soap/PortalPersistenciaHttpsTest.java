@@ -78,6 +78,19 @@ class PortalPersistenciaHttpsTest {
     private ClienteCentral asistente(String prefijo){String nick=prefijo+sufijo;publico().altaUsuario(entrada(new DtAsistente(nick,"Asistente",nick+"@test.uy","Apellido",LocalDate.of(2000,1,1),institucion),CLAVE,imagen()));return login(nick,CLAVE);}
     private DtImagen imagen(){return new DtImagen("image/png",PNG.clone());}
 
+    @Test void busquedaYFinalizacionViaSoapHttpsRespetanVisibilidadYAutorizacion(){
+        String nuevo = "tlsBusquedaFinal" + sufijo;
+        org.altaEvento(new DtEvento(nuevo,"BF","Descripción buscable",null,List.of(categoria)),null);
+        assertTrue(publico().buscarEventosYEdiciones(nuevo, OrdenBusqueda.NOMBRE_ASC).stream()
+                .anyMatch(r -> nuevo.equals(r.getNombre()) && "EVENTO".equals(r.getTipo())));
+        assertEquals("SESION_INVALIDA", assertThrows(ErrorCentral.class,
+                () -> publico().finalizarEvento(nuevo)).getCodigo());
+        org.finalizarEvento(nuevo);
+        assertTrue(publico().buscarEventosYEdiciones(nuevo, OrdenBusqueda.NOMBRE_ASC).isEmpty());
+        assertEquals("NO_ENCONTRADO", assertThrows(ErrorCentral.class,
+                () -> publico().registrarVisitaEvento(nuevo)).getCodigo());
+    }
+
     @Test void consultasPublicasYDisponibilidadSeResuelvenEnCentral(){
         assertTrue(publico().listarEventosPorCategoria(categoria).stream().anyMatch(e->evento.equals(e.getNombre())));
         assertTrue(publico().listarEventosPorCategoria("no-existe"+sufijo).isEmpty());

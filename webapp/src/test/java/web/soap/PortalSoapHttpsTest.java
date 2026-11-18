@@ -38,7 +38,7 @@ class PortalSoapHttpsTest {
                 case "listarUsuarios":
                     var u=new datatypes.DtOrganizador("org","Organización ñ","org@test.uy","Desc","");
                     u.setContrasenia("NO-DEBE-SALIR");return List.of(u);
-                case "listarEventos":return List.of(new datatypes.DtEvento("Encuentro ñ","EN","Descripción",LocalDate.of(2026,11,5),List.of("Arte")));
+                case "listarEventos", "listarEventosPublicos":return List.of(new datatypes.DtEvento("Encuentro ñ","EN","Descripción",LocalDate.of(2026,11,5),List.of("Arte")));
                 case "altaTipoRegistro":
                     recibido=(Actor)a[2];
                     if(fallo)throw new IllegalStateException("SQL-secreto");

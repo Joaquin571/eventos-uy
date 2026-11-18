@@ -16,6 +16,29 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class ManejadorEventos {
+    public List<datatypes.DtResultadoBusqueda> buscarEventosYEdiciones(String patron) {
+        try (EntityManager em = BaseDeDatos.getEntityManager()) {
+            List<datatypes.DtResultadoBusqueda> resultados = new java.util.ArrayList<>(em.createQuery("""
+                    SELECT new datatypes.DtResultadoBusqueda('EVENTO', e.nombre, e.descripcion, e.fechaAlta, e.nombre)
+                    FROM Evento e
+                    WHERE e.finalizado = false
+                      AND (LOCATE(:patron, LOWER(e.nombre)) > 0
+                           OR LOCATE(:patron, LOWER(e.descripcion)) > 0)
+                    """, datatypes.DtResultadoBusqueda.class)
+                    .setParameter("patron", patron).getResultList());
+            resultados.addAll(em.createQuery("""
+                    SELECT new datatypes.DtResultadoBusqueda('EDICION', d.idNombre, d.descripcion, d.fechaAlta, d.evento.nombre)
+                    FROM Edicion d
+                    WHERE d.evento.finalizado = false AND d.estado = :aceptada
+                      AND (LOCATE(:patron, LOWER(d.idNombre)) > 0
+                           OR LOCATE(:patron, LOWER(d.descripcion)) > 0)
+                    """, datatypes.DtResultadoBusqueda.class)
+                    .setParameter("patron", patron)
+                    .setParameter("aceptada", datatypes.EstadoEdicion.ACEPTADA).getResultList());
+            return resultados;
+        }
+    }
+
     public List<datatypes.DtEventoVisitado> obtenerEventosMasVisitados() {
         try (EntityManager em = BaseDeDatos.getEntityManager()) {
             // §6.1: las consultas administrativas incluyen eventos finalizados.
@@ -135,6 +158,11 @@ public class ManejadorEventos {
                 return false;
             }
 
+            // Bloqueo en la misma transacción: no permitir carreras con finalizarEvento.
+            Evento evento = em.find(Evento.class, edicion.getEvento().getNombre(), LockModeType.PESSIMISTIC_WRITE);
+            if (evento == null || evento.isFinalizado())
+                throw new IllegalArgumentException("No se admiten ediciones para eventos finalizados.");
+            edicion.setEvento(evento);
             em.persist(edicion);
             tx.commit();
             return true;
@@ -147,6 +175,22 @@ public class ManejadorEventos {
         } finally {
             em.close();
         }
+    }
+
+    public void finalizarEvento(String nombre) {
+        EntityManager em = BaseDeDatos.getEntityManager();
+        EntityTransaction tx = em.getTransaction();
+        try {
+            tx.begin();
+            Evento evento = em.find(Evento.class, nombre, LockModeType.PESSIMISTIC_WRITE);
+            if (evento == null) throw new excepciones.NoEncontradoException();
+            if (evento.isFinalizado()) throw new IllegalArgumentException("El evento ya está finalizado.");
+            evento.finalizar();
+            tx.commit();
+        } catch (RuntimeException e) {
+            if (tx.isActive()) tx.rollback();
+            throw e;
+        } finally { em.close(); }
     }
 
     public Edicion obtenerEdicion(String nombre) {

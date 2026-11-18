@@ -10,6 +10,7 @@ public class DtEvento {
     private String descripcion;
     private LocalDate fechaAlta;
     private Collection<String> categorias;
+    private boolean finalizado;
 
     public DtEvento(String nombre, String sigla, String descripcion, LocalDate fechaAlta, Collection<String> categorias) {
         this.nombre = nombre;
@@ -18,6 +19,8 @@ public class DtEvento {
         this.fechaAlta = fechaAlta;
         this.categorias = categorias;
     }
+    public boolean isFinalizado() { return finalizado; }
+    public void setFinalizado(boolean finalizado) { this.finalizado = finalizado; }
     public String getNombre() {return this.nombre;}
     public String getSigla() {return this.sigla;}
     public String getDescripcion() {return this.descripcion;}
@@ -29,6 +32,6 @@ public class DtEvento {
     public void setFechaAlta(LocalDate fechaAlta) {this.fechaAlta = fechaAlta;}
     @Override
     public String toString() {
-        return nombre;
+        return finalizado ? nombre + " (Finalizado)" : nombre;
     }
 }

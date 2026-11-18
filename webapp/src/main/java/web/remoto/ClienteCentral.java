@@ -47,6 +47,11 @@ public final class ClienteCentral implements ServicioPortal {
  @Override public boolean altaInstitucion(DtInstitucion datos, DtImagen imagen){return invocar(p->p.altaInstitucion(ConversorDatos.convertir(datos,web.soap.generado.portal.DtInstitucion.class), ConversorDatos.convertir(imagen,web.soap.generado.portal.DtImagen.class)));}
  @Override public boolean altaEvento(DtEvento datos, DtImagen imagen){return invocar(p->p.altaEvento(ConversorDatos.convertir(datos,web.soap.generado.portal.DtEvento.class), ConversorDatos.convertir(imagen,web.soap.generado.portal.DtImagen.class)));}
  @Override public boolean altaEdicion(DtEdicion datos, String evento, DtImagen imagen){return invocar(p->p.altaEdicion(ConversorDatos.convertir(datos,web.soap.generado.portal.DtEdicion.class), evento, ConversorDatos.convertir(imagen,web.soap.generado.portal.DtImagen.class)));}
+ @Override public List<DtResultadoBusqueda> buscarEventosYEdiciones(String texto, OrdenBusqueda orden){
+  return invocar(p->p.buscarEventosYEdiciones(texto, orden==null?null:web.soap.generado.portal.OrdenBusqueda.valueOf(orden.name())))
+      .stream().map(v->ConversorDatos.convertir(v,DtResultadoBusqueda.class)).toList();
+ }
+ @Override public void finalizarEvento(String evento){invocar(p->{p.finalizarEvento(evento);return true;});}
  @Override public boolean altaTipoRegistro(DtTipoRegistro datos, String edicion){return invocar(p->p.altaTipoRegistro(ConversorDatos.convertir(datos,web.soap.generado.portal.DtTipoRegistro.class), edicion));}
  @Override public boolean altaPatrocinio(DtPatrocinio datos, String evento){return invocar(p->p.altaPatrocinio(ConversorDatos.convertir(datos,web.soap.generado.portal.DtPatrocinio.class), evento));}
  @Override public DtOpcionesAltaPatrocinio obtenerOpcionesAltaPatrocinio(String evento, String edicion){return ConversorDatos.convertir(invocar(p->p.obtenerOpcionesAltaPatrocinio(evento, edicion)),DtOpcionesAltaPatrocinio.class);}

@@ -22,7 +22,7 @@ public class Evento implements ConImagen {
             columnDefinition = "bigint default 0")
     private long visitas;
 
-    // Marca compartida con la futura operación de finalización; no implica implementar ese caso.
+    // Estado persistido de finalización, compartido con el filtro público y el ranking administrativo.
     @Column(name = "finalizado", nullable = false, columnDefinition = "boolean default false")
     private boolean finalizado;
 
@@ -93,6 +93,7 @@ public class Evento implements ConImagen {
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
     }
+    public void finalizar() { this.finalizado = true; }
     public LocalDate getFechaAlta() {
         return fechaAlta;
     }

@@ -15,12 +15,6 @@
   <message name="OperacionSoapException">
     <part name="fault" element="tns:OperacionFault"/>
   </message>
-  <message name="formularioRegistro">
-    <part name="parameters" element="tns:formularioRegistro"/>
-  </message>
-  <message name="formularioRegistroResponse">
-    <part name="parameters" element="tns:formularioRegistroResponse"/>
-  </message>
   <message name="consultarEdiciones">
     <part name="parameters" element="tns:consultarEdiciones"/>
   </message>
@@ -39,23 +33,47 @@
   <message name="altaPatrocinioResponse">
     <part name="parameters" element="tns:altaPatrocinioResponse"/>
   </message>
+  <message name="formularioRegistro">
+    <part name="parameters" element="tns:formularioRegistro"/>
+  </message>
+  <message name="formularioRegistroResponse">
+    <part name="parameters" element="tns:formularioRegistroResponse"/>
+  </message>
+  <message name="consultarRegistros">
+    <part name="parameters" element="tns:consultarRegistros"/>
+  </message>
+  <message name="consultarRegistrosResponse">
+    <part name="parameters" element="tns:consultarRegistrosResponse"/>
+  </message>
+  <message name="finalizarEvento">
+    <part name="parameters" element="tns:finalizarEvento"/>
+  </message>
+  <message name="finalizarEventoResponse">
+    <part name="parameters" element="tns:finalizarEventoResponse"/>
+  </message>
+  <message name="altaInstitucion">
+    <part name="parameters" element="tns:altaInstitucion"/>
+  </message>
+  <message name="altaInstitucionResponse">
+    <part name="parameters" element="tns:altaInstitucionResponse"/>
+  </message>
+  <message name="buscarEventosYEdiciones">
+    <part name="parameters" element="tns:buscarEventosYEdiciones"/>
+  </message>
+  <message name="buscarEventosYEdicionesResponse">
+    <part name="parameters" element="tns:buscarEventosYEdicionesResponse"/>
+  </message>
   <message name="consultarPerfil">
     <part name="parameters" element="tns:consultarPerfil"/>
   </message>
   <message name="consultarPerfilResponse">
     <part name="parameters" element="tns:consultarPerfilResponse"/>
   </message>
-  <message name="altaTipoRegistro">
-    <part name="parameters" element="tns:altaTipoRegistro"/>
+  <message name="consultarInstitucion">
+    <part name="parameters" element="tns:consultarInstitucion"/>
   </message>
-  <message name="altaTipoRegistroResponse">
-    <part name="parameters" element="tns:altaTipoRegistroResponse"/>
-  </message>
-  <message name="listarInstituciones">
-    <part name="parameters" element="tns:listarInstituciones"/>
-  </message>
-  <message name="listarInstitucionesResponse">
-    <part name="parameters" element="tns:listarInstitucionesResponse"/>
+  <message name="consultarInstitucionResponse">
+    <part name="parameters" element="tns:consultarInstitucionResponse"/>
   </message>
   <message name="listarCategorias">
     <part name="parameters" element="tns:listarCategorias"/>
@@ -69,17 +87,23 @@
   <message name="listarEventosPorCategoriaResponse">
     <part name="parameters" element="tns:listarEventosPorCategoriaResponse"/>
   </message>
-  <message name="consultarRegistros">
-    <part name="parameters" element="tns:consultarRegistros"/>
+  <message name="altaTipoRegistro">
+    <part name="parameters" element="tns:altaTipoRegistro"/>
   </message>
-  <message name="consultarRegistrosResponse">
-    <part name="parameters" element="tns:consultarRegistrosResponse"/>
+  <message name="altaTipoRegistroResponse">
+    <part name="parameters" element="tns:altaTipoRegistroResponse"/>
   </message>
-  <message name="altaInstitucion">
-    <part name="parameters" element="tns:altaInstitucion"/>
+  <message name="registrarVisitaEvento">
+    <part name="parameters" element="tns:registrarVisitaEvento"/>
   </message>
-  <message name="altaInstitucionResponse">
-    <part name="parameters" element="tns:altaInstitucionResponse"/>
+  <message name="registrarVisitaEventoResponse">
+    <part name="parameters" element="tns:registrarVisitaEventoResponse"/>
+  </message>
+  <message name="consultarTipoRegistro">
+    <part name="parameters" element="tns:consultarTipoRegistro"/>
+  </message>
+  <message name="consultarTipoRegistroResponse">
+    <part name="parameters" element="tns:consultarTipoRegistroResponse"/>
   </message>
   <message name="disponibleCorreo">
     <part name="parameters" element="tns:disponibleCorreo"/>
@@ -87,17 +111,17 @@
   <message name="disponibleCorreoResponse">
     <part name="parameters" element="tns:disponibleCorreoResponse"/>
   </message>
-  <message name="consultarInstitucion">
-    <part name="parameters" element="tns:consultarInstitucion"/>
+  <message name="altaUsuario">
+    <part name="parameters" element="tns:altaUsuario"/>
   </message>
-  <message name="consultarInstitucionResponse">
-    <part name="parameters" element="tns:consultarInstitucionResponse"/>
+  <message name="altaUsuarioResponse">
+    <part name="parameters" element="tns:altaUsuarioResponse"/>
   </message>
-  <message name="altaEdicion">
-    <part name="parameters" element="tns:altaEdicion"/>
+  <message name="usuarioActual">
+    <part name="parameters" element="tns:usuarioActual"/>
   </message>
-  <message name="altaEdicionResponse">
-    <part name="parameters" element="tns:altaEdicionResponse"/>
+  <message name="usuarioActualResponse">
+    <part name="parameters" element="tns:usuarioActualResponse"/>
   </message>
   <message name="listarUsuarios">
     <part name="parameters" element="tns:listarUsuarios"/>
@@ -111,47 +135,35 @@
   <message name="disponibleNicknameResponse">
     <part name="parameters" element="tns:disponibleNicknameResponse"/>
   </message>
-  <message name="listarEventos">
-    <part name="parameters" element="tns:listarEventos"/>
-  </message>
-  <message name="listarEventosResponse">
-    <part name="parameters" element="tns:listarEventosResponse"/>
-  </message>
-  <message name="modificarUsuario">
-    <part name="parameters" element="tns:modificarUsuario"/>
-  </message>
-  <message name="modificarUsuarioResponse">
-    <part name="parameters" element="tns:modificarUsuarioResponse"/>
-  </message>
-  <message name="usuarioActual">
-    <part name="parameters" element="tns:usuarioActual"/>
-  </message>
-  <message name="usuarioActualResponse">
-    <part name="parameters" element="tns:usuarioActualResponse"/>
-  </message>
-  <message name="altaUsuario">
-    <part name="parameters" element="tns:altaUsuario"/>
-  </message>
-  <message name="altaUsuarioResponse">
-    <part name="parameters" element="tns:altaUsuarioResponse"/>
-  </message>
   <message name="obtenerImagen">
     <part name="parameters" element="tns:obtenerImagen"/>
   </message>
   <message name="obtenerImagenResponse">
     <part name="parameters" element="tns:obtenerImagenResponse"/>
   </message>
-  <message name="consultarTipoRegistro">
-    <part name="parameters" element="tns:consultarTipoRegistro"/>
+  <message name="listarEventos">
+    <part name="parameters" element="tns:listarEventos"/>
   </message>
-  <message name="consultarTipoRegistroResponse">
-    <part name="parameters" element="tns:consultarTipoRegistroResponse"/>
+  <message name="listarEventosResponse">
+    <part name="parameters" element="tns:listarEventosResponse"/>
   </message>
-  <message name="obtenerOpcionesAltaPatrocinio">
-    <part name="parameters" element="tns:obtenerOpcionesAltaPatrocinio"/>
+  <message name="altaEdicion">
+    <part name="parameters" element="tns:altaEdicion"/>
   </message>
-  <message name="obtenerOpcionesAltaPatrocinioResponse">
-    <part name="parameters" element="tns:obtenerOpcionesAltaPatrocinioResponse"/>
+  <message name="altaEdicionResponse">
+    <part name="parameters" element="tns:altaEdicionResponse"/>
+  </message>
+  <message name="listarInstituciones">
+    <part name="parameters" element="tns:listarInstituciones"/>
+  </message>
+  <message name="listarInstitucionesResponse">
+    <part name="parameters" element="tns:listarInstitucionesResponse"/>
+  </message>
+  <message name="modificarUsuario">
+    <part name="parameters" element="tns:modificarUsuario"/>
+  </message>
+  <message name="modificarUsuarioResponse">
+    <part name="parameters" element="tns:modificarUsuarioResponse"/>
   </message>
   <message name="altaEvento">
     <part name="parameters" element="tns:altaEvento"/>
@@ -165,16 +177,17 @@
   <message name="registrarResponse">
     <part name="parameters" element="tns:registrarResponse"/>
   </message>
+  <message name="obtenerOpcionesAltaPatrocinio">
+    <part name="parameters" element="tns:obtenerOpcionesAltaPatrocinio"/>
+  </message>
+  <message name="obtenerOpcionesAltaPatrocinioResponse">
+    <part name="parameters" element="tns:obtenerOpcionesAltaPatrocinioResponse"/>
+  </message>
   <portType name="Portal">
     <operation name="consultarDetalleEdicion">
       <input wsam:Action="https://eventos.uy/soap/portal/Portal/consultarDetalleEdicionRequest" message="tns:consultarDetalleEdicion"/>
       <output wsam:Action="https://eventos.uy/soap/portal/Portal/consultarDetalleEdicionResponse" message="tns:consultarDetalleEdicionResponse"/>
       <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/consultarDetalleEdicion/Fault/OperacionSoapException"/>
-    </operation>
-    <operation name="formularioRegistro">
-      <input wsam:Action="https://eventos.uy/soap/portal/Portal/formularioRegistroRequest" message="tns:formularioRegistro"/>
-      <output wsam:Action="https://eventos.uy/soap/portal/Portal/formularioRegistroResponse" message="tns:formularioRegistroResponse"/>
-      <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/formularioRegistro/Fault/OperacionSoapException"/>
     </operation>
     <operation name="consultarEdiciones">
       <input wsam:Action="https://eventos.uy/soap/portal/Portal/consultarEdicionesRequest" message="tns:consultarEdiciones"/>
@@ -191,20 +204,40 @@
       <output wsam:Action="https://eventos.uy/soap/portal/Portal/altaPatrocinioResponse" message="tns:altaPatrocinioResponse"/>
       <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/altaPatrocinio/Fault/OperacionSoapException"/>
     </operation>
+    <operation name="formularioRegistro">
+      <input wsam:Action="https://eventos.uy/soap/portal/Portal/formularioRegistroRequest" message="tns:formularioRegistro"/>
+      <output wsam:Action="https://eventos.uy/soap/portal/Portal/formularioRegistroResponse" message="tns:formularioRegistroResponse"/>
+      <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/formularioRegistro/Fault/OperacionSoapException"/>
+    </operation>
+    <operation name="consultarRegistros">
+      <input wsam:Action="https://eventos.uy/soap/portal/Portal/consultarRegistrosRequest" message="tns:consultarRegistros"/>
+      <output wsam:Action="https://eventos.uy/soap/portal/Portal/consultarRegistrosResponse" message="tns:consultarRegistrosResponse"/>
+      <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/consultarRegistros/Fault/OperacionSoapException"/>
+    </operation>
+    <operation name="finalizarEvento">
+      <input wsam:Action="https://eventos.uy/soap/portal/Portal/finalizarEventoRequest" message="tns:finalizarEvento"/>
+      <output wsam:Action="https://eventos.uy/soap/portal/Portal/finalizarEventoResponse" message="tns:finalizarEventoResponse"/>
+      <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/finalizarEvento/Fault/OperacionSoapException"/>
+    </operation>
+    <operation name="altaInstitucion">
+      <input wsam:Action="https://eventos.uy/soap/portal/Portal/altaInstitucionRequest" message="tns:altaInstitucion"/>
+      <output wsam:Action="https://eventos.uy/soap/portal/Portal/altaInstitucionResponse" message="tns:altaInstitucionResponse"/>
+      <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/altaInstitucion/Fault/OperacionSoapException"/>
+    </operation>
+    <operation name="buscarEventosYEdiciones">
+      <input wsam:Action="https://eventos.uy/soap/portal/Portal/buscarEventosYEdicionesRequest" message="tns:buscarEventosYEdiciones"/>
+      <output wsam:Action="https://eventos.uy/soap/portal/Portal/buscarEventosYEdicionesResponse" message="tns:buscarEventosYEdicionesResponse"/>
+      <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/buscarEventosYEdiciones/Fault/OperacionSoapException"/>
+    </operation>
     <operation name="consultarPerfil">
       <input wsam:Action="https://eventos.uy/soap/portal/Portal/consultarPerfilRequest" message="tns:consultarPerfil"/>
       <output wsam:Action="https://eventos.uy/soap/portal/Portal/consultarPerfilResponse" message="tns:consultarPerfilResponse"/>
       <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/consultarPerfil/Fault/OperacionSoapException"/>
     </operation>
-    <operation name="altaTipoRegistro">
-      <input wsam:Action="https://eventos.uy/soap/portal/Portal/altaTipoRegistroRequest" message="tns:altaTipoRegistro"/>
-      <output wsam:Action="https://eventos.uy/soap/portal/Portal/altaTipoRegistroResponse" message="tns:altaTipoRegistroResponse"/>
-      <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/altaTipoRegistro/Fault/OperacionSoapException"/>
-    </operation>
-    <operation name="listarInstituciones">
-      <input wsam:Action="https://eventos.uy/soap/portal/Portal/listarInstitucionesRequest" message="tns:listarInstituciones"/>
-      <output wsam:Action="https://eventos.uy/soap/portal/Portal/listarInstitucionesResponse" message="tns:listarInstitucionesResponse"/>
-      <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/listarInstituciones/Fault/OperacionSoapException"/>
+    <operation name="consultarInstitucion">
+      <input wsam:Action="https://eventos.uy/soap/portal/Portal/consultarInstitucionRequest" message="tns:consultarInstitucion"/>
+      <output wsam:Action="https://eventos.uy/soap/portal/Portal/consultarInstitucionResponse" message="tns:consultarInstitucionResponse"/>
+      <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/consultarInstitucion/Fault/OperacionSoapException"/>
     </operation>
     <operation name="listarCategorias">
       <input wsam:Action="https://eventos.uy/soap/portal/Portal/listarCategoriasRequest" message="tns:listarCategorias"/>
@@ -216,30 +249,35 @@
       <output wsam:Action="https://eventos.uy/soap/portal/Portal/listarEventosPorCategoriaResponse" message="tns:listarEventosPorCategoriaResponse"/>
       <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/listarEventosPorCategoria/Fault/OperacionSoapException"/>
     </operation>
-    <operation name="consultarRegistros">
-      <input wsam:Action="https://eventos.uy/soap/portal/Portal/consultarRegistrosRequest" message="tns:consultarRegistros"/>
-      <output wsam:Action="https://eventos.uy/soap/portal/Portal/consultarRegistrosResponse" message="tns:consultarRegistrosResponse"/>
-      <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/consultarRegistros/Fault/OperacionSoapException"/>
+    <operation name="altaTipoRegistro">
+      <input wsam:Action="https://eventos.uy/soap/portal/Portal/altaTipoRegistroRequest" message="tns:altaTipoRegistro"/>
+      <output wsam:Action="https://eventos.uy/soap/portal/Portal/altaTipoRegistroResponse" message="tns:altaTipoRegistroResponse"/>
+      <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/altaTipoRegistro/Fault/OperacionSoapException"/>
     </operation>
-    <operation name="altaInstitucion">
-      <input wsam:Action="https://eventos.uy/soap/portal/Portal/altaInstitucionRequest" message="tns:altaInstitucion"/>
-      <output wsam:Action="https://eventos.uy/soap/portal/Portal/altaInstitucionResponse" message="tns:altaInstitucionResponse"/>
-      <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/altaInstitucion/Fault/OperacionSoapException"/>
+    <operation name="registrarVisitaEvento">
+      <input wsam:Action="https://eventos.uy/soap/portal/Portal/registrarVisitaEventoRequest" message="tns:registrarVisitaEvento"/>
+      <output wsam:Action="https://eventos.uy/soap/portal/Portal/registrarVisitaEventoResponse" message="tns:registrarVisitaEventoResponse"/>
+      <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/registrarVisitaEvento/Fault/OperacionSoapException"/>
+    </operation>
+    <operation name="consultarTipoRegistro">
+      <input wsam:Action="https://eventos.uy/soap/portal/Portal/consultarTipoRegistroRequest" message="tns:consultarTipoRegistro"/>
+      <output wsam:Action="https://eventos.uy/soap/portal/Portal/consultarTipoRegistroResponse" message="tns:consultarTipoRegistroResponse"/>
+      <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/consultarTipoRegistro/Fault/OperacionSoapException"/>
     </operation>
     <operation name="disponibleCorreo">
       <input wsam:Action="https://eventos.uy/soap/portal/Portal/disponibleCorreoRequest" message="tns:disponibleCorreo"/>
       <output wsam:Action="https://eventos.uy/soap/portal/Portal/disponibleCorreoResponse" message="tns:disponibleCorreoResponse"/>
       <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/disponibleCorreo/Fault/OperacionSoapException"/>
     </operation>
-    <operation name="consultarInstitucion">
-      <input wsam:Action="https://eventos.uy/soap/portal/Portal/consultarInstitucionRequest" message="tns:consultarInstitucion"/>
-      <output wsam:Action="https://eventos.uy/soap/portal/Portal/consultarInstitucionResponse" message="tns:consultarInstitucionResponse"/>
-      <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/consultarInstitucion/Fault/OperacionSoapException"/>
+    <operation name="altaUsuario">
+      <input wsam:Action="https://eventos.uy/soap/portal/Portal/altaUsuarioRequest" message="tns:altaUsuario"/>
+      <output wsam:Action="https://eventos.uy/soap/portal/Portal/altaUsuarioResponse" message="tns:altaUsuarioResponse"/>
+      <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/altaUsuario/Fault/OperacionSoapException"/>
     </operation>
-    <operation name="altaEdicion">
-      <input wsam:Action="https://eventos.uy/soap/portal/Portal/altaEdicionRequest" message="tns:altaEdicion"/>
-      <output wsam:Action="https://eventos.uy/soap/portal/Portal/altaEdicionResponse" message="tns:altaEdicionResponse"/>
-      <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/altaEdicion/Fault/OperacionSoapException"/>
+    <operation name="usuarioActual">
+      <input wsam:Action="https://eventos.uy/soap/portal/Portal/usuarioActualRequest" message="tns:usuarioActual"/>
+      <output wsam:Action="https://eventos.uy/soap/portal/Portal/usuarioActualResponse" message="tns:usuarioActualResponse"/>
+      <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/usuarioActual/Fault/OperacionSoapException"/>
     </operation>
     <operation name="listarUsuarios">
       <input wsam:Action="https://eventos.uy/soap/portal/Portal/listarUsuariosRequest" message="tns:listarUsuarios"/>
@@ -251,40 +289,30 @@
       <output wsam:Action="https://eventos.uy/soap/portal/Portal/disponibleNicknameResponse" message="tns:disponibleNicknameResponse"/>
       <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/disponibleNickname/Fault/OperacionSoapException"/>
     </operation>
-    <operation name="listarEventos">
-      <input wsam:Action="https://eventos.uy/soap/portal/Portal/listarEventosRequest" message="tns:listarEventos"/>
-      <output wsam:Action="https://eventos.uy/soap/portal/Portal/listarEventosResponse" message="tns:listarEventosResponse"/>
-      <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/listarEventos/Fault/OperacionSoapException"/>
-    </operation>
-    <operation name="modificarUsuario">
-      <input wsam:Action="https://eventos.uy/soap/portal/Portal/modificarUsuarioRequest" message="tns:modificarUsuario"/>
-      <output wsam:Action="https://eventos.uy/soap/portal/Portal/modificarUsuarioResponse" message="tns:modificarUsuarioResponse"/>
-      <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/modificarUsuario/Fault/OperacionSoapException"/>
-    </operation>
-    <operation name="usuarioActual">
-      <input wsam:Action="https://eventos.uy/soap/portal/Portal/usuarioActualRequest" message="tns:usuarioActual"/>
-      <output wsam:Action="https://eventos.uy/soap/portal/Portal/usuarioActualResponse" message="tns:usuarioActualResponse"/>
-      <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/usuarioActual/Fault/OperacionSoapException"/>
-    </operation>
-    <operation name="altaUsuario">
-      <input wsam:Action="https://eventos.uy/soap/portal/Portal/altaUsuarioRequest" message="tns:altaUsuario"/>
-      <output wsam:Action="https://eventos.uy/soap/portal/Portal/altaUsuarioResponse" message="tns:altaUsuarioResponse"/>
-      <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/altaUsuario/Fault/OperacionSoapException"/>
-    </operation>
     <operation name="obtenerImagen">
       <input wsam:Action="https://eventos.uy/soap/portal/Portal/obtenerImagenRequest" message="tns:obtenerImagen"/>
       <output wsam:Action="https://eventos.uy/soap/portal/Portal/obtenerImagenResponse" message="tns:obtenerImagenResponse"/>
       <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/obtenerImagen/Fault/OperacionSoapException"/>
     </operation>
-    <operation name="consultarTipoRegistro">
-      <input wsam:Action="https://eventos.uy/soap/portal/Portal/consultarTipoRegistroRequest" message="tns:consultarTipoRegistro"/>
-      <output wsam:Action="https://eventos.uy/soap/portal/Portal/consultarTipoRegistroResponse" message="tns:consultarTipoRegistroResponse"/>
-      <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/consultarTipoRegistro/Fault/OperacionSoapException"/>
+    <operation name="listarEventos">
+      <input wsam:Action="https://eventos.uy/soap/portal/Portal/listarEventosRequest" message="tns:listarEventos"/>
+      <output wsam:Action="https://eventos.uy/soap/portal/Portal/listarEventosResponse" message="tns:listarEventosResponse"/>
+      <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/listarEventos/Fault/OperacionSoapException"/>
     </operation>
-    <operation name="obtenerOpcionesAltaPatrocinio">
-      <input wsam:Action="https://eventos.uy/soap/portal/Portal/obtenerOpcionesAltaPatrocinioRequest" message="tns:obtenerOpcionesAltaPatrocinio"/>
-      <output wsam:Action="https://eventos.uy/soap/portal/Portal/obtenerOpcionesAltaPatrocinioResponse" message="tns:obtenerOpcionesAltaPatrocinioResponse"/>
-      <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/obtenerOpcionesAltaPatrocinio/Fault/OperacionSoapException"/>
+    <operation name="altaEdicion">
+      <input wsam:Action="https://eventos.uy/soap/portal/Portal/altaEdicionRequest" message="tns:altaEdicion"/>
+      <output wsam:Action="https://eventos.uy/soap/portal/Portal/altaEdicionResponse" message="tns:altaEdicionResponse"/>
+      <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/altaEdicion/Fault/OperacionSoapException"/>
+    </operation>
+    <operation name="listarInstituciones">
+      <input wsam:Action="https://eventos.uy/soap/portal/Portal/listarInstitucionesRequest" message="tns:listarInstituciones"/>
+      <output wsam:Action="https://eventos.uy/soap/portal/Portal/listarInstitucionesResponse" message="tns:listarInstitucionesResponse"/>
+      <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/listarInstituciones/Fault/OperacionSoapException"/>
+    </operation>
+    <operation name="modificarUsuario">
+      <input wsam:Action="https://eventos.uy/soap/portal/Portal/modificarUsuarioRequest" message="tns:modificarUsuario"/>
+      <output wsam:Action="https://eventos.uy/soap/portal/Portal/modificarUsuarioResponse" message="tns:modificarUsuarioResponse"/>
+      <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/modificarUsuario/Fault/OperacionSoapException"/>
     </operation>
     <operation name="altaEvento">
       <input wsam:Action="https://eventos.uy/soap/portal/Portal/altaEventoRequest" message="tns:altaEvento"/>
@@ -296,27 +324,15 @@
       <output wsam:Action="https://eventos.uy/soap/portal/Portal/registrarResponse" message="tns:registrarResponse"/>
       <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/registrar/Fault/OperacionSoapException"/>
     </operation>
-    <operation name="registrarVisitaEvento">
-      <input wsam:Action="https://eventos.uy/soap/portal/Portal/registrarVisitaEventoRequest" message="tns:registrarVisitaEvento"/>
-      <output wsam:Action="https://eventos.uy/soap/portal/Portal/registrarVisitaEventoResponse" message="tns:registrarVisitaEventoResponse"/>
-      <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/registrarVisitaEvento/Fault/OperacionSoapException"/>
+    <operation name="obtenerOpcionesAltaPatrocinio">
+      <input wsam:Action="https://eventos.uy/soap/portal/Portal/obtenerOpcionesAltaPatrocinioRequest" message="tns:obtenerOpcionesAltaPatrocinio"/>
+      <output wsam:Action="https://eventos.uy/soap/portal/Portal/obtenerOpcionesAltaPatrocinioResponse" message="tns:obtenerOpcionesAltaPatrocinioResponse"/>
+      <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/obtenerOpcionesAltaPatrocinio/Fault/OperacionSoapException"/>
     </operation>
   </portType>
   <binding name="PortalPortBinding" type="tns:Portal">
     <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
     <operation name="consultarDetalleEdicion">
-      <soap:operation soapAction=""/>
-      <input>
-        <soap:body use="literal"/>
-      </input>
-      <output>
-        <soap:body use="literal"/>
-      </output>
-      <fault name="OperacionSoapException">
-        <soap:fault name="OperacionSoapException" use="literal"/>
-      </fault>
-    </operation>
-    <operation name="formularioRegistro">
       <soap:operation soapAction=""/>
       <input>
         <soap:body use="literal"/>
@@ -364,6 +380,66 @@
         <soap:fault name="OperacionSoapException" use="literal"/>
       </fault>
     </operation>
+    <operation name="formularioRegistro">
+      <soap:operation soapAction=""/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+      <fault name="OperacionSoapException">
+        <soap:fault name="OperacionSoapException" use="literal"/>
+      </fault>
+    </operation>
+    <operation name="consultarRegistros">
+      <soap:operation soapAction=""/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+      <fault name="OperacionSoapException">
+        <soap:fault name="OperacionSoapException" use="literal"/>
+      </fault>
+    </operation>
+    <operation name="finalizarEvento">
+      <soap:operation soapAction=""/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+      <fault name="OperacionSoapException">
+        <soap:fault name="OperacionSoapException" use="literal"/>
+      </fault>
+    </operation>
+    <operation name="altaInstitucion">
+      <soap:operation soapAction=""/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+      <fault name="OperacionSoapException">
+        <soap:fault name="OperacionSoapException" use="literal"/>
+      </fault>
+    </operation>
+    <operation name="buscarEventosYEdiciones">
+      <soap:operation soapAction=""/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+      <fault name="OperacionSoapException">
+        <soap:fault name="OperacionSoapException" use="literal"/>
+      </fault>
+    </operation>
     <operation name="consultarPerfil">
       <soap:operation soapAction=""/>
       <input>
@@ -376,19 +452,7 @@
         <soap:fault name="OperacionSoapException" use="literal"/>
       </fault>
     </operation>
-    <operation name="altaTipoRegistro">
-      <soap:operation soapAction=""/>
-      <input>
-        <soap:body use="literal"/>
-      </input>
-      <output>
-        <soap:body use="literal"/>
-      </output>
-      <fault name="OperacionSoapException">
-        <soap:fault name="OperacionSoapException" use="literal"/>
-      </fault>
-    </operation>
-    <operation name="listarInstituciones">
+    <operation name="consultarInstitucion">
       <soap:operation soapAction=""/>
       <input>
         <soap:body use="literal"/>
@@ -424,7 +488,7 @@
         <soap:fault name="OperacionSoapException" use="literal"/>
       </fault>
     </operation>
-    <operation name="consultarRegistros">
+    <operation name="altaTipoRegistro">
       <soap:operation soapAction=""/>
       <input>
         <soap:body use="literal"/>
@@ -436,7 +500,19 @@
         <soap:fault name="OperacionSoapException" use="literal"/>
       </fault>
     </operation>
-    <operation name="altaInstitucion">
+    <operation name="registrarVisitaEvento">
+      <soap:operation soapAction=""/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+      <fault name="OperacionSoapException">
+        <soap:fault name="OperacionSoapException" use="literal"/>
+      </fault>
+    </operation>
+    <operation name="consultarTipoRegistro">
       <soap:operation soapAction=""/>
       <input>
         <soap:body use="literal"/>
@@ -460,7 +536,7 @@
         <soap:fault name="OperacionSoapException" use="literal"/>
       </fault>
     </operation>
-    <operation name="consultarInstitucion">
+    <operation name="altaUsuario">
       <soap:operation soapAction=""/>
       <input>
         <soap:body use="literal"/>
@@ -472,7 +548,7 @@
         <soap:fault name="OperacionSoapException" use="literal"/>
       </fault>
     </operation>
-    <operation name="altaEdicion">
+    <operation name="usuarioActual">
       <soap:operation soapAction=""/>
       <input>
         <soap:body use="literal"/>
@@ -508,54 +584,6 @@
         <soap:fault name="OperacionSoapException" use="literal"/>
       </fault>
     </operation>
-    <operation name="listarEventos">
-      <soap:operation soapAction=""/>
-      <input>
-        <soap:body use="literal"/>
-      </input>
-      <output>
-        <soap:body use="literal"/>
-      </output>
-      <fault name="OperacionSoapException">
-        <soap:fault name="OperacionSoapException" use="literal"/>
-      </fault>
-    </operation>
-    <operation name="modificarUsuario">
-      <soap:operation soapAction=""/>
-      <input>
-        <soap:body use="literal"/>
-      </input>
-      <output>
-        <soap:body use="literal"/>
-      </output>
-      <fault name="OperacionSoapException">
-        <soap:fault name="OperacionSoapException" use="literal"/>
-      </fault>
-    </operation>
-    <operation name="usuarioActual">
-      <soap:operation soapAction=""/>
-      <input>
-        <soap:body use="literal"/>
-      </input>
-      <output>
-        <soap:body use="literal"/>
-      </output>
-      <fault name="OperacionSoapException">
-        <soap:fault name="OperacionSoapException" use="literal"/>
-      </fault>
-    </operation>
-    <operation name="altaUsuario">
-      <soap:operation soapAction=""/>
-      <input>
-        <soap:body use="literal"/>
-      </input>
-      <output>
-        <soap:body use="literal"/>
-      </output>
-      <fault name="OperacionSoapException">
-        <soap:fault name="OperacionSoapException" use="literal"/>
-      </fault>
-    </operation>
     <operation name="obtenerImagen">
       <soap:operation soapAction=""/>
       <input>
@@ -568,7 +596,7 @@
         <soap:fault name="OperacionSoapException" use="literal"/>
       </fault>
     </operation>
-    <operation name="consultarTipoRegistro">
+    <operation name="listarEventos">
       <soap:operation soapAction=""/>
       <input>
         <soap:body use="literal"/>
@@ -580,7 +608,31 @@
         <soap:fault name="OperacionSoapException" use="literal"/>
       </fault>
     </operation>
-    <operation name="obtenerOpcionesAltaPatrocinio">
+    <operation name="altaEdicion">
+      <soap:operation soapAction=""/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+      <fault name="OperacionSoapException">
+        <soap:fault name="OperacionSoapException" use="literal"/>
+      </fault>
+    </operation>
+    <operation name="listarInstituciones">
+      <soap:operation soapAction=""/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+      <fault name="OperacionSoapException">
+        <soap:fault name="OperacionSoapException" use="literal"/>
+      </fault>
+    </operation>
+    <operation name="modificarUsuario">
       <soap:operation soapAction=""/>
       <input>
         <soap:body use="literal"/>
@@ -616,7 +668,7 @@
         <soap:fault name="OperacionSoapException" use="literal"/>
       </fault>
     </operation>
-    <operation name="registrarVisitaEvento">
+    <operation name="obtenerOpcionesAltaPatrocinio">
       <soap:operation soapAction=""/>
       <input>
         <soap:body use="literal"/>
@@ -634,10 +686,4 @@
       <soap:address location="REPLACE_WITH_ACTUAL_URL"/>
     </port>
   </service>
-  <message name="registrarVisitaEvento">
-    <part name="parameters" element="tns:registrarVisitaEvento"/>
-  </message>
-  <message name="registrarVisitaEventoResponse">
-    <part name="parameters" element="tns:registrarVisitaEventoResponse"/>
-  </message>
 </definitions>

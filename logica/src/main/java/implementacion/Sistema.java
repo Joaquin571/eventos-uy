@@ -11,6 +11,7 @@ import manejadores.ManejadorUsuarios;
 import manejadores.ManejadorImagenes;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -591,7 +592,7 @@ public class Sistema implements ISistema {
 
     @Override
     public Collection<DtEvento> listarEventosPorCategoria(String categoria) {
-        return listarEventos().stream().filter(e -> categoria == null || categoria.isBlank()
+        return listarEventosPublicos().stream().filter(e -> categoria == null || categoria.isBlank()
                 || e.getCategorias().contains(categoria)).toList();
     }
 
@@ -602,15 +603,51 @@ public class Sistema implements ISistema {
             for (Categoria categoria : evento.getCategorias()) {
                 categorias.add(categoria.getNombre());
             }
-            resultado.add(new DtEvento(
+            DtEvento datos = new DtEvento(
                     evento.getNombre(),
                     evento.getSigla(),
                     evento.getDescripcion(),
                     evento.getFechaAlta(),
                     categorias
-            ));
+            );
+            datos.setFinalizado(evento.isFinalizado());
+            resultado.add(datos);
         }
         return resultado;
+    }
+
+    @Override
+    public Collection<DtEvento> listarEventosPublicos() {
+        return listarEventos().stream().filter(e -> {
+            Evento entidad = manejadorEventos.obtenerEvento(e.getNombre());
+            return entidad != null && !entidad.isFinalizado();
+        }).toList();
+    }
+
+    @Override
+    public void finalizarEvento(String evento, Actor actor) {
+        if (actor == null || !actor.esOrganizador() || actor.esAdministradorLocal())
+            throw new excepciones.AccesoDenegadoException("Solo un organizador puede finalizar eventos.");
+        validarObligatorio(evento, "Debe seleccionar un evento.");
+        manejadorEventos.finalizarEvento(evento);
+    }
+
+    @Override
+    public List<DtResultadoBusqueda> buscarEventosYEdiciones(String texto, OrdenBusqueda orden) {
+        String patron = texto == null ? "" : texto.strip().toLowerCase(Locale.ROOT);
+        if (patron.length() > 255) throw new IllegalArgumentException("La búsqueda es demasiado larga.");
+        List<DtResultadoBusqueda> resultados = manejadorEventos.buscarEventosYEdiciones(patron);
+        Comparator<DtResultadoBusqueda> comparador;
+        OrdenBusqueda ordenEfectivo = orden == null ? OrdenBusqueda.FECHA_DESC : orden;
+        switch (ordenEfectivo) {
+            case NOMBRE_ASC -> comparador = Comparator.comparing(DtResultadoBusqueda::getNombre, String.CASE_INSENSITIVE_ORDER);
+            case NOMBRE_DESC -> comparador = Comparator.comparing(DtResultadoBusqueda::getNombre, String.CASE_INSENSITIVE_ORDER).reversed();
+            default -> comparador = Comparator.comparing(DtResultadoBusqueda::getFechaAlta,
+                    Comparator.nullsLast(Comparator.reverseOrder()));
+        }
+        resultados.sort(comparador.thenComparing(DtResultadoBusqueda::getNombre, String.CASE_INSENSITIVE_ORDER)
+                .thenComparing(DtResultadoBusqueda::getTipo));
+        return resultados;
     }
 
     // EDICIONES
@@ -643,6 +680,8 @@ public class Sistema implements ISistema {
             throw new IllegalArgumentException("El evento indicado no existe.");
         }
 
+        if (evento.isFinalizado()) throw new IllegalArgumentException("El evento está finalizado.");
+
         if (manejadorEventos.existeEdicion(dt.getIdNombre())) {
             throw new IllegalArgumentException("Ya existe una edición con ese nombre.");
         }
@@ -671,6 +710,10 @@ public class Sistema implements ISistema {
                 organizador
         );
         edicion.setEvento(evento);
+        edicion.setVideoYoutube(VideoYoutube.normalizar(dt.getVideoYoutube()));
+        if (dt.getDescripcion() != null && dt.getDescripcion().length() > 2048)
+            throw new IllegalArgumentException("La descripción de edición es demasiado larga.");
+        edicion.setDescripcion(dt.getDescripcion());
         if (imagen != null) edicion.setImagen(new Imagen(imagen.getTipoContenido().toLowerCase(Locale.ROOT), imagen.getContenido()));
 
         if (!manejadorEventos.addEdicion(edicion)) {
@@ -698,6 +741,8 @@ public class Sistema implements ISistema {
                 nombreOrganizador
         );
         dt.setEstado(edicion.getEstado());
+        dt.setVideoYoutube(edicion.getVideoYoutube());
+        dt.setDescripcion(edicion.getDescripcion());
         return dt;
     }
 
@@ -1134,6 +1179,9 @@ public class Sistema implements ISistema {
 
     @Override
     public List<DtEdicion> obtenerEdicionesVisibles(String evento, Actor actor) {
+        Evento entidadEvento = manejadorEventos.obtenerEvento(evento);
+        if (entidadEvento == null || entidadEvento.isFinalizado() && (actor == null || !actor.esAdministradorLocal()))
+            return List.of();
         return obtenerEdicionesEvento(evento).stream().filter(e -> e.getEstado() == EstadoEdicion.ACEPTADA
                 || actor != null && (actor.esAdministradorLocal()
                 || actor.esOrganizador() && e.getNombreOrganizador().equals(actor.nickname()))).toList();
@@ -1142,7 +1190,8 @@ public class Sistema implements ISistema {
     @Override
     public DtSeleccionEdicion consultarEdiciones(String evento, String nombre, Actor actor) {
         evento = evento == null ? "" : evento; nombre = nombre == null ? "" : nombre;
-        List<DtEvento> eventos = new ArrayList<>(listarEventos());
+        List<DtEvento> eventos = new ArrayList<>(actor != null && actor.esAdministradorLocal()
+                ? listarEventos() : listarEventosPublicos());
         String buscado = evento;
         if (!evento.isEmpty() && eventos.stream().noneMatch(e -> e.getNombre().equals(buscado)))
             throw new excepciones.NoEncontradoException();
@@ -1150,6 +1199,8 @@ public class Sistema implements ISistema {
         if (!nombre.isEmpty()) {
             Edicion entidad = manejadorEventos.obtenerEdicion(nombre);
             if (!esVisibleParaConsultaPatrocinio(actor, entidad)) throw new excepciones.NoEncontradoException();
+            if (entidad.getEvento().isFinalizado() && (actor == null || !actor.esAdministradorLocal()))
+                throw new excepciones.NoEncontradoException();
             String real = entidad.getEvento().getNombre();
             if (!evento.isEmpty() && !evento.equals(real)) throw new excepciones.NoEncontradoException();
             evento = real; seleccionada = aDt(entidad);
@@ -1186,6 +1237,11 @@ public class Sistema implements ISistema {
 
     @Override
     public DtImagen obtenerImagenVisible(TipoEntidadImagen tipo, String clave, Actor actor) {
+        if (tipo == TipoEntidadImagen.EVENTO) {
+            Evento evento = clave == null ? null : manejadorEventos.obtenerEvento(clave);
+            if (evento == null || evento.isFinalizado() && (actor == null || !actor.esAdministradorLocal()))
+                throw new excepciones.NoEncontradoException();
+        }
         if (tipo == TipoEntidadImagen.EDICION) {
             if (clave == null || clave.isBlank()) throw new excepciones.NoEncontradoException();
             consultarDetalleEdicion(clave, actor);
