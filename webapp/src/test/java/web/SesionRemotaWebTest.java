@@ -35,10 +35,18 @@ class SesionRemotaWebTest {
         var e=new Escenario();e.sesion.put(SesionWeb.CREDENCIAL,"token-sintetico");
         new FiltroAcceso().doFilter(e.req,e.resp,(r,s)->fail("No continuar con sesión expirada"));
         assertTrue(e.sesion.isEmpty());assertEquals(1,e.invalidaciones);assertEquals(302,e.estado);
+        assertEquals("/test/login",e.redireccion);
+    }
+    @Test void sesionMovilExpiradaVuelveAlLoginMovil()throws Exception {
+        var e=new Escenario();e.ruta="/movil/eventos";e.sesion.put(SesionWeb.CREDENCIAL,"token-sintetico");
+        new FiltroAcceso().doFilter(e.req,e.resp,(r,s)->fail("No continuar con sesión expirada"));
+        assertTrue(e.sesion.isEmpty());assertEquals(1,e.invalidaciones);
+        assertEquals("/test/movil/login?motivo=vencida",e.redireccion);
     }
     private static class Escenario {
         final Map<String,Object> sesion=new HashMap<>(),atributos=new HashMap<>();
         int invalidaciones,revocaciones,estado=200;boolean falloLogin,falloCierre,forward;
+        String ruta="/usuario",redireccion;
         final ServicioSesiones remoto=new ServicioSesiones(){
             public ClienteSesionesCentral.Inicio iniciar(String id,String clave){assertEquals("id",id);assertEquals("clave-sintetica",clave);if(falloLogin)throw new IllegalArgumentException("Credenciales inválidas.");return new ClienteSesionesCentral.Inicio("org","Organización","ORGANIZADOR","token-sintetico");}
             public void cerrar(String credencial){assertEquals("token-sintetico",credencial);assertTrue(sesion.containsKey(SesionWeb.CREDENCIAL));revocaciones++;if(falloCierre)throw new ErrorCentral("SERVICIO_NO_DISPONIBLE","Central no disponible.");}
@@ -56,7 +64,7 @@ class SesionRemotaWebTest {
             case "getServletContext"->contexto;
             case "getParameter"->a[0].equals("identificador")?"id":"clave-sintetica";
             case "getMethod"->"GET";
-            case "getServletPath"->"/usuario";
+            case "getServletPath"->ruta;
             case "getContextPath"->"/test";
             case "setCharacterEncoding"->null;
             case "getAttribute"->atributos.get(a[0]);
@@ -65,7 +73,7 @@ class SesionRemotaWebTest {
             default->throw new AssertionError(m.getName());
         });
         final HttpServletResponse resp=CsrfTest.doble(HttpServletResponse.class,(p,m,a)->switch(m.getName()){
-            case "sendRedirect"->{estado=302;yield null;}
+            case "sendRedirect"->{estado=302;redireccion=(String)a[0];yield null;}
             case "sendError","setStatus"->{estado=(Integer)a[0];yield null;}
             case "setHeader"->null;
             default->throw new AssertionError(m.getName());
