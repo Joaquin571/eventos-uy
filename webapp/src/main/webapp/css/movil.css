@@ -1,0 +1,70 @@
+/* Sitio móvil de eventos.uy. Se usa junto con Bootstrap 5 local; no depende de styles.css del escritorio. */
+:root {
+    --movil-azul: #0b4f7c;
+    --movil-azul-claro: #1d7fc4;
+    --movil-fondo: #f4f6fa;
+    --movil-borde: #dbe2ea;
+    --movil-texto: #1f2937;
+}
+html { -webkit-text-size-adjust: 100%; }
+body.movil {
+    min-width: 0;
+    background: var(--movil-fondo);
+    color: var(--movil-texto);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+.movil-contenedor { width: 100%; max-width: 720px; margin: 0 auto; padding: 1rem; }
+.movil-centrado { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; }
+.movil img, .movil iframe { max-width: 100%; }
+.movil-texto { overflow-wrap: anywhere; word-break: break-word; }
+
+/* Barra superior */
+.navbar-movil { background: var(--movil-azul); }
+.marca-uy { color: #7cc4f2; }
+.marca-uy-oscura { color: var(--movil-azul-claro); }
+.movil-toque { min-height: 48px; display: flex; align-items: center; }
+.navbar-movil .navbar-toggler { justify-content: center; min-width: 48px; }
+.movil-salir { background: none; border: 0; color: rgba(255, 255, 255, .85); }
+.movil-usuario { color: #fff; padding: .75rem 0; border-bottom: 1px solid rgba(255, 255, 255, .2); margin-bottom: .5rem; }
+.movil-usuario small { display: block; color: rgba(255, 255, 255, .7); }
+
+/* Formularios táctiles: 16 px evita el zoom automático de iOS */
+.movil input, .movil select, .movil button { font-size: 16px; }
+.movil .form-control-lg, .movil .btn-lg { min-height: 52px; }
+.movil-logo {
+    width: 64px; height: 64px; margin: 0 auto 1rem; border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, var(--movil-azul), var(--movil-azul-claro)); color: #fff; font-size: 2rem; font-weight: 700;
+}
+
+/* Listados */
+.movil-etiqueta { font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: #6b7280; font-weight: 700; margin: 1rem 0 .5rem; }
+.movil-evento {
+    display: flex; flex-direction: column; min-height: 112px; height: 100%;
+    background: #fff; border: 1px solid var(--movil-borde); border-radius: 12px; overflow: hidden;
+    color: inherit; text-decoration: none;
+}
+.movil-evento-inicial {
+    flex: 1; display: flex; align-items: center; justify-content: center; min-height: 64px;
+    background: linear-gradient(135deg, var(--movil-azul), var(--movil-azul-claro)); color: #fff; font-weight: 700; letter-spacing: .05em;
+}
+.movil-evento-nombre { padding: .6rem .75rem; font-weight: 600; font-size: .9rem; overflow-wrap: anywhere; }
+.movil-evento-activo { border-color: var(--movil-azul); box-shadow: 0 0 0 2px var(--movil-azul); }
+.movil-lista .list-group-item { border-radius: 12px; margin-bottom: .5rem; border: 1px solid var(--movil-borde); }
+
+/* Detalle de edición */
+.movil-volver { color: var(--movil-azul); text-decoration: none; }
+.movil-video { border-radius: 12px; overflow: hidden; background: #000; }
+.movil-datos { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem 1rem; margin-bottom: 1rem; }
+.movil-datos dt, .movil-filas dt { font-size: .75rem; color: #6b7280; font-weight: 500; }
+.movil-datos dd, .movil-filas dd { margin: 0; overflow-wrap: anywhere; }
+.movil-precios li { display: flex; justify-content: space-between; gap: 1rem; padding: .5rem 0; border-bottom: 1px solid var(--movil-borde); }
+.movil-registro-propio {
+    justify-content: space-between; padding: .5rem 1rem; border-radius: 12px; text-decoration: none;
+    background: #e6f0f8; color: var(--movil-azul);
+}
+.movil-tarjeta { border: 1px solid var(--movil-borde); border-radius: 12px; }
+.movil-filas > div { display: flex; justify-content: space-between; gap: 1rem; padding: .5rem 0; border-bottom: 1px solid var(--movil-borde); }
+.movil-filas > div:last-child { border-bottom: 0; }
+
+@media (max-width: 360px) { .movil-datos { grid-template-columns: 1fr; } }
