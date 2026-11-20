@@ -39,9 +39,20 @@ public final class SesionesRemotas {
     }
 
     public SesionEmitida iniciar(String identificador, String contrasenia) {
+        return iniciar(identificador, contrasenia, false);
+    }
+
+    public SesionEmitida iniciarMovil(String identificador, String contrasenia) {
+        return iniciar(identificador, contrasenia, true);
+    }
+
+    private SesionEmitida iniciar(String identificador, String contrasenia, boolean movil) {
         DtUsuario usuario;
         try {
-            usuario = sistema.autenticar(identificador, contrasenia);
+            usuario = movil ? sistema.autenticarMovil(identificador, contrasenia)
+                    : sistema.autenticar(identificador, contrasenia);
+        } catch (excepciones.AccesoDenegadoException error) {
+            throw new excepciones.AccesoDenegadoException("El acceso movil requiere un asistente.");
         } catch (IllegalArgumentException error) {
             throw new IllegalArgumentException(LOGIN_INVALIDO);
         } catch (RuntimeException error) {
@@ -51,6 +62,8 @@ public final class SesionesRemotas {
                 || usuario.getNickname() == null || usuario.getNickname().isBlank()) {
             throw new IllegalArgumentException(LOGIN_INVALIDO);
         }
+        if (movil && !(usuario instanceof DtAsistente))
+            throw new excepciones.AccesoDenegadoException("El acceso movil requiere un asistente.");
 
         Actor actor = Actor.usuarioAutenticado(usuario);
         String nombre = usuario.getNombre();

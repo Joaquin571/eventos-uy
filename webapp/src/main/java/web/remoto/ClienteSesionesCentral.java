@@ -27,9 +27,15 @@ public final class ClienteSesionesCentral implements ServicioSesiones {
         return puerto;
     }
     public Inicio iniciar(String identificador,String contrasenia){
+        return iniciar(identificador,contrasenia,false);
+    }
+    @Override public Inicio iniciarMovil(String identificador,String contrasenia){
+        return iniciar(identificador,contrasenia,true);
+    }
+    private Inicio iniciar(String identificador,String contrasenia,boolean movil){
         var puerto=puerto();
         try{
-            var usuario=puerto.iniciarSesion(identificador,contrasenia);
+            var usuario=movil?puerto.iniciarSesionMovil(identificador,contrasenia):puerto.iniciarSesion(identificador,contrasenia);
             Object valor=((BindingProvider)puerto).getResponseContext().get(MessageContext.HTTP_RESPONSE_HEADERS);
             String credencial=null;
             if(valor instanceof Map<?,?> encabezados)for(var entrada:encabezados.entrySet()){
@@ -42,6 +48,8 @@ public final class ClienteSesionesCentral implements ServicioSesiones {
             if(credencial==null || usuario==null || usuario.getRol()==null)throw new WebServiceException();
             return new Inicio(usuario.getNickname(),usuario.getNombre(),usuario.getRol().value(),credencial);
         }catch(SesionSoapException e){
+            if("ACCESO_DENEGADO".equals(e.getFaultInfo().getCodigo()))
+                throw new ErrorCentral("ACCESO_DENEGADO","El acceso movil requiere un asistente.");
             if("CREDENCIALES_INVALIDAS".equals(e.getFaultInfo().getCodigo()) || "SOLICITUD_MALFORMADA".equals(e.getFaultInfo().getCodigo()))
                 throw new IllegalArgumentException("El nickname, el correo o la contraseña no son correctos.");
             throw new ErrorCentral("SERVICIO_NO_DISPONIBLE","No se pudo iniciar la sesión.");

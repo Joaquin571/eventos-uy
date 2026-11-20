@@ -135,6 +135,12 @@
   <message name="listarInstitucionesResponse">
     <part name="parameters" element="tns:listarInstitucionesResponse"/>
   </message>
+  <message name="usuarioMovilActual">
+    <part name="parameters" element="tns:usuarioMovilActual"/>
+  </message>
+  <message name="usuarioMovilActualResponse">
+    <part name="parameters" element="tns:usuarioMovilActualResponse"/>
+  </message>
   <message name="seguirUsuario">
     <part name="parameters" element="tns:seguirUsuario"/>
   </message>
@@ -288,6 +294,11 @@
       <input wsam:Action="https://eventos.uy/soap/portal/Portal/listarInstitucionesRequest" message="tns:listarInstituciones"/>
       <output wsam:Action="https://eventos.uy/soap/portal/Portal/listarInstitucionesResponse" message="tns:listarInstitucionesResponse"/>
       <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/listarInstituciones/Fault/OperacionSoapException"/>
+    </operation>
+    <operation name="usuarioMovilActual">
+      <input wsam:Action="https://eventos.uy/soap/portal/Portal/usuarioMovilActualRequest" message="tns:usuarioMovilActual"/>
+      <output wsam:Action="https://eventos.uy/soap/portal/Portal/usuarioMovilActualResponse" message="tns:usuarioMovilActualResponse"/>
+      <fault message="tns:OperacionSoapException" name="OperacionSoapException" wsam:Action="https://eventos.uy/soap/portal/Portal/usuarioMovilActual/Fault/OperacionSoapException"/>
     </operation>
     <operation name="seguirUsuario">
       <input wsam:Action="https://eventos.uy/soap/portal/Portal/seguirUsuarioRequest" message="tns:seguirUsuario"/>
@@ -573,6 +584,18 @@
       </fault>
     </operation>
     <operation name="listarInstituciones">
+      <soap:operation soapAction=""/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+      <fault name="OperacionSoapException">
+        <soap:fault name="OperacionSoapException" use="literal"/>
+      </fault>
+    </operation>
+    <operation name="usuarioMovilActual">
       <soap:operation soapAction=""/>
       <input>
         <soap:body use="literal"/>

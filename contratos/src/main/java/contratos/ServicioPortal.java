@@ -3,6 +3,7 @@ import contratos.dto.*;
 import java.util.List;
 /** API del consumidor Web, independiente de lógica y persistencia. */
 public interface ServicioPortal {
+    DtAsistente usuarioMovilActual();
     void seguirUsuario(String destino);
     void dejarDeSeguirUsuario(String destino);
     DtRelacionesUsuario consultarRelaciones(String nickname);

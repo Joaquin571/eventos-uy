@@ -13,6 +13,12 @@ import java.util.*;
 @WebService(name="Portal",serviceName="PortalService",portName="PortalPort",targetNamespace="https://eventos.uy/soap/portal")
 public class PortalPublicador {
     @WebMethod
+    @jakarta.xml.ws.RequestWrapper(className="central.soap.portal.jaxws.UsuarioMovilActual")
+    @jakarta.xml.ws.ResponseWrapper(className="central.soap.portal.jaxws.UsuarioMovilActualResponse")
+    public DtAsistente usuarioMovilActual() throws OperacionSoapException {
+        return invocar(() -> salida(sistema.consultarUsuarioMovil(actor(true)), DtAsistente.class));
+    }
+    @WebMethod
     @jakarta.xml.ws.RequestWrapper(className="central.soap.portal.jaxws.SeguirUsuario")
     @jakarta.xml.ws.ResponseWrapper(className="central.soap.portal.jaxws.SeguirUsuarioResponse")
     public void seguirUsuario(@WebParam(name="destino") String destino) throws OperacionSoapException {

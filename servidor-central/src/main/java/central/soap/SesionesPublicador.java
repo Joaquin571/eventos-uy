@@ -35,12 +35,27 @@ public class SesionesPublicador {
     public UsuarioSesionSoap iniciarSesion(@WebParam(name = "identificador") String identificador,
                                           @WebParam(name = "contrasenia") String contrasenia)
             throws SesionSoapException {
+        return iniciar(identificador, contrasenia, false);
+    }
+
+    @WebMethod
+    public UsuarioSesionSoap iniciarSesionMovil(@WebParam(name = "identificador") String identificador,
+                                               @WebParam(name = "contrasenia") String contrasenia)
+            throws SesionSoapException {
+        return iniciar(identificador, contrasenia, true);
+    }
+
+    private UsuarioSesionSoap iniciar(String identificador, String contrasenia, boolean movil)
+            throws SesionSoapException {
         if (identificador == null || identificador.isBlank() || contrasenia == null) {
             throw new SesionSoapException("SOLICITUD_MALFORMADA", "Ingresá identificador y contraseña.");
         }
         SesionesRemotas.SesionEmitida emitida;
         try {
-            emitida = sesiones.iniciar(identificador, contrasenia);
+            emitida = movil ? sesiones.iniciarMovil(identificador, contrasenia)
+                    : sesiones.iniciar(identificador, contrasenia);
+        } catch (excepciones.AccesoDenegadoException e) {
+            throw new SesionSoapException("ACCESO_DENEGADO", "El acceso movil requiere un asistente.");
         } catch (IllegalArgumentException e) {
             throw new SesionSoapException("CREDENCIALES_INVALIDAS",
                     "El nickname, el correo o la contraseña no son correctos.");

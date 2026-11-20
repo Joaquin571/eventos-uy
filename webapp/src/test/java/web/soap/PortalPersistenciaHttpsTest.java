@@ -145,5 +145,18 @@ class PortalPersistenciaHttpsTest {
         seguidor.dejarDeSeguirUsuario(orgNick);
         assertFalse(seguidor.consultarRelaciones(orgNick).isSiguiendo());
     }
+    @Test void autenticacionMovilValidaRolEnCentralConSesionP03() {
+        var c=asistente("tlsMovil");String nick=c.usuarioActual().getNickname();
+        var remoto=new ClienteSesionesCentral(sesiones,confianza);
+        assertEquals("ACCESO_DENEGADO",assertThrows(ErrorCentral.class,()->remoto.iniciarMovil(orgNick,CLAVE)).getCodigo());
+        assertEquals("ACCESO_DENEGADO",assertThrows(ErrorCentral.class,org::usuarioMovilActual).getCodigo());
+        assertThrows(IllegalArgumentException.class,()->remoto.iniciarMovil(nick,"incorrecta"));
+        var inicio=remoto.iniciarMovil(nick,CLAVE);
+        var movil=new ClienteCentral(portal,inicio.credencial(),confianza);
+        assertEquals(nick,movil.usuarioMovilActual().getNickname());
+        assertEquals(nick,movil.usuarioActual().getNickname());
+        remoto.cerrar(inicio.credencial());
+        assertEquals("SESION_INVALIDA",assertThrows(ErrorCentral.class,movil::usuarioMovilActual).getCodigo());
+    }
     @AfterAll void cerrar(){try{endpoints.forEach(Endpoint::stop);}finally{if(servidor!=null)servidor.stop(0);if(hilos!=null)hilos.shutdownNow();BaseDeDatos.cerrar();}}
 }

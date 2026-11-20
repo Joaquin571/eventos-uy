@@ -15,6 +15,7 @@ import java.util.*;
 
 /** Proxy generado nuevo por invocación; nunca contiene acceso local a lógica. */
 public final class ClienteCentral implements ServicioPortal {
+ @Override public DtAsistente usuarioMovilActual(){return ConversorDatos.convertir(invocar(p->p.usuarioMovilActual()),DtAsistente.class);}
  @Override public void seguirUsuario(String destino){invocar(p->{p.seguirUsuario(destino);return null;});}
  @Override public void dejarDeSeguirUsuario(String destino){invocar(p->{p.dejarDeSeguirUsuario(destino);return null;});}
  @Override public DtRelacionesUsuario consultarRelaciones(String nickname){return ConversorDatos.convertir(invocar(p->p.consultarRelaciones(nickname)),DtRelacionesUsuario.class);}

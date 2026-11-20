@@ -19,6 +19,26 @@ import java.time.LocalDate;
 
 public class Sistema implements ISistema {
 
+    @Override
+    public DtAsistente autenticarMovil(String identificador, String contrasenia) {
+        DtUsuario usuario = autenticar(identificador, contrasenia);
+        if (!(usuario instanceof DtAsistente asistente))
+            throw new excepciones.AccesoDenegadoException("El acceso movil requiere un asistente.");
+        return asistente;
+    }
+
+    @Override
+    public DtAsistente consultarUsuarioMovil(Actor actor) {
+        requerirUsuarioRemoto(actor);
+        // Verificar el rol persistido incluso si el Actor procede de una sesion de escritorio.
+        if (!manejadorUsuarios.existeUsuario(actor.nickname()))
+            throw new excepciones.AccesoDenegadoException("El acceso movil requiere un asistente.");
+        DtUsuario usuario = consultarUsuario(actor.nickname());
+        if (!(usuario instanceof DtAsistente asistente))
+            throw new excepciones.AccesoDenegadoException("El acceso movil requiere un asistente.");
+        return asistente;
+    }
+
     private void autorizarSeguimiento(Actor actor) {
         requerirUsuarioRemoto(actor);
         if (!manejadorUsuarios.existeUsuario(actor.nickname()))

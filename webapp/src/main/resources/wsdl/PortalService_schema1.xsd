@@ -119,6 +119,10 @@
 
   <xs:element name="usuarioActualResponse" type="tns:usuarioActualResponse"/>
 
+  <xs:element name="usuarioMovilActual" type="tns:usuarioMovilActual"/>
+
+  <xs:element name="usuarioMovilActualResponse" type="tns:usuarioMovilActualResponse"/>
+
   <xs:complexType name="consultarTipoRegistro">
     <xs:sequence>
       <xs:element name="edicion" type="xs:string" minOccurs="0"/>
@@ -654,6 +658,16 @@
   <xs:complexType name="usuarioActualResponse">
     <xs:sequence>
       <xs:element name="return" type="tns:dtUsuario" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="usuarioMovilActual">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:complexType name="usuarioMovilActualResponse">
+    <xs:sequence>
+      <xs:element name="return" type="tns:dtAsistente" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>
 

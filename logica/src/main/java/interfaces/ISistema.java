@@ -6,6 +6,8 @@ import java.util.Collection;
 public interface ISistema {
 
     // USUARIOS
+    DtAsistente autenticarMovil(String identificador, String contrasenia);
+    DtAsistente consultarUsuarioMovil(Actor actor);
     void seguirUsuario(String destino, Actor actor);
     void dejarDeSeguirUsuario(String destino, Actor actor);
     DtRelacionesUsuario consultarRelaciones(String nickname, Actor actor);
