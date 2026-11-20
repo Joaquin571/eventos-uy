@@ -211,7 +211,7 @@ class ConsultasEdicionTest {
             default -> throw new AssertionError("Consulta inesperada: "+m.getName());
         });
         final ServletContext contexto=doble(ServletContext.class,(p,m,a)->{if(m.getName().equals("getAttribute")&&a[0].equals("central"))return PortalDoble.crear(sistema,sesion);throw new AssertionError(m.getName());});
-        final HttpSession httpSesion=doble(HttpSession.class,(p,m,a)->{if(m.getName().equals("getAttribute"))return sesion.get(a[0]);throw new AssertionError(m.getName());});
+        final HttpSession httpSesion=doble(HttpSession.class,(p,m,a)->{if(m.getName().equals("getAttribute"))return sesion.get(a[0]);if(m.getName().equals("removeAttribute"))return sesion.remove(a[0]);throw new AssertionError(m.getName());});
         final RequestDispatcher dispatcher=doble(RequestDispatcher.class,(p,m,a)->{if(m.getName().equals("forward")){reenviado=true;return null;}throw new AssertionError(m.getName());});
         final HttpServletRequest req=doble(HttpServletRequest.class,(p,m,a)->switch(m.getName()) {
             case "getSession" -> {if(a==null||a.length!=1||!Boolean.FALSE.equals(a[0]))throw new AssertionError("No crear sesión.");yield sesion.isEmpty()?null:httpSesion;}
