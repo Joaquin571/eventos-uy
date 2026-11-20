@@ -24,7 +24,10 @@
                         <a class="nav-link movil-toque ${seccionMovil eq 'registros' ? 'active' : ''}"
                            href="${raiz}/movil/registros">Mis registros</a>
                     </li>
-                    <%-- PENDIENTE (Adrián): "Registrar asistencia" se agrega cuando exista la operación de asistencia. --%>
+                    <li class="nav-item">
+                        <a class="nav-link movil-toque ${seccionMovil eq 'asistencia' ? 'active' : ''}"
+                           href="${raiz}/movil/registros?modo=asistencia">Registrar asistencia</a>
+                    </li>
                     <li class="nav-item">
                         <form method="post" action="${raiz}/movil/logout" class="m-0">
                             <jsp:include page="/WEB-INF/views/fragmentos/csrf.jsp"/>

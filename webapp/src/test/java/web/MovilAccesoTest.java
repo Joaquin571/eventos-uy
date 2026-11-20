@@ -174,7 +174,7 @@ class MovilAccesoTest {
             public void cerrar(String credencial) { assertEquals("token-sintetico", credencial); revocaciones++; }
         };
         final ServicioPortal portal = doble(ServicioPortal.class, (p, m, a) -> {
-            consultasCentral++; llamada = m.getName() + Arrays.toString(a);
+            consultasCentral++; if (llamada == null) llamada = m.getName() + Arrays.toString(a);
             return switch (m.getName()) {
                 case "consultarEdiciones" -> seleccion;
                 case "consultarDetalleEdicion" -> detalle;
@@ -190,6 +190,7 @@ class MovilAccesoTest {
         final HttpSession session = doble(HttpSession.class, (p, m, a) -> switch (m.getName()) {
             case "getAttribute" -> sesion.get(a[0]);
             case "setAttribute" -> { sesion.put((String) a[0], a[1]); yield null; }
+            case "removeAttribute" -> { sesion.remove(a[0]); yield null; }
             case "invalidate" -> { invalidaciones++; sesion.clear(); haySesion = false; yield null; }
             default -> throw new AssertionError(m.getName());
         });
@@ -207,6 +208,7 @@ class MovilAccesoTest {
             case "setAttribute" -> { atributos.put((String) a[0], a[1]); yield null; }
             case "getRequestDispatcher" -> { reenvio = (String) a[0]; yield dispatcher; }
             case "getContextPath" -> "/test";
+            case "getMethod" -> "GET";
             default -> throw new AssertionError(m.getName());
         });
         final HttpServletResponse resp = doble(HttpServletResponse.class, (p, m, a) -> switch (m.getName()) {

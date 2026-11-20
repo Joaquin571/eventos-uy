@@ -1,6 +1,8 @@
 package web;
 
+import contratos.ServicioPortal;
 import contratos.dto.DtRegistro;
+import contratos.dto.EstadoEdicion;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -8,25 +10,42 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.time.LocalDate;
 
 /**
- * Consulta de Registro móvil: las ediciones a las que el asistente se registró y el detalle del elegido.
- * Siempre consulta los registros propios (el asistente se resuelve en Central con la credencial P03).
- *
- * PENDIENTE (Adrián): mostrar "asistencia registrada" y el registro de asistencia, cuando el contrato exista.
+ * Consulta de Registro y Registro de Asistencia móvil: las ediciones a las que el asistente se registró y el
+ * detalle del elegido, con su estado de asistencia. Siempre consulta los registros propios (el asistente se
+ * resuelve en Central con la credencial P03). El parámetro modo=asistencia solo cambia el título y el resaltado
+ * del menú; la acción de confirmar vive en MovilAsistenciaServlet.
  */
 @WebServlet("/movil/registros")
 public class MovilRegistrosServlet extends HttpServlet {
+    static final String PANTALLA = "/movil/registros";
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         var asistente = AccesoMovil.requerirAsistente(req, resp);
         if (asistente == null) return;
+        MensajesFlash.mostrar(req, PANTALLA);
         String edicion = AccesoEdiciones.texto(req, "edicion");
-        var consulta = ContextoListener.central(req).consultarRegistros(edicion, "");
+        var central = ContextoListener.central(req);
+        var consulta = central.consultarRegistros(edicion, "");
+        req.setAttribute("modoAsistencia", "asistencia".equals(req.getParameter("modo")));
         req.setAttribute("edicionElegida", edicion);
         req.setAttribute("registros", consulta.getRegistros().stream().map(r -> vista(r, asistente.getNombre())).toList());
-        if (consulta.getDetalle() != null) req.setAttribute("detalle", vista(consulta.getDetalle(), asistente.getNombre()));
+        var detalle = consulta.getDetalle();
+        if (detalle != null) {
+            req.setAttribute("detalle", vista(detalle, asistente.getNombre()));
+            if (!detalle.isAsistenciaConfirmada()) req.setAttribute("puedeConfirmarAsistencia", puedeConfirmar(central, detalle));
+        }
         req.getRequestDispatcher("/WEB-INF/views/movil/registros.jsp").forward(req, resp);
+    }
+
+    /** Mismo criterio que la consulta de registro de escritorio: edición Aceptada y ya iniciada. */
+    private boolean puedeConfirmar(ServicioPortal central, DtRegistro registro) {
+        var edicion = central.consultarDetalleEdicion(registro.getNombreEdicion()).getEdicion();
+        return edicion != null && edicion.getEstado() == EstadoEdicion.ACEPTADA
+                && edicion.getFechaInicio() != null && !LocalDate.now().isBefore(edicion.getFechaInicio());
     }
 
     private DetalleRegistroVista vista(DtRegistro registro, String nombre) {

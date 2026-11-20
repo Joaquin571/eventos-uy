@@ -14,11 +14,12 @@ import java.time.format.DateTimeFormatter;
  * Consulta de Edición de Evento, detalle móvil. Usa las mismas operaciones SOAP que el sitio de escritorio
  * (consultarEdiciones y consultarDetalleEdicion). Si el asistente está registrado, muestra su registro.
  *
- * PENDIENTE (Emmanuel): el video. Cuando DtEdicion exponga el video, este servlet debe publicar el atributo
- * "urlVideoEmbed" con la dirección embebida; fragmentos/video.jsp ya lo muestra en 16:9 si existe.
+ * Video: Central ya entrega la dirección embebida normalizada (youtube-nocookie.com/embed/...). Aquí solo se
+ * publica como "urlVideoEmbed" si coincide con ese reproductor; fragmentos/video.jsp lo muestra en 16:9.
  */
 @WebServlet("/movil/edicion")
 public class MovilEdicionServlet extends HttpServlet {
+    static final String PREFIJO_VIDEO = "https://www.youtube-nocookie.com/embed/";
     private static final DateTimeFormatter FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     @Override
@@ -42,6 +43,8 @@ public class MovilEdicionServlet extends HttpServlet {
         req.setAttribute("detalle", edicion);
         req.setAttribute("fechaInicio", fecha(edicion.getFechaInicio()));
         req.setAttribute("fechaFin", fecha(edicion.getFechaFin()));
+        String video = edicion.getVideoYoutube();
+        if (video != null && video.startsWith(PREFIJO_VIDEO)) req.setAttribute("urlVideoEmbed", video);
         req.setAttribute("organizador", detalle.getOrganizador());
         req.setAttribute("tieneImagen", detalle.isTieneImagen());
         req.setAttribute("tipos", detalle.getTipos());
