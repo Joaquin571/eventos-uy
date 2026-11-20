@@ -32,6 +32,19 @@ class PortalSoapHttpsTest {
     @BeforeAll void publicar(@TempDir Path temporal) throws Exception {
         var sistema=(ISistema)Proxy.newProxyInstance(ISistema.class.getClassLoader(),new Class<?>[]{ISistema.class},(p,m,a)->{
             switch(m.getName()){
+                case "autenticarMovil":
+                    if (!"clave-sintetica".equals(a[1])) throw new IllegalArgumentException("Credenciales invalidas");
+                    if (!"asis".equals(a[0])) throw new excepciones.AccesoDenegadoException("Solo asistentes");
+                    return new datatypes.DtAsistente("asis", "Asistente", "asis@test.uy", "Apellido", null, null);
+                case "consultarUsuarioMovil":
+                    recibido = (Actor) a[0];
+                    if (recibido.esOrganizador()) throw new excepciones.AccesoDenegadoException("Solo asistentes");
+                    return new datatypes.DtAsistente(recibido.nickname(), "Asistente", "asis@test.uy", "Apellido", null, null);
+                case "seguirUsuario", "dejarDeSeguirUsuario":
+                    recibido = (Actor) a[1]; return null;
+                case "consultarRelaciones":
+                    recibido = (Actor) a[1];
+                    return new datatypes.DtRelacionesUsuario(List.of("asis"), List.of("org"), recibido != null);
                 case "autenticar":
                     if(!"clave-sintetica".equals(a[1]))throw new IllegalArgumentException("Credenciales inválidas");
                     return new datatypes.DtOrganizador("org","Organización ñ","org@test.uy","Desc","");
@@ -70,6 +83,33 @@ class PortalSoapHttpsTest {
     @AfterAll void cerrar(){try{endpoints.forEach(Endpoint::stop);}finally{if(servidor!=null)servidor.stop(0);if(hilos!=null)hilos.shutdownNow();}}
     private ClienteSesionesCentral login(){return new ClienteSesionesCentral(sesiones,confianza);}
     private ClienteCentral cliente(String credencial){return new ClienteCentral(portal,credencial,confianza);}
+    @Test void relacionesPorHttpsConviertenDtoYResuelvenIdentidadEnCentral() {
+        var publico = cliente(null).consultarRelaciones("org");
+        assertEquals(List.of("asis"), publico.getSeguidores());
+        assertEquals(List.of("org"), publico.getSeguidos());
+        assertFalse(publico.isSiguiendo());
+        assertEquals("SESION_INVALIDA", assertThrows(ErrorCentral.class, () -> cliente(null).seguirUsuario("org")).getCodigo());
+        var inicio = login().iniciar("org", "clave-sintetica");
+        var c = cliente(inicio.credencial());
+        c.seguirUsuario("asis"); assertEquals("org", recibido.nickname());
+        c.dejarDeSeguirUsuario("asis"); assertEquals("org", recibido.nickname());
+        assertTrue(c.consultarRelaciones("asis").isSiguiendo());
+        login().cerrar(inicio.credencial());
+        assertEquals("SESION_INVALIDA", assertThrows(ErrorCentral.class, () -> c.seguirUsuario("asis")).getCodigo());
+    }
+    @Test void movilPorHttpsReutilizaP03YRechazaOrganizadorDeEscritorio() {
+        assertEquals("ACCESO_DENEGADO", assertThrows(ErrorCentral.class,
+                () -> login().iniciarMovil("org", "clave-sintetica")).getCodigo());
+        assertThrows(IllegalArgumentException.class, () -> login().iniciarMovil("asis", "incorrecta"));
+        var escritorio = login().iniciar("org", "clave-sintetica");
+        assertEquals("ACCESO_DENEGADO", assertThrows(ErrorCentral.class,
+                () -> cliente(escritorio.credencial()).usuarioMovilActual()).getCodigo());
+        var inicio = login().iniciarMovil("asis", "clave-sintetica");
+        var c = cliente(inicio.credencial());
+        assertEquals("asis", c.usuarioMovilActual().getNickname());
+        login().cerrar(inicio.credencial());
+        assertEquals("SESION_INVALIDA", assertThrows(ErrorCentral.class, c::usuarioMovilActual).getCodigo());
+    }
     @Test void consultaPublicaConvierteFechasColeccionesYUnicode(){var e=cliente(null).listarEventos().getFirst();assertEquals("Encuentro ñ",e.getNombre());assertEquals(LocalDate.of(2026,11,5),e.getFechaAlta());assertEquals(List.of("Arte"),new ArrayList<>(e.getCategorias()));}
     @Test void visitaPropagaActorOpcionalSinInventarUnAdministrador(){
         recibido=Actor.administradorLocal();cliente(null).registrarVisitaEvento("Evento");assertNull(recibido);

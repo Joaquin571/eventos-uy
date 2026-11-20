@@ -8,6 +8,11 @@ public interface ISistema {
     java.util.List<DtEventoVisitado> obtenerEventosMasVisitados(Actor actor);
 
     // USUARIOS
+    DtAsistente autenticarMovil(String identificador, String contrasenia);
+    DtAsistente consultarUsuarioMovil(Actor actor);
+    void seguirUsuario(String destino, Actor actor);
+    void dejarDeSeguirUsuario(String destino, Actor actor);
+    DtRelacionesUsuario consultarRelaciones(String nickname, Actor actor);
     boolean existeUsuario(String nickname);
     boolean existeCorreoElectronico(String correoElectronico);
     boolean altaAsistente(DtAsistente asistente);

@@ -34,6 +34,7 @@ final class PortalDoble {
                     ?new datatypes.DtOrganizador(usuario.getNickname(),"","","","")
                     :new datatypes.DtAsistente(usuario.getNickname(),"","","",null,null));
             return switch(m.getName()) {
+                case "consultarRelaciones" -> new DtRelacionesUsuario();
                 case "listarEventos" -> datos.listarEventos();
                 case "consultarEdiciones" -> seleccionar(datos,(String)a[0],(String)a[1],usuario);
                 case "consultarDetalleEdicion" -> {

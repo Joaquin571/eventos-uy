@@ -13,6 +13,15 @@ public abstract class Usuario implements ConImagen{
     @Id
     private String nickname;
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "seguimiento_usuario",
+            joinColumns = @JoinColumn(name = "seguidor"),
+            inverseJoinColumns = @JoinColumn(name = "seguido"),
+            uniqueConstraints = @UniqueConstraint(name = "uq_seguimiento_usuario", columnNames = {"seguidor", "seguido"}),
+            indexes = @Index(name = "ix_seguimiento_seguido", columnList = "seguido"),
+            check = @CheckConstraint(name = "ck_seguimiento_distinto", constraint = "seguidor <> seguido"))
+    private java.util.Set<Usuario> seguidos = new java.util.HashSet<>();
+
     private String nombre;
 
     // Nullable para usuarios anteriores: no se inventa su fecha histórica.

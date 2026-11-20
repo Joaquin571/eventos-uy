@@ -168,6 +168,9 @@ class MovilAccesoTest {
                 if (falloLogin) throw new IllegalArgumentException("Credenciales inválidas.");
                 return new ClienteSesionesCentral.Inicio("nick", "Nombre", rolLogin, "token-sintetico");
             }
+            public ClienteSesionesCentral.Inicio iniciarMovil(String id, String clave) {
+                return iniciar(id, clave);
+            }
             public void cerrar(String credencial) { assertEquals("token-sintetico", credencial); revocaciones++; }
         };
         final ServicioPortal portal = doble(ServicioPortal.class, (p, m, a) -> {

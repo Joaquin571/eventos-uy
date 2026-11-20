@@ -1,6 +1,5 @@
 package web;
 
-import contratos.dto.DtAsistente;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -36,28 +35,13 @@ public class MovilLoginServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String identificador = req.getParameter("identificador");
         try {
-            var sesiones = ContextoListener.sesiones(req);
-            var inicio = sesiones.iniciar(identificador, req.getParameter("contrasenia"));
-            if (!"ASISTENTE".equals(inicio.rol())) {
-                try {
-                    sesiones.cerrar(inicio.credencial());
-                } catch (ErrorCentral ignorado) {
-                    // La credencial nunca se guardó en esta sesión; si no se pudo revocar, vence sola en Central.
-                }
-                req.setAttribute("error", MENSAJE_ROL);
-                req.setAttribute("identificador", identificador);
-                mostrar(req, resp);
-                return;
-            }
-            var anterior = req.getSession(false);
-            if (anterior != null) anterior.invalidate();
-            var sesion = req.getSession(true);
-            DtAsistente usuario = new DtAsistente();
-            usuario.setNickname(inicio.nickname());
-            usuario.setNombre(inicio.nombre());
-            SesionWeb.guardar(sesion, usuario);
-            sesion.setAttribute(SesionWeb.CREDENCIAL, inicio.credencial());
+            SesionWeb.iniciarMovil(req, identificador, req.getParameter("contrasenia"));
             resp.sendRedirect(req.getContextPath() + AccesoMovil.EVENTOS);
+        } catch (ErrorCentral e) {
+            if (!"ACCESO_DENEGADO".equals(e.getCodigo())) throw e;
+            req.setAttribute("error", MENSAJE_ROL);
+            req.setAttribute("identificador", identificador);
+            mostrar(req, resp);
         } catch (IllegalArgumentException e) {
             req.setAttribute("error", e.getMessage());
             req.setAttribute("identificador", identificador);

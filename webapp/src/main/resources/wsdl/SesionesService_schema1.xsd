@@ -9,6 +9,10 @@
 
   <xs:element name="iniciarSesion" type="tns:iniciarSesion"/>
 
+  <xs:element name="iniciarSesionMovil" type="tns:iniciarSesionMovil"/>
+
+  <xs:element name="iniciarSesionMovilResponse" type="tns:iniciarSesionMovilResponse"/>
+
   <xs:element name="iniciarSesionResponse" type="tns:iniciarSesionResponse"/>
 
   <xs:complexType name="cerrarSesion">
@@ -25,14 +29,14 @@
     </xs:sequence>
   </xs:complexType>
 
-  <xs:complexType name="iniciarSesion">
+  <xs:complexType name="iniciarSesionMovil">
     <xs:sequence>
       <xs:element name="identificador" type="xs:string" minOccurs="0"/>
       <xs:element name="contrasenia" type="xs:string" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>
 
-  <xs:complexType name="iniciarSesionResponse">
+  <xs:complexType name="iniciarSesionMovilResponse">
     <xs:sequence>
       <xs:element name="return" type="tns:usuarioSesionSoap" minOccurs="0"/>
     </xs:sequence>
@@ -43,6 +47,19 @@
       <xs:element name="nickname" type="xs:string" minOccurs="0"/>
       <xs:element name="nombre" type="xs:string" minOccurs="0"/>
       <xs:element name="rol" type="tns:rol" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="iniciarSesion">
+    <xs:sequence>
+      <xs:element name="identificador" type="xs:string" minOccurs="0"/>
+      <xs:element name="contrasenia" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="iniciarSesionResponse">
+    <xs:sequence>
+      <xs:element name="return" type="tns:usuarioSesionSoap" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>
 

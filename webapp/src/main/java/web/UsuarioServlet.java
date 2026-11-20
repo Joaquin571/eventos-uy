@@ -22,6 +22,21 @@ import java.util.Collection;
 @WebServlet("/usuario")
 public class UsuarioServlet extends HttpServlet {
 
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        if (!Csrf.validarPost(req, resp)) return;
+        if (SesionWeb.credencial(req) == null) { resp.sendError(403); return; }
+        String nick = req.getParameter("nick");
+        String accion = req.getParameter("accion");
+        if (nick == null || nick.isBlank()) { resp.sendError(400); return; }
+        ServicioPortal sistema = ContextoListener.central(req);
+        if ("seguir".equals(accion)) sistema.seguirUsuario(nick);
+        else if ("dejar-de-seguir".equals(accion)) sistema.dejarDeSeguirUsuario(nick);
+        else { resp.sendError(400); return; }
+        resp.sendRedirect(req.getContextPath() + "/usuario?nick="
+                + java.net.URLEncoder.encode(nick, java.nio.charset.StandardCharsets.UTF_8));
+    }
+
     private static final DateTimeFormatter FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     @Override
@@ -37,6 +52,9 @@ public class UsuarioServlet extends HttpServlet {
                 ? "No registrada" : perfil.getFechaAlta().format(FECHA));
         req.setAttribute("perfil", perfil);
         req.setAttribute("esPropio", esPropio);
+        req.setAttribute("relaciones", sistema.consultarRelaciones(nick));
+        req.setAttribute("puedeSeguir", !esPropio && SesionWeb.credencial(req) != null);
+        if (!esPropio && SesionWeb.credencial(req) != null) Csrf.prepararFormulario(req);
 
         if (perfil instanceof DtAsistente asistente) {
             req.setAttribute("esAsistente", true);

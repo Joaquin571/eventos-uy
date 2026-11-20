@@ -144,5 +144,32 @@ class PortalPersistenciaHttpsTest {
         sesionesCliente.cerrar(inicio.credencial());assertEquals("SESION_INVALIDA",assertThrows(ErrorCentral.class,c::usuarioActual).getCodigo());
         assertEquals("SESION_INVALIDA",assertThrows(ErrorCentral.class,()->c.altaInstitucion(new DtInstitucion("no","desc",""),null)).getCodigo());
     }
+    @Test void seguimientoPorHttpsPersisteYSeAutoriza() {
+        var seguidor=asistente("tlsSeguidor");String nick=seguidor.usuarioActual().getNickname();
+        seguidor.seguirUsuario(orgNick);seguidor.seguirUsuario(orgNick);
+        assertTrue(seguidor.consultarRelaciones(orgNick).isSiguiendo());
+        assertEquals(1,publico().consultarRelaciones(orgNick).getSeguidores().stream().filter(nick::equals).count());
+        assertTrue(seguidor.consultarRelaciones(nick).getSeguidos().contains(orgNick));
+        assertThrows(IllegalArgumentException.class,()->seguidor.seguirUsuario(nick));
+        assertEquals("SESION_INVALIDA",assertThrows(ErrorCentral.class,()->publico().seguirUsuario(orgNick)).getCodigo());
+        assertEquals("SESION_INVALIDA",assertThrows(ErrorCentral.class,()->publico().dejarDeSeguirUsuario(orgNick)).getCodigo());
+        BaseDeDatos.cerrar();BaseDeDatos.inicializar();
+        assertTrue(seguidor.consultarRelaciones(orgNick).isSiguiendo());
+        seguidor.dejarDeSeguirUsuario(orgNick);
+        assertFalse(seguidor.consultarRelaciones(orgNick).isSiguiendo());
+    }
+    @Test void autenticacionMovilValidaRolEnCentralConSesionP03() {
+        var c=asistente("tlsMovil");String nick=c.usuarioActual().getNickname();
+        var remoto=new ClienteSesionesCentral(sesiones,confianza);
+        assertEquals("ACCESO_DENEGADO",assertThrows(ErrorCentral.class,()->remoto.iniciarMovil(orgNick,CLAVE)).getCodigo());
+        assertEquals("ACCESO_DENEGADO",assertThrows(ErrorCentral.class,org::usuarioMovilActual).getCodigo());
+        assertThrows(IllegalArgumentException.class,()->remoto.iniciarMovil(nick,"incorrecta"));
+        var inicio=remoto.iniciarMovil(nick,CLAVE);
+        var movil=new ClienteCentral(portal,inicio.credencial(),confianza);
+        assertEquals(nick,movil.usuarioMovilActual().getNickname());
+        assertEquals(nick,movil.usuarioActual().getNickname());
+        remoto.cerrar(inicio.credencial());
+        assertEquals("SESION_INVALIDA",assertThrows(ErrorCentral.class,movil::usuarioMovilActual).getCodigo());
+    }
     @AfterAll void cerrar(){try{endpoints.forEach(Endpoint::stop);}finally{if(servidor!=null)servidor.stop(0);if(hilos!=null)hilos.shutdownNow();BaseDeDatos.cerrar();}}
 }
