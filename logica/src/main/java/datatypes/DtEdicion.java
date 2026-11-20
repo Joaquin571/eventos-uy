@@ -15,6 +15,10 @@ public class DtEdicion {
     private String descripcion;
     private String nombreOrganizador;
     private EstadoEdicion estado = EstadoEdicion.INGRESADA;
+    private LocalDate fechaArchivo;
+
+    public DtEdicion() {
+    }
 
     public DtEdicion(
             String idNombre,
@@ -40,20 +44,40 @@ public class DtEdicion {
         return idNombre;
     }
 
+    public void setIdNombre(String idNombre) {
+        this.idNombre = idNombre;
+    }
+
     public String getSigla() {
         return sigla;
+    }
+
+    public void setSigla(String sigla) {
+        this.sigla = sigla;
     }
 
     public LocalDate getFechaInicio() {
         return fechaInicio;
     }
 
+    public void setFechaInicio(LocalDate fechaInicio) {
+        this.fechaInicio = fechaInicio;
+    }
+
     public LocalDate getFechaFin() {
         return fechaFin;
     }
 
+    public void setFechaFin(LocalDate fechaFin) {
+        this.fechaFin = fechaFin;
+    }
+
     public LocalDate getFechaAlta() {
         return fechaAlta;
+    }
+
+    public void setFechaAlta(LocalDate fechaAlta) {
+        this.fechaAlta = fechaAlta;
     }
 
     public String getCiudad() {
@@ -64,13 +88,24 @@ public class DtEdicion {
     public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
     public String getVideoYoutube() { return videoYoutube; }
     public void setVideoYoutube(String valor) { this.videoYoutube = valor; }
+    public void setCiudad(String ciudad) {
+        this.ciudad = ciudad;
+    }
 
     public String getPais() {
         return pais;
     }
 
+    public void setPais(String pais) {
+        this.pais = pais;
+    }
+
     public String getNombreOrganizador() {
         return nombreOrganizador;
+    }
+
+    public void setNombreOrganizador(String nombreOrganizador) {
+        this.nombreOrganizador = nombreOrganizador;
     }
 
     public EstadoEdicion getEstado() {
@@ -80,6 +115,15 @@ public class DtEdicion {
     public void setEstado(EstadoEdicion estado) {
         this.estado = estado;
     }
+
+    public LocalDate getFechaArchivo() {
+        return fechaArchivo;
+    }
+
+    public void setFechaArchivo(LocalDate fechaArchivo) {
+        this.fechaArchivo = fechaArchivo;
+    }
+
     @Override
     public String toString() {
         return this.getIdNombre();

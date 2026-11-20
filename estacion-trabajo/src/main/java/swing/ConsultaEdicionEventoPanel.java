@@ -94,6 +94,9 @@ public class ConsultaEdicionEventoPanel extends JPanel {
             imagen.cargar(sistema, TipoEntidadImagen.EDICION, seleccionada.getIdNombre());
             StringBuilder sb = new StringBuilder();
             sb.append("Estado: ").append(seleccionada.getEstado()).append("\n");
+            if (seleccionada.getFechaArchivo() != null) {
+                sb.append("Fecha de archivo: ").append(seleccionada.getFechaArchivo()).append("\n");
+            }
             sb.append("Nombre Edición: ").append(seleccionada.getIdNombre()).append("\n");
             sb.append("Sigla: ").append(seleccionada.getSigla()).append("\n");
             sb.append("Fecha Inicio: ").append(seleccionada.getFechaInicio()).append("\n");
@@ -136,9 +139,11 @@ public class ConsultaEdicionEventoPanel extends JPanel {
                 sb.append("No hay registros para esta edición.\n");
             } else {
                 for (DtRegistro reg : registros) {
-                    sb.append("- Tipo: ").append(reg.getNombreTipoRegistro())
+                    sb.append("- Asistente: ").append(reg.getNicknameAsistente())
+                            .append(" | Tipo: ").append(reg.getNombreTipoRegistro())
                             .append(" | Fecha: ").append(reg.getFechaRegistro())
                             .append(" | Costo: $").append(reg.getCosto())
+                            .append(" | Asistencia confirmada: ").append(reg.isAsistenciaConfirmada() ? "Sí" : "No")
                             .append("\n");
                 }
             }

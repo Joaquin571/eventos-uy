@@ -32,9 +32,12 @@ public class FiltroAcceso implements Filter {
             Map.entry("/modificar-usuario", CON_SESION),
             Map.entry("/consulta-registro", CON_SESION),
             Map.entry("/registro-edicion", SOLO_ASISTENTE),
+            Map.entry("/confirmar-asistencia", SOLO_ASISTENTE),
+            Map.entry("/constancia-asistencia", SOLO_ASISTENTE),
             Map.entry("/alta-evento", SOLO_ORGANIZADOR),
             Map.entry("/alta-edicion", SOLO_ORGANIZADOR),
             Map.entry("/finalizar-evento", SOLO_ORGANIZADOR),
+            Map.entry("/archivar-edicion", SOLO_ORGANIZADOR),
             Map.entry("/alta-tipo-registro", SOLO_ORGANIZADOR),
             Map.entry("/alta-institucion", SOLO_ORGANIZADOR),
             Map.entry("/alta-patrocinio", SOLO_ORGANIZADOR)

@@ -32,4 +32,8 @@ public interface ServicioPortal {
     DtImagen obtenerImagen(TipoEntidadImagen tipo, String clave);
     boolean altaUsuario(EntradaUsuario entrada);
     DtUsuario modificarUsuario(EntradaUsuario entrada);
+
+    boolean confirmarAsistencia(String edicion);
+    void archivarEdicion(String edicion);
+    DtConstanciaAsistencia obtenerDatosConstancia(String edicion);
 }

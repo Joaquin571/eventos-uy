@@ -108,4 +108,9 @@ public interface ISistema {
     boolean registrarAutorizado(String edicion, String tipo, String modalidad, String codigo, Actor actor);
     boolean altaEvento(DtEvento dt, DtImagen imagen, Actor actor) throws Exception;
     boolean altaEdicion(DtEdicion dt, String nombreEvento, DtImagen imagen, Actor actor);
+
+    // ASISTENCIA, ARCHIVO Y CONSTANCIA
+    void confirmarAsistencia(String nombreEdicion, Actor actor);
+    void archivarEdicion(String nombreEdicion, Actor actor);
+    DtConstanciaAsistencia obtenerDatosConstancia(String nombreEdicion, Actor actor);
 }

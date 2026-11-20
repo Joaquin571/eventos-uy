@@ -9,7 +9,6 @@ import java.time.LocalDate;
 public class DtEdicion {
     public DtEdicion() { }
 
-
     private String idNombre;
     private String sigla;
     @XmlJavaTypeAdapter(FechaXml.class)
@@ -24,6 +23,8 @@ public class DtEdicion {
     private String descripcion;
     private String nombreOrganizador;
     private EstadoEdicion estado = EstadoEdicion.INGRESADA;
+    @XmlJavaTypeAdapter(FechaXml.class)
+    private LocalDate fechaArchivo;
 
     public DtEdicion(
             String idNombre,
@@ -89,6 +90,15 @@ public class DtEdicion {
     public void setEstado(EstadoEdicion estado) {
         this.estado = estado;
     }
+
+    public LocalDate getFechaArchivo() {
+        return fechaArchivo;
+    }
+
+    public void setFechaArchivo(LocalDate valor) {
+        this.fechaArchivo = valor;
+    }
+
     @Override
     public String toString() {
         return this.getIdNombre();

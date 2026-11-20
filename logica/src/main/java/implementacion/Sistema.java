@@ -309,7 +309,7 @@ public class Sistema implements ISistema {
             nicknameAsistente = registro.getAsistente().getNickname();
         }
 
-        return new DtRegistro(
+        DtRegistro dt = new DtRegistro(
                 registro.getFechaRegistro(),
                 registro.getCosto(),
                 nombreTipoRegistro,
@@ -317,6 +317,8 @@ public class Sistema implements ISistema {
                 nicknameAsistente,
                 registro.getPatrocinio() != null
         );
+        dt.setAsistenciaConfirmada(registro.isAsistenciaConfirmada());
+        return dt;
     }
 
     private void autorizarTitular(Actor actor, String nickname) {
@@ -722,8 +724,6 @@ public class Sistema implements ISistema {
         return true;
     }
 
-
-
     private DtEdicion aDt(Edicion edicion) {
         String nombreOrganizador = null;
         if (edicion.getOrganizador() != null) {
@@ -743,6 +743,7 @@ public class Sistema implements ISistema {
         dt.setEstado(edicion.getEstado());
         dt.setVideoYoutube(edicion.getVideoYoutube());
         dt.setDescripcion(edicion.getDescripcion());
+        dt.setFechaArchivo(edicion.getFechaArchivo());
         return dt;
     }
 
@@ -1070,7 +1071,7 @@ public class Sistema implements ISistema {
 
     @Override
     public DtConsultaPatrocinios consultarPatrocinios(String nombreEvento, String nombreEdicion,
-                                                     String nombreInstitucion, Actor actor) {
+                                                      String nombreInstitucion, Actor actor) {
         String evento = nombreEvento == null ? "" : nombreEvento;
         String edicion = nombreEdicion == null ? "" : nombreEdicion;
         String institucion = nombreInstitucion == null ? "" : nombreInstitucion;
@@ -1139,6 +1140,7 @@ public class Sistema implements ISistema {
     public void validarImagen(DtImagen imagen) {
         ValidadorImagen.validar(imagen);
     }
+
     // Casos autorizados del portal: la presentación no decide privacidad ni reglas de negocio.
     @Override
     public DtPerfilUsuario consultarPerfil(String nickname, Actor actor) {
@@ -1149,7 +1151,7 @@ public class Sistema implements ISistema {
                 ? new ArrayList<>(obtenerRegistrosAsistente(nickname)) : List.of();
         List<DtEdicion> ediciones = usuario instanceof DtOrganizador
                 ? obtenerEdicionesOrganizador(nickname).stream()
-                    .filter(e -> propio || e.getEstado() == EstadoEdicion.ACEPTADA).toList() : List.of();
+                .filter(e -> propio || e.getEstado() == EstadoEdicion.ACEPTADA).toList() : List.of();
         return new DtPerfilUsuario(usuario, propio, registros, ediciones);
     }
 
@@ -1218,7 +1220,7 @@ public class Sistema implements ISistema {
         List<DtRegistro> registros = propietario ? new ArrayList<>(obtenerRegistrosEdicion(nombre)) : List.of();
         DtRegistro propio = actor != null && !actor.esOrganizador() && !actor.esAdministradorLocal()
                 ? obtenerRegistrosAsistente(actor.nickname()).stream().filter(r -> nombre.equals(r.getNombreEdicion()))
-                    .findFirst().orElse(null) : null;
+                .findFirst().orElse(null) : null;
         boolean puede = actor != null && !actor.esOrganizador() && !actor.esAdministradorLocal()
                 && propio == null && edicion.getEstado() == EstadoEdicion.ACEPTADA;
         return new DtDetalleEdicion(edicion, consultarUsuario(edicion.getNombreOrganizador()),
@@ -1309,4 +1311,49 @@ public class Sistema implements ISistema {
                 "codigo".equals(modalidad) ? codigo : null, actor);
     }
 
+    // ASISTENCIA, ARCHIVO Y CONSTANCIA
+
+    @Override
+    public void confirmarAsistencia(String nombreEdicion, Actor actor) {
+        requerirAsistente(actor);
+        validarObligatorio(nombreEdicion, "Debe indicar la edición.");
+        manejadorRegistros.confirmarAsistencia(actor.nickname(), nombreEdicion);
+    }
+
+    @Override
+    public void archivarEdicion(String nombreEdicion, Actor actor) {
+        requerirActorPatrocinio(actor);
+        validarObligatorio(nombreEdicion, "Debe indicar la edición.");
+        manejadorEventos.archivarEdicion(nombreEdicion, actor.nickname(), actor.esAdministradorLocal());
+    }
+
+    @Override
+    public DtConstanciaAsistencia obtenerDatosConstancia(String nombreEdicion, Actor actor) {
+        requerirAsistente(actor);
+        validarObligatorio(nombreEdicion, "Debe indicar la edición.");
+
+        Registro registro = manejadorRegistros.obtenerRegistrosAsistente(actor.nickname()).stream()
+                .filter(r -> r.getEdicion() != null && nombreEdicion.equals(r.getEdicion().getIdNombre()))
+                .findFirst()
+                .orElseThrow(() -> new excepciones.AccesoDenegadoException("No posee un registro en la edición indicada."));
+
+        if (!registro.isAsistenciaConfirmada()) {
+            throw new IllegalStateException("Debe confirmar su asistencia antes de descargar la constancia.");
+        }
+
+        Asistente asistente = registro.getAsistente();
+        Edicion edicion = registro.getEdicion();
+        Evento evento = edicion.getEvento();
+
+        return new DtConstanciaAsistencia(
+                asistente.getNombre(),
+                asistente.getApellido(),
+                evento != null ? evento.getNombre() : "",
+                edicion.getIdNombre(),
+                edicion.getCiudad(),
+                edicion.getFechaInicio(),
+                edicion.getFechaFin(),
+                LocalDate.now()
+        );
+    }
 }

@@ -24,6 +24,10 @@
                 <div class="alert alert-success">Te registraste correctamente a la edición.</div>
             </c:if>
 
+            <c:if test="${not empty exito}">
+                <div class="alert alert-success"><c:out value="${exito}" /></div>
+            </c:if>
+
             <c:if test="${not empty advertencia}">
                 <div class="alert alert-warning"><c:out value="${advertencia}" /></div>
             </c:if>
@@ -54,6 +58,9 @@
                                             </c:when>
                                             <c:when test="${ed.estado.descripcion eq 'Ingresada'}">
                                                 <span class="badge bg-warning text-dark">Ingresada</span>
+                                            </c:when>
+                                            <c:when test="${ed.estado.descripcion eq 'Archivada'}">
+                                                <span class="badge bg-secondary">Archivada</span>
                                             </c:when>
                                             <c:otherwise>
                                                 <span class="badge bg-danger">Rechazada</span>
@@ -173,7 +180,27 @@
 
                             <dt class="col-sm-5">Utilizó código de patrocinio</dt>
                             <dd class="col-sm-7"><c:out value="${detalle.usoCodigo}" /></dd>
+
+                            <dt class="col-sm-5">Asistencia</dt>
+                            <dd class="col-sm-7"><strong>${detalle.asistenciaConfirmada ? 'Confirmada' : 'Pendiente'}</strong></dd>
                         </dl>
+
+                        <div class="d-flex flex-wrap gap-2 mt-3">
+                            <c:if test="${puedeConfirmarAsistencia}">
+                                <form method="post" action="${raiz}/confirmar-asistencia" class="m-0">
+                                    <jsp:include page="/WEB-INF/views/fragmentos/csrf.jsp"/>
+                                    <input type="hidden" name="edicion" value="<c:out value='${detalle.nombreEdicion}'/>">
+                                    <input type="hidden" name="origen" value="registro">
+                                    <button type="submit" class="btn btn-success">Confirmar asistencia</button>
+                                </form>
+                            </c:if>
+                            <c:if test="${not esOrganizador and detalle.asistenciaConfirmada}">
+                                <c:url var="urlConstancia" value="/constancia-asistencia">
+                                    <c:param name="edicion" value="${detalle.nombreEdicion}" />
+                                </c:url>
+                                <a href="${urlConstancia}" class="btn btn-outline-success">Descargar constancia (PDF)</a>
+                            </c:if>
+                        </div>
                     </div>
                 </div>
             </c:if>

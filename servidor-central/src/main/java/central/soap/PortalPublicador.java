@@ -25,7 +25,7 @@ public class PortalPublicador {
         catch(OperacionSoapException e) { throw e; }
         catch(excepciones.NoEncontradoException e) { throw new OperacionSoapException("NO_ENCONTRADO",e.getMessage()); }
         catch(excepciones.AccesoDenegadoException e) { throw new OperacionSoapException("ACCESO_DENEGADO",e.getMessage()); }
-        catch(IllegalArgumentException e) { throw new OperacionSoapException("DATOS_INVALIDOS",e.getMessage()); }
+        catch(IllegalArgumentException | IllegalStateException e) { throw new OperacionSoapException("DATOS_INVALIDOS",e.getMessage()); }
         catch(Exception e) {
             if(e.getClass()==Exception.class) throw new OperacionSoapException("DATOS_INVALIDOS",e.getMessage());
             System.getLogger(getClass().getName()).log(System.Logger.Level.ERROR,"Fallo técnico del servicio Portal.");
@@ -235,5 +235,26 @@ public class PortalPublicador {
     @jakarta.xml.ws.ResponseWrapper(className="central.soap.portal.jaxws.ModificarUsuarioResponse")
     public DtUsuario modificarUsuario(@WebParam(name="entrada") EntradaUsuario entrada) throws OperacionSoapException {
         return invocar(() -> modificarUsuarioInterno(entrada));
+    }
+    @WebMethod
+    @jakarta.xml.ws.RequestWrapper(className="central.soap.portal.jaxws.ConfirmarAsistencia")
+    @jakarta.xml.ws.ResponseWrapper(className="central.soap.portal.jaxws.ConfirmarAsistenciaResponse")
+    public boolean confirmarAsistencia(@WebParam(name="edicion") String edicion) throws OperacionSoapException {
+        return invocar(() -> {
+            sistema.confirmarAsistencia(edicion, actor(true));
+            return true;
+        });
+    }
+    @WebMethod
+    @jakarta.xml.ws.RequestWrapper(className="central.soap.portal.jaxws.ArchivarEdicion")
+    @jakarta.xml.ws.ResponseWrapper(className="central.soap.portal.jaxws.ArchivarEdicionResponse")
+    public void archivarEdicion(@WebParam(name="edicion") String edicion) throws OperacionSoapException {
+        invocar(() -> { sistema.archivarEdicion(edicion, actor(true)); return null; });
+    }
+    @WebMethod
+    @jakarta.xml.ws.RequestWrapper(className="central.soap.portal.jaxws.ObtenerDatosConstancia")
+    @jakarta.xml.ws.ResponseWrapper(className="central.soap.portal.jaxws.ObtenerDatosConstanciaResponse")
+    public DtConstanciaAsistencia obtenerDatosConstancia(@WebParam(name="edicion") String edicion) throws OperacionSoapException {
+        return invocar(() -> salida(sistema.obtenerDatosConstancia(edicion, actor(true)), DtConstanciaAsistencia.class));
     }
 }

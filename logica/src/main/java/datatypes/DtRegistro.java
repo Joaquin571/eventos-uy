@@ -12,6 +12,10 @@ public class DtRegistro {
     // El código en sí nunca viaja en el DtRegistro.
     private String nicknameAsistente;
     private boolean usoCodigo;
+    private boolean asistenciaConfirmada;
+
+    public DtRegistro() {
+    }
 
     public DtRegistro(
             LocalDate fechaRegistro,
@@ -50,24 +54,56 @@ public class DtRegistro {
         return nombreTipoRegistro;
     }
 
+    public void setNombreTipoRegistro(String nombreTipoRegistro) {
+        this.nombreTipoRegistro = nombreTipoRegistro;
+    }
+
     public LocalDate getFechaRegistro() {
         return fechaRegistro;
+    }
+
+    public void setFechaRegistro(LocalDate fechaRegistro) {
+        this.fechaRegistro = fechaRegistro;
     }
 
     public String getNombreEdicion() {
         return nombreEdicion;
     }
 
+    public void setNombreEdicion(String nombreEdicion) {
+        this.nombreEdicion = nombreEdicion;
+    }
+
     public float getCosto() {
         return costo;
+    }
+
+    public void setCosto(float costo) {
+        this.costo = costo;
     }
 
     public String getNicknameAsistente() {
         return nicknameAsistente;
     }
 
+    public void setNicknameAsistente(String nicknameAsistente) {
+        this.nicknameAsistente = nicknameAsistente;
+    }
+
     public boolean isUsoCodigo() {
         return usoCodigo;
+    }
+
+    public void setUsoCodigo(boolean usoCodigo) {
+        this.usoCodigo = usoCodigo;
+    }
+
+    public boolean isAsistenciaConfirmada() {
+        return asistenciaConfirmada;
+    }
+
+    public void setAsistenciaConfirmada(boolean asistenciaConfirmada) {
+        this.asistenciaConfirmada = asistenciaConfirmada;
     }
 
     @Override

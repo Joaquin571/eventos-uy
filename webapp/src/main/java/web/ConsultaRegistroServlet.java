@@ -5,14 +5,15 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @WebServlet("/consulta-registro")
 public class ConsultaRegistroServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req,HttpServletResponse resp)throws ServletException,IOException {
+        MensajesFlash.mostrar(req, "/consulta-registro");
         String edicion=AccesoEdiciones.texto(req,"edicion"),asistente=AccesoEdiciones.texto(req,"asistente");
-        var consulta=ContextoListener.central(req).consultarRegistros(edicion,asistente);
+        var central = ContextoListener.central(req);
+        var consulta=central.consultarRegistros(edicion,asistente);
         Map<String,String> nombres=new HashMap<>();
         for(var usuario:consulta.getAsistentes())nombres.put(usuario.getNickname(),nombreCompleto(usuario));
         var propio=SesionWeb.usuario(req);if(propio!=null)nombres.put(propio.getNickname(),propio.getNombre());
@@ -21,7 +22,17 @@ public class ConsultaRegistroServlet extends HttpServlet {
         req.setAttribute("registrado","1".equals(req.getParameter("registrado")));
         req.setAttribute("registros",consulta.getRegistros().stream().map(r->DetalleRegistroVista.de(r,nombres.getOrDefault(r.getNicknameAsistente(),r.getNicknameAsistente()))).toList());
         var detalle=consulta.getDetalle();
-        if(detalle!=null)req.setAttribute("detalle",DetalleRegistroVista.de(detalle,nombres.getOrDefault(detalle.getNicknameAsistente(),detalle.getNicknameAsistente())));
+        if(detalle!=null){
+            req.setAttribute("detalle",DetalleRegistroVista.de(detalle,nombres.getOrDefault(detalle.getNicknameAsistente(),detalle.getNicknameAsistente())));
+            if(!consulta.isOrganizador() && !detalle.isAsistenciaConfirmada()){
+                var infoEdicion = central.consultarDetalleEdicion(detalle.getNombreEdicion()).getEdicion();
+                boolean puedeConfirmar = infoEdicion != null
+                        && infoEdicion.getEstado() == EstadoEdicion.ACEPTADA
+                        && infoEdicion.getFechaInicio() != null
+                        && !LocalDate.now().isBefore(infoEdicion.getFechaInicio());
+                req.setAttribute("puedeConfirmarAsistencia", puedeConfirmar);
+            }
+        }
         req.getRequestDispatcher("/WEB-INF/views/consulta-registro.jsp").forward(req,resp);
     }
     private String nombreCompleto(DtUsuario u){return u instanceof DtAsistente a?u.getNombre()+" "+a.getApellido():u.getNombre();}

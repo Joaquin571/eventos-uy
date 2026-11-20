@@ -1,0 +1,5 @@
+ALTER TABLE edicion ADD COLUMN IF NOT EXISTS fechaarchivo DATE;
+ALTER TABLE registro ADD COLUMN IF NOT EXISTS asistenciaconfirmada BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE edicion DROP CONSTRAINT IF EXISTS edicion_estado_check;
+ALTER TABLE edicion ADD CONSTRAINT edicion_estado_check
+    CHECK (estado IN ('INGRESADA', 'ACEPTADA', 'RECHAZADA', 'ARCHIVADA'));
