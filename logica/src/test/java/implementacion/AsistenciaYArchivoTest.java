@@ -14,7 +14,13 @@ import interfaces.ISistema;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -77,19 +83,34 @@ class AsistenciaYArchivoTest extends soporte.PruebaConBaseSegura {
     void confirmarAsistenciaYConstancia() throws Exception {
         DtOrganizador org = crearOrganizador("org");
         DtAsistente asis = crearAsistente("asis");
+        DtAsistente otroAsis = crearAsistente("otroAsis");
         Actor actorAsis = Actor.usuarioAutenticado(asis);
+        Actor actorOtro = Actor.usuarioAutenticado(otroAsis);
 
         String evento = crearEvento(org.getNickname());
         String edicion = crearEdicion(evento, org.getNickname(), hoy.minusDays(2), hoy.plusDays(2), true);
+        String futura = crearEdicion(evento, org.getNickname(), hoy.plusDays(2), hoy.plusDays(5), true);
 
         assertTrue(sistema.altaTipoRegistro(
                 new DtTipoRegistro("General", "Acceso general", 500, 20),
                 edicion,
                 Actor.administradorLocal()
         ));
+        assertTrue(sistema.altaTipoRegistro(
+                new DtTipoRegistro("General", "Acceso general", 500, 20),
+                futura,
+                Actor.administradorLocal()
+        ));
         assertTrue(sistema.registroAEdicion(
                 asis.getNickname(), edicion, "General", new DtRegistro(hoy, 500), null, actorAsis
         ));
+        assertTrue(sistema.registroAEdicion(
+                asis.getNickname(), futura, "General", new DtRegistro(hoy, 500), null, actorAsis
+        ));
+
+        // No permite confirmar antes de la fecha de inicio ni si no está registrado
+        assertThrows(IllegalArgumentException.class, () -> sistema.confirmarAsistencia(futura, actorAsis));
+        assertThrows(IllegalArgumentException.class, () -> sistema.confirmarAsistencia(edicion, actorOtro));
 
         // Antes de confirmar, no se puede emitir constancia
         assertThrows(IllegalStateException.class, () -> sistema.obtenerDatosConstancia(edicion, actorAsis));
@@ -103,8 +124,9 @@ class AsistenciaYArchivoTest extends soporte.PruebaConBaseSegura {
                 .orElseThrow();
         assertTrue(regActualizado.isAsistenciaConfirmada());
 
-        // No permite confirmar dos veces
+        // No permite confirmar dos veces ni descargar constancia ajena
         assertThrows(IllegalStateException.class, () -> sistema.confirmarAsistencia(edicion, actorAsis));
+        assertThrows(AccesoDenegadoException.class, () -> sistema.obtenerDatosConstancia(edicion, actorOtro));
 
         // Emitir datos de constancia
         DtConstanciaAsistencia constancia = sistema.obtenerDatosConstancia(edicion, actorAsis);
@@ -117,7 +139,52 @@ class AsistenciaYArchivoTest extends soporte.PruebaConBaseSegura {
     }
 
     @Test
-    void archivarEdicionFinalizadaYValidaciones() throws Exception {
+    void confirmarAsistenciaConcurrenteEsAtomica() throws Exception {
+        DtOrganizador org = crearOrganizador("orgConc");
+        DtAsistente asis = crearAsistente("asisConc");
+        Actor actorAsis = Actor.usuarioAutenticado(asis);
+
+        String evento = crearEvento(org.getNickname());
+        String edicion = crearEdicion(evento, org.getNickname(), hoy.minusDays(1), hoy.plusDays(1), true);
+        assertTrue(sistema.altaTipoRegistro(
+                new DtTipoRegistro("General", "Acceso", 100, 10), edicion, Actor.administradorLocal()));
+        assertTrue(sistema.registroAEdicion(
+                asis.getNickname(), edicion, "General", new DtRegistro(hoy, 100), null, actorAsis));
+
+        CountDownLatch listo = new CountDownLatch(2);
+        CountDownLatch iniciar = new CountDownLatch(1);
+        List<Throwable> errores = Collections.synchronizedList(new ArrayList<>());
+
+        try (ExecutorService pool = Executors.newFixedThreadPool(2)) {
+            List<Future<?>> tareas = new ArrayList<>();
+            for (int i = 0; i < 2; i++) {
+                tareas.add(pool.submit(() -> {
+                    listo.countDown();
+                    try {
+                        iniciar.await();
+                        sistema.confirmarAsistencia(edicion, actorAsis);
+                    } catch (Throwable t) {
+                        errores.add(t);
+                    }
+                }));
+            }
+            listo.await();
+            iniciar.countDown();
+            for (Future<?> f : tareas) {
+                f.get();
+            }
+        }
+
+        assertEquals(1, errores.size(), "Exactamente uno de los intentos concurrentes debe fallar");
+        assertTrue(sistema.obtenerRegistrosAsistente(asis.getNickname()).stream()
+                .filter(r -> edicion.equals(r.getNombreEdicion()))
+                .findFirst()
+                .orElseThrow()
+                .isAsistenciaConfirmada());
+    }
+
+    @Test
+    void archivarEdicionFinalizadaConservaRegistrosYAplicaVisibilidad() throws Exception {
         DtOrganizador duenio = crearOrganizador("orgDuenio");
         DtOrganizador otro = crearOrganizador("orgOtro");
         DtAsistente asis = crearAsistente("asis");
@@ -132,6 +199,13 @@ class AsistenciaYArchivoTest extends soporte.PruebaConBaseSegura {
         String vigente = crearEdicion(evento, duenio.getNickname(), hoy.minusDays(1), hoy.plusDays(3), true);
         String ingresada = crearEdicion(evento, duenio.getNickname(), hoy.minusDays(5), hoy.minusDays(1), false);
 
+        // Registrar y confirmar asistencia antes de archivar
+        assertTrue(sistema.altaTipoRegistro(
+                new DtTipoRegistro("General", "Acceso", 200, 10), finalizada, Actor.administradorLocal()));
+        assertTrue(sistema.registroAEdicion(
+                asis.getNickname(), finalizada, "General", new DtRegistro(hoy.minusDays(2), 200), null, actorAsis));
+        sistema.confirmarAsistencia(finalizada, actorAsis);
+
         // No puede archivar un asistente ni otro organizador
         assertThrows(AccesoDenegadoException.class, () -> sistema.archivarEdicion(finalizada, actorAsis));
         assertThrows(AccesoDenegadoException.class, () -> sistema.archivarEdicion(finalizada, actorOtro));
@@ -143,12 +217,24 @@ class AsistenciaYArchivoTest extends soporte.PruebaConBaseSegura {
         // Archivar edición finalizada y aceptada
         sistema.archivarEdicion(finalizada, actorDuenio);
 
+        // Visibilidad pública excluye ARCHIVADA; consulta del organizador sí la incluye
+        assertTrue(sistema.obtenerEdicionesVisibles(evento, null).stream()
+                .noneMatch(e -> finalizada.equals(e.getIdNombre())));
+        assertTrue(sistema.obtenerEdicionesEvento(evento, EstadoEdicion.ACEPTADA).stream()
+                .noneMatch(e -> finalizada.equals(e.getIdNombre())));
+
         DtEdicion dtFinalizada = sistema.obtenerEdicionesOrganizador(duenio.getNickname()).stream()
                 .filter(e -> finalizada.equals(e.getIdNombre()))
                 .findFirst()
                 .orElseThrow();
-
         assertEquals(EstadoEdicion.ARCHIVADA, dtFinalizada.getEstado());
         assertEquals(hoy, dtFinalizada.getFechaArchivo());
+
+        // Conserva los registros y asistencias existentes
+        DtRegistro regConservado = sistema.obtenerRegistrosEdicion(finalizada).stream()
+                .filter(r -> asis.getNickname().equals(r.getNicknameAsistente()))
+                .findFirst()
+                .orElseThrow();
+        assertTrue(regConservado.isAsistenciaConfirmada());
     }
 }

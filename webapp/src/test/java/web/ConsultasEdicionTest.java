@@ -219,7 +219,7 @@ class ConsultasEdicionTest {
             case "getServletContext" -> contexto;
             case "setAttribute" -> {atributos.put((String)a[0],a[1]);yield null;}
             case "getRequestDispatcher" -> dispatcher;
-            case "getContextPath" -> "/pruebas";
+            case "getMethod" -> "GET"; case "getContextPath" -> "/pruebas";
             default -> throw new AssertionError(m.getName());
         });
         final ServletOutputStream salida=new ServletOutputStream(){public boolean isReady(){return true;}public void setWriteListener(WriteListener l){}public void write(int b){bytes.write(b);}};
