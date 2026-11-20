@@ -36,6 +36,7 @@ class UsuarioFechaAltaTest {
         ServicioPortal sistema = doble(ServicioPortal.class, (p, m, a) -> switch (m.getName()) {
             case "consultarPerfil" -> { assertEquals("organizador", a[0]); var dato=new contratos.dto.DtPerfilUsuario();dato.setUsuario(perfil);yield dato; }
             case "obtenerEdicionesOrganizador" -> List.of();
+            case "consultarRelaciones" -> new contratos.dto.DtRelacionesUsuario();
             default -> throw new AssertionError("Caso de uso inesperado: " + m.getName());
         });
         ServletContext contexto = doble(ServletContext.class, (p, m, a) -> {

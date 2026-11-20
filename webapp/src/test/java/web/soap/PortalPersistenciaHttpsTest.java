@@ -131,5 +131,19 @@ class PortalPersistenciaHttpsTest {
         sesionesCliente.cerrar(inicio.credencial());assertEquals("SESION_INVALIDA",assertThrows(ErrorCentral.class,c::usuarioActual).getCodigo());
         assertEquals("SESION_INVALIDA",assertThrows(ErrorCentral.class,()->c.altaInstitucion(new DtInstitucion("no","desc",""),null)).getCodigo());
     }
+    @Test void seguimientoPorHttpsPersisteYSeAutoriza() {
+        var seguidor=asistente("tlsSeguidor");String nick=seguidor.usuarioActual().getNickname();
+        seguidor.seguirUsuario(orgNick);seguidor.seguirUsuario(orgNick);
+        assertTrue(seguidor.consultarRelaciones(orgNick).isSiguiendo());
+        assertEquals(1,publico().consultarRelaciones(orgNick).getSeguidores().stream().filter(nick::equals).count());
+        assertTrue(seguidor.consultarRelaciones(nick).getSeguidos().contains(orgNick));
+        assertThrows(IllegalArgumentException.class,()->seguidor.seguirUsuario(nick));
+        assertEquals("SESION_INVALIDA",assertThrows(ErrorCentral.class,()->publico().seguirUsuario(orgNick)).getCodigo());
+        assertEquals("SESION_INVALIDA",assertThrows(ErrorCentral.class,()->publico().dejarDeSeguirUsuario(orgNick)).getCodigo());
+        BaseDeDatos.cerrar();BaseDeDatos.inicializar();
+        assertTrue(seguidor.consultarRelaciones(orgNick).isSiguiendo());
+        seguidor.dejarDeSeguirUsuario(orgNick);
+        assertFalse(seguidor.consultarRelaciones(orgNick).isSiguiendo());
+    }
     @AfterAll void cerrar(){try{endpoints.forEach(Endpoint::stop);}finally{if(servidor!=null)servidor.stop(0);if(hilos!=null)hilos.shutdownNow();BaseDeDatos.cerrar();}}
 }

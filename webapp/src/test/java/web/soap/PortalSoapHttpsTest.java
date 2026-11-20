@@ -32,6 +32,11 @@ class PortalSoapHttpsTest {
     @BeforeAll void publicar(@TempDir Path temporal) throws Exception {
         var sistema=(ISistema)Proxy.newProxyInstance(ISistema.class.getClassLoader(),new Class<?>[]{ISistema.class},(p,m,a)->{
             switch(m.getName()){
+                case "seguirUsuario", "dejarDeSeguirUsuario":
+                    recibido = (Actor) a[1]; return null;
+                case "consultarRelaciones":
+                    recibido = (Actor) a[1];
+                    return new datatypes.DtRelacionesUsuario(List.of("asis"), List.of("org"), recibido != null);
                 case "autenticar":
                     if(!"clave-sintetica".equals(a[1]))throw new IllegalArgumentException("Credenciales inválidas");
                     return new datatypes.DtOrganizador("org","Organización ñ","org@test.uy","Desc","");
@@ -66,6 +71,20 @@ class PortalSoapHttpsTest {
     @AfterAll void cerrar(){try{endpoints.forEach(Endpoint::stop);}finally{if(servidor!=null)servidor.stop(0);if(hilos!=null)hilos.shutdownNow();}}
     private ClienteSesionesCentral login(){return new ClienteSesionesCentral(sesiones,confianza);}
     private ClienteCentral cliente(String credencial){return new ClienteCentral(portal,credencial,confianza);}
+    @Test void relacionesPorHttpsConviertenDtoYResuelvenIdentidadEnCentral() {
+        var publico = cliente(null).consultarRelaciones("org");
+        assertEquals(List.of("asis"), publico.getSeguidores());
+        assertEquals(List.of("org"), publico.getSeguidos());
+        assertFalse(publico.isSiguiendo());
+        assertEquals("SESION_INVALIDA", assertThrows(ErrorCentral.class, () -> cliente(null).seguirUsuario("org")).getCodigo());
+        var inicio = login().iniciar("org", "clave-sintetica");
+        var c = cliente(inicio.credencial());
+        c.seguirUsuario("asis"); assertEquals("org", recibido.nickname());
+        c.dejarDeSeguirUsuario("asis"); assertEquals("org", recibido.nickname());
+        assertTrue(c.consultarRelaciones("asis").isSiguiendo());
+        login().cerrar(inicio.credencial());
+        assertEquals("SESION_INVALIDA", assertThrows(ErrorCentral.class, () -> c.seguirUsuario("asis")).getCodigo());
+    }
     @Test void consultaPublicaConvierteFechasColeccionesYUnicode(){var e=cliente(null).listarEventos().getFirst();assertEquals("Encuentro ñ",e.getNombre());assertEquals(LocalDate.of(2026,11,5),e.getFechaAlta());assertEquals(List.of("Arte"),new ArrayList<>(e.getCategorias()));}
     @Test void salidaDeUsuarioNuncaIncluyeContraseniaDelDtoLogico(){var u=cliente(null).listarUsuarios().getFirst();assertInstanceOf(DtOrganizador.class,u);assertNull(u.getContrasenia());assertNull(u.getConfirmacionContrasenia());}
     @Test void entradaProtegidaSinSesionSeRechaza(){var error=assertThrows(ErrorCentral.class,()->cliente(null).altaTipoRegistro(new DtTipoRegistro("General","Desc",1,1),"Edición"));assertEquals("SESION_INVALIDA",error.getCodigo());}

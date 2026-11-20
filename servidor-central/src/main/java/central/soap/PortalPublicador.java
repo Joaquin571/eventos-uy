@@ -12,6 +12,24 @@ import java.util.*;
 /** Fachada de transporte. Sistema conserva autorización, proyecciones y transacciones. */
 @WebService(name="Portal",serviceName="PortalService",portName="PortalPort",targetNamespace="https://eventos.uy/soap/portal")
 public class PortalPublicador {
+    @WebMethod
+    @jakarta.xml.ws.RequestWrapper(className="central.soap.portal.jaxws.SeguirUsuario")
+    @jakarta.xml.ws.ResponseWrapper(className="central.soap.portal.jaxws.SeguirUsuarioResponse")
+    public void seguirUsuario(@WebParam(name="destino") String destino) throws OperacionSoapException {
+        invocar(() -> { sistema.seguirUsuario(destino, actor(true)); return null; });
+    }
+    @WebMethod
+    @jakarta.xml.ws.RequestWrapper(className="central.soap.portal.jaxws.DejarDeSeguirUsuario")
+    @jakarta.xml.ws.ResponseWrapper(className="central.soap.portal.jaxws.DejarDeSeguirUsuarioResponse")
+    public void dejarDeSeguirUsuario(@WebParam(name="destino") String destino) throws OperacionSoapException {
+        invocar(() -> { sistema.dejarDeSeguirUsuario(destino, actor(true)); return null; });
+    }
+    @WebMethod
+    @jakarta.xml.ws.RequestWrapper(className="central.soap.portal.jaxws.ConsultarRelaciones")
+    @jakarta.xml.ws.ResponseWrapper(className="central.soap.portal.jaxws.ConsultarRelacionesResponse")
+    public DtRelacionesUsuario consultarRelaciones(@WebParam(name="nickname") String nickname) throws OperacionSoapException {
+        return invocar(() -> salida(sistema.consultarRelaciones(nickname, actor(false)), DtRelacionesUsuario.class));
+    }
     private final ISistema sistema;
     private final SesionesRemotas sesiones;
     @Resource private WebServiceContext contexto;

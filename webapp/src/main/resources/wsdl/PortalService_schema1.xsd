@@ -51,9 +51,17 @@
 
   <xs:element name="consultarRegistrosResponse" type="tns:consultarRegistrosResponse"/>
 
+  <xs:element name="consultarRelaciones" type="tns:consultarRelaciones"/>
+
+  <xs:element name="consultarRelacionesResponse" type="tns:consultarRelacionesResponse"/>
+
   <xs:element name="consultarTipoRegistro" type="tns:consultarTipoRegistro"/>
 
   <xs:element name="consultarTipoRegistroResponse" type="tns:consultarTipoRegistroResponse"/>
+
+  <xs:element name="dejarDeSeguirUsuario" type="tns:dejarDeSeguirUsuario"/>
+
+  <xs:element name="dejarDeSeguirUsuarioResponse" type="tns:dejarDeSeguirUsuarioResponse"/>
 
   <xs:element name="disponibleCorreo" type="tns:disponibleCorreo"/>
 
@@ -103,6 +111,10 @@
 
   <xs:element name="registrarResponse" type="tns:registrarResponse"/>
 
+  <xs:element name="seguirUsuario" type="tns:seguirUsuario"/>
+
+  <xs:element name="seguirUsuarioResponse" type="tns:seguirUsuarioResponse"/>
+
   <xs:element name="usuarioActual" type="tns:usuarioActual"/>
 
   <xs:element name="usuarioActualResponse" type="tns:usuarioActualResponse"/>
@@ -136,26 +148,6 @@
     </xs:sequence>
   </xs:complexType>
 
-  <xs:complexType name="listarEventos">
-    <xs:sequence/>
-  </xs:complexType>
-
-  <xs:complexType name="listarEventosResponse">
-    <xs:sequence>
-      <xs:element name="return" type="tns:dtEvento" minOccurs="0" maxOccurs="unbounded"/>
-    </xs:sequence>
-  </xs:complexType>
-
-  <xs:complexType name="dtEvento">
-    <xs:sequence>
-      <xs:element name="nombre" type="xs:string" minOccurs="0"/>
-      <xs:element name="sigla" type="xs:string" minOccurs="0"/>
-      <xs:element name="descripcion" type="xs:string" minOccurs="0"/>
-      <xs:element name="fechaAlta" type="xs:string" minOccurs="0"/>
-      <xs:element name="categorias" type="xs:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
-    </xs:sequence>
-  </xs:complexType>
-
   <xs:complexType name="obtenerOpcionesAltaPatrocinio">
     <xs:sequence>
       <xs:element name="evento" type="xs:string" minOccurs="0"/>
@@ -176,6 +168,16 @@
       <xs:element name="ediciones" type="tns:dtEdicion" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="tipos" type="tns:dtTipoRegistro" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="instituciones" type="tns:dtInstitucion" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="dtEvento">
+    <xs:sequence>
+      <xs:element name="nombre" type="xs:string" minOccurs="0"/>
+      <xs:element name="sigla" type="xs:string" minOccurs="0"/>
+      <xs:element name="descripcion" type="xs:string" minOccurs="0"/>
+      <xs:element name="fechaAlta" type="xs:string" minOccurs="0"/>
+      <xs:element name="categorias" type="xs:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:complexType>
 
@@ -201,16 +203,13 @@
     </xs:sequence>
   </xs:complexType>
 
-  <xs:complexType name="altaTipoRegistro">
-    <xs:sequence>
-      <xs:element name="datos" type="tns:dtTipoRegistro" minOccurs="0"/>
-      <xs:element name="edicion" type="xs:string" minOccurs="0"/>
-    </xs:sequence>
+  <xs:complexType name="listarEventos">
+    <xs:sequence/>
   </xs:complexType>
 
-  <xs:complexType name="altaTipoRegistroResponse">
+  <xs:complexType name="listarEventosResponse">
     <xs:sequence>
-      <xs:element name="return" type="xs:boolean"/>
+      <xs:element name="return" type="tns:dtEvento" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:complexType>
 
@@ -280,6 +279,19 @@
     </xs:complexContent>
   </xs:complexType>
 
+  <xs:complexType name="altaTipoRegistro">
+    <xs:sequence>
+      <xs:element name="datos" type="tns:dtTipoRegistro" minOccurs="0"/>
+      <xs:element name="edicion" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="altaTipoRegistroResponse">
+    <xs:sequence>
+      <xs:element name="return" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
   <xs:complexType name="altaEvento">
     <xs:sequence>
       <xs:element name="datos" type="tns:dtEvento" minOccurs="0"/>
@@ -298,6 +310,36 @@
     <xs:sequence>
       <xs:element name="return" type="xs:boolean"/>
     </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="consultarRelaciones">
+    <xs:sequence>
+      <xs:element name="nickname" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="consultarRelacionesResponse">
+    <xs:sequence>
+      <xs:element name="return" type="tns:dtRelacionesUsuario" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="dtRelacionesUsuario">
+    <xs:sequence>
+      <xs:element name="seguidores" type="xs:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="seguidos" type="xs:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="siguiendo" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="seguirUsuario">
+    <xs:sequence>
+      <xs:element name="destino" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="seguirUsuarioResponse">
+    <xs:sequence/>
   </xs:complexType>
 
   <xs:complexType name="formularioRegistro">
@@ -335,6 +377,27 @@
     </xs:sequence>
   </xs:complexType>
 
+  <xs:complexType name="altaUsuario">
+    <xs:sequence>
+      <xs:element name="entrada" type="tns:entradaUsuario" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="entradaUsuario">
+    <xs:sequence>
+      <xs:element name="usuario" type="tns:dtUsuario" minOccurs="0"/>
+      <xs:element name="contrasenia" type="xs:string" minOccurs="0"/>
+      <xs:element name="confirmacion" type="xs:string" minOccurs="0"/>
+      <xs:element name="imagen" type="tns:dtImagen" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="altaUsuarioResponse">
+    <xs:sequence>
+      <xs:element name="return" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
   <xs:complexType name="altaPatrocinio">
     <xs:sequence>
       <xs:element name="datos" type="tns:dtPatrocinio" minOccurs="0"/>
@@ -356,27 +419,6 @@
   </xs:complexType>
 
   <xs:complexType name="altaPatrocinioResponse">
-    <xs:sequence>
-      <xs:element name="return" type="xs:boolean"/>
-    </xs:sequence>
-  </xs:complexType>
-
-  <xs:complexType name="altaUsuario">
-    <xs:sequence>
-      <xs:element name="entrada" type="tns:entradaUsuario" minOccurs="0"/>
-    </xs:sequence>
-  </xs:complexType>
-
-  <xs:complexType name="entradaUsuario">
-    <xs:sequence>
-      <xs:element name="usuario" type="tns:dtUsuario" minOccurs="0"/>
-      <xs:element name="contrasenia" type="xs:string" minOccurs="0"/>
-      <xs:element name="confirmacion" type="xs:string" minOccurs="0"/>
-      <xs:element name="imagen" type="tns:dtImagen" minOccurs="0"/>
-    </xs:sequence>
-  </xs:complexType>
-
-  <xs:complexType name="altaUsuarioResponse">
     <xs:sequence>
       <xs:element name="return" type="xs:boolean"/>
     </xs:sequence>
@@ -593,6 +635,16 @@
     <xs:sequence>
       <xs:element name="return" type="xs:boolean"/>
     </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="dejarDeSeguirUsuario">
+    <xs:sequence>
+      <xs:element name="destino" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="dejarDeSeguirUsuarioResponse">
+    <xs:sequence/>
   </xs:complexType>
 
   <xs:complexType name="usuarioActual">

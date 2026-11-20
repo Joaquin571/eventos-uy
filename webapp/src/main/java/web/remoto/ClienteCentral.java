@@ -15,6 +15,9 @@ import java.util.*;
 
 /** Proxy generado nuevo por invocación; nunca contiene acceso local a lógica. */
 public final class ClienteCentral implements ServicioPortal {
+ @Override public void seguirUsuario(String destino){invocar(p->{p.seguirUsuario(destino);return null;});}
+ @Override public void dejarDeSeguirUsuario(String destino){invocar(p->{p.dejarDeSeguirUsuario(destino);return null;});}
+ @Override public DtRelacionesUsuario consultarRelaciones(String nickname){return ConversorDatos.convertir(invocar(p->p.consultarRelaciones(nickname)),DtRelacionesUsuario.class);}
  private final URI destino;private final String credencial;private final SSLSocketFactory sockets;
  public ClienteCentral(URI destino,String credencial){this(destino,credencial,null);}
  public ClienteCentral(URI destino,String credencial,SSLSocketFactory sockets){this.destino=ConfiguracionWeb.validar(destino);this.credencial=credencial;this.sockets=sockets;}
