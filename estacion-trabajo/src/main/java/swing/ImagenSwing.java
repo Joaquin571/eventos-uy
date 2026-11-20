@@ -19,9 +19,6 @@ final class ImagenSwing extends JPanel {
     private final JLabel nombre = new JLabel("Sin selección nueva");
     private Path seleccion;
     private DtImagen actual;
-    private TipoEntidadImagen tipoPendiente;
-    private String clavePendiente;
-    private DtImagen imagenPendiente;
 
     ImagenSwing(boolean editable) {
         super(new BorderLayout(6, 6));
@@ -94,9 +91,6 @@ final class ImagenSwing extends JPanel {
     }
 
     void mostrar(DtImagen imagen) {
-        clavePendiente = null;
-        tipoPendiente = null;
-        imagenPendiente = null;
         seleccion = null;
         actual = imagen;
         nombre.setText("Sin selección nueva");
@@ -124,32 +118,4 @@ final class ImagenSwing extends JPanel {
         }
     }
 
-    boolean completarAlta(ISistema sistema, TipoEntidadImagen tipo, String clave, DtImagen imagen) {
-        String error = asociar(sistema, tipo, clave, imagen);
-        if (error == null) return true;
-        tipoPendiente = tipo; clavePendiente = clave; imagenPendiente = imagen;
-        JOptionPane.showMessageDialog(this, error + " Pulse nuevamente Aceptar/Confirmar para reintentar sólo la imagen, sin repetir el alta.", "Alta parcial", JOptionPane.WARNING_MESSAGE);
-        return false;
-    }
-
-    boolean reintentarAlta(ISistema sistema, Runnable finalizar) {
-        if (clavePendiente == null) return false;
-        if (completarAlta(sistema, tipoPendiente, clavePendiente, imagenPendiente)) {
-            JOptionPane.showMessageDialog(this, "Imagen asociada correctamente.", "Imagen", JOptionPane.INFORMATION_MESSAGE);
-            mostrar(null);
-            finalizar.run();
-        }
-        return true;
-    }
-
-    static String asociar(ISistema sistema, TipoEntidadImagen tipo, String clave, DtImagen imagen) {
-        if (imagen != null) {
-            try {
-                sistema.asociarImagen(tipo, clave, imagen);
-            } catch (RuntimeException ex) {
-                return "Los datos se guardaron, pero no se pudo asociar la imagen: " + ex.getMessage();
-            }
-        }
-        return null;
-    }
 }

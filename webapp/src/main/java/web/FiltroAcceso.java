@@ -1,7 +1,7 @@
 package web;
 
-import datatypes.DtOrganizador;
-import datatypes.DtUsuario;
+import contratos.dto.DtOrganizador;
+import contratos.dto.DtUsuario;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -48,13 +48,44 @@ public class FiltroAcceso implements Filter {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
 
+        try {
+            filtrar(req, resp, chain);
+        } catch (web.remoto.ErrorCentral error) {
+            responderError(req, resp, error);
+        } catch (IllegalArgumentException error) {
+            resp.sendError(400, "La solicitud no es válida.");
+        }
+    }
+
+    static void responderError(HttpServletRequest req, HttpServletResponse resp, web.remoto.ErrorCentral error)
+            throws IOException, ServletException {
+            switch (error.getCodigo()) {
+                case "SESION_INVALIDA" -> {
+                    var sesion = req.getSession(false);
+                    if (sesion != null) sesion.invalidate();
+                    resp.sendRedirect(req.getContextPath() + "/login");
+                }
+                case "ACCESO_DENEGADO" -> resp.sendError(403);
+                case "NO_ENCONTRADO" -> resp.sendError(404);
+                default -> {
+                    resp.setStatus(503);
+                    req.getRequestDispatcher("/WEB-INF/views/servicio-no-disponible.jsp").forward(req, resp);
+                }
+            }
+    }
+
+    private void filtrar(HttpServletRequest req, HttpServletResponse resp, FilterChain chain)
+            throws IOException, ServletException {
+
         req.setCharacterEncoding("UTF-8");
 
         String ruta = req.getServletPath();
 
         if ("POST".equals(req.getMethod()) && !Csrf.validarPost(req, resp)) return;
 
-        if (esEstatico(ruta)) {
+        // La consulta AJAX pública no necesita cabezal, categorías ni una sesión HTTP.
+        // Su Servlet conserva la respuesta JSON incluso si Central no está disponible.
+        if (esEstatico(ruta) || "/disponibilidad-usuario".equals(ruta)) {
             chain.doFilter(req, resp);
             return;
         }
@@ -63,7 +94,14 @@ public class FiltroAcceso implements Filter {
         resp.setHeader("Cache-Control", "private, no-store");
 
         HttpSession sesion = req.getSession(false);
-        DtUsuario usuario = sesion == null ? null : (DtUsuario) sesion.getAttribute("usuario");
+        DtUsuario usuario = SesionWeb.usuario(req);
+        if (!"/logout".equals(ruta) && SesionWeb.credencial(req) != null) {
+            usuario = ContextoListener.central(req).usuarioActual();
+            SesionWeb.guardar(sesion, usuario);
+        } else if (usuario != null && SesionWeb.credencial(req) == null) {
+            sesion.removeAttribute("usuario");
+            usuario = null;
+        }
         String rol = rolDe(usuario);
 
         Set<String> permitidos = PERMITIDOS.get(ruta);
@@ -81,7 +119,7 @@ public class FiltroAcceso implements Filter {
 
         // Datos que necesita el cabezal en todas las páginas
         req.setAttribute("rol", rol);
-        req.setAttribute("categorias", ContextoListener.sistema(req).listarCategorias());
+        req.setAttribute("categorias", ContextoListener.central(req).listarCategorias());
 
         chain.doFilter(req, resp);
     }

@@ -96,7 +96,7 @@ class UsuarioTest extends soporte.PruebaConBaseSegura {
         String nick = crearAsistente("modOk");
 
         sistema.modificarAsistente(new DtAsistente(nick, "Nombre nuevo", nick + "@mail.com",
-                "Apellido nuevo", LocalDate.of(1999, 5, 5), null));
+                "Apellido nuevo", LocalDate.of(1999, 5, 5), null), datatypes.Actor.administradorLocal());
 
         DtAsistente modificado = (DtAsistente) sistema.consultarUsuario(nick);
 
@@ -114,7 +114,7 @@ class UsuarioTest extends soporte.PruebaConBaseSegura {
                 "Pérez", LocalDate.of(2000, 1, 1), null);
         dt.setContrasenia("nueva1");
         dt.setConfirmacionContrasenia("nueva1");
-        sistema.modificarAsistente(dt);
+        sistema.modificarAsistente(dt, datatypes.Actor.administradorLocal());
 
         assertEquals(nick, sistema.autenticar(nick, "nueva1").getNickname());
         assertThrows(IllegalArgumentException.class, () -> sistema.autenticar(nick, "clave1"));
@@ -126,20 +126,20 @@ class UsuarioTest extends soporte.PruebaConBaseSegura {
         String correo = nick + "@mail.com";
 
         assertThrows(IllegalArgumentException.class, () -> sistema.modificarAsistente(
-                new DtAsistente(nick, " ", correo, "Pérez", LocalDate.of(2000, 1, 1), null)));
+                new DtAsistente(nick, " ", correo, "Pérez", LocalDate.of(2000, 1, 1), null), datatypes.Actor.administradorLocal()));
         assertThrows(IllegalArgumentException.class, () -> sistema.modificarAsistente(
-                new DtAsistente(nick, "Ana", correo, "", LocalDate.of(2000, 1, 1), null)));
+                new DtAsistente(nick, "Ana", correo, "", LocalDate.of(2000, 1, 1), null), datatypes.Actor.administradorLocal()));
         assertThrows(IllegalArgumentException.class, () -> sistema.modificarAsistente(
-                new DtAsistente(nick, "Ana", correo, "Pérez", LocalDate.now().plusDays(1), null)));
+                new DtAsistente(nick, "Ana", correo, "Pérez", LocalDate.now().plusDays(1), null), datatypes.Actor.administradorLocal()));
         assertThrows(IllegalArgumentException.class, () -> sistema.modificarAsistente(
-                new DtAsistente(nick, "Ana", correo, "Pérez", LocalDate.of(2000, 1, 1), "NoExiste" + sufijo)));
+                new DtAsistente(nick, "Ana", correo, "Pérez", LocalDate.of(2000, 1, 1), "NoExiste" + sufijo), datatypes.Actor.administradorLocal()));
     }
 
     @Test
     void modificarUnUsuarioInexistenteLanzaError() {
         assertThrows(IllegalArgumentException.class, () -> sistema.modificarAsistente(
                 new DtAsistente("noexiste" + sufijo, "Ana", "x@mail.com", "Pérez",
-                        LocalDate.of(2000, 1, 1), null)));
+                        LocalDate.of(2000, 1, 1), null), datatypes.Actor.administradorLocal()));
     }
 
     @Test
@@ -149,7 +149,7 @@ class UsuarioTest extends soporte.PruebaConBaseSegura {
         for (String clave : new String[]{null, ""}) {
             DtOrganizador cambio = new DtOrganizador(nick, "Nombre nuevo", nick + "@mail.com", "Descripción nueva", "https://nuevo.test");
             cambio.setContrasenia(clave);
-            sistema.modificarOrganizador(cambio);
+            sistema.modificarOrganizador(cambio, datatypes.Actor.administradorLocal());
             DtOrganizador consultado = (DtOrganizador) sistema.consultarUsuario(nick);
             assertEquals("Nombre nuevo", consultado.getNombre());
             assertEquals("Descripción nueva", consultado.getDescripcion());
@@ -168,7 +168,7 @@ class UsuarioTest extends soporte.PruebaConBaseSegura {
         DtOrganizador cambio = new DtOrganizador(nick, "Nombre nuevo", nick + "@mail.com", "Descripción nueva", null);
         cambio.setContrasenia("clave2");
         cambio.setConfirmacionContrasenia("clave2");
-        sistema.modificarOrganizador(cambio);
+        sistema.modificarOrganizador(cambio, datatypes.Actor.administradorLocal());
         DtOrganizador consultado = (DtOrganizador) sistema.consultarUsuario(nick);
         assertEquals("Nombre nuevo", consultado.getNombre());
         assertEquals("Descripción nueva", consultado.getDescripcion());
@@ -184,7 +184,7 @@ class UsuarioTest extends soporte.PruebaConBaseSegura {
         DtOrganizador cambio = new DtOrganizador(nick, "No guardar", nick + "@mail.com", "No guardar", "https://nuevo.test");
         cambio.setContrasenia("clave2");
         cambio.setConfirmacionContrasenia("otra");
-        assertThrows(IllegalArgumentException.class, () -> sistema.modificarOrganizador(cambio));
+        assertThrows(IllegalArgumentException.class, () -> sistema.modificarOrganizador(cambio, datatypes.Actor.administradorLocal()));
         DtOrganizador consultado = (DtOrganizador) sistema.consultarUsuario(nick);
         assertEquals("Organizadora", consultado.getNombre());
         assertEquals("Descripción general", consultado.getDescripcion());
@@ -196,10 +196,10 @@ class UsuarioTest extends soporte.PruebaConBaseSegura {
     @Test
     void modificarOrganizadorRechazaUsuarioNuloSinNicknameOInexistente() {
         assertEquals("El usuario no existe.", assertThrows(IllegalArgumentException.class,
-                () -> sistema.modificarOrganizador(null)).getMessage());
+                () -> sistema.modificarOrganizador(null, datatypes.Actor.administradorLocal())).getMessage());
         for (String nick : new String[]{null, "ausente" + sufijo}) {
             assertEquals("El usuario no existe.", assertThrows(IllegalArgumentException.class,
-                    () -> sistema.modificarOrganizador(new DtOrganizador(nick, "Nombre", "correo@test.uy", "Descripción", null))).getMessage());
+                    () -> sistema.modificarOrganizador(new DtOrganizador(nick, "Nombre", "correo@test.uy", "Descripción", null), datatypes.Actor.administradorLocal())).getMessage());
         }
     }
 
@@ -214,7 +214,7 @@ class UsuarioTest extends soporte.PruebaConBaseSegura {
                 cambio.setContrasenia("clave2");
                 cambio.setConfirmacionContrasenia("clave2");
                 assertEquals(nombreInvalido ? "El nombre es obligatorio." : "La descripción es obligatoria.",
-                        assertThrows(IllegalArgumentException.class, () -> sistema.modificarOrganizador(cambio)).getMessage());
+                        assertThrows(IllegalArgumentException.class, () -> sistema.modificarOrganizador(cambio, datatypes.Actor.administradorLocal())).getMessage());
                 DtOrganizador consultado = (DtOrganizador) sistema.consultarUsuario(nick);
                 assertEquals("Organizadora", consultado.getNombre());
                 assertEquals("Descripción general", consultado.getDescripcion());
@@ -230,7 +230,7 @@ class UsuarioTest extends soporte.PruebaConBaseSegura {
         assertTrue(sistema.altaOrganizador(organizador(nick, "clave1")));
 
         assertThrows(IllegalArgumentException.class, () -> sistema.modificarOrganizador(
-                new DtOrganizador(nick, "Organizadora", nick + "@mail.com", " ", "")));
+                new DtOrganizador(nick, "Organizadora", nick + "@mail.com", " ", ""), datatypes.Actor.administradorLocal()));
     }
 
     @Test
@@ -242,7 +242,7 @@ class UsuarioTest extends soporte.PruebaConBaseSegura {
         dt.setContrasenia("nueva1");
         dt.setConfirmacionContrasenia("distinta");
 
-        assertThrows(IllegalArgumentException.class, () -> sistema.modificarAsistente(dt));
+        assertThrows(IllegalArgumentException.class, () -> sistema.modificarAsistente(dt, datatypes.Actor.administradorLocal()));
         // Nada cambió: la contraseña original sigue valiendo
         assertEquals(nick, sistema.autenticar(nick, "clave1").getNickname());
     }

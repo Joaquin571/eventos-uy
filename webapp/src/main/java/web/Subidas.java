@@ -1,6 +1,6 @@
 package web;
 
-import datatypes.DtImagen;
+import contratos.dto.DtImagen;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.Part;

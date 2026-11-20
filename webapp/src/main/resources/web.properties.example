@@ -1,0 +1,8 @@
+# Copiar a ~/.eventosUy/web.properties del usuario que ejecuta Tomcat.
+# En otra computadora: indicar la IP LAN del Central, no localhost.
+# Todos los destinos se construyen como HTTPS; configurar confianza TLS en la JVM.
+central.host=127.0.0.1
+central.puerto=9128
+central.ruta=/eventos
+central.ruta.portal=/portal
+central.ruta.sesiones=/sesiones

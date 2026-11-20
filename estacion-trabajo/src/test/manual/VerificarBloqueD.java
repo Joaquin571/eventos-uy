@@ -27,12 +27,12 @@ public class VerificarBloqueD extends VerificarSwing {
             rechazada = "Rechazada D " + sufijo;
             for (String nombre : List.of(pendiente, aceptada, rechazada)) {
                 sistema.altaEdicion(new DtEdicion(nombre, "D", LocalDate.now().plusDays(10),
-                        LocalDate.now().plusDays(11), null, "Montevideo", "Uruguay", org), evento);
+                        LocalDate.now().plusDays(11), null, "Montevideo", "Uruguay", org), evento, datatypes.Actor.administradorLocal());
             }
-            sistema.asociarImagen(TipoEntidadImagen.EDICION, aceptada, sistema.obtenerImagen(TipoEntidadImagen.EDICION, edicion));
-            sistema.altaTipoRegistro(new DtTipoRegistro("General D", "Descripción", 10, 20), aceptada);
+            sistema.asociarImagen(TipoEntidadImagen.EDICION, aceptada, sistema.obtenerImagen(TipoEntidadImagen.EDICION, edicion), datatypes.Actor.administradorLocal());
+            sistema.altaTipoRegistro(new DtTipoRegistro("General D", "Descripción", 10, 20), aceptada, Actor.administradorLocal());
             String codigo = "codigo-d-" + sufijo;
-            sistema.altaPatrocinio(new DtPatrocinio(null, 100, 1, codigo, NivelPatrocinio.ORO, institucion, aceptada, "General D"));
+            sistema.altaPatrocinio(new DtPatrocinio(null, 100, 1, codigo, NivelPatrocinio.ORO, institucion, aceptada, "General D"), null, datatypes.Actor.administradorLocal());
 
             tomcat = new Tomcat();
             tomcat.setBaseDir(Path.of("webapp/target/tomcat-swing-d-" + sufijo).toAbsolutePath().toString());
@@ -81,7 +81,7 @@ public class VerificarBloqueD extends VerificarSwing {
     }
 
     static void cambiarEstado(String nombre, boolean aceptar) throws Exception {
-        var panel = new swing.AceptarRechazarEdicionPanel();
+        var panel = new swing.AceptarRechazarEdicionPanel(datatypes.Actor.administradorLocal());
         combo(panel, "comboEvento").setSelectedItem(evento);
         ((JList)campo(panel, "listaEdiciones")).setSelectedValue(nombre, true);
         // La utilidad cierra confirmación con YES (0) y el mensaje posterior con OK (0).
@@ -101,7 +101,7 @@ public class VerificarBloqueD extends VerificarSwing {
     }
 
     static void probarConsultas(String codigo) throws Exception {
-        var ed = new swing.ConsultaEdicionEventoPanel();
+        var ed = new swing.ConsultaEdicionEventoPanel(datatypes.Actor.administradorLocal());
         for (var par : Map.of(pendiente, "Ingresada", aceptada, "Aceptada", rechazada, "Rechazada").entrySet()) {
             ed.seleccionarEventoYEdicion(evento, par.getKey());
             verificar(((JTextArea)campo(ed, "areaDetalles")).getText().contains("Estado: " + par.getValue()), "Consulta muestra estado " + par.getValue());
@@ -119,7 +119,7 @@ public class VerificarBloqueD extends VerificarSwing {
         for (int i = 0; i < usuarios.getItemCount(); i++) if (((DtUsuario)usuarios.getItemAt(i)).getNickname().equals(org)) usuarios.setSelectedIndex(i);
         comprobarVista(usuario, true);
         usuarios.setSelectedIndex(-1); comprobarVista(usuario, false);
-        var patrocinio = new swing.ConsultaPatrocinioPanel(); patrocinio.refrescarDatos();
+        var patrocinio = new swing.ConsultaPatrocinioPanel(datatypes.Actor.administradorLocal()); patrocinio.refrescarDatos();
         combo(patrocinio, "comboEvento").setSelectedItem(evento);
         combo(patrocinio, "comboEdicion").setSelectedItem(aceptada);
         combo(patrocinio, "comboPatrocinio").setSelectedItem(codigo);

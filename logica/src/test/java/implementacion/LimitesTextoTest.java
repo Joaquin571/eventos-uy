@@ -50,7 +50,7 @@ class LimitesTextoTest extends soporte.PruebaConBaseSegura {
         for (DtOrganizador dt : List.of(organizador(nick, excesivo, "D", null),
                 organizador(nick, "Nuevo", excesivo, null), organizador(nick, "Nuevo", "D", excesivo))) {
             dt.setContrasenia("nueva"); dt.setConfirmacionContrasenia("nueva");
-            assertThrows(IllegalArgumentException.class, () -> sistema.modificarOrganizador(dt));
+            assertThrows(IllegalArgumentException.class, () -> sistema.modificarOrganizador(dt, datatypes.Actor.administradorLocal()));
             assertEquals("Original", sistema.consultarUsuario(nick).getNombre());
             assertNotNull(sistema.autenticar(nick, "original"));
             assertThrows(IllegalArgumentException.class, () -> sistema.autenticar(nick, "nueva"));
@@ -69,22 +69,22 @@ class LimitesTextoTest extends soporte.PruebaConBaseSegura {
         String nombre = "inst" + sufijo;
         for (DtInstitucion dt : List.of(new DtInstitucion(excesivo,"D",null),
                 new DtInstitucion(nombre,excesivo,null),new DtInstitucion(nombre,"D",excesivo))) {
-            assertThrows(IllegalArgumentException.class, () -> sistema.altaInstitucion(dt));
+            assertThrows(IllegalArgumentException.class, () -> sistema.altaInstitucion(dt, datatypes.Actor.administradorLocal()));
         }
         assertFalse(sistema.existeInstitucion(nombre));
     }
 
     @Test void eventoYEdicionRechazanTextoAntesDeResolverReferencias() {
         assertThrows(IllegalArgumentException.class, () -> sistema.altaEvento(new DtEvento(
-                "ev" + sufijo, excesivo, "D", null, List.of("inexistente"))));
+                "ev" + sufijo, excesivo, "D", null, List.of("inexistente")), datatypes.Actor.administradorLocal()));
         assertThrows(IllegalArgumentException.class, () -> sistema.altaEdicion(new DtEdicion(
-                "ed" + sufijo,"ED",LocalDate.now(),LocalDate.now(),null,excesivo,"País","org"),"evento"));
+                "ed" + sufijo,"ED",LocalDate.now(),LocalDate.now(),null,excesivo,"País","org"),"evento", datatypes.Actor.administradorLocal()));
     }
 
     @Test void tipoYCodigoExcesivosSeRechazanSinInsertar() {
-        assertThrows(IllegalArgumentException.class, () -> sistema.altaTipoRegistro(new DtTipoRegistro(excesivo,"D",0,1),"edición"));
+        assertThrows(IllegalArgumentException.class, () -> sistema.altaTipoRegistro(new DtTipoRegistro(excesivo,"D",0,1),"edición", Actor.administradorLocal()));
         assertThrows(IllegalArgumentException.class, () -> sistema.altaPatrocinio(new DtPatrocinio(
-                null,100,0,excesivo,NivelPatrocinio.ORO,"institución","edición","tipo")));
-        assertNull(sistema.consultarPatrocinio(excesivo));
+                null,100,0,excesivo,NivelPatrocinio.ORO,"institución","edición","tipo"), null, datatypes.Actor.administradorLocal()));
+        assertNull(sistema.consultarPatrocinio(excesivo, datatypes.Actor.administradorLocal()));
     }
 }

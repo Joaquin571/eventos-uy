@@ -1,10 +1,10 @@
 package web;
 
-import datatypes.DtEdicion;
-import datatypes.DtEvento;
-import datatypes.EstadoEdicion;
-import datatypes.TipoEntidadImagen;
-import interfaces.ISistema;
+import contratos.dto.DtEdicion;
+import contratos.dto.DtEvento;
+import contratos.dto.EstadoEdicion;
+import contratos.dto.TipoEntidadImagen;
+import contratos.ServicioPortal;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -28,30 +28,19 @@ public class EventoServlet extends HttpServlet {
             throws ServletException, IOException {
 
         String nombre = req.getParameter("nombre");
-        ISistema sistema = ContextoListener.sistema(req);
-
-        // No hay "consultarEvento" en ISistema: se busca por nombre en la lista.
-        DtEvento evento = null;
-        if (nombre != null && !nombre.isBlank()) {
-            for (DtEvento candidato : sistema.listarEventos()) {
-                if (candidato.getNombre().equals(nombre)) {
-                    evento = candidato;
-                    break;
-                }
-            }
-        }
-
-        if (evento == null) {
-            resp.sendError(HttpServletResponse.SC_NOT_FOUND, "El evento no existe.");
+        if (nombre == null || nombre.isBlank()) {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
+        ServicioPortal sistema = ContextoListener.central(req);
 
-        // Solo las ediciones Aceptada son públicas.
+        var seleccion=sistema.consultarEdiciones(nombre, "");
+        DtEvento evento=seleccion.getEventos().stream().filter(e->e.getNombre().equals(seleccion.getEvento())).findFirst().orElseThrow();
         req.setAttribute("evento", evento);
         req.setAttribute("fechaAlta", evento.getFechaAlta() == null
                 ? "" : evento.getFechaAlta().format(FECHA));
         req.setAttribute("ediciones",
-                sistema.obtenerEdicionesEvento(evento.getNombre(), EstadoEdicion.ACEPTADA));
+                seleccion.getEdiciones());
         req.setAttribute("tieneImagen",
                 sistema.obtenerImagen(TipoEntidadImagen.EVENTO, evento.getNombre()) != null);
 

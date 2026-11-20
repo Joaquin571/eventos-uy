@@ -1,5 +1,7 @@
 package swing;
 
+import datatypes.Actor;
+
 import datatypes.DtEdicion;
 import datatypes.DtImagen;
 import datatypes.TipoEntidadImagen;
@@ -31,9 +33,16 @@ public class AltaEdicionEventoPanel extends JPanel {
     private JTextField txtCiudad;
     private JTextField txtPais;
 
-    public AltaEdicionEventoPanel() {
+    private final Actor actor;
 
-        this.sistema = Fabrica.getInstance().getISistema();
+    public AltaEdicionEventoPanel(Actor actor) {
+        this(actor, Fabrica.getInstance().getISistema());
+    }
+
+    AltaEdicionEventoPanel(Actor actor, ISistema sistema) {
+        this.actor = java.util.Objects.requireNonNull(actor, "Se requiere Actor.");
+
+        this.sistema = java.util.Objects.requireNonNull(sistema);
 
         initUI();
 
@@ -168,7 +177,6 @@ public class AltaEdicionEventoPanel extends JPanel {
     // =====================================================
 
     private void guardarEdicion() {
-        if (imagen.reintentarAlta(sistema, this::limpiarFormulario)) return;
 
         String eventoSel = (String) comboEventos.getSelectedItem();
         String organizadorSel = (String) comboOrganizadores.getSelectedItem();
@@ -223,10 +231,9 @@ public class AltaEdicionEventoPanel extends JPanel {
         try {
 
             DtImagen nuevaImagen = imagen.leerValidada(sistema);
-            boolean okEdicion = sistema.altaEdicion(dtEdicion, eventoSel);
+            boolean okEdicion = sistema.altaEdicion(dtEdicion, eventoSel, nuevaImagen, actor);
 
             if (okEdicion) {
-                if (!imagen.completarAlta(sistema, TipoEntidadImagen.EDICION, nombre, nuevaImagen)) return;
 
                 JOptionPane.showMessageDialog(
                         this,

@@ -50,7 +50,7 @@ class ImagenesTest extends soporte.PruebaConBaseSegura {
     void asociaYRecuperaLaImagenDeUnUsuario() {
         String nick = crearAsistente("imgA");
 
-        sistema.asociarImagen(TipoEntidadImagen.USUARIO, nick, new DtImagen("image/png", png()));
+        sistema.asociarImagen(TipoEntidadImagen.USUARIO, nick, new DtImagen("image/png", png()), datatypes.Actor.administradorLocal());
 
         DtImagen recuperada = sistema.obtenerImagen(TipoEntidadImagen.USUARIO, nick);
 
@@ -63,8 +63,8 @@ class ImagenesTest extends soporte.PruebaConBaseSegura {
     void reemplazarLaImagenDejaSoloLaNueva() {
         String nick = crearAsistente("imgR");
 
-        sistema.asociarImagen(TipoEntidadImagen.USUARIO, nick, new DtImagen("image/png", png()));
-        sistema.asociarImagen(TipoEntidadImagen.USUARIO, nick, new DtImagen("image/jpeg", jpeg()));
+        sistema.asociarImagen(TipoEntidadImagen.USUARIO, nick, new DtImagen("image/png", png()), datatypes.Actor.administradorLocal());
+        sistema.asociarImagen(TipoEntidadImagen.USUARIO, nick, new DtImagen("image/jpeg", jpeg()), datatypes.Actor.administradorLocal());
 
         DtImagen recuperada = sistema.obtenerImagen(TipoEntidadImagen.USUARIO, nick);
 
@@ -82,7 +82,7 @@ class ImagenesTest extends soporte.PruebaConBaseSegura {
     @Test
     void asociarAUnaEntidadInexistenteLanzaError() {
         assertThrows(IllegalArgumentException.class, () -> sistema.asociarImagen(
-                TipoEntidadImagen.USUARIO, "noexiste" + sufijo, new DtImagen("image/png", png())));
+                TipoEntidadImagen.USUARIO, "noexiste" + sufijo, new DtImagen("image/png", png()), datatypes.Actor.administradorLocal()));
     }
 
     @Test
@@ -91,7 +91,7 @@ class ImagenesTest extends soporte.PruebaConBaseSegura {
 
         assertThrows(IllegalArgumentException.class, () -> sistema.asociarImagen(
                 TipoEntidadImagen.USUARIO, nick,
-                new DtImagen("image/png", "<html></html>".getBytes())));
+                new DtImagen("image/png", "<html></html>".getBytes()), datatypes.Actor.administradorLocal()));
 
         assertNull(sistema.obtenerImagen(TipoEntidadImagen.USUARIO, nick));
     }
@@ -101,9 +101,9 @@ class ImagenesTest extends soporte.PruebaConBaseSegura {
         String nombre = "Institucion" + sufijo;
 
         assertTrue(sistema.altaInstitucion(
-                new DtInstitucion(nombre, "Descripción", "https://ejemplo.com")));
+                new DtInstitucion(nombre, "Descripción", "https://ejemplo.com"), datatypes.Actor.administradorLocal()));
 
-        sistema.asociarImagen(TipoEntidadImagen.INSTITUCION, nombre, new DtImagen("image/png", png()));
+        sistema.asociarImagen(TipoEntidadImagen.INSTITUCION, nombre, new DtImagen("image/png", png()), datatypes.Actor.administradorLocal());
 
         assertArrayEquals(png(),
                 sistema.obtenerImagen(TipoEntidadImagen.INSTITUCION, nombre).getContenido());
@@ -112,8 +112,8 @@ class ImagenesTest extends soporte.PruebaConBaseSegura {
     private String crearEntidadConImagen(TipoEntidadImagen tipo) throws Exception {
         String categoria = "Categoría imagen " + sufijo;
         String evento = "Evento imagen " + sufijo;
-        sistema.altaCategoria(categoria, null);
-        assertTrue(sistema.altaEvento(new DtEvento(evento, "IM", "Evento con imagen", LocalDate.now(), List.of(categoria))));
+        sistema.altaCategoria(categoria, null, datatypes.Actor.administradorLocal());
+        assertTrue(sistema.altaEvento(new DtEvento(evento, "IM", "Evento con imagen", LocalDate.now(), List.of(categoria)), datatypes.Actor.administradorLocal()));
         if (tipo == TipoEntidadImagen.EVENTO) return evento;
         String nick = "orgImagen" + sufijo;
         DtOrganizador organizador = new DtOrganizador(nick, "Organizadora", nick + "@test.uy", "Descripción", null);
@@ -122,7 +122,7 @@ class ImagenesTest extends soporte.PruebaConBaseSegura {
         assertTrue(sistema.altaOrganizador(organizador));
         String edicion = "Edición imagen " + sufijo;
         assertTrue(sistema.altaEdicion(new DtEdicion(edicion, "IM", LocalDate.now().plusDays(10),
-                LocalDate.now().plusDays(11), LocalDate.now(), "Montevideo", "Uruguay", nick), evento));
+                LocalDate.now().plusDays(11), LocalDate.now(), "Montevideo", "Uruguay", nick), evento, datatypes.Actor.administradorLocal()));
         return edicion;
     }
 
@@ -136,15 +136,15 @@ class ImagenesTest extends soporte.PruebaConBaseSegura {
     private void comprobarAsociacion(TipoEntidadImagen tipo) throws Exception {
         String clave = crearEntidadConImagen(tipo);
         assertNull(sistema.obtenerImagen(tipo, clave));
-        sistema.asociarImagen(tipo, clave, new DtImagen("IMAGE/PNG", png()));
+        sistema.asociarImagen(tipo, clave, new DtImagen("IMAGE/PNG", png()), datatypes.Actor.administradorLocal());
         comprobarImagen(tipo, clave, "image/png", png());
         assertNull(sistema.obtenerImagen(tipo, "ausente" + sufijo));
     }
 
     private void comprobarReemplazo(TipoEntidadImagen tipo) throws Exception {
         String clave = crearEntidadConImagen(tipo);
-        sistema.asociarImagen(tipo, clave, new DtImagen("image/png", png()));
-        sistema.asociarImagen(tipo, clave, new DtImagen("image/jpeg", jpeg()));
+        sistema.asociarImagen(tipo, clave, new DtImagen("image/png", png()), datatypes.Actor.administradorLocal());
+        sistema.asociarImagen(tipo, clave, new DtImagen("image/jpeg", jpeg()), datatypes.Actor.administradorLocal());
         comprobarImagen(tipo, clave, "image/jpeg", jpeg());
         // La consulta devuelve datos desconectados: alterarlos no debe cambiar la base.
         sistema.obtenerImagen(tipo, clave).getContenido()[0] = 0;
@@ -153,12 +153,12 @@ class ImagenesTest extends soporte.PruebaConBaseSegura {
 
     private void comprobarRechazoSinPerdida(TipoEntidadImagen tipo) throws Exception {
         String clave = crearEntidadConImagen(tipo);
-        sistema.asociarImagen(tipo, clave, new DtImagen("image/png", png()));
+        sistema.asociarImagen(tipo, clave, new DtImagen("image/png", png()), datatypes.Actor.administradorLocal());
         DtImagen[] invalidas = {null, new DtImagen("image/png", jpeg()),
                 new DtImagen("image/png", java.util.Arrays.copyOf(png(), png().length - 1)),
                 new DtImagen("image/jpeg", new byte[ValidadorImagen.TAMANIO_MAXIMO + 1])};
         for (DtImagen invalida : invalidas) {
-            assertThrows(IllegalArgumentException.class, () -> sistema.asociarImagen(tipo, clave, invalida));
+            assertThrows(IllegalArgumentException.class, () -> sistema.asociarImagen(tipo, clave, invalida, datatypes.Actor.administradorLocal()));
             comprobarImagen(tipo, clave, "image/png", png());
         }
     }
@@ -170,7 +170,7 @@ class ImagenesTest extends soporte.PruebaConBaseSegura {
                 soporte.ImagenesPrueba.webp(), soporte.ImagenesPrueba.webpSinPerdida(), soporte.ImagenesPrueba.webpAnimado(2)};
         for (int i = 0; i < imagenes.length; i++) {
             String mime = i < 2 ? "image/gif" : "image/webp";
-            sistema.asociarImagen(TipoEntidadImagen.USUARIO, nick, new DtImagen(mime, imagenes[i]));
+            sistema.asociarImagen(TipoEntidadImagen.USUARIO, nick, new DtImagen(mime, imagenes[i]), datatypes.Actor.administradorLocal());
             comprobarImagen(TipoEntidadImagen.USUARIO, nick, mime, imagenes[i]);
         }
     }
@@ -220,14 +220,14 @@ class ImagenesTest extends soporte.PruebaConBaseSegura {
     @Test
     void referenciasInvalidasDeImagenNoModificanLaImagenExistente() throws Exception {
         String clave = crearEntidadConImagen(TipoEntidadImagen.EVENTO);
-        sistema.asociarImagen(TipoEntidadImagen.EVENTO, clave, new DtImagen("image/png", png()));
+        sistema.asociarImagen(TipoEntidadImagen.EVENTO, clave, new DtImagen("image/png", png()), datatypes.Actor.administradorLocal());
         for (String invalida : new String[]{null, " "}) {
             assertNull(sistema.obtenerImagen(TipoEntidadImagen.EVENTO, invalida));
             assertThrows(IllegalArgumentException.class, () -> sistema.asociarImagen(
-                    TipoEntidadImagen.EVENTO, invalida, new DtImagen("image/jpeg", jpeg())));
+                    TipoEntidadImagen.EVENTO, invalida, new DtImagen("image/jpeg", jpeg()), datatypes.Actor.administradorLocal()));
         }
         assertNull(sistema.obtenerImagen(null, clave));
-        assertThrows(IllegalArgumentException.class, () -> sistema.asociarImagen(null, clave, new DtImagen("image/jpeg", jpeg())));
+        assertThrows(IllegalArgumentException.class, () -> sistema.asociarImagen(null, clave, new DtImagen("image/jpeg", jpeg()), datatypes.Actor.administradorLocal()));
         comprobarImagen(TipoEntidadImagen.EVENTO, clave, "image/png", png());
     }
 

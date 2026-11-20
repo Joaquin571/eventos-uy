@@ -1,7 +1,7 @@
 package web;
 
-import datatypes.DtImagen;
-import datatypes.TipoEntidadImagen;
+import contratos.dto.DtImagen;
+import contratos.dto.TipoEntidadImagen;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,20 +18,10 @@ public class ImagenServlet extends HttpServlet {
         TipoEntidadImagen tipo = tipoDe(req.getParameter("tipo"));
         String id = req.getParameter("id");
 
-        if (tipo == TipoEntidadImagen.EDICION) {
-            resp.setHeader("Cache-Control", "private, no-store");
-            var sistema = ContextoListener.sistema(req);
-            var seleccion = AccesoEdiciones.resolver(sistema, sistema.listarEventos(), "",
-                    id == null ? "" : id, AccesoEdiciones.usuario(req));
-            if (seleccion == null || seleccion.edicion() == null) {
-                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
-                return;
-            }
-        }
-
-        DtImagen imagen = (tipo == null || id == null || id.isBlank())
+        resp.setHeader("Cache-Control", "private, no-store");
+        DtImagen imagen = (tipo == null)
                 ? null
-                : ContextoListener.sistema(req).obtenerImagen(tipo, id);
+                : ContextoListener.central(req).obtenerImagen(tipo, id);
 
         if (imagen == null) {
             resp.sendRedirect(req.getContextPath() + "/img/default-avatar.png");
@@ -39,8 +29,9 @@ public class ImagenServlet extends HttpServlet {
         }
 
         resp.setContentType(imagen.getTipoContenido());
-        resp.setHeader("X-Content-Type-Options", "nosniff");
         if (tipo != TipoEntidadImagen.EDICION) resp.setHeader("Cache-Control", "no-cache");
+        resp.setHeader("X-Content-Type-Options", "nosniff");
+
         resp.setContentLength(imagen.getContenido().length);
         resp.getOutputStream().write(imagen.getContenido());
     }

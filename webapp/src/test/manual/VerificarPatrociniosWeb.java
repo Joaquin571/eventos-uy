@@ -41,19 +41,19 @@ public class VerificarPatrociniosWeb {
         }
         DtAsistente a = new DtAsistente(asistente, "Asistente", asistente + "@test.uy", "Apellido", LocalDate.of(2000,1,1), null);
         a.setContrasenia("clave");a.setConfirmacionContrasenia("clave");sistema.altaAsistente(a);
-        sistema.altaCategoria("catWeb" + sufijo, null);
-        sistema.altaEvento(new DtEvento(evento,"EV","Descripción",LocalDate.now(),List.of("catWeb"+sufijo)));
+        sistema.altaCategoria("catWeb" + sufijo, null, datatypes.Actor.administradorLocal());
+        sistema.altaEvento(new DtEvento(evento,"EV","Descripción",LocalDate.now(),List.of("catWeb"+sufijo)), datatypes.Actor.administradorLocal());
         for (String nombre : List.of(edicion, oculta, rechazada)) {
             LocalDate h = LocalDate.now();
-            sistema.altaEdicion(new DtEdicion(nombre,"ED",h,h,h,"Ciudad","País",duenio),evento);
-            sistema.altaTipoRegistro(new DtTipoRegistro("General","General",100,50),nombre);
+            sistema.altaEdicion(new DtEdicion(nombre,"ED",h,h,h,"Ciudad","País",duenio),evento, datatypes.Actor.administradorLocal());
+            sistema.altaTipoRegistro(new DtTipoRegistro("General","General",100,50),nombre, Actor.administradorLocal());
         }
-        sistema.aceptarRechazarEdicion(edicion,true);sistema.aceptarRechazarEdicion(rechazada,false);
-        sistema.altaInstitucion(new DtInstitucion(institucion,"Descripción","https://test.uy"));
-        sistema.altaInstitucion(new DtInstitucion(institucionNueva,"Descripción","https://test.uy"));
+        sistema.aceptarRechazarEdicion(edicion,true, datatypes.Actor.administradorLocal());sistema.aceptarRechazarEdicion(rechazada,false, datatypes.Actor.administradorLocal());
+        sistema.altaInstitucion(new DtInstitucion(institucion,"Descripción","https://test.uy"), datatypes.Actor.administradorLocal());
+        sistema.altaInstitucion(new DtInstitucion(institucionNueva,"Descripción","https://test.uy"), datatypes.Actor.administradorLocal());
         for (String nombre : List.of(edicion,oculta,rechazada)) {
             sistema.altaPatrocinio(new DtPatrocinio(LocalDate.of(1999,1,1),1000,1,codigo+nombre,
-                    NivelPatrocinio.ORO,institucion,nombre,"General"));
+                    NivelPatrocinio.ORO,institucion,nombre,"General"), null, datatypes.Actor.administradorLocal());
         }
         Tomcat tomcat = new Tomcat();
         tomcat.setBaseDir(Path.of("webapp/target/tomcat-patrocinios-integracion").toAbsolutePath().toString());
@@ -85,7 +85,7 @@ public class VerificarPatrociniosWeb {
             comprobar(r.statusCode()==200 && r.body().contains("NUEVO-"+sufijo)
                     && r.body().contains(LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))
                     && r.body().contains("Nueva &lt;UTEC&gt;"),"Detalle persistido, fecha y escape HTML");
-            comprobar(sistema.obtenerPatrociniosEdicion(edicion).size()==2,"Persistencia sin duplicar al consultar");
+            comprobar(sistema.obtenerPatrociniosEdicion(edicion, datatypes.Actor.administradorLocal()).size()==2,"Persistencia sin duplicar al consultar");
             datos.put("codigo","OTRO-"+sufijo);
             r=post(propietario,"/alta-patrocinio",datos);
             comprobar(r.statusCode()==200 && r.body().contains("ya posee") && r.body().contains("value=\"OTRO-"+sufijo+"\"")

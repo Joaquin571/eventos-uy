@@ -113,21 +113,21 @@ public class VerificarConsultasWeb {
 
     static void preparar(ISistema s)throws Exception {
         for(String nick:List.of(org,ajeno)) {DtOrganizador d=new DtOrganizador(nick,nick,nick+"@test.uy","Descripción","");d.setContrasenia("clave");d.setConfirmacionContrasenia("clave");s.altaOrganizador(d);}
-        s.altaInstitucion(new DtInstitucion(institucion,"Descripción","https://test.uy"));
+        s.altaInstitucion(new DtInstitucion(institucion,"Descripción","https://test.uy"), datatypes.Actor.administradorLocal());
         for(String nick:List.of(ana,bea,libre)) {DtAsistente d=new DtAsistente(nick,nick,nick+"@test.uy","Apellido",LocalDate.of(2000,1,1),nick.equals(bea)?institucion:null);d.setContrasenia("clave");d.setConfirmacionContrasenia("clave");s.altaAsistente(d);}
-        String cat="000 Cat "+sufijo;s.altaCategoria(cat,null);
-        for(String ev:List.of(evento,otroEvento))s.altaEvento(new DtEvento(ev,"EV","Descripción",LocalDate.now(),List.of(cat)));
+        String cat="000 Cat "+sufijo;s.altaCategoria(cat,null, datatypes.Actor.administradorLocal());
+        for(String ev:List.of(evento,otroEvento))s.altaEvento(new DtEvento(ev,"EV","Descripción",LocalDate.now(),List.of(cat)), datatypes.Actor.administradorLocal());
         for(String nombre:List.of(aceptada,ingresada,rechazada,otra,vacia)) {
-            s.altaEdicion(new DtEdicion(nombre,"ED",LocalDate.of(2026,3,7),LocalDate.of(2026,3,9),LocalDate.now(),"Montevideo","Uruguay",org),nombre.equals(otra)?otroEvento:evento);
-            if(!nombre.equals(vacia))s.altaTipoRegistro(new DtTipoRegistro("General","Acceso <general>",nombre.equals(otra)?200:100,50),nombre);
-            if(!nombre.equals(ingresada)&&!nombre.equals(rechazada))s.aceptarRechazarEdicion(nombre,true);
-            if(!nombre.equals(vacia))s.asociarImagen(TipoEntidadImagen.EDICION,nombre,new DtImagen("image/png",png));
+            s.altaEdicion(new DtEdicion(nombre,"ED",LocalDate.of(2026,3,7),LocalDate.of(2026,3,9),LocalDate.now(),"Montevideo","Uruguay",org),nombre.equals(otra)?otroEvento:evento, datatypes.Actor.administradorLocal());
+            if(!nombre.equals(vacia))s.altaTipoRegistro(new DtTipoRegistro("General","Acceso <general>",nombre.equals(otra)?200:100,50),nombre, Actor.administradorLocal());
+            if(!nombre.equals(ingresada)&&!nombre.equals(rechazada))s.aceptarRechazarEdicion(nombre,true, datatypes.Actor.administradorLocal());
+            if(!nombre.equals(vacia))s.asociarImagen(TipoEntidadImagen.EDICION,nombre,new DtImagen("image/png",png), datatypes.Actor.administradorLocal());
         }
-        s.aceptarRechazarEdicion(rechazada,false);
-        s.altaTipoRegistro(new DtTipoRegistro("SoloOtra","Exclusivo",0,5),otra);
-        s.altaPatrocinio(new DtPatrocinio(LocalDate.now(),1000,1,codigo,NivelPatrocinio.ORO,institucion,aceptada,"General"));
-        s.registroAEdicion(ana,aceptada,"General",new DtRegistro(LocalDate.now(),100));
-        s.registroAEdicion(bea,aceptada,"General",new DtRegistro(LocalDate.now(),0),codigo);
+        s.aceptarRechazarEdicion(rechazada,false, datatypes.Actor.administradorLocal());
+        s.altaTipoRegistro(new DtTipoRegistro("SoloOtra","Exclusivo",0,5),otra, Actor.administradorLocal());
+        s.altaPatrocinio(new DtPatrocinio(LocalDate.now(),1000,1,codigo,NivelPatrocinio.ORO,institucion,aceptada,"General"), null, datatypes.Actor.administradorLocal());
+        s.registroAEdicion(ana,aceptada,"General",new DtRegistro(LocalDate.now(),100), datatypes.Actor.administradorLocal());
+        s.registroAEdicion(bea,aceptada,"General",new DtRegistro(LocalDate.now(),0),codigo, datatypes.Actor.administradorLocal());
     }
     static void confirmarBase()throws Exception {
         if(!"eventosuy_test".equals(System.getenv("EVENTOS_DB_NAME")))throw new IllegalStateException("No se seleccionó eventosuy_test.");

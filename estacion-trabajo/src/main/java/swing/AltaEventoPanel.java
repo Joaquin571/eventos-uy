@@ -1,5 +1,7 @@
 package swing;
 
+import datatypes.Actor;
+
 import datatypes.DtEvento;
 import datatypes.DtImagen;
 import datatypes.TipoEntidadImagen;
@@ -28,7 +30,16 @@ public class AltaEventoPanel {
     private JButton btnCancelar;
     private Runnable accionCerrar;
 
-    public AltaEventoPanel() {
+    private final ISistema sistema;
+    private final Actor actor;
+
+    public AltaEventoPanel(Actor actor) {
+        this(actor, Fabrica.getInstance().getISistema());
+    }
+
+    AltaEventoPanel(Actor actor, ISistema sistema) {
+        this.actor = java.util.Objects.requireNonNull(actor, "Se requiere Actor.");
+        this.sistema = java.util.Objects.requireNonNull(sistema);
         checkCategorias = new ArrayList<>();
         popupCategorias = new JPopupMenu();
 
@@ -101,7 +112,6 @@ public class AltaEventoPanel {
         popupCategorias.removeAll();
         checkCategorias.clear();
 
-        ISistema sistema = Fabrica.getInstance().getISistema();
 
         // Cargar las categorías formateadas con sangría
         for (String catFormateada : sistema.listarCategoriasFormateadas()) {
@@ -112,8 +122,6 @@ public class AltaEventoPanel {
     }
 
     private void agregarEvento() {
-        ISistema sistema = Fabrica.getInstance().getISistema();
-        if (imagen.reintentarAlta(sistema, () -> { limpiarCampos(); if (accionCerrar != null) accionCerrar.run(); })) return;
         String nombre = txtNombre.getText().trim();
         String sigla = txtSigla.getText().trim();
         String descripcion = txtDescripcion.getText().trim();
@@ -142,8 +150,7 @@ public class AltaEventoPanel {
             DtImagen nuevaImagen = imagen.leerValidada(sistema);
             DtEvento dt = new DtEvento(nombre, sigla, descripcion, LocalDate.now(), categoriasSeleccionadas);
 
-            if (!sistema.altaEvento(dt)) throw new IllegalArgumentException("No se pudo crear el evento.");
-            if (!imagen.completarAlta(sistema, TipoEntidadImagen.EVENTO, nombre, nuevaImagen)) return;
+            if (!sistema.altaEvento(dt, nuevaImagen, actor)) throw new IllegalArgumentException("No se pudo crear el evento.");
 
             JOptionPane.showMessageDialog(mainPanel, "Evento registrado con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
             limpiarCampos();

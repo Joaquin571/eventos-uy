@@ -49,7 +49,7 @@ class SubidasTest {
         byte[] original = {1,2,3,4};
         var dt = Subidas.leerImagen(peticion(parte(original.length, new ByteArrayInputStream(original))), "imagen");
         assertArrayEquals(original, dt.getContenido()); assertEquals("image/png", dt.getTipoContenido());
-        // La validación del contenido corresponde a ISistema, no a este lector de Part.
+        // La validación del contenido corresponde a ServicioPortal, no a este lector de Part.
     }
 
     private Part parte(long tamano, InputStream entrada) {

@@ -1,6 +1,7 @@
 package datos;
 
 import clases.NivelPatrocinio;
+import datatypes.Actor;
 import datatypes.DtAsistente;
 import datatypes.DtEdicion;
 import datatypes.DtEvento;
@@ -70,16 +71,16 @@ public class CargarDatosPrueba {
         // ---- Categorías
         for (String categoria : List.of("Tecnología", "Cultura", "Deporte", "Música", "Negocios")) {
             intentar("categoría " + categoria, () -> {
-                sistema.altaCategoria(categoria, null);
+                sistema.altaCategoria(categoria, null, datatypes.Actor.administradorLocal());
                 return true;
             });
         }
 
         // ---- Instituciones
         intentar("institución UTEC", () -> sistema.altaInstitucion(new DtInstitucion(
-                "UTEC", "Universidad Tecnológica", "https://www.utec.edu.uy")));
+                "UTEC", "Universidad Tecnológica", "https://www.utec.edu.uy"), datatypes.Actor.administradorLocal()));
         intentar("institución ANTEL", () -> sistema.altaInstitucion(new DtInstitucion(
-                "ANTEL", "Empresa de telecomunicaciones", "https://www.antel.com.uy")));
+                "ANTEL", "Empresa de telecomunicaciones", "https://www.antel.com.uy"), datatypes.Actor.administradorLocal()));
 
         // ---- Organizadores
         intentar("organizador imm", () -> sistema.altaOrganizador(conClave(new DtOrganizador(
@@ -100,10 +101,10 @@ public class CargarDatosPrueba {
         // ---- Eventos
         intentar("evento Montevideo Comics", () -> sistema.altaEvento(new DtEvento(
                 "Montevideo Comics", "MVDCOMICS", "Convención de historietas y cultura geek",
-                LocalDate.of(2026, 3, 12), List.of("Cultura"))));
+                LocalDate.of(2026, 3, 12), List.of("Cultura")), datatypes.Actor.administradorLocal()));
         intentar("evento Maratón de Montevideo", () -> sistema.altaEvento(new DtEvento(
                 "Maratón de Montevideo", "MARATON", "Competencia deportiva anual en la capital",
-                LocalDate.of(2026, 3, 12), List.of("Tecnología", "Deporte"))));
+                LocalDate.of(2026, 3, 12), List.of("Tecnología", "Deporte")), datatypes.Actor.administradorLocal()));
 
         // ---- Ediciones (todas nacen Ingresada)
         String[][] ediciones = {
@@ -125,33 +126,33 @@ public class CargarDatosPrueba {
             LocalDate fin = comics ? LocalDate.of(anio, 11, 12) : LocalDate.of(anio, 11, 22);
 
             intentar("edición " + e[1], () -> sistema.altaEdicion(
-                    edicion(e[1], e[2], inicio, fin, LocalDate.of(anio - 1, 6, 1), e[3]), e[0]));
+                    edicion(e[1], e[2], inicio, fin, LocalDate.of(anio - 1, 6, 1), e[3]), e[0], datatypes.Actor.administradorLocal()));
         }
 
         // ---- Tipos de registro
         intentar("tipo General (MC2026)", () -> sistema.altaTipoRegistro(new DtTipoRegistro(
                         "General", "Acceso general a los tres días de la convención", 1500, 100),
-                "Montevideo Comics 2026"));
+                "Montevideo Comics 2026", Actor.administradorLocal()));
         intentar("tipo Estudiante (MC2026)", () -> sistema.altaTipoRegistro(new DtTipoRegistro(
                         "Estudiante", "Acceso con descuento para estudiantes", 800, 50),
-                "Montevideo Comics 2026"));
+                "Montevideo Comics 2026", Actor.administradorLocal()));
         intentar("tipo Corredor 10K (Maratón 2026)", () -> sistema.altaTipoRegistro(new DtTipoRegistro(
                         "Corredor 10K", "Participación en la carrera de 10 kilómetros", 1000, 2),
-                "Maratón de Montevideo 2026"));
+                "Maratón de Montevideo 2026", Actor.administradorLocal()));
         intentar("tipo Corredor 21K (Maratón 2026)", () -> sistema.altaTipoRegistro(new DtTipoRegistro(
                         "Corredor 21K", "Participación en la media maratón", 1800, 50),
-                "Maratón de Montevideo 2026"));
+                "Maratón de Montevideo 2026", Actor.administradorLocal()));
 
         // ---- Estados de las ediciones: Aceptada, Rechazada y (el resto) Ingresada
         for (String nombre : List.of("Montevideo Comics 2026", "Maratón de Montevideo 2026")) {
             intentar("aceptar " + nombre, () -> {
-                sistema.aceptarRechazarEdicion(nombre, true);
+                sistema.aceptarRechazarEdicion(nombre, true, datatypes.Actor.administradorLocal());
                 return true;
             });
         }
         for (String nombre : List.of("Montevideo Comics 2025", "Maratón de Montevideo 2025")) {
             intentar("rechazar " + nombre, () -> {
-                sistema.aceptarRechazarEdicion(nombre, false);
+                sistema.aceptarRechazarEdicion(nombre, false, datatypes.Actor.administradorLocal());
                 return true;
             });
         }
@@ -159,15 +160,15 @@ public class CargarDatosPrueba {
         // ---- Patrocinio de UTEC (5 gratuitos de $1500 = $7500, menos del 20 % de $50000)
         intentar("patrocinio UTEC2026", () -> sistema.altaPatrocinio(new DtPatrocinio(
                 hoy, 50000, 5, "UTEC2026", NivelPatrocinio.ORO,
-                "UTEC", "Montevideo Comics 2026", "General")));
+                "UTEC", "Montevideo Comics 2026", "General"), null, datatypes.Actor.administradorLocal()));
 
         // ---- Registros (las ediciones ya están aceptadas)
         intentar("registro general: maria88 en MC2026 (Estudiante)", () -> sistema.registroAEdicion(
-                "maria88", "Montevideo Comics 2026", "Estudiante", new DtRegistro(hoy, 800)));
+                "maria88", "Montevideo Comics 2026", "Estudiante", new DtRegistro(hoy, 800), datatypes.Actor.administradorLocal()));
         intentar("registro con código: ana_utec en MC2026 (General, UTEC2026)", () -> sistema.registroAEdicion(
-                "ana_utec", "Montevideo Comics 2026", "General", new DtRegistro(hoy, 0), "UTEC2026"));
+                "ana_utec", "Montevideo Comics 2026", "General", new DtRegistro(hoy, 0), "UTEC2026", datatypes.Actor.administradorLocal()));
         intentar("registro general: juan23 en Maratón 2026 (Corredor 10K)", () -> sistema.registroAEdicion(
-                "juan23", "Maratón de Montevideo 2026", "Corredor 10K", new DtRegistro(hoy, 1000)));
+                "juan23", "Maratón de Montevideo 2026", "Corredor 10K", new DtRegistro(hoy, 1000), datatypes.Actor.administradorLocal()));
 
         System.out.println();
         System.out.println("Datos de prueba: " + cargados + " cargados, " + omitidos + " omitidos.");

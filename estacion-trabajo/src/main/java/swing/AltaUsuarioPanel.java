@@ -5,7 +5,6 @@ import datatypes.DtImagen;
 import datatypes.DtInstitucion;
 import datatypes.DtOrganizador;
 import datatypes.DtUsuario;
-import datatypes.TipoEntidadImagen;
 import implementacion.Fabrica;
 import interfaces.ISistema;
 
@@ -194,12 +193,8 @@ public class AltaUsuarioPanel {
                 throw new IllegalArgumentException("La contraseña y su confirmación no coinciden.");
             }
 
-            // La imagen se valida antes del alta, para no dejar el usuario a medias
+            // Sistema valida la imagen y la guarda junto con el usuario.
             DtImagen imagen = leerImagen();
-
-            if (imagen != null) {
-                sistema.validarImagen(imagen);
-            }
 
             boolean esAsistente = radioAsistente.isSelected();
 
@@ -211,15 +206,11 @@ public class AltaUsuarioPanel {
             dt.setConfirmacionContrasenia(confirmacion);
 
             boolean alta = esAsistente
-                    ? sistema.altaAsistente((DtAsistente) dt)
-                    : sistema.altaOrganizador((DtOrganizador) dt);
+                    ? sistema.altaAsistente((DtAsistente) dt, imagen)
+                    : sistema.altaOrganizador((DtOrganizador) dt, imagen);
 
             if (!alta) {
                 throw new IllegalArgumentException("No se pudo registrar el usuario.");
-            }
-
-            if (imagen != null) {
-                sistema.asociarImagen(TipoEntidadImagen.USUARIO, nickname, imagen);
             }
 
             JOptionPane.showMessageDialog(mainPanel, "Usuario registrado con éxito.",

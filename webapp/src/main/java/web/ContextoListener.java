@@ -1,32 +1,26 @@
 package web;
-
-import implementacion.Fabrica;
-import interfaces.ISistema;
-import jakarta.servlet.ServletContextEvent;
-import jakarta.servlet.ServletContextListener;
+import contratos.ServicioPortal;
+import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebListener;
 import jakarta.servlet.http.HttpServletRequest;
-import persistencia.BaseDeDatos;
-
+import web.remoto.*;
+/** Tomcat solamente crea clientes: no inicia persistencia ni una instancia de Sistema. */
 @WebListener
 public class ContextoListener implements ServletContextListener {
-
-    private static final String ATRIBUTO_SISTEMA = "sistema";
-
-    @Override
     public void contextInitialized(ServletContextEvent evento) {
-        BaseDeDatos.inicializar();
-        evento.getServletContext().setAttribute(
-                ATRIBUTO_SISTEMA, Fabrica.getInstance().getISistema());
+        evento.getServletContext().setAttribute("configuracionCentral", ConfiguracionWeb.cargar());
     }
-
-    @Override
-    public void contextDestroyed(ServletContextEvent evento) {
-        BaseDeDatos.cerrar();
+    static ConfiguracionWeb configuracion(HttpServletRequest req) {
+        return (ConfiguracionWeb)req.getServletContext().getAttribute("configuracionCentral");
     }
-
-    // Los servlets obtienen la lógica con ContextoListener.sistema(request)
-    public static ISistema sistema(HttpServletRequest request) {
-        return (ISistema) request.getServletContext().getAttribute(ATRIBUTO_SISTEMA);
+    public static ServicioPortal central(HttpServletRequest req) {
+        Object doble=req.getServletContext().getAttribute("central");
+        if(doble instanceof ServicioPortal remoto)return remoto;
+        return new ClienteCentral(configuracion(req).portal(), SesionWeb.credencial(req));
+    }
+    static ServicioSesiones sesiones(HttpServletRequest req) {
+        Object doble=req.getServletContext().getAttribute("sesionesCentral");
+        if(doble instanceof ServicioSesiones remoto)return remoto;
+        return new ClienteSesionesCentral(configuracion(req).sesiones());
     }
 }

@@ -3,7 +3,7 @@ package swing;
 import javax.swing.*;
 import datatypes.DtInstitucion;
 import datatypes.DtImagen;
-import datatypes.TipoEntidadImagen;
+import datatypes.Actor;
 import java.io.IOException;
 import implementacion.Fabrica;
 import interfaces.ISistema;
@@ -11,6 +11,7 @@ import interfaces.ISistema;
 public class AltaInstitucionPanel {
 
     private final transient ISistema sistema;
+    private final Actor actor;
     private transient Runnable accionCerrar = () -> {};
 
     private JPanel mainPanel;
@@ -23,7 +24,8 @@ public class AltaInstitucionPanel {
     private JButton btnAceptar;
     private JButton btnCancelar;
 
-    public AltaInstitucionPanel() {
+    public AltaInstitucionPanel(Actor actor) {
+        this.actor = java.util.Objects.requireNonNull(actor);
 
         sistema = Fabrica.getInstance().getISistema();
 
@@ -55,7 +57,6 @@ public class AltaInstitucionPanel {
 
 
     private void guardarInstitucion() {
-        if (imagen.reintentarAlta(sistema, () -> { limpiarFormulario(); accionCerrar.run(); })) return;
         try {
 
         String nombre = txtNombre.getText().trim();
@@ -92,7 +93,7 @@ public class AltaInstitucionPanel {
                 );
 
         DtImagen nuevaImagen = imagen.leerValidada(sistema);
-        boolean agregada = sistema.altaInstitucion(dtInstitucion);
+        boolean agregada = sistema.altaInstitucion(dtInstitucion, nuevaImagen, actor);
 
         if (!agregada) {
             JOptionPane.showMessageDialog(
@@ -103,7 +104,6 @@ public class AltaInstitucionPanel {
             );
             return;
         }
-        if (!imagen.completarAlta(sistema, TipoEntidadImagen.INSTITUCION, nombre, nuevaImagen)) return;
         mostrarExito();
         limpiarFormulario();
         accionCerrar.run();

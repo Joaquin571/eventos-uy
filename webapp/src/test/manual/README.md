@@ -1,3 +1,20 @@
+# Recorrido vigente con Central HTTPS
+
+Desde el 15/11, ejecutar `verificar-portal-https.ps1 -TomcatRuta ... -JdkRuta ...`.
+Los cuatro scripts de entrada anteriores delegan en ese recorrido. Compila y
+empaqueta sin tocar datos; después ejecuta `TomcatPortalHttpsIT`, que verifica
+por JDBC `eventosuy_test` antes de inicializar JPA, crea un CATALINA_BASE temporal
+y prueba el WAR con Central HTTPS real. No modifica la instalación de Tomcat.
+
+Los ejecutores Java manuales del corte anterior se conservan como referencia;
+inyectaban lógica en Tomcat y no representan la arquitectura vigente. Sus
+escenarios HTTP se conservan/adaptan en las pruebas JUnit, y la integración real
+se ejecuta mediante la IT. No usar esos ejecutores históricos para desplegar.
+
+Ver [informe y comandos](../../../../docs/lab3/INTEGRACION-2026-11-15.md).
+
+## Procedimiento histórico anterior a la separación Web/Central
+
 # Integración de patrocinios
 
 Requiere Java 25 o superior, Tomcat 11 instalado, PostgreSQL y la base `eventosuy_test` existente.

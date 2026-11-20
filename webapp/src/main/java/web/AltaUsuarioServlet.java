@@ -1,11 +1,11 @@
 package web;
 
-import datatypes.DtAsistente;
-import datatypes.DtImagen;
-import datatypes.DtOrganizador;
-import datatypes.DtUsuario;
-import datatypes.TipoEntidadImagen;
-import interfaces.ISistema;
+import contratos.dto.DtAsistente;
+import contratos.dto.DtImagen;
+import contratos.dto.DtOrganizador;
+import contratos.dto.DtUsuario;
+import contratos.dto.TipoEntidadImagen;
+import contratos.ServicioPortal;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -44,39 +44,18 @@ public class AltaUsuarioServlet extends HttpServlet {
             form.put(campo, valor == null ? "" : valor.trim());
         }
 
-        ISistema sistema = ContextoListener.sistema(req);
+        ServicioPortal sistema = ContextoListener.central(req);
 
         try {
-            // La imagen se valida antes de crear el usuario, para no dejarlo a medias
             DtImagen imagen = Subidas.leerImagen(req, "imagen");
-
-            if (imagen != null) {
-                sistema.validarImagen(imagen);
-            }
-
-            boolean alta;
-
-            if ("organizador".equals(form.get("tipo"))) {
-                alta = sistema.altaOrganizador(armarOrganizador(req, form));
-            } else {
-                alta = sistema.altaAsistente(armarAsistente(req, form));
-            }
-
-            if (!alta) {
-                throw new IllegalArgumentException(
-                        "No se pudo registrar el usuario. Verificá los datos ingresados.");
-            }
-
+            DtUsuario usuario = "organizador".equals(form.get("tipo"))
+                    ? armarOrganizador(req, form) : armarAsistente(req, form);
+            contratos.dto.EntradaUsuario entrada = new contratos.dto.EntradaUsuario();
+            entrada.setUsuario(usuario); entrada.setImagen(imagen);
+            entrada.setContrasenia(req.getParameter("contrasenia"));
+            entrada.setConfirmacion(req.getParameter("confirmacion"));
+            sistema.altaUsuario(entrada);
             String destino = "/login?registrado=ok";
-
-            if (imagen != null) {
-                try {
-                    sistema.asociarImagen(TipoEntidadImagen.USUARIO, form.get("nickname"), imagen);
-                } catch (IllegalArgumentException e) {
-                    destino += "&imagen=error";
-                }
-            }
-
             resp.sendRedirect(req.getContextPath() + destino);
 
         } catch (IllegalArgumentException e) {
@@ -87,15 +66,9 @@ public class AltaUsuarioServlet extends HttpServlet {
     }
 
     private DtAsistente armarAsistente(HttpServletRequest req, Map<String, String> form) {
-        if (form.get("apellido").isEmpty()) {
-            throw new IllegalArgumentException("El apellido es obligatorio.");
-        }
 
         LocalDate fechaNacimiento = LocalDate.parse(form.get("fechaNac"));
 
-        if (fechaNacimiento.isAfter(LocalDate.now())) {
-            throw new IllegalArgumentException("La fecha de nacimiento no puede ser futura.");
-        }
 
         String institucion = form.get("institucion").isEmpty() ? null : form.get("institucion");
 
@@ -103,34 +76,27 @@ public class AltaUsuarioServlet extends HttpServlet {
                 form.get("nickname"), form.get("nombre"), form.get("correo"),
                 form.get("apellido"), fechaNacimiento, institucion);
 
-        agregarContrasenia(req, dt);
+
         return dt;
     }
 
     private DtOrganizador armarOrganizador(HttpServletRequest req, Map<String, String> form) {
-        if (form.get("descripcion").isEmpty()) {
-            throw new IllegalArgumentException("La descripción es obligatoria.");
-        }
 
         DtOrganizador dt = new DtOrganizador(
                 form.get("nickname"), form.get("nombre"), form.get("correo"),
                 form.get("descripcion"), form.get("sitioWeb"));
 
-        agregarContrasenia(req, dt);
+
         return dt;
     }
 
-    private void agregarContrasenia(HttpServletRequest req, DtUsuario dt) {
-        dt.setContrasenia(req.getParameter("contrasenia"));
-        dt.setConfirmacionContrasenia(req.getParameter("confirmacion"));
-    }
 
     private void mostrarFormulario(HttpServletRequest req, HttpServletResponse resp,
                                    Map<String, String> form, String error)
             throws ServletException, IOException {
         req.setAttribute("form", form);
         req.setAttribute("error", error);
-        req.setAttribute("instituciones", ContextoListener.sistema(req).listarInstituciones());
+        req.setAttribute("instituciones", ContextoListener.central(req).listarInstituciones());
         req.getRequestDispatcher("/WEB-INF/views/alta-usuario.jsp").forward(req, resp);
     }
 }

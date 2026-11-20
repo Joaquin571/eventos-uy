@@ -1,6 +1,7 @@
 package implementacion;
 
 import clases.NivelPatrocinio;
+import datatypes.Actor;
 import datatypes.DtAsistente;
 import datatypes.DtEdicion;
 import datatypes.DtPatrocinio;
@@ -68,60 +69,60 @@ class ValidacionesAdicionalesTest extends soporte.PruebaConBaseSegura {
         assertThrows(IllegalArgumentException.class, () -> sistema.autenticar("usuario", null));
     }
     @Test void cambiarContraseniaNula() {
-        assertThrows(IllegalArgumentException.class, () -> sistema.cambiarContrasenia("usuario", null, null));
+        assertThrows(IllegalArgumentException.class, () -> sistema.cambiarContrasenia("usuario", null, null, datatypes.Actor.administradorLocal()));
     }
     @Test void cambiarContraseniaDistinta() {
-        assertThrows(IllegalArgumentException.class, () -> sistema.cambiarContrasenia("usuario", "uno", "dos"));
+        assertThrows(IllegalArgumentException.class, () -> sistema.cambiarContrasenia("usuario", "uno", "dos", datatypes.Actor.administradorLocal()));
     }
     @Test void edicionNula() {
-        assertThrows(IllegalArgumentException.class, () -> sistema.altaEdicion(null, "evento"));
+        assertThrows(IllegalArgumentException.class, () -> sistema.altaEdicion(null, "evento", datatypes.Actor.administradorLocal()));
     }
     @Test void edicionSinNombre() {
         DtEdicion dt = new DtEdicion(" ", "ED", LocalDate.now(), LocalDate.now(),
                 LocalDate.now(), "Montevideo", "Uruguay", "organizador");
-        assertThrows(IllegalArgumentException.class, () -> sistema.altaEdicion(dt, "evento"));
+        assertThrows(IllegalArgumentException.class, () -> sistema.altaEdicion(dt, "evento", datatypes.Actor.administradorLocal()));
     }
     @Test void tipoRegistroNulo() {
-        assertThrows(IllegalArgumentException.class, () -> sistema.altaTipoRegistro(null, "edicion"));
+        assertThrows(IllegalArgumentException.class, () -> sistema.altaTipoRegistro(null, "edicion", Actor.administradorLocal()));
     }
     @Test void tipoRegistroSinNombre() {
         assertThrows(IllegalArgumentException.class,
-                () -> sistema.altaTipoRegistro(new DtTipoRegistro(" ", "Descripción", 10, 10), "edicion"));
+                () -> sistema.altaTipoRegistro(new DtTipoRegistro(" ", "Descripción", 10, 10), "edicion", Actor.administradorLocal()));
     }
     @Test void patrocinioNulo() {
-        assertThrows(IllegalArgumentException.class, () -> sistema.altaPatrocinio(null));
+        assertThrows(IllegalArgumentException.class, () -> sistema.altaPatrocinio(null, null, datatypes.Actor.administradorLocal()));
     }
     @Test void patrocinioSinCodigo() {
         assertThrows(IllegalArgumentException.class, () -> sistema.altaPatrocinio(
-                patrocinio(" ", "institucion", "edicion", "tipo", NivelPatrocinio.ORO, 100, 1)));
+                patrocinio(" ", "institucion", "edicion", "tipo", NivelPatrocinio.ORO, 100, 1), null, datatypes.Actor.administradorLocal()));
     }
     @Test void patrocinioSinInstitucion() {
         assertThrows(IllegalArgumentException.class, () -> sistema.altaPatrocinio(
-                patrocinio("codigo" + unico, " ", "edicion", "tipo", NivelPatrocinio.ORO, 100, 1)));
+                patrocinio("codigo" + unico, " ", "edicion", "tipo", NivelPatrocinio.ORO, 100, 1), null, datatypes.Actor.administradorLocal()));
     }
     @Test void patrocinioSinEdicion() {
         assertThrows(IllegalArgumentException.class, () -> sistema.altaPatrocinio(
-                patrocinio("codigo" + unico, "institucion", " ", "tipo", NivelPatrocinio.ORO, 100, 1)));
+                patrocinio("codigo" + unico, "institucion", " ", "tipo", NivelPatrocinio.ORO, 100, 1), null, datatypes.Actor.administradorLocal()));
     }
     @Test void patrocinioSinTipo() {
         assertThrows(IllegalArgumentException.class, () -> sistema.altaPatrocinio(
-                patrocinio("codigo" + unico, "institucion", "edicion", " ", NivelPatrocinio.ORO, 100, 1)));
+                patrocinio("codigo" + unico, "institucion", "edicion", " ", NivelPatrocinio.ORO, 100, 1), null, datatypes.Actor.administradorLocal()));
     }
     @Test void patrocinioSinNivel() {
         assertThrows(IllegalArgumentException.class, () -> sistema.altaPatrocinio(
-                patrocinio("codigo" + unico, "institucion", "edicion", "tipo", null, 100, 1)));
+                patrocinio("codigo" + unico, "institucion", "edicion", "tipo", null, 100, 1), null, datatypes.Actor.administradorLocal()));
     }
     @Test void patrocinioAporteCero() {
         assertThrows(IllegalArgumentException.class, () -> sistema.altaPatrocinio(
-                patrocinio("codigo" + unico, "institucion", "edicion", "tipo", NivelPatrocinio.ORO, 0, 1)));
+                patrocinio("codigo" + unico, "institucion", "edicion", "tipo", NivelPatrocinio.ORO, 0, 1), null, datatypes.Actor.administradorLocal()));
     }
     @Test void patrocinioAporteInfinito() {
         assertThrows(IllegalArgumentException.class, () -> sistema.altaPatrocinio(
-                patrocinio("codigo" + unico, "institucion", "edicion", "tipo", NivelPatrocinio.ORO, Float.POSITIVE_INFINITY, 1)));
+                patrocinio("codigo" + unico, "institucion", "edicion", "tipo", NivelPatrocinio.ORO, Float.POSITIVE_INFINITY, 1), null, datatypes.Actor.administradorLocal()));
     }
     @Test void patrocinioRegistrosNegativos() {
         assertThrows(IllegalArgumentException.class, () -> sistema.altaPatrocinio(
-                patrocinio("codigo" + unico, "institucion", "edicion", "tipo", NivelPatrocinio.ORO, 100, -1)));
+                patrocinio("codigo" + unico, "institucion", "edicion", "tipo", NivelPatrocinio.ORO, 100, -1), null, datatypes.Actor.administradorLocal()));
     }
 
     // Pruebas de consultas y persistencia de los manejadores.

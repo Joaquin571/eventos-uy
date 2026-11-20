@@ -1,0 +1,722 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xs:schema version="1.0" targetNamespace="https://eventos.uy/soap/portal" xmlns:tns="https://eventos.uy/soap/portal" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="OperacionFault" nillable="true" type="tns:operacionFault"/>
+
+  <xs:element name="altaEdicion" type="tns:altaEdicion"/>
+
+  <xs:element name="altaEdicionResponse" type="tns:altaEdicionResponse"/>
+
+  <xs:element name="altaEvento" type="tns:altaEvento"/>
+
+  <xs:element name="altaEventoResponse" type="tns:altaEventoResponse"/>
+
+  <xs:element name="altaInstitucion" type="tns:altaInstitucion"/>
+
+  <xs:element name="altaInstitucionResponse" type="tns:altaInstitucionResponse"/>
+
+  <xs:element name="altaPatrocinio" type="tns:altaPatrocinio"/>
+
+  <xs:element name="altaPatrocinioResponse" type="tns:altaPatrocinioResponse"/>
+
+  <xs:element name="altaTipoRegistro" type="tns:altaTipoRegistro"/>
+
+  <xs:element name="altaTipoRegistroResponse" type="tns:altaTipoRegistroResponse"/>
+
+  <xs:element name="altaUsuario" type="tns:altaUsuario"/>
+
+  <xs:element name="altaUsuarioResponse" type="tns:altaUsuarioResponse"/>
+
+  <xs:element name="consultarDetalleEdicion" type="tns:consultarDetalleEdicion"/>
+
+  <xs:element name="consultarDetalleEdicionResponse" type="tns:consultarDetalleEdicionResponse"/>
+
+  <xs:element name="consultarEdiciones" type="tns:consultarEdiciones"/>
+
+  <xs:element name="consultarEdicionesResponse" type="tns:consultarEdicionesResponse"/>
+
+  <xs:element name="consultarInstitucion" type="tns:consultarInstitucion"/>
+
+  <xs:element name="consultarInstitucionResponse" type="tns:consultarInstitucionResponse"/>
+
+  <xs:element name="consultarPatrocinios" type="tns:consultarPatrocinios"/>
+
+  <xs:element name="consultarPatrociniosResponse" type="tns:consultarPatrociniosResponse"/>
+
+  <xs:element name="consultarPerfil" type="tns:consultarPerfil"/>
+
+  <xs:element name="consultarPerfilResponse" type="tns:consultarPerfilResponse"/>
+
+  <xs:element name="consultarRegistros" type="tns:consultarRegistros"/>
+
+  <xs:element name="consultarRegistrosResponse" type="tns:consultarRegistrosResponse"/>
+
+  <xs:element name="consultarRelaciones" type="tns:consultarRelaciones"/>
+
+  <xs:element name="consultarRelacionesResponse" type="tns:consultarRelacionesResponse"/>
+
+  <xs:element name="consultarTipoRegistro" type="tns:consultarTipoRegistro"/>
+
+  <xs:element name="consultarTipoRegistroResponse" type="tns:consultarTipoRegistroResponse"/>
+
+  <xs:element name="dejarDeSeguirUsuario" type="tns:dejarDeSeguirUsuario"/>
+
+  <xs:element name="dejarDeSeguirUsuarioResponse" type="tns:dejarDeSeguirUsuarioResponse"/>
+
+  <xs:element name="disponibleCorreo" type="tns:disponibleCorreo"/>
+
+  <xs:element name="disponibleCorreoResponse" type="tns:disponibleCorreoResponse"/>
+
+  <xs:element name="disponibleNickname" type="tns:disponibleNickname"/>
+
+  <xs:element name="disponibleNicknameResponse" type="tns:disponibleNicknameResponse"/>
+
+  <xs:element name="formularioRegistro" type="tns:formularioRegistro"/>
+
+  <xs:element name="formularioRegistroResponse" type="tns:formularioRegistroResponse"/>
+
+  <xs:element name="listarCategorias" type="tns:listarCategorias"/>
+
+  <xs:element name="listarCategoriasResponse" type="tns:listarCategoriasResponse"/>
+
+  <xs:element name="listarEventos" type="tns:listarEventos"/>
+
+  <xs:element name="listarEventosPorCategoria" type="tns:listarEventosPorCategoria"/>
+
+  <xs:element name="listarEventosPorCategoriaResponse" type="tns:listarEventosPorCategoriaResponse"/>
+
+  <xs:element name="listarEventosResponse" type="tns:listarEventosResponse"/>
+
+  <xs:element name="listarInstituciones" type="tns:listarInstituciones"/>
+
+  <xs:element name="listarInstitucionesResponse" type="tns:listarInstitucionesResponse"/>
+
+  <xs:element name="listarUsuarios" type="tns:listarUsuarios"/>
+
+  <xs:element name="listarUsuariosResponse" type="tns:listarUsuariosResponse"/>
+
+  <xs:element name="modificarUsuario" type="tns:modificarUsuario"/>
+
+  <xs:element name="modificarUsuarioResponse" type="tns:modificarUsuarioResponse"/>
+
+  <xs:element name="obtenerImagen" type="tns:obtenerImagen"/>
+
+  <xs:element name="obtenerImagenResponse" type="tns:obtenerImagenResponse"/>
+
+  <xs:element name="obtenerOpcionesAltaPatrocinio" type="tns:obtenerOpcionesAltaPatrocinio"/>
+
+  <xs:element name="obtenerOpcionesAltaPatrocinioResponse" type="tns:obtenerOpcionesAltaPatrocinioResponse"/>
+
+  <xs:element name="registrar" type="tns:registrar"/>
+
+  <xs:element name="registrarResponse" type="tns:registrarResponse"/>
+
+  <xs:element name="seguirUsuario" type="tns:seguirUsuario"/>
+
+  <xs:element name="seguirUsuarioResponse" type="tns:seguirUsuarioResponse"/>
+
+  <xs:element name="usuarioActual" type="tns:usuarioActual"/>
+
+  <xs:element name="usuarioActualResponse" type="tns:usuarioActualResponse"/>
+
+  <xs:element name="usuarioMovilActual" type="tns:usuarioMovilActual"/>
+
+  <xs:element name="usuarioMovilActualResponse" type="tns:usuarioMovilActualResponse"/>
+
+  <xs:complexType name="consultarTipoRegistro">
+    <xs:sequence>
+      <xs:element name="edicion" type="xs:string" minOccurs="0"/>
+      <xs:element name="tipo" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="consultarTipoRegistroResponse">
+    <xs:sequence>
+      <xs:element name="return" type="tns:dtTipoRegistro" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="dtTipoRegistro">
+    <xs:sequence>
+      <xs:element name="idNombre" type="xs:string" minOccurs="0"/>
+      <xs:element name="descripcion" type="xs:string" minOccurs="0"/>
+      <xs:element name="costo" type="xs:float"/>
+      <xs:element name="cupo" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="operacionFault">
+    <xs:sequence>
+      <xs:element name="codigo" type="xs:string" minOccurs="0"/>
+      <xs:element name="mensaje" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="obtenerOpcionesAltaPatrocinio">
+    <xs:sequence>
+      <xs:element name="evento" type="xs:string" minOccurs="0"/>
+      <xs:element name="edicion" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="obtenerOpcionesAltaPatrocinioResponse">
+    <xs:sequence>
+      <xs:element name="return" type="tns:dtOpcionesAltaPatrocinio" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="dtOpcionesAltaPatrocinio">
+    <xs:sequence>
+      <xs:element name="evento" type="xs:string" minOccurs="0"/>
+      <xs:element name="eventos" type="tns:dtEvento" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="ediciones" type="tns:dtEdicion" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="tipos" type="tns:dtTipoRegistro" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="instituciones" type="tns:dtInstitucion" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="dtEvento">
+    <xs:sequence>
+      <xs:element name="nombre" type="xs:string" minOccurs="0"/>
+      <xs:element name="sigla" type="xs:string" minOccurs="0"/>
+      <xs:element name="descripcion" type="xs:string" minOccurs="0"/>
+      <xs:element name="fechaAlta" type="xs:string" minOccurs="0"/>
+      <xs:element name="categorias" type="xs:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="dtEdicion">
+    <xs:sequence>
+      <xs:element name="idNombre" type="xs:string" minOccurs="0"/>
+      <xs:element name="sigla" type="xs:string" minOccurs="0"/>
+      <xs:element name="fechaInicio" type="xs:string" minOccurs="0"/>
+      <xs:element name="fechaFin" type="xs:string" minOccurs="0"/>
+      <xs:element name="fechaAlta" type="xs:string" minOccurs="0"/>
+      <xs:element name="ciudad" type="xs:string" minOccurs="0"/>
+      <xs:element name="pais" type="xs:string" minOccurs="0"/>
+      <xs:element name="nombreOrganizador" type="xs:string" minOccurs="0"/>
+      <xs:element name="estado" type="tns:estadoEdicion" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="dtInstitucion">
+    <xs:sequence>
+      <xs:element name="nombre" type="xs:string" minOccurs="0"/>
+      <xs:element name="descripcion" type="xs:string" minOccurs="0"/>
+      <xs:element name="sitioWeb" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="listarEventos">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:complexType name="listarEventosResponse">
+    <xs:sequence>
+      <xs:element name="return" type="tns:dtEvento" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="consultarRegistros">
+    <xs:sequence>
+      <xs:element name="edicion" type="xs:string" minOccurs="0"/>
+      <xs:element name="asistente" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="consultarRegistrosResponse">
+    <xs:sequence>
+      <xs:element name="return" type="tns:dtConsultaRegistros" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="dtConsultaRegistros">
+    <xs:sequence>
+      <xs:element name="organizador" type="xs:boolean"/>
+      <xs:element name="ediciones" type="tns:dtEdicion" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="registros" type="tns:dtRegistro" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="detalle" type="tns:dtRegistro" minOccurs="0"/>
+      <xs:element name="asistentes" type="tns:dtUsuario" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="dtRegistro">
+    <xs:sequence>
+      <xs:element name="fechaRegistro" type="xs:string" minOccurs="0"/>
+      <xs:element name="costo" type="xs:float"/>
+      <xs:element name="nombreTipoRegistro" type="xs:string" minOccurs="0"/>
+      <xs:element name="nombreEdicion" type="xs:string" minOccurs="0"/>
+      <xs:element name="nicknameAsistente" type="xs:string" minOccurs="0"/>
+      <xs:element name="usoCodigo" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="dtUsuario">
+    <xs:sequence>
+      <xs:element name="nickname" type="xs:string" minOccurs="0"/>
+      <xs:element name="nombre" type="xs:string" minOccurs="0"/>
+      <xs:element name="correoElectronico" type="xs:string" minOccurs="0"/>
+      <xs:element name="fechaAlta" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="dtAsistente">
+    <xs:complexContent>
+      <xs:extension base="tns:dtUsuario">
+        <xs:sequence>
+          <xs:element name="apellido" type="xs:string" minOccurs="0"/>
+          <xs:element name="fechaNacimiento" type="xs:string" minOccurs="0"/>
+          <xs:element name="nombreInstitucion" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="dtOrganizador">
+    <xs:complexContent>
+      <xs:extension base="tns:dtUsuario">
+        <xs:sequence>
+          <xs:element name="descripcion" type="xs:string" minOccurs="0"/>
+          <xs:element name="sitioWeb" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="altaTipoRegistro">
+    <xs:sequence>
+      <xs:element name="datos" type="tns:dtTipoRegistro" minOccurs="0"/>
+      <xs:element name="edicion" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="altaTipoRegistroResponse">
+    <xs:sequence>
+      <xs:element name="return" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="altaEvento">
+    <xs:sequence>
+      <xs:element name="datos" type="tns:dtEvento" minOccurs="0"/>
+      <xs:element name="imagen" type="tns:dtImagen" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="dtImagen">
+    <xs:sequence>
+      <xs:element name="tipoContenido" type="xs:string" minOccurs="0"/>
+      <xs:element name="contenido" type="xs:base64Binary" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="altaEventoResponse">
+    <xs:sequence>
+      <xs:element name="return" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="consultarRelaciones">
+    <xs:sequence>
+      <xs:element name="nickname" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="consultarRelacionesResponse">
+    <xs:sequence>
+      <xs:element name="return" type="tns:dtRelacionesUsuario" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="dtRelacionesUsuario">
+    <xs:sequence>
+      <xs:element name="seguidores" type="xs:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="seguidos" type="xs:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="siguiendo" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="seguirUsuario">
+    <xs:sequence>
+      <xs:element name="destino" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="seguirUsuarioResponse">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:complexType name="formularioRegistro">
+    <xs:sequence>
+      <xs:element name="evento" type="xs:string" minOccurs="0"/>
+      <xs:element name="edicion" type="xs:string" minOccurs="0"/>
+      <xs:element name="tipo" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="formularioRegistroResponse">
+    <xs:sequence>
+      <xs:element name="return" type="tns:dtFormularioRegistro" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="dtFormularioRegistro">
+    <xs:sequence>
+      <xs:element name="evento" type="xs:string" minOccurs="0"/>
+      <xs:element name="ediciones" type="tns:dtEdicion" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="tipos" type="tns:dtTipoRegistro" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="edicion" type="tns:dtEdicion" minOccurs="0"/>
+      <xs:element name="tipo" type="tns:dtTipoRegistro" minOccurs="0"/>
+      <xs:element name="eventos" type="tns:dtEvento" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="listarInstituciones">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:complexType name="listarInstitucionesResponse">
+    <xs:sequence>
+      <xs:element name="return" type="tns:dtInstitucion" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="altaUsuario">
+    <xs:sequence>
+      <xs:element name="entrada" type="tns:entradaUsuario" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="entradaUsuario">
+    <xs:sequence>
+      <xs:element name="usuario" type="tns:dtUsuario" minOccurs="0"/>
+      <xs:element name="contrasenia" type="xs:string" minOccurs="0"/>
+      <xs:element name="confirmacion" type="xs:string" minOccurs="0"/>
+      <xs:element name="imagen" type="tns:dtImagen" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="altaUsuarioResponse">
+    <xs:sequence>
+      <xs:element name="return" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="altaPatrocinio">
+    <xs:sequence>
+      <xs:element name="datos" type="tns:dtPatrocinio" minOccurs="0"/>
+      <xs:element name="evento" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="dtPatrocinio">
+    <xs:sequence>
+      <xs:element name="fecha" type="xs:string" minOccurs="0"/>
+      <xs:element name="montoAporte" type="xs:float"/>
+      <xs:element name="cantRegistrosGrat" type="xs:int"/>
+      <xs:element name="codigoPatrocinio" type="xs:string" minOccurs="0"/>
+      <xs:element name="nivel" type="tns:nivelPatrocinio" minOccurs="0"/>
+      <xs:element name="nombreInstituto" type="xs:string" minOccurs="0"/>
+      <xs:element name="nombreEdicion" type="xs:string" minOccurs="0"/>
+      <xs:element name="nombreTipoRegistro" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="altaPatrocinioResponse">
+    <xs:sequence>
+      <xs:element name="return" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="consultarInstitucion">
+    <xs:sequence>
+      <xs:element name="nombre" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="consultarInstitucionResponse">
+    <xs:sequence>
+      <xs:element name="return" type="tns:dtInstitucion" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="modificarUsuario">
+    <xs:sequence>
+      <xs:element name="entrada" type="tns:entradaUsuario" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="modificarUsuarioResponse">
+    <xs:sequence>
+      <xs:element name="return" type="tns:dtUsuario" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="consultarDetalleEdicion">
+    <xs:sequence>
+      <xs:element name="edicion" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="consultarDetalleEdicionResponse">
+    <xs:sequence>
+      <xs:element name="return" type="tns:dtDetalleEdicion" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="dtDetalleEdicion">
+    <xs:sequence>
+      <xs:element name="edicion" type="tns:dtEdicion" minOccurs="0"/>
+      <xs:element name="organizador" type="tns:dtUsuario" minOccurs="0"/>
+      <xs:element name="tieneImagen" type="xs:boolean"/>
+      <xs:element name="tipos" type="tns:dtTipoRegistro" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="patrocinadoras" type="xs:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="registros" type="tns:dtRegistro" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="registroPropio" type="tns:dtRegistro" minOccurs="0"/>
+      <xs:element name="propietario" type="xs:boolean"/>
+      <xs:element name="puedeRegistrarse" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="disponibleNickname">
+    <xs:sequence>
+      <xs:element name="valor" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="disponibleNicknameResponse">
+    <xs:sequence>
+      <xs:element name="return" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="registrar">
+    <xs:sequence>
+      <xs:element name="edicion" type="xs:string" minOccurs="0"/>
+      <xs:element name="tipo" type="xs:string" minOccurs="0"/>
+      <xs:element name="modalidad" type="xs:string" minOccurs="0"/>
+      <xs:element name="codigo" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="registrarResponse">
+    <xs:sequence>
+      <xs:element name="return" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="obtenerImagen">
+    <xs:sequence>
+      <xs:element name="tipo" type="tns:tipoEntidadImagen" minOccurs="0"/>
+      <xs:element name="clave" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="obtenerImagenResponse">
+    <xs:sequence>
+      <xs:element name="return" type="tns:dtImagen" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="listarCategorias">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:complexType name="listarCategoriasResponse">
+    <xs:sequence>
+      <xs:element name="return" type="tns:dtCategoria" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="dtCategoria">
+    <xs:sequence>
+      <xs:element name="idNombre" type="xs:string" minOccurs="0"/>
+      <xs:element name="nombrePadre" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="consultarPatrocinios">
+    <xs:sequence>
+      <xs:element name="evento" type="xs:string" minOccurs="0"/>
+      <xs:element name="edicion" type="xs:string" minOccurs="0"/>
+      <xs:element name="institucion" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="consultarPatrociniosResponse">
+    <xs:sequence>
+      <xs:element name="return" type="tns:dtConsultaPatrocinios" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="dtConsultaPatrocinios">
+    <xs:sequence>
+      <xs:element name="evento" type="xs:string" minOccurs="0"/>
+      <xs:element name="eventos" type="tns:dtEvento" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="ediciones" type="tns:dtEdicion" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="patrocinadoras" type="xs:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="patrocinio" type="tns:dtPatrocinio" minOccurs="0"/>
+      <xs:element name="puedeVerCodigo" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="consultarPerfil">
+    <xs:sequence>
+      <xs:element name="nickname" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="consultarPerfilResponse">
+    <xs:sequence>
+      <xs:element name="return" type="tns:dtPerfilUsuario" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="dtPerfilUsuario">
+    <xs:sequence>
+      <xs:element name="usuario" type="tns:dtUsuario" minOccurs="0"/>
+      <xs:element name="propio" type="xs:boolean"/>
+      <xs:element name="registros" type="tns:dtRegistro" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="ediciones" type="tns:dtEdicion" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="disponibleCorreo">
+    <xs:sequence>
+      <xs:element name="valor" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="disponibleCorreoResponse">
+    <xs:sequence>
+      <xs:element name="return" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="listarEventosPorCategoria">
+    <xs:sequence>
+      <xs:element name="categoria" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="listarEventosPorCategoriaResponse">
+    <xs:sequence>
+      <xs:element name="return" type="tns:dtEvento" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="consultarEdiciones">
+    <xs:sequence>
+      <xs:element name="evento" type="xs:string" minOccurs="0"/>
+      <xs:element name="edicion" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="consultarEdicionesResponse">
+    <xs:sequence>
+      <xs:element name="return" type="tns:dtSeleccionEdicion" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="dtSeleccionEdicion">
+    <xs:sequence>
+      <xs:element name="evento" type="xs:string" minOccurs="0"/>
+      <xs:element name="edicion" type="tns:dtEdicion" minOccurs="0"/>
+      <xs:element name="ediciones" type="tns:dtEdicion" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="eventos" type="tns:dtEvento" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="altaEdicion">
+    <xs:sequence>
+      <xs:element name="datos" type="tns:dtEdicion" minOccurs="0"/>
+      <xs:element name="evento" type="xs:string" minOccurs="0"/>
+      <xs:element name="imagen" type="tns:dtImagen" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="altaEdicionResponse">
+    <xs:sequence>
+      <xs:element name="return" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="dejarDeSeguirUsuario">
+    <xs:sequence>
+      <xs:element name="destino" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="dejarDeSeguirUsuarioResponse">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:complexType name="usuarioActual">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:complexType name="usuarioActualResponse">
+    <xs:sequence>
+      <xs:element name="return" type="tns:dtUsuario" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="usuarioMovilActual">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:complexType name="usuarioMovilActualResponse">
+    <xs:sequence>
+      <xs:element name="return" type="tns:dtAsistente" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="listarUsuarios">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:complexType name="listarUsuariosResponse">
+    <xs:sequence>
+      <xs:element name="return" type="tns:dtUsuario" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="altaInstitucion">
+    <xs:sequence>
+      <xs:element name="datos" type="tns:dtInstitucion" minOccurs="0"/>
+      <xs:element name="imagen" type="tns:dtImagen" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="altaInstitucionResponse">
+    <xs:sequence>
+      <xs:element name="return" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="estadoEdicion">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="INGRESADA"/>
+      <xs:enumeration value="ACEPTADA"/>
+      <xs:enumeration value="RECHAZADA"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="nivelPatrocinio">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="PLATINO"/>
+      <xs:enumeration value="ORO"/>
+      <xs:enumeration value="PLATA"/>
+      <xs:enumeration value="BRONCE"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="tipoEntidadImagen">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="USUARIO"/>
+      <xs:enumeration value="EVENTO"/>
+      <xs:enumeration value="EDICION"/>
+      <xs:enumeration value="INSTITUCION"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>

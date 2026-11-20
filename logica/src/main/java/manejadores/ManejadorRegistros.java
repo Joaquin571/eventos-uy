@@ -168,6 +168,11 @@ public class ManejadorRegistros {
         try {
             tx.begin();
 
+            // El perfil puede cambiar de institución mientras Hibernate espera un bloqueo
+            // diferido de la jerarquía Usuario/Asistente. Bloquear antes de hidratar evita
+            // autorizar un código con la institución anterior ya reemplazada.
+            em.createNativeQuery("SELECT nickname FROM usuario WHERE nickname = :nickname FOR UPDATE")
+                    .setParameter("nickname", nickname).getResultList();
             Asistente asistente = em.find(
                     Asistente.class,
                     nickname,

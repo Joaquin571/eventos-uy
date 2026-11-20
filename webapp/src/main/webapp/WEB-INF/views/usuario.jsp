@@ -52,6 +52,29 @@
 
                     <hr>
 
+                    <details class="mb-3">
+                        <summary>Seguidores (${relaciones.seguidores.size()})</summary>
+                        <ul><c:forEach var="nick" items="${relaciones.seguidores}">
+                            <c:url var="urlPerfil" value="/usuario"><c:param name="nick" value="${nick}" /></c:url>
+                            <li><a href="${urlPerfil}"><c:out value="${nick}" /></a></li>
+                        </c:forEach></ul>
+                    </details>
+                    <details class="mb-3">
+                        <summary>Seguidos (${relaciones.seguidos.size()})</summary>
+                        <ul><c:forEach var="nick" items="${relaciones.seguidos}">
+                            <c:url var="urlPerfil" value="/usuario"><c:param name="nick" value="${nick}" /></c:url>
+                            <li><a href="${urlPerfil}"><c:out value="${nick}" /></a></li>
+                        </c:forEach></ul>
+                    </details>
+                    <c:if test="${puedeSeguir}">
+                        <form method="post" action="${raiz}/usuario" class="mb-3">
+                            <input type="hidden" name="_csrf" value="${csrfToken}">
+                            <input type="hidden" name="nick" value="<c:out value='${perfil.nickname}' />">
+                            <input type="hidden" name="accion" value="${relaciones.siguiendo ? 'dejar-de-seguir' : 'seguir'}">
+                            <button class="btn btn-outline-primary" type="submit">${relaciones.siguiendo ? 'Dejar de seguir' : 'Seguir'}</button>
+                        </form>
+                    </c:if>
+
                     <dl class="row mb-0">
                         <dt class="col-sm-4">Miembro desde</dt>
                         <dd class="col-sm-8"><c:out value="${fechaAlta}" /></dd>

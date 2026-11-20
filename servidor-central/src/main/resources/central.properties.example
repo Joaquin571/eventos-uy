@@ -1,0 +1,18 @@
+# Copiar a ~/.eventosUy/central.properties y completar. No contiene credenciales reales.
+central.host=127.0.0.1
+central.escucha=127.0.0.1
+central.puerto=9128
+central.ruta=/eventos
+central.ruta.sesiones=/sesiones
+sesiones.duracion.segundos=1800
+# PKCS#12 externo con una única clave privada y cadena vigente.
+# Rutas con / para evitar escapes en archivos de propiedades Java.
+tls.almacen=
+tls.almacen.password=
+tls.clave.password=
+db.url=jdbc:postgresql://localhost:5432/eventosuy_test
+db.usuario=COMPLETAR
+db.password=COMPLETAR
+
+# Casos de uso del portal, en el mismo listener HTTPS y registro P03
+central.ruta.portal=/portal

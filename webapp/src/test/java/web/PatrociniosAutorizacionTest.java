@@ -1,8 +1,9 @@
 package web;
 
-import clases.NivelPatrocinio;
-import datatypes.*;
-import interfaces.ISistema;
+import contratos.dto.NivelPatrocinio;
+import contratos.dto.*;
+import web.PortalDoble.Datos;
+import datatypes.Actor;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.*;
@@ -22,10 +23,12 @@ class PatrociniosAutorizacionTest {
             Escenario e = new Escenario(estado);
             e.autenticar(organizador("duenio"));
             e.parametros.put("organizador", "ajeno");
-            new AltaPatrocinioServlet().doPost(e.request, e.response);
+            PortalDoble.http(()->new AltaPatrocinioServlet().doPost(e.request,e.response),e.request,e.response);
             assertEquals(1, e.altas);
             assertEquals(302, e.estado);
             assertEquals("Edicion", e.creado.getNombreEdicion());
+            assertEquals("duenio", e.actorRecibido.nickname());
+            assertFalse(e.actorRecibido.esAdministradorLocal());
         }
     }
 
@@ -38,7 +41,7 @@ class PatrociniosAutorizacionTest {
             e.parametros.put("nickname", "duenio");
             e.parametros.put("usuario", "duenio");
             e.sesion.put("usuarioLogueado", organizador("duenio"));
-            new AltaPatrocinioServlet().doPost(e.request, e.response);
+            PortalDoble.http(()->new AltaPatrocinioServlet().doPost(e.request,e.response),e.request,e.response);
             assertAltaRechazada(e);
         }
     }
@@ -48,7 +51,7 @@ class PatrociniosAutorizacionTest {
         for (DtUsuario usuario : new DtUsuario[]{null, asistente("asistente"), asistente("duenio")}) {
             Escenario e = new Escenario(EstadoEdicion.ACEPTADA);
             if (usuario != null) e.autenticar(usuario);
-            new AltaPatrocinioServlet().doPost(e.request, e.response);
+            PortalDoble.http(()->new AltaPatrocinioServlet().doPost(e.request,e.response),e.request,e.response);
             assertAltaRechazada(e);
         }
     }
@@ -58,7 +61,7 @@ class PatrociniosAutorizacionTest {
         Escenario e = new Escenario(EstadoEdicion.ACEPTADA);
         e.tieneSesion = true;
         e.sesion.put("usuarioLogueado", organizador("duenio"));
-        new AltaPatrocinioServlet().doPost(e.request, e.response);
+        PortalDoble.http(()->new AltaPatrocinioServlet().doPost(e.request,e.response),e.request,e.response);
         assertAltaRechazada(e);
     }
 
@@ -68,7 +71,7 @@ class PatrociniosAutorizacionTest {
             Escenario e = new Escenario(EstadoEdicion.ACEPTADA);
             e.autenticar(organizador("duenio"));
             e.parametros.put("edicion", nombre);
-            new AltaPatrocinioServlet().doPost(e.request, e.response);
+            PortalDoble.http(()->new AltaPatrocinioServlet().doPost(e.request,e.response),e.request,e.response);
             assertAltaRechazada(e);
         }
     }
@@ -76,7 +79,7 @@ class PatrociniosAutorizacionTest {
     @Test
     void elFormularioExigeOrganizador() throws Exception {
         Escenario e = new Escenario(EstadoEdicion.ACEPTADA);
-        new AltaPatrocinioServlet().doGet(e.request, e.response);
+        PortalDoble.http(()->new AltaPatrocinioServlet().doGet(e.request,e.response),e.request,e.response);
         assertAltaRechazada(e);
     }
 
@@ -86,7 +89,7 @@ class PatrociniosAutorizacionTest {
                 organizador("ajeno"), asistente("duenio")}) {
             Escenario e = new Escenario(EstadoEdicion.ACEPTADA);
             if (usuario != null) e.autenticar(usuario);
-            new ConsultaPatrocinioServlet().doGet(e.request, e.response);
+            PortalDoble.http(()->new ConsultaPatrocinioServlet().doGet(e.request,e.response),e.request,e.response);
             assertPublicoSinCodigo(e);
         }
     }
@@ -96,7 +99,7 @@ class PatrociniosAutorizacionTest {
         for (EstadoEdicion estado : EstadoEdicion.values()) {
             Escenario e = new Escenario(estado);
             e.autenticar(organizador("duenio"));
-            new ConsultaPatrocinioServlet().doGet(e.request, e.response);
+            PortalDoble.http(()->new ConsultaPatrocinioServlet().doGet(e.request,e.response),e.request,e.response);
             assertEquals(200, e.estado);
             assertTrue(e.reenviado);
             assertEquals(true, e.atributos.get("esOrganizadorDuenio"));
@@ -110,7 +113,7 @@ class PatrociniosAutorizacionTest {
             for (DtUsuario usuario : new DtUsuario[]{null, asistente("asistente"), organizador("ajeno")}) {
                 Escenario e = new Escenario(estado);
                 if (usuario != null) e.autenticar(usuario);
-                new ConsultaPatrocinioServlet().doGet(e.request, e.response);
+                PortalDoble.http(()->new ConsultaPatrocinioServlet().doGet(e.request,e.response),e.request,e.response);
                 assertOculto(e);
                 assertEquals(0, e.consultas);
             }
@@ -125,7 +128,7 @@ class PatrociniosAutorizacionTest {
         e.parametros.put("usuario", "duenio");
         e.parametros.put("organizador", "duenio");
         e.parametros.put("esOrganizadorDuenio", "true");
-        new ConsultaPatrocinioServlet().doGet(e.request, e.response);
+        PortalDoble.http(()->new ConsultaPatrocinioServlet().doGet(e.request,e.response),e.request,e.response);
         assertPublicoSinCodigo(e);
     }
 
@@ -134,7 +137,7 @@ class PatrociniosAutorizacionTest {
         Escenario e = new Escenario(EstadoEdicion.INGRESADA);
         e.tieneSesion = true;
         e.sesion.put("usuarioLogueado", organizador("duenio"));
-        new ConsultaPatrocinioServlet().doGet(e.request, e.response);
+        PortalDoble.http(()->new ConsultaPatrocinioServlet().doGet(e.request,e.response),e.request,e.response);
         assertOculto(e);
         assertEquals(0, e.consultas);
     }
@@ -145,7 +148,7 @@ class PatrociniosAutorizacionTest {
             Escenario e = new Escenario(EstadoEdicion.ACEPTADA);
             e.autenticar(organizador("duenio"));
             e.parametros.put("edicion", nombre);
-            new ConsultaPatrocinioServlet().doGet(e.request, e.response);
+            PortalDoble.http(()->new ConsultaPatrocinioServlet().doGet(e.request,e.response),e.request,e.response);
             assertOculto(e);
             assertEquals(0, e.consultas);
         }
@@ -155,7 +158,7 @@ class PatrociniosAutorizacionTest {
     void edicionOcultaTambienSeProtegeSinInstitucion() throws Exception {
         Escenario e = new Escenario(EstadoEdicion.RECHAZADA);
         e.parametros.remove("institucion");
-        new ConsultaPatrocinioServlet().doGet(e.request, e.response);
+        PortalDoble.http(()->new ConsultaPatrocinioServlet().doGet(e.request,e.response),e.request,e.response);
         assertOculto(e);
     }
 
@@ -163,7 +166,7 @@ class PatrociniosAutorizacionTest {
     void patrocinioInexistenteDevuelve404() throws Exception {
         Escenario e = new Escenario(EstadoEdicion.ACEPTADA);
         e.existePatrocinio = false;
-        new ConsultaPatrocinioServlet().doGet(e.request, e.response);
+        PortalDoble.http(()->new ConsultaPatrocinioServlet().doGet(e.request,e.response),e.request,e.response);
         assertOculto(e);
     }
 
@@ -171,7 +174,7 @@ class PatrociniosAutorizacionTest {
     void consultaSinSeleccionSigueSiendoPublica() throws Exception {
         Escenario e = new Escenario(EstadoEdicion.ACEPTADA);
         e.parametros.clear();
-        new ConsultaPatrocinioServlet().doGet(e.request, e.response);
+        PortalDoble.http(()->new ConsultaPatrocinioServlet().doGet(e.request,e.response),e.request,e.response);
         assertEquals(200, e.estado);
         assertTrue(e.reenviado);
         assertEquals(0, e.consultas);
@@ -203,7 +206,7 @@ class PatrociniosAutorizacionTest {
     }
 
     private static DtOrganizador organizador(String nick) {
-        return new DtOrganizador(nick, nick, nick + "@ejemplo.uy", "Descripci?n", "");
+        return new DtOrganizador(nick, nick, nick + "@ejemplo.uy", "Descripción", "");
     }
 
     private static DtAsistente asistente(String nick) {
@@ -227,10 +230,12 @@ class PatrociniosAutorizacionTest {
         int consultas;
         boolean reenviado;
         DtPatrocinio creado;
+        Actor actorRecibido;
+        Actor actorConsulta;
         boolean existePatrocinio = true;
         final DtPatrocinio patrocinio = new DtPatrocinio(LocalDate.now(), 5000, 1,
                 "SECRETO-UTEC", NivelPatrocinio.ORO, "UTEC", "Edicion", "General");
-        final ISistema sistema = doble(ISistema.class, (p, m, a) -> switch (m.getName()) {
+        final Datos sistema = doble(Datos.class, (p, m, a) -> switch (m.getName()) {
             case "listarEventos" -> eventos;
             case "consultarUsuario" -> organizador((String) a[0]);
             case "obtenerImagen" -> null;
@@ -242,21 +247,50 @@ class PatrociniosAutorizacionTest {
             case "obtenerTiposRegistroEdicion" -> tiposPorEdicion.getOrDefault(a[0], List.of());
             case "consultarTipoRegistro" -> tiposPorEdicion.getOrDefault(a[0], List.of()).stream()
                     .filter(t -> t.getIdNombre().equals(a[1])).findFirst().orElse(null);
-            case "obtenerPatrociniosEdicion" -> existePatrocinio ? List.of(patrocinio) : List.of();
-            case "altaPatrocinio" -> {
-                if (errorAlta != null) throw new IllegalArgumentException(errorAlta);
-                altas++; creado = (DtPatrocinio) a[0]; yield true;
+            case "obtenerInstitucionesPatrocinadoras" -> existePatrocinio ? List.of("UTEC") : List.of();
+            case "consultarPatrocinios" -> {
+                actorConsulta = (Actor) a[3];
+                yield consultaDelDoble((String) a[0], (String) a[1], (String) a[2], actorConsulta);
             }
-            case "consultarPatrocinio" -> { consultas++; yield existePatrocinio ? patrocinio : null; }
-            default -> throw new AssertionError("Llamada inesperada a ISistema: " + m.getName());
+            case "altaPatrocinio" -> {
+                creado = (DtPatrocinio) a[0];
+                actorRecibido = (Actor) a[2];
+                // Doble del contrato: la autorización real se verifica con Sistema y persistencia en lógica.
+                comprobarDestino(creado.getNombreEdicion(), actorRecibido);
+                if (a[1] != null && !((String) a[1]).isEmpty() && edicionesPorEvento.getOrDefault(a[1], List.of())
+                        .stream().noneMatch(e -> e.getIdNombre().equals(creado.getNombreEdicion()))) {
+                    throw new IllegalArgumentException("La edición no pertenece al evento seleccionado.");
+                }
+                for(String campo:List.of("institucion","tipoRegistro","codigo"))if(parametros.getOrDefault(campo,"").isBlank())throw new IllegalArgumentException("Todos los campos son obligatorios.");
+                if (errorAlta != null) throw new IllegalArgumentException(errorAlta);
+                altas++; yield true;
+            }
+            case "obtenerOpcionesAltaPatrocinio" -> {
+                String evento = (String) a[0], edicion = (String) a[1];
+                Actor actor = (Actor) a[2];
+                if (!edicion.isEmpty()) {
+                    comprobarDestino(edicion, actor);
+                    for (var entrada : edicionesPorEvento.entrySet()) {
+                        if (entrada.getValue().stream().anyMatch(e -> edicion.equals(e.getIdNombre()))) {
+                            evento = entrada.getKey(); break;
+                        }
+                    }
+                }
+                yield PortalDoble.opciones(evento, eventos,
+                        edicionesPorEvento.getOrDefault(evento, List.of()).stream()
+                                .filter(e -> actor.nickname().equals(e.getNombreOrganizador())).toList(),
+                        tiposPorEdicion.getOrDefault(edicion, List.of()),
+                        List.of(new DtInstitucion("UTEC", "Institución", "https://utec.edu.uy")));
+            }
+            default -> throw new AssertionError("Llamada inesperada a Datos: " + m.getName());
         });
         final ServletContext contexto = doble(ServletContext.class, (p, m, a) -> {
-            if (m.getName().equals("getAttribute") && a[0].equals("sistema")) return sistema;
+            if (m.getName().equals("getAttribute") && a[0].equals("central")) return PortalDoble.crear(sistema,tieneSesion?sesion:Map.of());
             throw new AssertionError("Llamada inesperada al contexto: " + m.getName());
         });
         final HttpSession httpSesion = doble(HttpSession.class, (p, m, a) -> {
             if (m.getName().equals("getAttribute")) return sesion.get(a[0]);
-            throw new AssertionError("Llamada inesperada a la sesi?n: " + m.getName());
+            throw new AssertionError("Llamada inesperada a la sesión: " + m.getName());
         });
         final RequestDispatcher despachador = doble(RequestDispatcher.class, (p, m, a) -> {
             if (m.getName().equals("forward")) { reenviado = true; return null; }
@@ -265,7 +299,7 @@ class PatrociniosAutorizacionTest {
         final HttpServletRequest request = doble(HttpServletRequest.class, (p, m, a) -> switch (m.getName()) {
             case "getSession" -> {
                 if (a == null || a.length != 1 || !Boolean.FALSE.equals(a[0]))
-                    throw new AssertionError("No se debe crear una sesi?n para autorizar.");
+                    throw new AssertionError("No se debe crear una sesión para autorizar.");
                 yield tieneSesion ? httpSesion : null;
             }
             case "getServletContext" -> contexto;
@@ -296,6 +330,41 @@ class PatrociniosAutorizacionTest {
         void autenticar(DtUsuario usuario) {
             tieneSesion = true;
             sesion.put("usuario", usuario);
+        }
+
+        private void comprobarDestino(String edicion, Actor actor) {
+            if (ediciones.stream().noneMatch(e -> e.getIdNombre().equals(edicion)
+                    && actor.esOrganizador() && actor.nickname().equals(e.getNombreOrganizador()))) {
+                throw new excepciones.AccesoDenegadoException("La edición no pertenece al organizador.");
+            }
+        }
+
+        // Solo doble de adaptación HTTP. La política real se prueba contra Sistema y PostgreSQL en lógica.
+        private DtConsultaPatrocinios consultaDelDoble(String evento, String edicion, String institucion, Actor actor) {
+            DtEdicion seleccionada = ediciones.stream().filter(e -> edicion.equals(e.getIdNombre())).findFirst().orElse(null);
+            boolean propio = seleccionada != null && actor != null && actor.esOrganizador()
+                    && Objects.equals(actor.nickname(), seleccionada.getNombreOrganizador());
+            DtPatrocinio visible = null;
+            List<String> instituciones = List.of();
+            if (!edicion.isEmpty()) {
+                if (seleccionada == null || (seleccionada.getEstado() != EstadoEdicion.ACEPTADA && !propio)) return null;
+                for (var entrada : edicionesPorEvento.entrySet()) {
+                    if (entrada.getValue().contains(seleccionada)) { evento = entrada.getKey(); break; }
+                }
+                instituciones = existePatrocinio ? List.of("UTEC") : List.of();
+                if (!institucion.isEmpty()) {
+                    consultas++;
+                    if (!existePatrocinio) return null;
+                    visible = new DtPatrocinio(patrocinio.getFecha(), patrocinio.getMontoAporte(),
+                            patrocinio.getCantRegistrosGrat(), propio ? patrocinio.getCodigoPatrocinio() : null,
+                            patrocinio.getNivel(), patrocinio.getNombreInstituto(), patrocinio.getNombreEdicion(),
+                            patrocinio.getNombreTipoRegistro());
+                }
+            }
+            List<DtEdicion> opciones = new ArrayList<>(edicionesPorEvento.getOrDefault(evento, List.of()).stream()
+                    .filter(e -> e.getEstado() == EstadoEdicion.ACEPTADA).toList());
+            if (seleccionada != null && seleccionada.getEstado() != EstadoEdicion.ACEPTADA) opciones.add(seleccionada);
+            return PortalDoble.consulta(evento, eventos, opciones, instituciones, visible, propio);
         }
     }
 

@@ -1,30 +1,14 @@
 package web;
-
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-
+import jakarta.servlet.http.*;
 import java.io.IOException;
-
 @WebServlet("/logout")
 public class LogoutServlet extends HttpServlet {
-
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        HttpSession sesion = req.getSession(false);
-
-        if (sesion != null) {
-            sesion.invalidate();
-        }
-
-        resp.sendRedirect(req.getContextPath() + "/");
+    protected void doPost(HttpServletRequest req,HttpServletResponse resp)throws IOException {
+        SesionWeb.cerrar(req);
+        resp.sendRedirect(req.getContextPath()+"/");
     }
-
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        resp.setHeader("Allow", "POST");
-        resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+    protected void doGet(HttpServletRequest req,HttpServletResponse resp)throws IOException {
+        resp.setHeader("Allow","POST");resp.sendError(405);
     }
 }

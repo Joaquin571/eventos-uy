@@ -1,6 +1,6 @@
 package web;
 
-import datatypes.DtRegistro;
+import contratos.dto.DtRegistro;
 
 import java.time.format.DateTimeFormatter;
 

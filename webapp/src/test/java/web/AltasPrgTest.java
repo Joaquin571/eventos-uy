@@ -1,7 +1,8 @@
 package web;
 
-import datatypes.*;
-import interfaces.ISistema;
+import contratos.dto.*;
+import datatypes.Actor;
+import contratos.ServicioPortal;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.*;
@@ -51,7 +52,23 @@ class AltasPrgTest {
         e.enviar(); assertTrue(e.forward); assertEquals(0, e.altas);
         assertEquals("no-numero", e.form().get("costo"));
         assertEquals("Descripción <guardada>", e.form().get("descripcion"));
-        assertEquals("Edicion", e.form().get("edicion")); assertNotNull(e.atributos.get("error"));
+        assertEquals("Edicion", e.form().get("edicion"));
+        assertEquals("El costo y el cupo deben ser números válidos.", e.atributos.get("error"));
+    }
+
+    @Test
+    void costoYCupoVaciosMuestranElMensajeDeSuCampo() throws Exception {
+        for (String campo : List.of("costo", "cupo")) {
+            Escenario e = new Escenario("/alta-tipo-registro");
+            e.formulario();
+            e.parametros.put(campo, " ");
+            e.enviar();
+
+            assertTrue(e.forward);
+            assertNull(e.actorRecibido);
+            assertEquals(" ", e.form().get(campo));
+            assertEquals("El campo " + campo + " es obligatorio.", e.atributos.get("error"));
+        }
     }
 
     @Test
@@ -65,11 +82,10 @@ class AltasPrgTest {
     }
 
     @Test
-    void imagenFallidaMantieneRedirectExitoYAdvertenciaSinRepetirAlta() throws Exception {
-        Escenario e = new Escenario("/alta-edicion"); e.formulario(); e.imagenFallida = true;
-        e.enviar(); assertEquals(302, e.estado); assertEquals(1, e.altas);
-        e.formulario(); assertNotNull(e.atributos.get("exito")); assertNotNull(e.atributos.get("advertencia"));
-        e.formulario(); assertNull(e.atributos.get("advertencia")); assertEquals(1, e.altas);
+    void imagenFallidaRevierteAltaYConservaFormularioSinExitoParcial() throws Exception {
+        Escenario e=new Escenario("/alta-edicion");e.formulario();e.imagenFallida=true;
+        e.enviar();assertEquals(200,e.estado);assertEquals(0,e.altas);assertTrue(e.forward);
+        assertEquals("Imagen no guardada.",e.atributos.get("error"));assertNull(e.redirect);
     }
 
     @Test
@@ -83,8 +99,14 @@ class AltasPrgTest {
     @Test
     void tokenValidoNoPermiteCrearUnTipoEnEdicionAjena() throws Exception {
         Escenario e = new Escenario("/alta-tipo-registro"); e.formulario(); e.parametros.put("edicion", "Ajena");
+        e.parametros.put("nickname", "otro");
+        e.parametros.put("rol", "administrador");
         e.enviar(); assertEquals(0, e.altas); assertTrue(e.forward);
         assertEquals("La edición no pertenece al organizador.", e.atributos.get("error"));
+        assertEquals("Ajena", e.edicionRecibida);
+        assertEquals("org", e.actorRecibido.nickname());
+        assertTrue(e.actorRecibido.esOrganizador());
+        assertFalse(e.actorRecibido.esAdministradorLocal());
     }
 
     static final class Escenario {
@@ -92,6 +114,8 @@ class AltasPrgTest {
         String metodo = "GET", redirect;
         int estado = 200, altas;
         boolean forward, errorAlta, imagenFallida;
+        String edicionRecibida;
+        Actor actorRecibido;
         final Map<String,String> parametros = new HashMap<>();
         final Map<String,Object> atributos = new HashMap<>(), sesion = new HashMap<>();
         final DtEdicion edicion = new DtEdicion("Edicion", "ED", LocalDate.now(), LocalDate.now(),
@@ -102,11 +126,24 @@ class AltasPrgTest {
             case "removeAttribute" -> { sesion.remove(a[0]); yield null; }
             default -> throw new AssertionError(m.getName());
         });
-        final ISistema sistema = CsrfTest.doble(ISistema.class, (p,m,a) -> switch (m.getName()) {
+        final ServicioPortal sistema = CsrfTest.doble(ServicioPortal.class, (p,m,a) -> switch (m.getName()) {
             case "listarCategorias" -> List.of();
             case "listarEventos" -> List.of(new DtEvento("Evento", "EV", "Descripción", null, List.of()));
-            case "obtenerEdicionesOrganizador" -> List.of(edicion);
-            case "altaEdicion", "altaTipoRegistro" -> {
+            case "usuarioActual" -> sesion.get("usuario");
+            case "consultarPerfil" -> {var dato=new DtPerfilUsuario();dato.setEdiciones(List.of(edicion));yield dato;}
+            case "altaTipoRegistro" -> {
+                edicionRecibida = (String) a[1];
+                actorRecibido = Actor.usuarioAutenticado(new datatypes.DtOrganizador("org","","","",""));
+                if ("Ajena".equals(edicionRecibida)) {
+                    throw new IllegalArgumentException("La edición no pertenece al organizador.");
+                }
+                if (errorAlta) throw new IllegalArgumentException("Ya existe ese nombre.");
+                altas++; yield true;
+            }
+            case "altaEdicion" -> {
+                var dto=(DtEdicion)a[0];
+                if(dto.getFechaFin().isBefore(dto.getFechaInicio()))throw new IllegalArgumentException("La fecha de fin no puede ser anterior al inicio.");
+                if(imagenFallida)throw new IllegalArgumentException("Imagen no guardada.");
                 if (errorAlta) throw new IllegalArgumentException("Ya existe ese nombre.");
                 altas++; yield true;
             }
@@ -146,6 +183,7 @@ class AltasPrgTest {
         });
         Escenario(String ruta) {
             this.ruta = ruta;
+            sesion.put("_credencialCentral","credencial-fixture");
             sesion.put("usuario", new DtOrganizador("org", "Organización", "o@test.uy", "Descripción", ""));
             parametros.putAll(Map.of("evento","Evento","edicion","Edicion","nombre","Nombre","sigla","ED",
                     "ciudad","Ciudad","pais","País","fechaInicio","2026-11-02","fechaFin","2026-11-03"));

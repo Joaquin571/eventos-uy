@@ -1,5 +1,7 @@
 package swing;
 
+import datatypes.Actor;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
@@ -45,7 +47,10 @@ public class principal {
     private ConsultaRegistroPanel panelConsultaRegistro;
     private AceptarRechazarEdicionPanel panelAceptarRechazarEdicion;
 
-    public principal() {
+    private final Actor actor;
+
+    public principal(Actor actor) {
+        this.actor = actor;
         panelPrincipal = new JPanel(new BorderLayout());
         desktopPane = new JDesktopPane();
 
@@ -172,7 +177,7 @@ public class principal {
         );
         agregarInterno(internoAltaUsuario);
 
-        panelModificarUsuario = new ModificarUsuarioPanel();
+        panelModificarUsuario = new ModificarUsuarioPanel(actor);
         internoModificarUsuario = crearInterno(
                 "Modificar Datos de Usuario",
                 panelModificarUsuario.getMainPanel(),
@@ -196,7 +201,7 @@ public class principal {
         );
         agregarInterno(internoConsultaUsuario);
 
-        AltaInstitucionPanel panelAltaInstitucion = new AltaInstitucionPanel();
+        AltaInstitucionPanel panelAltaInstitucion = new AltaInstitucionPanel(actor);
         internoAltaInstitucion = crearInterno(
                 "Alta Institución",
                 panelAltaInstitucion.getMainPanel(),
@@ -210,7 +215,7 @@ public class principal {
         internoAltaInstitucion.setMinimumSize(new Dimension(500, 350));
         agregarInterno(internoAltaInstitucion);
 
-        panelAltaEvento = new AltaEventoPanel();
+        panelAltaEvento = new AltaEventoPanel(actor);
         internoAltaEvento = crearInterno(
                 "Alta Evento",
                 panelAltaEvento.getMainPanel(),
@@ -231,7 +236,7 @@ public class principal {
         );
         agregarInterno(internoConsultaEvento);
 
-        panelAltaPatrocinio = new AltaPatrocinioPanel();
+        panelAltaPatrocinio = new AltaPatrocinioPanel(actor);
         internoAltaPatrocinio = crearInterno(
                 "Alta Patrocinio",
                 panelAltaPatrocinio.getMainPanel(),
@@ -243,7 +248,7 @@ public class principal {
         );
         agregarInterno(internoAltaPatrocinio);
 
-        panelConsultaPatrocinio = new ConsultaPatrocinioPanel();
+        panelConsultaPatrocinio = new ConsultaPatrocinioPanel(actor);
         internoConsultaPatrocinio = crearInterno(
                 "Consulta Patrocinio",
                 panelConsultaPatrocinio.getMainPanel(),
@@ -255,7 +260,7 @@ public class principal {
         );
         agregarInterno(internoConsultaPatrocinio);
 
-        panelAltaEdicion = new AltaEdicionEventoPanel();
+        panelAltaEdicion = new AltaEdicionEventoPanel(actor);
         internoAltaEdicion = crearInterno(
                 "Alta Edición de Evento",
                 panelAltaEdicion,
@@ -264,7 +269,7 @@ public class principal {
         );
         agregarInterno(internoAltaEdicion);
 
-        panelConsultaEdicion = new ConsultaEdicionEventoPanel();
+        panelConsultaEdicion = new ConsultaEdicionEventoPanel(actor);
         internoConsultaEdicion = crearInterno(
                 "Consulta Edición de Evento",
                 panelConsultaEdicion,
@@ -273,7 +278,7 @@ public class principal {
         );
         agregarInterno(internoConsultaEdicion);
 
-        panelAltaCategoria = new AltaCategoriaPanel();
+        panelAltaCategoria = new AltaCategoriaPanel(actor);
         internoAltaCategoria = crearInterno(
                 "Alta Categoría",
                 panelAltaCategoria.getMainPanel(),
@@ -285,7 +290,7 @@ public class principal {
         );
         agregarInterno(internoAltaCategoria);
 
-        panelAltaTipoRegistro = new AltaTipoRegistro();
+        panelAltaTipoRegistro = new AltaTipoRegistro(actor);
         internoAltaTipoRegistro = crearInterno(
                 "Alta Tipo de Registro",
                 panelAltaTipoRegistro.getMainPanel(),
@@ -326,7 +331,7 @@ public class principal {
         );
         agregarInterno(internoConsultaRegistro);
 
-        panelAceptarRechazarEdicion = new AceptarRechazarEdicionPanel();
+        panelAceptarRechazarEdicion = new AceptarRechazarEdicionPanel(actor);
         internoAceptarRechazarEdicion = crearInterno(
                 "Aceptar/Rechazar Edición de Evento",
                 panelAceptarRechazarEdicion.getMainPanel(),
@@ -587,7 +592,7 @@ public class principal {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            principal ventana = new principal();
+            principal ventana = new principal(Actor.administradorLocal());
 
             JFrame frame = new JFrame("eventos.uy");
             frame.setContentPane(ventana.panelPrincipal);

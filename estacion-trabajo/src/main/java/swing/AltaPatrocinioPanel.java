@@ -3,6 +3,7 @@ package swing;
 import javax.swing.*;
 
 import clases.NivelPatrocinio;
+import datatypes.Actor;
 import datatypes.DtEdicion;
 import datatypes.DtInstitucion;
 import datatypes.DtPatrocinio;
@@ -12,10 +13,12 @@ import interfaces.ISistema;
 import implementacion.Fabrica;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 public class AltaPatrocinioPanel {
 
     private final transient ISistema sistema;
+    private final Actor actor;
     private transient Runnable accionCerrar = () -> {};
 
     private JPanel mainPanel;
@@ -36,11 +39,14 @@ public class AltaPatrocinioPanel {
     private JButton btnAceptar;
     private JButton btnCancelar;
 
-    public AltaPatrocinioPanel() {
+    public AltaPatrocinioPanel(Actor actor) {
+        this(Objects.requireNonNull(actor, "Se requiere el actor actual."),
+                Fabrica.getInstance().getISistema());
+    }
 
-        sistema =
-                Fabrica.getInstance()
-                        .getISistema();
+    AltaPatrocinioPanel(Actor actor, ISistema sistema) {
+        this.actor = Objects.requireNonNull(actor, "Se requiere el actor actual.");
+        this.sistema = Objects.requireNonNull(sistema);
 
         armarUI();
         configurarEventos();
@@ -325,10 +331,6 @@ public class AltaPatrocinioPanel {
                             aporteTexto
                     );
 
-            if (aporte <= 0) {
-
-                throw new NumberFormatException();
-            }
 
         } catch (NumberFormatException e) {
 
@@ -355,10 +357,6 @@ public class AltaPatrocinioPanel {
                             cantidadTexto
                     );
 
-            if (cantidadRegistros < 0) {
-
-                throw new NumberFormatException();
-            }
 
         } catch (NumberFormatException e) {
 
@@ -419,7 +417,7 @@ public class AltaPatrocinioPanel {
 
         try {
 
-            sistema.altaPatrocinio(dt);
+            sistema.altaPatrocinio(dt, evento, actor);
 
             JOptionPane.showMessageDialog(
                     mainPanel,

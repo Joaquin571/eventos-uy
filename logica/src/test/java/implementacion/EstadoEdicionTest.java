@@ -1,5 +1,6 @@
 package implementacion;
 
+import datatypes.Actor;
 import datatypes.DtAsistente;
 import datatypes.DtEdicion;
 import datatypes.DtEvento;
@@ -50,11 +51,11 @@ class EstadoEdicionTest extends soporte.PruebaConBaseSegura {
         assertTrue(sistema.altaOrganizador(dtOrganizador));
 
         String categoria = "cat" + sufijo;
-        sistema.altaCategoria(categoria, null);
+        sistema.altaCategoria(categoria, null, datatypes.Actor.administradorLocal());
 
         evento = "evento" + sufijo;
         assertTrue(sistema.altaEvento(new DtEvento(evento, "EV" + sufijo,
-                "Evento de prueba", hoy, List.of(categoria))));
+                "Evento de prueba", hoy, List.of(categoria)), datatypes.Actor.administradorLocal()));
     }
 
     /** Crea una edición nueva, que queda Ingresada. */
@@ -64,7 +65,7 @@ class EstadoEdicionTest extends soporte.PruebaConBaseSegura {
         String edicion = "edicion" + (++contador) + "_" + sufijo;
 
         assertTrue(sistema.altaEdicion(new DtEdicion(edicion, "ED" + contador,
-                hoy.plusDays(10), hoy.plusDays(12), hoy, "Montevideo", "Uruguay", organizador), evento));
+                hoy.plusDays(10), hoy.plusDays(12), hoy, "Montevideo", "Uruguay", organizador), evento, datatypes.Actor.administradorLocal()));
 
         return edicion;
     }
@@ -94,7 +95,7 @@ class EstadoEdicionTest extends soporte.PruebaConBaseSegura {
     void aceptarLaPasaDeIngresadaAAceptada() throws Exception {
         String edicion = crearEdicion();
 
-        sistema.aceptarRechazarEdicion(edicion, true);
+        sistema.aceptarRechazarEdicion(edicion, true, datatypes.Actor.administradorLocal());
 
         assertTrue(nombres(EstadoEdicion.ACEPTADA).contains(edicion));
         assertFalse(nombres(EstadoEdicion.INGRESADA).contains(edicion));
@@ -104,7 +105,7 @@ class EstadoEdicionTest extends soporte.PruebaConBaseSegura {
     void rechazarLaPasaDeIngresadaARechazada() throws Exception {
         String edicion = crearEdicion();
 
-        sistema.aceptarRechazarEdicion(edicion, false);
+        sistema.aceptarRechazarEdicion(edicion, false, datatypes.Actor.administradorLocal());
 
         assertTrue(nombres(EstadoEdicion.RECHAZADA).contains(edicion));
         assertFalse(nombres(EstadoEdicion.INGRESADA).contains(edicion));
@@ -113,10 +114,10 @@ class EstadoEdicionTest extends soporte.PruebaConBaseSegura {
     @Test
     void unaEdicionAceptadaNoPuedeCambiarDeEstado() throws Exception {
         String edicion = crearEdicion();
-        sistema.aceptarRechazarEdicion(edicion, true);
+        sistema.aceptarRechazarEdicion(edicion, true, datatypes.Actor.administradorLocal());
 
-        assertThrows(IllegalStateException.class, () -> sistema.aceptarRechazarEdicion(edicion, true));
-        assertThrows(IllegalStateException.class, () -> sistema.aceptarRechazarEdicion(edicion, false));
+        assertThrows(IllegalStateException.class, () -> sistema.aceptarRechazarEdicion(edicion, true, datatypes.Actor.administradorLocal()));
+        assertThrows(IllegalStateException.class, () -> sistema.aceptarRechazarEdicion(edicion, false, datatypes.Actor.administradorLocal()));
 
         assertTrue(nombres(EstadoEdicion.ACEPTADA).contains(edicion));
     }
@@ -124,10 +125,10 @@ class EstadoEdicionTest extends soporte.PruebaConBaseSegura {
     @Test
     void unaEdicionRechazadaNoPuedeCambiarDeEstado() throws Exception {
         String edicion = crearEdicion();
-        sistema.aceptarRechazarEdicion(edicion, false);
+        sistema.aceptarRechazarEdicion(edicion, false, datatypes.Actor.administradorLocal());
 
-        assertThrows(IllegalStateException.class, () -> sistema.aceptarRechazarEdicion(edicion, true));
-        assertThrows(IllegalStateException.class, () -> sistema.aceptarRechazarEdicion(edicion, false));
+        assertThrows(IllegalStateException.class, () -> sistema.aceptarRechazarEdicion(edicion, true, datatypes.Actor.administradorLocal()));
+        assertThrows(IllegalStateException.class, () -> sistema.aceptarRechazarEdicion(edicion, false, datatypes.Actor.administradorLocal()));
 
         assertTrue(nombres(EstadoEdicion.RECHAZADA).contains(edicion));
     }
@@ -135,13 +136,13 @@ class EstadoEdicionTest extends soporte.PruebaConBaseSegura {
     @Test
     void aceptarUnaEdicionInexistenteLanzaError() {
         assertThrows(IllegalArgumentException.class,
-                () -> sistema.aceptarRechazarEdicion("noexiste" + sufijo, true));
+                () -> sistema.aceptarRechazarEdicion("noexiste" + sufijo, true, datatypes.Actor.administradorLocal()));
     }
 
     @Test
     void aceptarSinIndicarLaEdicionLanzaError() {
-        assertThrows(IllegalArgumentException.class, () -> sistema.aceptarRechazarEdicion(null, true));
-        assertThrows(IllegalArgumentException.class, () -> sistema.aceptarRechazarEdicion("  ", true));
+        assertThrows(IllegalArgumentException.class, () -> sistema.aceptarRechazarEdicion(null, true, datatypes.Actor.administradorLocal()));
+        assertThrows(IllegalArgumentException.class, () -> sistema.aceptarRechazarEdicion("  ", true, datatypes.Actor.administradorLocal()));
     }
 
     // ----------------------------------------------------------- listado público
@@ -152,8 +153,8 @@ class EstadoEdicionTest extends soporte.PruebaConBaseSegura {
         String aceptada = crearEdicion();
         String rechazada = crearEdicion();
 
-        sistema.aceptarRechazarEdicion(aceptada, true);
-        sistema.aceptarRechazarEdicion(rechazada, false);
+        sistema.aceptarRechazarEdicion(aceptada, true, datatypes.Actor.administradorLocal());
+        sistema.aceptarRechazarEdicion(rechazada, false, datatypes.Actor.administradorLocal());
 
         assertEquals(List.of(ingresada), nombres(EstadoEdicion.INGRESADA));
         assertEquals(List.of(aceptada), nombres(EstadoEdicion.ACEPTADA));
@@ -164,7 +165,7 @@ class EstadoEdicionTest extends soporte.PruebaConBaseSegura {
     void soloSePuedeRegistrarEnUnaEdicionAceptada() throws Exception {
         String edicion = crearEdicion();
 
-        assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General", "Tipo general", 100, 10), edicion));
+        assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General", "Tipo general", 100, 10), edicion, Actor.administradorLocal()));
 
         String asistente = "asis" + sufijo;
         DtAsistente dt = new DtAsistente(asistente, "Ana", asistente + "@mail.com",
@@ -175,12 +176,12 @@ class EstadoEdicionTest extends soporte.PruebaConBaseSegura {
 
         // Ingresada: no se admite el registro
         assertThrows(IllegalArgumentException.class, () -> sistema.registroAEdicion(
-                asistente, edicion, "General", new DtRegistro(hoy, 100), null));
+                asistente, edicion, "General", new DtRegistro(hoy, 100), null, datatypes.Actor.administradorLocal()));
 
         // Una vez aceptada, sí
-        sistema.aceptarRechazarEdicion(edicion, true);
+        sistema.aceptarRechazarEdicion(edicion, true, datatypes.Actor.administradorLocal());
 
         assertTrue(sistema.registroAEdicion(
-                asistente, edicion, "General", new DtRegistro(hoy, 100), null));
+                asistente, edicion, "General", new DtRegistro(hoy, 100), null, datatypes.Actor.administradorLocal()));
     }
 }

@@ -20,20 +20,20 @@ public class AuditarFronteraLogica {
             var o=new DtOrganizador(org,"Frontera",org+"@test.uy","Auditoría","");o.setContrasenia("clave");o.setConfirmacionContrasenia("clave");
             comprobar(s.altaOrganizador(o),"Preparación de organizador");asistente(asA);asistente(asB);
             String cat="frCat"+sufijo,ev="frEv"+sufijo,ing="frIngresada"+sufijo,aceptada="frAceptada"+sufijo;
-            s.altaCategoria(cat,null);comprobar(s.altaEvento(new DtEvento(ev,"EV","Auditoría",null,List.of(cat))),"Preparación de evento");
+            s.altaCategoria(cat,null, datatypes.Actor.administradorLocal());comprobar(s.altaEvento(new DtEvento(ev,"EV","Auditoría",null,List.of(cat)), datatypes.Actor.administradorLocal()),"Preparación de evento");
             for(String ed:List.of(ing,aceptada)) {
-                comprobar(s.altaEdicion(new DtEdicion(ed,"ED",LocalDate.now(),LocalDate.now(),null,"Ciudad","País",org),ev),"Preparación de edición");
-                comprobar(s.altaTipoRegistro(new DtTipoRegistro("General","Auditoría",100,1),ed),"Preparación de tipo");
+                comprobar(s.altaEdicion(new DtEdicion(ed,"ED",LocalDate.now(),LocalDate.now(),null,"Ciudad","País",org),ev, datatypes.Actor.administradorLocal()),"Preparación de edición");
+                comprobar(s.altaTipoRegistro(new DtTipoRegistro("General","Auditoría",100,1),ed, Actor.administradorLocal()),"Preparación de tipo");
             }
             boolean rechazo=false;
-            try{s.registroAEdicion(asA,ing,"General",new DtRegistro(null,0));}
+            try{s.registroAEdicion(asA,ing,"General",new DtRegistro(null,0), datatypes.Actor.administradorLocal());}
             catch(IllegalArgumentException e){rechazo=e.getMessage().contains("aceptada");}
             comprobar(rechazo,"ISistema rechaza registro en edición Ingresada");
             comprobar(ManejadorRegistros.getInstance().registrar(asA,ing,"General",LocalDate.of(2000,1,1),null),"H07: el manejador público acepta la edición Ingresada desde Java");
             comprobar(s.obtenerRegistrosEdicion(ing).size()==1,"H07: se demuestra persistencia, no solo ejecución de método");
-            s.aceptarRechazarEdicion(aceptada,true);
-            comprobar(s.registroAEdicion(asA,aceptada,"General",new DtRegistro(null,0)),"Registro aceptado por fachada");
-            rechazo=false;try{s.registroAEdicion(asB,aceptada,"General",new DtRegistro(null,0));}
+            s.aceptarRechazarEdicion(aceptada,true, datatypes.Actor.administradorLocal());
+            comprobar(s.registroAEdicion(asA,aceptada,"General",new DtRegistro(null,0), datatypes.Actor.administradorLocal()),"Registro aceptado por fachada");
+            rechazo=false;try{s.registroAEdicion(asB,aceptada,"General",new DtRegistro(null,0), datatypes.Actor.administradorLocal());}
             catch(IllegalArgumentException e){rechazo=e.getMessage().contains("cupo");}
             comprobar(rechazo,"ISistema rechaza segundo registro por cupo");
             var me=ManejadorEventos.getInstance();
@@ -43,11 +43,11 @@ public class AuditarFronteraLogica {
             comprobar(s.obtenerRegistrosEdicion(aceptada).size()==2 && s.obtenerRegistrosAsistente(asB).stream().anyMatch(x->x.getCosto()==-999),
                     "H07: costo negativo y sobrecupo quedan persistidos por acceso Java interno");
             var identidad=s.autenticar(asA,"clave");
-            s.cambiarContrasenia(asB,"cambiada","cambiada");
+            s.cambiarContrasenia(asB,"cambiada","cambiada", datatypes.Actor.administradorLocal());
             comprobar(identidad.getNickname().equals(asA) && s.autenticar(asB,"cambiada").getNickname().equals(asB),
                     "H08: autenticar devuelve un DTO, no instala un actor autorizado dentro de ISistema");
             String inst="frInst"+sufijo;
-            comprobar(s.altaInstitucion(new DtInstitucion(inst,"Auditoría",null)),"Diferencia: la lógica permite sitio web de institución ausente");
+            comprobar(s.altaInstitucion(new DtInstitucion(inst,"Auditoría",null), datatypes.Actor.administradorLocal()),"Diferencia: la lógica permite sitio web de institución ausente");
             System.out.println("FRONTERA: "+comprobaciones+" caracterizaciones verificadas. Requieren ejecutar Java con la lógica y credenciales de BD; no prueban acceso HTTP.");
         } finally {BaseDeDatos.cerrar();}
     }

@@ -30,7 +30,7 @@ class ConsultasSistemaTest extends soporte.PruebaConBaseSegura {
     void listarUsuariosDevuelveAmbosRolesConDatosCompletosYSinClaves() {
         String org = organizador("consultaOrg");
         String institucion = "Institución " + sufijo;
-        assertTrue(sistema.altaInstitucion(new DtInstitucion(institucion, "Institución", null)));
+        assertTrue(sistema.altaInstitucion(new DtInstitucion(institucion, "Institución", null), datatypes.Actor.administradorLocal()));
         String nick = "consultaAs" + sufijo;
         DtAsistente alta = new DtAsistente(nick, "Ana", nick + "@test.uy", "Pérez", LocalDate.of(2000, 2, 3), institucion);
         alta.setContrasenia("clave");
@@ -65,8 +65,8 @@ class ConsultasSistemaTest extends soporte.PruebaConBaseSegura {
     void listarInstitucionesConservaDescripcionYSitioOpcional() {
         String primera = "Consulta institución " + sufijo;
         String segunda = "Consulta sin sitio " + sufijo;
-        assertTrue(sistema.altaInstitucion(new DtInstitucion(primera, "Descripción completa", "https://institucion.test")));
-        assertTrue(sistema.altaInstitucion(new DtInstitucion(segunda, "Sin sitio", null)));
+        assertTrue(sistema.altaInstitucion(new DtInstitucion(primera, "Descripción completa", "https://institucion.test"), datatypes.Actor.administradorLocal()));
+        assertTrue(sistema.altaInstitucion(new DtInstitucion(segunda, "Sin sitio", null), datatypes.Actor.administradorLocal()));
         var instituciones = sistema.listarInstituciones();
         var una = instituciones.stream().filter(i -> primera.equals(i.getNombre())).findFirst().orElseThrow();
         var otra = instituciones.stream().filter(i -> segunda.equals(i.getNombre())).findFirst().orElseThrow();
@@ -82,10 +82,10 @@ class ConsultasSistemaTest extends soporte.PruebaConBaseSegura {
     void listarEventosIncluyeTodasLasCategoriasYLaFechaAsignadaPorLaLogica() throws Exception {
         String primera = "Categoría A " + sufijo;
         String segunda = "Categoría B " + sufijo;
-        sistema.altaCategoria(primera, null);
-        sistema.altaCategoria(segunda, null);
+        sistema.altaCategoria(primera, null, datatypes.Actor.administradorLocal());
+        sistema.altaCategoria(segunda, null, datatypes.Actor.administradorLocal());
         String nombre = "Consulta evento " + sufijo;
-        assertTrue(sistema.altaEvento(new DtEvento(nombre, "CE", "Descripción del evento", hoy.minusYears(1), List.of(primera, segunda))));
+        assertTrue(sistema.altaEvento(new DtEvento(nombre, "CE", "Descripción del evento", hoy.minusYears(1), List.of(primera, segunda)), datatypes.Actor.administradorLocal()));
         var evento = sistema.listarEventos().stream().filter(e -> nombre.equals(e.getNombre())).findFirst().orElseThrow();
         assertEquals("CE", evento.getSigla());
         assertEquals("Descripción del evento", evento.getDescripcion());
@@ -99,9 +99,9 @@ class ConsultasSistemaTest extends soporte.PruebaConBaseSegura {
         String raiz = "Raíz " + sufijo;
         String hija = "Hija " + sufijo;
         String nieta = "Nieta " + sufijo;
-        sistema.altaCategoria(raiz, null);
-        sistema.altaCategoria(hija, raiz);
-        sistema.altaCategoria(nieta, hija);
+        sistema.altaCategoria(raiz, null, datatypes.Actor.administradorLocal());
+        sistema.altaCategoria(hija, raiz, datatypes.Actor.administradorLocal());
+        sistema.altaCategoria(nieta, hija, datatypes.Actor.administradorLocal());
         var categorias = sistema.listarCategorias().stream()
                 .filter(c -> Set.of(raiz, hija, nieta).contains(c.getIdNombre())).toList();
         assertEquals(3, categorias.size());
@@ -119,16 +119,16 @@ class ConsultasSistemaTest extends soporte.PruebaConBaseSegura {
         String sinEdiciones = organizador("vacioConsulta");
         String categoria = "Categoría ediciones " + sufijo;
         String evento = "Evento ediciones " + sufijo;
-        sistema.altaCategoria(categoria, null);
-        assertTrue(sistema.altaEvento(new DtEvento(evento, "ED", "Evento", hoy, List.of(categoria))));
+        sistema.altaCategoria(categoria, null, datatypes.Actor.administradorLocal());
+        assertTrue(sistema.altaEvento(new DtEvento(evento, "ED", "Evento", hoy, List.of(categoria)), datatypes.Actor.administradorLocal()));
         for (EstadoEdicion estado : EstadoEdicion.values()) {
             String nombre = estado.name() + sufijo;
             assertTrue(sistema.altaEdicion(new DtEdicion(nombre, "ED", hoy.plusDays(10), hoy.plusDays(11),
-                    hoy.minusYears(1), "Montevideo", "Uruguay", org), evento));
-            if (estado != EstadoEdicion.INGRESADA) sistema.aceptarRechazarEdicion(nombre, estado == EstadoEdicion.ACEPTADA);
+                    hoy.minusYears(1), "Montevideo", "Uruguay", org), evento, datatypes.Actor.administradorLocal()));
+            if (estado != EstadoEdicion.INGRESADA) sistema.aceptarRechazarEdicion(nombre, estado == EstadoEdicion.ACEPTADA, datatypes.Actor.administradorLocal());
         }
         String ajena = "Ajena " + sufijo;
-        assertTrue(sistema.altaEdicion(new DtEdicion(ajena, "AJ", hoy.plusDays(10), hoy.plusDays(11), hoy, "Salto", "Uruguay", otro), evento));
+        assertTrue(sistema.altaEdicion(new DtEdicion(ajena, "AJ", hoy.plusDays(10), hoy.plusDays(11), hoy, "Salto", "Uruguay", otro), evento, datatypes.Actor.administradorLocal()));
         var ediciones = sistema.obtenerEdicionesOrganizador(org);
         assertEquals(3, ediciones.size());
         assertEquals(Set.of(EstadoEdicion.values()), ediciones.stream().map(DtEdicion::getEstado).collect(Collectors.toSet()));

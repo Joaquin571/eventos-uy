@@ -1,11 +1,11 @@
 package web;
 
-import datatypes.DtAsistente;
-import datatypes.DtImagen;
-import datatypes.DtOrganizador;
-import datatypes.DtUsuario;
-import datatypes.TipoEntidadImagen;
-import interfaces.ISistema;
+
+import contratos.dto.DtAsistente;
+import contratos.dto.DtImagen;
+import contratos.dto.DtOrganizador;
+import contratos.dto.DtUsuario;
+import contratos.ServicioPortal;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -41,7 +41,7 @@ public class ModificarUsuarioServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        ISistema sistema = ContextoListener.sistema(req);
+        ServicioPortal sistema = ContextoListener.central(req);
         DtUsuario perfil = perfilActual(req);
 
         Map<String, String> form = new HashMap<>();
@@ -53,31 +53,13 @@ public class ModificarUsuarioServlet extends HttpServlet {
         try {
             DtImagen imagen = Subidas.leerImagen(req, "imagen");
 
-            if (imagen != null) {
-                sistema.validarImagen(imagen);
-            }
-
-            if (perfil instanceof DtAsistente) {
-                sistema.modificarAsistente(armarAsistente(req, form, perfil));
-            } else {
-                sistema.modificarOrganizador(armarOrganizador(req, form, perfil));
-            }
-
-            String advertencia = null;
-            if (imagen != null) {
-                try {
-                    sistema.asociarImagen(TipoEntidadImagen.USUARIO, perfil.getNickname(), imagen);
-                } catch (RuntimeException e) {
-                    getServletContext().log("Falló la imagen después de guardar el perfil.", e);
-                    advertencia = "Los datos del perfil y, si la cambiaste, la contraseña se guardaron. "
-                            + "La imagen no se pudo actualizar; intentá cargarla nuevamente.";
-                }
-            }
-
-            // El cabezal muestra el nombre: se actualiza el usuario guardado en la sesión
-            req.getSession().setAttribute("usuario", sistema.consultarUsuario(perfil.getNickname()));
-
-            MensajesFlash.guardar(req, "/usuario", "Los datos del perfil se guardaron.", advertencia);
+            contratos.dto.EntradaUsuario entrada = new contratos.dto.EntradaUsuario();
+            entrada.setUsuario(perfil instanceof DtAsistente ? armarAsistente(req, form, perfil) : armarOrganizador(req, form, perfil));
+            entrada.setImagen(imagen);entrada.setContrasenia(req.getParameter("contrasenia"));
+            entrada.setConfirmacion(req.getParameter("confirmacion"));
+            DtUsuario actualizado = sistema.modificarUsuario(entrada);
+            SesionWeb.guardar(req.getSession(), actualizado);
+            MensajesFlash.guardar(req, "/usuario", "Los datos del perfil se guardaron.", null);
             resp.sendRedirect(req.getContextPath() + "/usuario?nick="
                     + URLEncoder.encode(perfil.getNickname(), StandardCharsets.UTF_8));
 
@@ -89,23 +71,13 @@ public class ModificarUsuarioServlet extends HttpServlet {
     }
 
     private DtUsuario perfilActual(HttpServletRequest req) {
-        DtUsuario enSesion = (DtUsuario) req.getSession(false).getAttribute("usuario");
-        return ContextoListener.sistema(req).consultarUsuario(enSesion.getNickname());
+        return ContextoListener.central(req).usuarioActual();
     }
 
     private DtAsistente armarAsistente(HttpServletRequest req, Map<String, String> form, DtUsuario perfil) {
-        if (form.get("nombre").isEmpty()) {
-            throw new IllegalArgumentException("El nombre es obligatorio.");
-        }
-        if (form.get("apellido").isEmpty()) {
-            throw new IllegalArgumentException("El apellido es obligatorio.");
-        }
 
         LocalDate fechaNacimiento = LocalDate.parse(form.get("fechaNac"));
 
-        if (fechaNacimiento.isAfter(LocalDate.now())) {
-            throw new IllegalArgumentException("La fecha de nacimiento no puede ser futura.");
-        }
 
         String institucion = form.get("institucion").isEmpty() ? null : form.get("institucion");
 
@@ -113,34 +85,18 @@ public class ModificarUsuarioServlet extends HttpServlet {
                 perfil.getNickname(), form.get("nombre"), perfil.getCorreoElectronico(),
                 form.get("apellido"), fechaNacimiento, institucion);
 
-        agregarContrasenia(req, dt);
+
         return dt;
     }
 
     private DtOrganizador armarOrganizador(HttpServletRequest req, Map<String, String> form, DtUsuario perfil) {
-        if (form.get("nombre").isEmpty()) {
-            throw new IllegalArgumentException("El nombre es obligatorio.");
-        }
-        if (form.get("descripcion").isEmpty()) {
-            throw new IllegalArgumentException("La descripción es obligatoria.");
-        }
 
         DtOrganizador dt = new DtOrganizador(
                 perfil.getNickname(), form.get("nombre"), perfil.getCorreoElectronico(),
                 form.get("descripcion"), form.get("sitioWeb"));
 
-        agregarContrasenia(req, dt);
+
         return dt;
-    }
-
-    // La contraseña solo se cambia si el usuario escribió una nueva
-    private void agregarContrasenia(HttpServletRequest req, DtUsuario dt) {
-        String nueva = req.getParameter("contrasenia");
-
-        if (nueva != null && !nueva.isEmpty()) {
-            dt.setContrasenia(nueva);
-            dt.setConfirmacionContrasenia(req.getParameter("confirmacion"));
-        }
     }
 
     private Map<String, String> formularioDesde(DtUsuario perfil) {
@@ -172,7 +128,7 @@ public class ModificarUsuarioServlet extends HttpServlet {
         req.setAttribute("esOrganizador", perfil instanceof DtOrganizador);
         req.setAttribute("form", form);
         req.setAttribute("error", error);
-        req.setAttribute("instituciones", ContextoListener.sistema(req).listarInstituciones());
+        req.setAttribute("instituciones", ContextoListener.central(req).listarInstituciones());
         req.getRequestDispatcher("/WEB-INF/views/modificar-usuario.jsp").forward(req, resp);
     }
 }

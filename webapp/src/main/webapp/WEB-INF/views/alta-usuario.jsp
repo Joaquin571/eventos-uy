@@ -26,7 +26,7 @@
                         <div class="alert alert-danger"><c:out value="${error}" /></div>
                     </c:if>
 
-                    <form id="formAltaUsuario" method="post" action="${raiz}/alta-usuario" enctype="multipart/form-data">
+                    <form id="formAltaUsuario" data-disponibilidad-url="${raiz}/disponibilidad-usuario" method="post" action="${raiz}/alta-usuario" enctype="multipart/form-data">
 <jsp:include page="/WEB-INF/views/fragmentos/csrf.jsp"/>
 
                         <div class="mb-3">
@@ -41,6 +41,7 @@
                             <label for="nickname" class="form-label fw-bold">Nickname *</label>
                             <input type="text" id="nickname" name="nickname" class="form-control" required
                                    value="<c:out value='${form.nickname}' />">
+                            <div id="disponibilidad-nickname" class="form-text" aria-live="polite"></div>
                         </div>
 
                         <div class="mb-3">
@@ -53,6 +54,7 @@
                             <label for="correo" class="form-label fw-bold">Correo electrónico *</label>
                             <input type="email" id="correo" name="correo" class="form-control" required
                                    value="<c:out value='${form.correo}' />">
+                            <div id="disponibilidad-correo" class="form-text" aria-live="polite"></div>
                         </div>
 
                         <div id="camposAsistente">
@@ -170,5 +172,6 @@
     })();
 </script>
 <script src="${raiz}/js/validacion-formularios.js"></script>
+<script src="${raiz}/js/disponibilidad-usuarios.js"></script>
 </body>
 </html>

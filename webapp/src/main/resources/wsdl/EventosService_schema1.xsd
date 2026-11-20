@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xs:schema version="1.0" targetNamespace="https://eventos.uy/soap/eventos" xmlns:tns="https://eventos.uy/soap/eventos" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="ConsultaFault" type="tns:ConsultaException"/>
+
+  <xs:element name="listarEventos" type="tns:listarEventos"/>
+
+  <xs:element name="listarEventosResponse" type="tns:listarEventosResponse"/>
+
+  <xs:complexType name="listarEventos">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:complexType name="listarEventosResponse">
+    <xs:sequence>
+      <xs:element name="return" type="tns:EventoSoap" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="EventoSoap">
+    <xs:sequence>
+      <xs:element name="nombre" type="xs:string" minOccurs="0"/>
+      <xs:element name="sigla" type="xs:string" minOccurs="0"/>
+      <xs:element name="descripcion" type="xs:string" minOccurs="0"/>
+      <xs:element name="fechaAlta" type="xs:string" minOccurs="0"/>
+      <xs:element name="categorias" type="xs:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ConsultaException">
+    <xs:sequence>
+      <xs:element name="message" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

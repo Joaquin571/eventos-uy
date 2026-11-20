@@ -54,7 +54,7 @@ public class VerificarSwing {
         }
     }
     static void probarModificacion() throws Exception {
-        var p = new swing.ModificarUsuarioPanel(); p.refrescarUsuarios();
+        var p = new swing.ModificarUsuarioPanel(datatypes.Actor.administradorLocal()); p.refrescarUsuarios();
         combo(p,"comboUsuarios").setSelectedItem(org);
         verificar(!texto(p,"txtNickname").isEditable() && !texto(p,"txtCorreo").isEditable(), "Nickname y correo no editables");
         texto(p,"txtNombre").setText("Organizador cambiado");
@@ -116,9 +116,9 @@ public class VerificarSwing {
     static String evento, edicion, institucion;
     static void probarAltasConsultas() throws Exception {
         String categoria = "Categoría Swing " + sufijo;
-        sistema.altaCategoria(categoria, null);
+        sistema.altaCategoria(categoria, null, datatypes.Actor.administradorLocal());
         institucion = "Institución Swing " + sufijo;
-        var inst = new swing.AltaInstitucionPanel();
+        var inst = new swing.AltaInstitucionPanel(datatypes.Actor.administradorLocal());
         texto(inst,"txtNombre").setText(institucion); ((JTextArea)campo(inst,"txtDescripcion")).setText("Descripción");
         seleccionarImagen(inst,png); accion(inst,"guardarInstitucion");
         verificar(sistema.existeInstitucion(institucion),"Alta de institución desde formulario");
@@ -127,7 +127,7 @@ public class VerificarSwing {
         verificar(sistema.existeInstitucion(institucion+" sin imagen"),"Institución sin imagen");
         verificar(sistema.obtenerImagen(TipoEntidadImagen.INSTITUCION,institucion+" sin imagen")==null,"No arrastra imagen entre altas");
         evento="Evento Swing "+sufijo;
-        var ev=new swing.AltaEventoPanel();
+        var ev=new swing.AltaEventoPanel(datatypes.Actor.administradorLocal());
         prepararEvento(ev,evento,categoria);seleccionarImagen(ev,png);accion(ev,"agregarEvento");
         verificar(sistema.listarEventos().stream().anyMatch(e->e.getNombre().equals(evento)),"Alta de evento desde formulario");
         comprobarImagen(TipoEntidadImagen.EVENTO,evento);
@@ -138,7 +138,7 @@ public class VerificarSwing {
         verificar(sistema.listarEventos().stream().noneMatch(e->e.getNombre().equals(evento+" inválido")),"Imagen inválida no crea evento");
         verificar(texto(ev,"txtNombre").getText().equals(evento+" inválido"),"Alta fallida conserva formulario");
         edicion="Edición Swing "+sufijo;
-        var ed=new swing.AltaEdicionEventoPanel();prepararEdicion(ed,edicion);seleccionarImagen(ed,png);accion(ed,"guardarEdicion");
+        var ed=new swing.AltaEdicionEventoPanel(datatypes.Actor.administradorLocal());prepararEdicion(ed,edicion);seleccionarImagen(ed,png);accion(ed,"guardarEdicion");
         verificar(sistema.obtenerEdicionesEvento(evento).stream().anyMatch(e->e.getIdNombre().equals(edicion)&&e.getEstado()==EstadoEdicion.INGRESADA),"Alta de edición nace Ingresada");
         comprobarImagen(TipoEntidadImagen.EDICION,edicion);
         prepararEdicion(ed,edicion+" sin imagen");accion(ed,"guardarEdicion");

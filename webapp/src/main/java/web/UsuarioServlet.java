@@ -1,12 +1,12 @@
 package web;
 
-import datatypes.DtAsistente;
-import datatypes.DtEdicion;
-import datatypes.DtOrganizador;
-import datatypes.DtUsuario;
-import datatypes.EstadoEdicion;
-import datatypes.DtRegistro;
-import interfaces.ISistema;
+import contratos.dto.DtAsistente;
+import contratos.dto.DtEdicion;
+import contratos.dto.DtOrganizador;
+import contratos.dto.DtUsuario;
+import contratos.dto.EstadoEdicion;
+import contratos.dto.DtRegistro;
+import contratos.ServicioPortal;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -22,6 +22,21 @@ import java.util.Collection;
 @WebServlet("/usuario")
 public class UsuarioServlet extends HttpServlet {
 
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        if (!Csrf.validarPost(req, resp)) return;
+        if (SesionWeb.credencial(req) == null) { resp.sendError(403); return; }
+        String nick = req.getParameter("nick");
+        String accion = req.getParameter("accion");
+        if (nick == null || nick.isBlank()) { resp.sendError(400); return; }
+        ServicioPortal sistema = ContextoListener.central(req);
+        if ("seguir".equals(accion)) sistema.seguirUsuario(nick);
+        else if ("dejar-de-seguir".equals(accion)) sistema.dejarDeSeguirUsuario(nick);
+        else { resp.sendError(400); return; }
+        resp.sendRedirect(req.getContextPath() + "/usuario?nick="
+                + java.net.URLEncoder.encode(nick, java.nio.charset.StandardCharsets.UTF_8));
+    }
+
     private static final DateTimeFormatter FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     @Override
@@ -29,23 +44,17 @@ public class UsuarioServlet extends HttpServlet {
             throws ServletException, IOException {
 
         String nick = req.getParameter("nick");
-        ISistema sistema = ContextoListener.sistema(req);
+        ServicioPortal sistema = ContextoListener.central(req);
 
-        DtUsuario perfil = (nick == null || nick.isBlank()) ? null : sistema.consultarUsuario(nick);
-
-        if (perfil == null) {
-            resp.sendError(HttpServletResponse.SC_NOT_FOUND, "El usuario no existe.");
-            return;
-        }
-
-        HttpSession sesion = req.getSession(false);
-        DtUsuario actual = sesion == null ? null : (DtUsuario) sesion.getAttribute("usuario");
-        boolean esPropio = actual != null && actual.getNickname().equals(perfil.getNickname());
-
+        var consulta=sistema.consultarPerfil(nick);
+        DtUsuario perfil=consulta.getUsuario();boolean esPropio=consulta.isPropio();
         req.setAttribute("fechaAlta", perfil.getFechaAlta() == null
                 ? "No registrada" : perfil.getFechaAlta().format(FECHA));
         req.setAttribute("perfil", perfil);
         req.setAttribute("esPropio", esPropio);
+        req.setAttribute("relaciones", sistema.consultarRelaciones(nick));
+        req.setAttribute("puedeSeguir", !esPropio && SesionWeb.credencial(req) != null);
+        if (!esPropio && SesionWeb.credencial(req) != null) Csrf.prepararFormulario(req);
 
         if (perfil instanceof DtAsistente asistente) {
             req.setAttribute("esAsistente", true);
@@ -55,7 +64,7 @@ public class UsuarioServlet extends HttpServlet {
             if (esPropio) {
                 Collection<RegistroVista> registros = new ArrayList<>();
 
-                for (DtRegistro registro : sistema.obtenerRegistrosAsistente(perfil.getNickname())) {
+                for (DtRegistro registro : consulta.getRegistros()) {
                     float costo = registro.getCosto();
 
                     registros.add(new RegistroVista(
@@ -70,12 +79,7 @@ public class UsuarioServlet extends HttpServlet {
         } else if (perfil instanceof DtOrganizador) {
             req.setAttribute("esOrganizador", true);
 
-            Collection<DtEdicion> ediciones = new ArrayList<>();
-            for (DtEdicion edicion : sistema.obtenerEdicionesOrganizador(perfil.getNickname())) {
-                if (esPropio || edicion.getEstado() == EstadoEdicion.ACEPTADA) {
-                    ediciones.add(edicion);
-                }
-            }
+            var ediciones=consulta.getEdiciones();
             req.setAttribute("ediciones", ediciones);
         }
 

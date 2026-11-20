@@ -59,8 +59,8 @@ class EtapaUnoTest extends soporte.PruebaConBaseSegura {
         LocalDate fechaOrg = sistema.consultarUsuario(org).getFechaAlta();
         DtAsistente cambioAs = asistente(as); cambioAs.setNombre("Nombre nuevo");
         DtOrganizador cambioOrg = organizador(org); cambioOrg.setNombre("Organización nueva");
-        sistema.modificarAsistente(cambioAs);
-        sistema.modificarOrganizador(cambioOrg);
+        sistema.modificarAsistente(cambioAs, datatypes.Actor.administradorLocal());
+        sistema.modificarOrganizador(cambioOrg, datatypes.Actor.administradorLocal());
         assertEquals(fechaAs, sistema.consultarUsuario(as).getFechaAlta());
         assertEquals(fechaOrg, sistema.consultarUsuario(org).getFechaAlta());
         assertEquals("Nombre nuevo", sistema.consultarUsuario(as).getNombre());
@@ -86,7 +86,7 @@ class EtapaUnoTest extends soporte.PruebaConBaseSegura {
         String nick = "naceHoy" + sufijo;
         DtAsistente dt = asistente(nick); dt.setFechaNacimiento(LocalDate.now());
         assertTrue(sistema.altaAsistente(dt));
-        dt.setNombre("Nombre actualizado"); sistema.modificarAsistente(dt);
+        dt.setNombre("Nombre actualizado"); sistema.modificarAsistente(dt, datatypes.Actor.administradorLocal());
         DtAsistente resultado = (DtAsistente) sistema.consultarUsuario(nick);
         assertEquals(dt.getFechaNacimiento(), resultado.getFechaNacimiento());
         assertEquals(dt.getNombre(), resultado.getNombre());
@@ -108,42 +108,42 @@ class EtapaUnoTest extends soporte.PruebaConBaseSegura {
     @Test
     void institucionExigeDatosBasicosSinReservarNombreTrasError() {
         String nombre = "Institución validada " + sufijo;
-        assertThrows(IllegalArgumentException.class, () -> sistema.altaInstitucion(null));
+        assertThrows(IllegalArgumentException.class, () -> sistema.altaInstitucion(null, datatypes.Actor.administradorLocal()));
         for (String invalido : new String[]{null, " "}) {
             assertThrows(IllegalArgumentException.class,
-                    () -> sistema.altaInstitucion(new DtInstitucion(invalido, "Descripción", "")));
+                    () -> sistema.altaInstitucion(new DtInstitucion(invalido, "Descripción", ""), datatypes.Actor.administradorLocal()));
             assertThrows(IllegalArgumentException.class,
-                    () -> sistema.altaInstitucion(new DtInstitucion(nombre, invalido, "")));
+                    () -> sistema.altaInstitucion(new DtInstitucion(nombre, invalido, ""), datatypes.Actor.administradorLocal()));
         }
         assertFalse(sistema.existeInstitucion(nombre));
-        assertTrue(sistema.altaInstitucion(new DtInstitucion(nombre, "Descripción", "")));
+        assertTrue(sistema.altaInstitucion(new DtInstitucion(nombre, "Descripción", ""), datatypes.Actor.administradorLocal()));
         assertEquals("Descripción", sistema.listarInstituciones().stream()
                 .filter(i -> nombre.equals(i.getNombre())).findFirst().orElseThrow().getDescripcion());
     }
 
     private String evento() throws Exception {
         String categoria = "Categoría H03 " + sufijo;
-        sistema.altaCategoria(categoria, null);
+        sistema.altaCategoria(categoria, null, datatypes.Actor.administradorLocal());
         String nombre = "Evento H03 " + sufijo;
-        assertTrue(sistema.altaEvento(new DtEvento(nombre, "EV", "Descripción", null, List.of(categoria))));
+        assertTrue(sistema.altaEvento(new DtEvento(nombre, "EV", "Descripción", null, List.of(categoria)), datatypes.Actor.administradorLocal()));
         return nombre;
     }
 
     @Test
     void eventoInvalidoNoSePersisteNiReservaSuNombre() throws Exception {
-        assertThrows(IllegalArgumentException.class, () -> sistema.altaEvento(null));
+        assertThrows(IllegalArgumentException.class, () -> sistema.altaEvento(null, datatypes.Actor.administradorLocal()));
         String cat = "Categoría evento inválido " + sufijo;
-        sistema.altaCategoria(cat, null);
+        sistema.altaCategoria(cat, null, datatypes.Actor.administradorLocal());
         String nombre = "Evento inválido " + sufijo;
         for (DtEvento dt : List.of(
                 new DtEvento(" ", "EV", "Descripción", null, List.of(cat)),
                 new DtEvento(nombre, null, "Descripción", null, List.of(cat)),
                 new DtEvento(nombre, "EV", " ", null, List.of(cat)),
                 new DtEvento(nombre, "EV", "Descripción", null, java.util.Arrays.asList((String) null)))) {
-            assertThrows(IllegalArgumentException.class, () -> sistema.altaEvento(dt));
+            assertThrows(IllegalArgumentException.class, () -> sistema.altaEvento(dt, datatypes.Actor.administradorLocal()));
         }
         assertTrue(sistema.listarEventos().stream().noneMatch(e -> nombre.equals(e.getNombre())));
-        assertTrue(sistema.altaEvento(new DtEvento(nombre, "EV", "Descripción", null, List.of(cat))));
+        assertTrue(sistema.altaEvento(new DtEvento(nombre, "EV", "Descripción", null, List.of(cat)), datatypes.Actor.administradorLocal()));
     }
 
     @Test
@@ -153,11 +153,11 @@ class EtapaUnoTest extends soporte.PruebaConBaseSegura {
         for (int campo = 0; campo < 4; campo++) {
             DtEdicion dt = new DtEdicion(ed, campo == 0 ? " " : "ED", LocalDate.now(), LocalDate.now(),
                     null, campo == 1 ? null : "Ciudad", campo == 2 ? " " : "País", campo == 3 ? null : org);
-            assertThrows(IllegalArgumentException.class, () -> sistema.altaEdicion(dt, evento));
+            assertThrows(IllegalArgumentException.class, () -> sistema.altaEdicion(dt, evento, datatypes.Actor.administradorLocal()));
             assertTrue(sistema.obtenerEdicionesEvento(evento).isEmpty());
         }
         assertTrue(sistema.altaEdicion(new DtEdicion(ed, "ED", LocalDate.now(), LocalDate.now(),
-                null, "Ciudad", "País", org), evento));
+                null, "Ciudad", "País", org), evento, datatypes.Actor.administradorLocal()));
         assertEquals(EstadoEdicion.INGRESADA, sistema.obtenerEdicionesEvento(evento).iterator().next().getEstado());
     }
 
@@ -166,16 +166,16 @@ class EtapaUnoTest extends soporte.PruebaConBaseSegura {
         String evento = evento(), org = "orgTipoFinito" + sufijo, ed = "Edición finita " + sufijo;
         assertTrue(sistema.altaOrganizador(organizador(org)));
         assertTrue(sistema.altaEdicion(new DtEdicion(ed, "ED", LocalDate.now(), LocalDate.now(),
-                null, "Ciudad", "País", org), evento));
+                null, "Ciudad", "País", org), evento, datatypes.Actor.administradorLocal()));
         for (float costo : new float[]{Float.NaN, Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY}) {
             assertThrows(IllegalArgumentException.class,
-                    () -> sistema.altaTipoRegistro(new DtTipoRegistro("General", "Descripción", costo, 1), ed));
+                    () -> sistema.altaTipoRegistro(new DtTipoRegistro("General", "Descripción", costo, 1), ed, Actor.administradorLocal()));
             assertTrue(sistema.obtenerTiposRegistroEdicion(ed).isEmpty());
         }
         assertThrows(IllegalArgumentException.class,
-                () -> sistema.altaTipoRegistro(new DtTipoRegistro("General", " ", 0, 1), ed));
+                () -> sistema.altaTipoRegistro(new DtTipoRegistro("General", " ", 0, 1), ed, Actor.administradorLocal()));
         assertTrue(sistema.obtenerTiposRegistroEdicion(ed).isEmpty());
-        assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General", "Descripción", 0, 1), ed));
+        assertTrue(sistema.altaTipoRegistro(new DtTipoRegistro("General", "Descripción", 0, 1), ed, Actor.administradorLocal()));
         assertEquals(0f, sistema.consultarTipoRegistro(ed, "General").getCosto());
         assertEquals(1, sistema.consultarTipoRegistro(ed, "General").getCupo());
     }

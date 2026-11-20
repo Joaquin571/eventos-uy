@@ -29,12 +29,6 @@
                         <div class="alert alert-success">Usuario registrado. Ya podés iniciar sesión.</div>
                     </c:if>
 
-                    <c:if test="${param.imagen eq 'error'}">
-                        <div class="alert alert-warning">
-                            No se pudo guardar la imagen. Podés agregarla desde Editar perfil.
-                        </div>
-                    </c:if>
-
                     <form id="formLogin" method="post" action="${raiz}/login">
 <jsp:include page="/WEB-INF/views/fragmentos/csrf.jsp"/>
                         <div class="mb-3">

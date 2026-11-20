@@ -4,14 +4,18 @@ import clases.Edicion;
 import clases.Institucion;
 import clases.Patrocinio;
 import clases.TipoRegistro;
+import datatypes.DtPatrocinio;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.LockModeType;
 
 import persistencia.BaseDeDatos;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Consumer;
 
 public class ManejadorPatrocinios {
 
@@ -25,77 +29,32 @@ public class ManejadorPatrocinios {
         return instancia;
     }
 
-    public boolean addPatrocinio(
-            Patrocinio patrocinio
-    ) {
-
+    /** Unidad de escritura interna: Sistema aporta la política, este manejador las referencias y la transacción. */
+    public boolean addPatrocinio(DtPatrocinio datos, Consumer<Patrocinio> validar) {
+        Objects.requireNonNull(validar);
         EntityManager em = BaseDeDatos.getEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
             tx.begin();
-            if (em.find(Patrocinio.class, patrocinio.getCodigoPatrocinio()) != null) {
-                tx.rollback();
-                return false;
-            }
-
-            Institucion institucionGestionada = null;
-            if (patrocinio.getInstitucion() != null) {
-
-                institucionGestionada = em.find(Institucion.class, patrocinio.getInstitucion().getNombre());
-                if (institucionGestionada == null) {
-                    tx.rollback();
-                    return false;
-                }
-            }
-
-            Edicion edicionGestionada = null;
-            if (patrocinio.getEdicion() != null) {
-                edicionGestionada = em.find(Edicion.class, patrocinio.getEdicion().getIdNombre());
-                if (edicionGestionada == null) {
-                    tx.rollback();
-                    return false;
-                }
-            }
-
-            TipoRegistro tipoRegistroGestionado = null;
-            if (patrocinio.getTipoRegistro() != null) {
-                Long idTipoRegistro = patrocinio.getTipoRegistro().getId();
-
-                if (idTipoRegistro == null) {
-                    tx.rollback();
-                    return false;
-                }
-                tipoRegistroGestionado = em.find(TipoRegistro.class, idTipoRegistro);
-                if (tipoRegistroGestionado == null) {
-                    tx.rollback();
-                    return false;
-                }
-            }
-            if (edicionGestionada != null && tipoRegistroGestionado != null) {
-                if (tipoRegistroGestionado.getEdicion() == null || !tipoRegistroGestionado.getEdicion().getIdNombre().equals(edicionGestionada.getIdNombre())) {
-                    tx.rollback();
-                    return false;
-                }
-            }
-            Patrocinio patrocinioGestionado = new Patrocinio(
-                            patrocinio.getFecha(),
-                            patrocinio.getMontoAporte(),
-                            patrocinio.getCantRegistrosGrat(),
-                            patrocinio.getCodigoPatrocinio(),
-                            patrocinio.getNivel(),
-                            institucionGestionada);
-            patrocinioGestionado.setEdicion(edicionGestionada);
-            patrocinioGestionado.setTipoRegistro(tipoRegistroGestionado);
-
-            em.persist(patrocinioGestionado);
-
+            // Mismo orden de bloqueo que altas de tipos y registros: edición antes de tipo.
+            Edicion edicion = em.find(Edicion.class, datos.getNombreEdicion(),
+                    LockModeType.PESSIMISTIC_WRITE);
+            Institucion institucion = em.find(Institucion.class, datos.getNombreInstituto());
+            List<TipoRegistro> tipos = edicion == null ? List.of() : em.createQuery(
+                    "SELECT t FROM TipoRegistro t WHERE t.edicion.idNombre = :edicion AND LOWER(t.idNombre) = LOWER(:tipo)",
+                    TipoRegistro.class).setParameter("edicion", datos.getNombreEdicion())
+                    .setParameter("tipo", datos.getNombreTipoRegistro())
+                    .setLockMode(LockModeType.PESSIMISTIC_WRITE).getResultList();
+            Patrocinio nuevo = new Patrocinio(datos.getFecha(), datos.getMontoAporte(), datos.getCantRegistrosGrat(),
+                    datos.getCodigoPatrocinio(), datos.getNivel(), institucion);
+            nuevo.setEdicion(edicion);
+            nuevo.setTipoRegistro(tipos.isEmpty() ? null : tipos.getFirst());
+            validar.accept(nuevo); // Incluye autorización antes de consultas de duplicados y persistencia.
+            em.persist(nuevo);
             tx.commit();
             return true;
         } catch (RuntimeException e) {
-
-            if (tx.isActive()) {
-                tx.rollback();
-            }
+            if (tx.isActive()) tx.rollback();
             throw ConflictosPersistencia.traducir(e, "Ya existe un patrocinio con ese código o para esa institución y edición.");
         } finally {
             em.close();

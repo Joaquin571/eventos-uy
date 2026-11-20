@@ -1,5 +1,7 @@
 package swing;
 
+import datatypes.Actor;
+
 import datatypes.DtEdicion;
 import datatypes.DtEvento;
 import datatypes.EstadoEdicion;
@@ -39,8 +41,15 @@ public class AceptarRechazarEdicionPanel {
     private boolean cargando = false;
     private Runnable accionCerrar = () -> {};
 
-    public AceptarRechazarEdicionPanel() {
-        sistema = Fabrica.getInstance().getISistema();
+    private final Actor actor;
+
+    public AceptarRechazarEdicionPanel(Actor actor) {
+        this(actor, Fabrica.getInstance().getISistema());
+    }
+
+    AceptarRechazarEdicionPanel(Actor actor, ISistema sistema) {
+        this.actor = java.util.Objects.requireNonNull(actor, "Se requiere Actor.");
+        this.sistema = java.util.Objects.requireNonNull(sistema);
 
         inicializarComponentes();
         cargarEventos();
@@ -168,7 +177,7 @@ public class AceptarRechazarEdicionPanel {
         }
 
         try {
-            sistema.aceptarRechazarEdicion(nombre, aceptar);
+            sistema.aceptarRechazarEdicion(nombre, aceptar, actor);
 
             JOptionPane.showMessageDialog(mainPanel,
                     "La edición '" + nombre + "' fue " + (aceptar ? "aceptada." : "rechazada."),

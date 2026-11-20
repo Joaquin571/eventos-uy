@@ -1,76 +1,33 @@
 package web;
-
-import datatypes.*;
-import interfaces.ISistema;
-import jakarta.servlet.ServletException;
+import contratos.dto.*;
+import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @WebServlet("/edicion")
 public class ConsultaEdicionServlet extends HttpServlet {
-    private static final DateTimeFormatter FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        ISistema sistema = ContextoListener.sistema(req);
-        DtUsuario usuario = AccesoEdiciones.usuario(req);
-        var eventos = sistema.listarEventos();
-        var seleccion = AccesoEdiciones.resolver(sistema, eventos, AccesoEdiciones.texto(req, "evento"),
-                AccesoEdiciones.texto(req, "nombre"), usuario);
-        if (seleccion == null) {
-            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
-            return;
+    private static final DateTimeFormatter FECHA=DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    protected void doGet(HttpServletRequest req,HttpServletResponse resp)throws ServletException,IOException {
+        var central=ContextoListener.central(req);
+        var seleccion=central.consultarEdiciones(AccesoEdiciones.texto(req,"evento"),AccesoEdiciones.texto(req,"nombre"));
+        req.setAttribute("eventos",seleccion.getEventos());req.setAttribute("eventoElegido",seleccion.getEvento());
+        req.setAttribute("ediciones",seleccion.getEdiciones());
+        if(seleccion.getEdicion()!=null){
+            var detalle=central.consultarDetalleEdicion(seleccion.getEdicion().getIdNombre());
+            var edicion=detalle.getEdicion();req.setAttribute("detalle",edicion);
+            req.setAttribute("fechaInicio",fecha(edicion.getFechaInicio()));req.setAttribute("fechaFin",fecha(edicion.getFechaFin()));
+            req.setAttribute("fechaAlta",fecha(edicion.getFechaAlta()));req.setAttribute("organizador",detalle.getOrganizador());
+            req.setAttribute("tieneImagen",detalle.isTieneImagen());req.setAttribute("tipos",detalle.getTipos());
+            req.setAttribute("patrocinadoras",detalle.getPatrocinadoras());
+            req.setAttribute("esPropietario",detalle.isPropietario());req.setAttribute("puedeRegistrarse",detalle.isPuedeRegistrarse());
+            req.setAttribute("registros",detalle.getRegistros().stream().map(r->DetalleRegistroVista.de(r,r.getNicknameAsistente())).toList());
+            if(detalle.getRegistroPropio()!=null)req.setAttribute("registroPropio",DetalleRegistroVista.de(detalle.getRegistroPropio(),SesionWeb.usuario(req).getNombre()));
         }
-        req.setAttribute("eventos", eventos);
-        req.setAttribute("eventoElegido", seleccion.evento());
-        req.setAttribute("ediciones", AccesoEdiciones.aceptadas(sistema, seleccion.evento()));
-        DtEdicion edicion = seleccion.edicion();
-        if (edicion != null) {
-            String nombre = edicion.getIdNombre();
-            req.setAttribute("detalle", edicion);
-            req.setAttribute("fechaInicio", fecha(edicion.getFechaInicio()));
-            req.setAttribute("fechaFin", fecha(edicion.getFechaFin()));
-            req.setAttribute("fechaAlta", fecha(edicion.getFechaAlta()));
-            req.setAttribute("organizador", sistema.consultarUsuario(edicion.getNombreOrganizador()));
-            req.setAttribute("tieneImagen", sistema.obtenerImagen(TipoEntidadImagen.EDICION, nombre) != null);
-            req.setAttribute("tipos", sistema.obtenerTiposRegistroEdicion(nombre));
-            // El resumen conserva el contrato de la etapa anterior: solo instituciones, nunca códigos.
-            List<String> patrocinadoras = new ArrayList<>();
-            for (DtPatrocinio patrocinio : sistema.obtenerPatrociniosEdicion(nombre)) {
-                patrocinadoras.add(patrocinio.getNombreInstituto());
-            }
-            req.setAttribute("patrocinadoras", patrocinadoras);
-            prepararRegistros(req, sistema, usuario, edicion);
-        }
-        req.getRequestDispatcher("/WEB-INF/views/edicion.jsp").forward(req, resp);
+        req.getRequestDispatcher("/WEB-INF/views/edicion.jsp").forward(req,resp);
     }
-
-    private void prepararRegistros(HttpServletRequest req, ISistema sistema, DtUsuario usuario, DtEdicion edicion) {
-        if (AccesoEdiciones.esPropietario(usuario, edicion)) {
-            List<DetalleRegistroVista> registros = new ArrayList<>();
-            for (DtRegistro registro : sistema.obtenerRegistrosEdicion(edicion.getIdNombre())) {
-                registros.add(DetalleRegistroVista.de(registro, registro.getNicknameAsistente()));
-            }
-            req.setAttribute("esPropietario", true);
-            req.setAttribute("registros", registros);
-        } else if (usuario instanceof DtAsistente) {
-            DtRegistro propio = null;
-            for (DtRegistro registro : sistema.obtenerRegistrosAsistente(usuario.getNickname())) {
-                if (edicion.getIdNombre().equals(registro.getNombreEdicion())
-                        && usuario.getNickname().equals(registro.getNicknameAsistente())) {
-                    propio = registro;
-                    break;
-                }
-            }
-            if (propio != null) req.setAttribute("registroPropio", DetalleRegistroVista.de(propio, usuario.getNombre()));
-            req.setAttribute("puedeRegistrarse", propio == null && edicion.getEstado() == EstadoEdicion.ACEPTADA);
-        }
-    }
-
-    private String fecha(LocalDate fecha) { return fecha == null ? "" : fecha.format(FECHA); }
+    private String fecha(LocalDate valor){return valor==null?"":valor.format(FECHA);}
 }
