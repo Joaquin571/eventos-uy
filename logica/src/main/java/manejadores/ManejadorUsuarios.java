@@ -16,6 +16,36 @@ public class ManejadorUsuarios {
     private static ManejadorUsuarios instancia = null;
     private ManejadorUsuarios() {}
 
+    /** La restriccion unica y ON CONFLICT hacen idempotentes las solicitudes concurrentes. */
+    public void cambiarSeguimiento(String origen, String destino, boolean seguir) {
+        EntityManager em = BaseDeDatos.getEntityManager();
+        EntityTransaction tx = em.getTransaction();
+        try {
+            tx.begin();
+            String sql = seguir
+                    ? "INSERT INTO seguimiento_usuario (seguidor, seguido) VALUES (:origen, :destino) ON CONFLICT (seguidor, seguido) DO NOTHING"
+                    : "DELETE FROM seguimiento_usuario WHERE seguidor = :origen AND seguido = :destino";
+            em.createNativeQuery(sql).setParameter("origen", origen).setParameter("destino", destino).executeUpdate();
+            tx.commit();
+        } catch (RuntimeException e) {
+            if (tx.isActive()) tx.rollback();
+            throw e;
+        } finally { em.close(); }
+    }
+
+    public datatypes.DtRelacionesUsuario consultarRelaciones(String nickname, String actor) {
+        EntityManager em = BaseDeDatos.getEntityManager();
+        try {
+            List<String> seguidores = em.createQuery(
+                    "SELECT u.nickname FROM Usuario u JOIN u.seguidos s WHERE s.nickname = :nick ORDER BY u.nickname", String.class)
+                    .setParameter("nick", nickname).getResultList();
+            List<String> seguidos = em.createQuery(
+                    "SELECT s.nickname FROM Usuario u JOIN u.seguidos s WHERE u.nickname = :nick ORDER BY s.nickname", String.class)
+                    .setParameter("nick", nickname).getResultList();
+            return new datatypes.DtRelacionesUsuario(seguidores, seguidos, actor != null && seguidores.contains(actor));
+        } finally { em.close(); }
+    }
+
     public static synchronized ManejadorUsuarios getInstance() {
         if (instancia == null) {instancia = new ManejadorUsuarios();}
         return instancia;

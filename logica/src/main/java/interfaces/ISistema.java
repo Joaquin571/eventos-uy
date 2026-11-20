@@ -6,6 +6,9 @@ import java.util.Collection;
 public interface ISistema {
 
     // USUARIOS
+    void seguirUsuario(String destino, Actor actor);
+    void dejarDeSeguirUsuario(String destino, Actor actor);
+    DtRelacionesUsuario consultarRelaciones(String nickname, Actor actor);
     boolean existeUsuario(String nickname);
     boolean existeCorreoElectronico(String correoElectronico);
     boolean altaAsistente(DtAsistente asistente);

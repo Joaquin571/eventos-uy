@@ -19,6 +19,35 @@ import java.time.LocalDate;
 
 public class Sistema implements ISistema {
 
+    private void autorizarSeguimiento(Actor actor) {
+        requerirUsuarioRemoto(actor);
+        if (!manejadorUsuarios.existeUsuario(actor.nickname()))
+            throw new excepciones.AccesoDenegadoException("Se requiere un usuario autenticado.");
+    }
+
+    @Override
+    public void seguirUsuario(String destino, Actor actor) {
+        autorizarSeguimiento(actor);
+        if (actor.nickname().equals(destino))
+            throw new IllegalArgumentException("No podes seguir tu propio perfil.");
+        consultarRelaciones(destino, actor);
+        manejadorUsuarios.cambiarSeguimiento(actor.nickname(), destino, true);
+    }
+
+    @Override
+    public void dejarDeSeguirUsuario(String destino, Actor actor) {
+        autorizarSeguimiento(actor);
+        consultarRelaciones(destino, actor);
+        manejadorUsuarios.cambiarSeguimiento(actor.nickname(), destino, false);
+    }
+
+    @Override
+    public DtRelacionesUsuario consultarRelaciones(String nickname, Actor actor) {
+        if (nickname == null || nickname.isBlank() || !manejadorUsuarios.existeUsuario(nickname))
+            throw new excepciones.NoEncontradoException();
+        return manejadorUsuarios.consultarRelaciones(nickname, actor == null ? null : actor.nickname());
+    }
+
     private final ManejadorUsuarios manejadorUsuarios;
     private final ManejadorInstituciones manejadorInstituciones;
     private final ManejadorEventos manejadorEventos;
