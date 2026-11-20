@@ -63,7 +63,9 @@ public class FiltroAcceso implements Filter {
                 case "SESION_INVALIDA" -> {
                     var sesion = req.getSession(false);
                     if (sesion != null) sesion.invalidate();
-                    resp.sendRedirect(req.getContextPath() + "/login");
+                    String ruta = req.getServletPath();
+                    boolean movil = ruta != null && (ruta.equals("/movil") || ruta.startsWith("/movil/"));
+                    resp.sendRedirect(req.getContextPath() + (movil ? "/movil/login?motivo=vencida" : "/login"));
                 }
                 case "ACCESO_DENEGADO" -> resp.sendError(403);
                 case "NO_ENCONTRADO" -> resp.sendError(404);
