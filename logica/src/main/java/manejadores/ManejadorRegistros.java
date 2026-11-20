@@ -15,6 +15,7 @@ import persistencia.BaseDeDatos;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 
 public class ManejadorRegistros {
 
@@ -150,6 +151,42 @@ public class ManejadorRegistros {
                 tx.rollback();
             }
             throw ConflictosPersistencia.traducir(e, "El asistente ya está registrado en esta edición.");
+        } finally {
+            em.close();
+        }
+    }
+
+    public void confirmarAsistencia(String nicknameAsistente, String nombreEdicion) {
+        EntityManager em = BaseDeDatos.getEntityManager();
+        EntityTransaction tx = em.getTransaction();
+        try {
+            tx.begin();
+            List<Registro> encontrados = em.createQuery(
+                            """
+                            SELECT r
+                            FROM Registro r
+                            WHERE r.asistente.nickname = :nickname
+                              AND r.edicion.idNombre = :edicion
+                            """,
+                            Registro.class
+                    )
+                    .setParameter("nickname", nicknameAsistente)
+                    .setParameter("edicion", nombreEdicion)
+                    .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+                    .getResultList();
+
+            if (encontrados.isEmpty()) {
+                throw new IllegalArgumentException("No existe un registro del asistente para la edición indicada.");
+            }
+
+            Registro registro = encontrados.getFirst();
+            registro.confirmarAsistencia();
+            tx.commit();
+        } catch (RuntimeException e) {
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+            throw e;
         } finally {
             em.close();
         }

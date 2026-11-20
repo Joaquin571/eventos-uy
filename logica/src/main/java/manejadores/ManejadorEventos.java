@@ -10,6 +10,7 @@ import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.LockModeType;
 
 import persistencia.BaseDeDatos;
+import java.time.LocalDate;
 
 import java.util.Collection;
 import java.util.List;
@@ -147,6 +148,31 @@ public class ManejadorEventos {
         EntityManager em = BaseDeDatos.getEntityManager();
         try {
             return em.find(Edicion.class, nombre) != null;
+        } finally {
+            em.close();
+        }
+    }
+
+    public void archivarEdicion(String nombreEdicion, String nicknameOrganizador, boolean esAdmin) {
+        EntityManager em = BaseDeDatos.getEntityManager();
+        EntityTransaction tx = em.getTransaction();
+        try {
+            tx.begin();
+            Edicion edicion = em.find(Edicion.class, nombreEdicion, LockModeType.PESSIMISTIC_WRITE);
+            if (edicion == null) {
+                throw new IllegalArgumentException("La edición indicada no existe.");
+            }
+            String duenio = edicion.getOrganizador() == null ? null : edicion.getOrganizador().getNickname();
+            if (!esAdmin && (nicknameOrganizador == null || !nicknameOrganizador.equals(duenio))) {
+                throw new excepciones.AccesoDenegadoException("Solo el organizador de la edición puede archivarla.");
+            }
+            edicion.archivar(LocalDate.now());
+            tx.commit();
+        } catch (RuntimeException e) {
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+            throw e;
         } finally {
             em.close();
         }

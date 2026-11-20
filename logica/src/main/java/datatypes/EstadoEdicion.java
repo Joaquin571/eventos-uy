@@ -3,7 +3,9 @@ package datatypes;
 public enum EstadoEdicion {
     INGRESADA("Ingresada"),
     ACEPTADA("Aceptada"),
-    RECHAZADA("Rechazada");
+    RECHAZADA("Rechazada"),
+    ARCHIVADA("Rechazada");
+
 
     private final String descripcion;
 

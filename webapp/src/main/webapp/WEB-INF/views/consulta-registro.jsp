@@ -1,188 +1,95 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <c:set var="raiz" value="${pageContext.request.contextPath}" />
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consulta de Registro - eventos.uy</title>
-    <link rel="stylesheet" href="${raiz}/vendor/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="${raiz}/css/styles.css">
-</head>
-<body class="bg-light">
-
+<!doctype html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Consultas | eventos.uy</title>
+<link rel="stylesheet" href="${raiz}/vendor/bootstrap/css/bootstrap.min.css">
+<link rel="stylesheet" href="${raiz}/css/styles.css"></head><body>
 <jsp:include page="/WEB-INF/views/fragmentos/cabezal.jsp" />
-
-<main class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-12 col-md-10 col-lg-8">
-
-            <h1 class="h3 fw-bold mb-4">Consulta de Registro</h1>
-
-            <c:if test="${registrado and not esOrganizador}">
-                <div class="alert alert-success">Te registraste correctamente a la edición.</div>
-            </c:if>
-
-            <c:if test="${not empty advertencia}">
-                <div class="alert alert-warning"><c:out value="${advertencia}" /></div>
-            </c:if>
-
-            <c:choose>
-
-                <%-- ORGANIZADOR: sus ediciones y los asistentes registrados --%>
-                <c:when test="${esOrganizador}">
-                    <div class="card border-0 shadow-sm rounded-3 mb-4">
-                        <div class="card-body p-4">
-                            <h2 class="h5 mb-3">Mis ediciones</h2>
-
-                            <c:if test="${empty ediciones}">
-                                <div class="alert alert-info mb-0">Todavía no tenés ediciones a tu cargo.</div>
-                            </c:if>
-
-                            <div class="list-group">
-                                <c:forEach var="ed" items="${ediciones}">
-                                    <c:url var="urlEdicion" value="/consulta-registro">
-                                        <c:param name="edicion" value="${ed.idNombre}" />
-                                    </c:url>
-                                    <a href="${urlEdicion}"
-                                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center ${ed.idNombre eq edicionElegida ? 'active' : ''}">
-                                        <strong><c:out value="${ed.idNombre}" /></strong>
-                                        <c:choose>
-                                            <c:when test="${ed.estado.descripcion eq 'Aceptada'}">
-                                                <span class="badge bg-success">Aceptada</span>
-                                            </c:when>
-                                            <c:when test="${ed.estado.descripcion eq 'Ingresada'}">
-                                                <span class="badge bg-warning text-dark">Ingresada</span>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <span class="badge bg-danger">Rechazada</span>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </a>
-                                </c:forEach>
-                            </div>
-                        </div>
-                    </div>
-
-                    <c:if test="${not empty edicionElegida}">
-                        <div class="card border-0 shadow-sm rounded-3 mb-4">
-                            <div class="card-body p-4">
-                                <h2 class="h5 mb-3">
-                                    Asistentes registrados en <c:out value="${edicionElegida}" />
-                                </h2>
-
-                                <c:if test="${empty registros}">
-                                    <div class="alert alert-info mb-0">
-                                        Esta edición todavía no tiene asistentes registrados.
-                                    </div>
-                                </c:if>
-
-                                <div class="list-group">
-                                    <c:forEach var="r" items="${registros}">
-                                        <c:url var="urlAsistente" value="/consulta-registro">
-                                            <c:param name="edicion" value="${edicionElegida}" />
-                                            <c:param name="asistente" value="${r.nickname}" />
-                                        </c:url>
-                                        <a href="${urlAsistente}"
-                                           class="list-group-item list-group-item-action ${r.nickname eq asistenteElegido ? 'active' : ''}">
-                                            <strong><c:out value="${r.nickname}" /></strong>
-                                            <small class="d-block">
-                                                <c:out value="${r.nombreAsistente}" />
-                                            </small>
-                                        </a>
-                                    </c:forEach>
-                                </div>
-                            </div>
-                        </div>
-                    </c:if>
-                </c:when>
-
-                <%-- ASISTENTE: las ediciones a las que se registró --%>
-                <c:otherwise>
-                    <div class="card border-0 shadow-sm rounded-3 mb-4">
-                        <div class="card-body p-4">
-                            <h2 class="h5 mb-3">Mis registros</h2>
-
-                            <c:if test="${empty registros}">
-                                <div class="alert alert-info mb-0">
-                                    Todavía no te registraste a ninguna edición.
-                                    <a href="${raiz}/registro-edicion" class="alert-link">Registrarme a una edición</a>
-                                </div>
-                            </c:if>
-
-                            <div class="list-group">
-                                <c:forEach var="r" items="${registros}">
-                                    <c:url var="urlRegistro" value="/consulta-registro">
-                                        <c:param name="edicion" value="${r.nombreEdicion}" />
-                                    </c:url>
-                                    <a href="${urlRegistro}"
-                                       class="list-group-item list-group-item-action ${r.nombreEdicion eq edicionElegida ? 'active' : ''}">
-                                        <strong><c:out value="${r.nombreEdicion}" /></strong>
-                                        <small class="d-block">
-                                            <c:out value="${r.nombreTipoRegistro}" /> ·
-                                            <c:out value="${r.fecha}" />
-                                        </small>
-                                    </a>
-                                </c:forEach>
-                            </div>
-                        </div>
-                    </div>
-                </c:otherwise>
-            </c:choose>
-
-            <%-- Detalle del registro elegido --%>
-            <c:if test="${not empty detalle}">
-                <div class="card border-0 shadow-sm rounded-3 mb-4">
-                    <div class="card-body p-4">
-                        <h2 class="h5 mb-3">Detalle del registro</h2>
-
-                        <dl class="row mb-0">
-                            <c:if test="${esOrganizador}">
-                                <dt class="col-sm-5">Asistente</dt>
-                                <dd class="col-sm-7">
-                                    <c:url var="urlPerfil" value="/usuario">
-                                        <c:param name="nick" value="${detalle.nickname}" />
-                                    </c:url>
-                                    <a href="${urlPerfil}"><c:out value="${detalle.nickname}" /></a>
-                                    <c:if test="${not empty detalle.nombreAsistente}">
-                                        (<c:out value="${detalle.nombreAsistente}" />)
-                                    </c:if>
-                                </dd>
-                            </c:if>
-
-                            <dt class="col-sm-5">Edición</dt>
-                            <dd class="col-sm-7">
-                                <c:url var="urlEdicionDetalle" value="/edicion">
-                                    <c:param name="nombre" value="${detalle.nombreEdicion}" />
-                                </c:url>
-                                <a href="${urlEdicionDetalle}"><c:out value="${detalle.nombreEdicion}" /></a>
-                            </dd>
-
-                            <dt class="col-sm-5">Tipo de registro</dt>
-                            <dd class="col-sm-7">
-                                <c:url var="urlTipoDetalle" value="/tipo-registro"><c:param name="edicion" value="${detalle.nombreEdicion}"/><c:param name="nombre" value="${detalle.nombreTipoRegistro}"/></c:url>
-                                <a href="${urlTipoDetalle}"><c:out value="${detalle.nombreTipoRegistro}"/></a>
-                            </dd>
-
-                            <dt class="col-sm-5">Fecha de registro</dt>
-                            <dd class="col-sm-7"><c:out value="${detalle.fecha}" /></dd>
-
-                            <dt class="col-sm-5">Costo</dt>
-                            <dd class="col-sm-7">$<c:out value="${detalle.costo}" /></dd>
-
-                            <dt class="col-sm-5">Utilizó código de patrocinio</dt>
-                            <dd class="col-sm-7"><c:out value="${detalle.usoCodigo}" /></dd>
-                        </dl>
-                    </div>
-                </div>
-            </c:if>
-
-            <a href="${raiz}/" class="btn btn-primary">Aceptar</a>
-        </div>
-    </div>
-</main>
-
-<script src="${raiz}/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<main class="container py-4">
+<h1>Consulta de edición</h1>
+<c:if test="${not empty exito}"><div class="alert alert-success"><c:out value="${exito}"/></div></c:if>
+<c:if test="${not empty advertencia}"><div class="alert alert-warning"><c:out value="${advertencia}"/></div></c:if>
+<c:url var="urlConsulta" value="/edicion"/>
+<form method="get" action="${urlConsulta}" class="card card-body mb-3" data-selector-consulta>
+<label for="evento" class="form-label">Evento</label>
+<select id="evento" name="evento" class="form-select" required><option value="">Seleccione un evento</option>
+<c:forEach var="e" items="${eventos}"><option value="<c:out value='${e.nombre}'/>" ${e.nombre eq eventoElegido ? 'selected' : ''}><c:out value="${e.nombre}"/></option></c:forEach></select>
+<button class="btn btn-primary mt-2">Buscar ediciones</button></form>
+<c:if test="${not empty eventoElegido}">
+<div class="list-group mb-3">
+<c:forEach var="e" items="${ediciones}"><c:url var="urlEd" value="/edicion"><c:param name="evento" value="${eventoElegido}"/><c:param name="nombre" value="${e.idNombre}"/></c:url>
+<a class="list-group-item list-group-item-action" href="${urlEd}"><c:out value="${e.idNombre}"/></a></c:forEach>
+<c:if test="${empty ediciones}"><p>No hay ediciones aceptadas para este evento.</p></c:if>
+</div>
+<c:url var="urlEvento" value="/evento"><c:param name="nombre" value="${eventoElegido}"/></c:url>
+<a href="${urlEvento}" class="btn btn-outline-secondary mb-3">Volver al evento</a>
+</c:if>
+<c:if test="${not empty detalle}">
+<article class="card card-body mb-3"><h2><c:out value="${detalle.idNombre}"/></h2>
+<c:if test="${tieneImagen}"><c:url var="urlImagen" value="/imagen"><c:param name="tipo" value="edicion"/><c:param name="id" value="${detalle.idNombre}"/></c:url>
+<img src="${urlImagen}" alt="Imagen de la edición" class="rounded mb-3" style="max-width: 320px; max-height: 240px; object-fit: contain;"></c:if>
+<p>Estado: <c:out value="${detalle.estado}"/>
+<c:if test="${not empty fechaArchivo}"> — Archivada el <c:out value="${fechaArchivo}"/></c:if></p>
+<p>Sigla: <c:out value="${detalle.sigla}"/></p>
+<p>Ciudad: <c:out value="${detalle.ciudad}"/> — País: <c:out value="${detalle.pais}"/></p>
+<c:url var="urlOrganizador" value="/usuario"><c:param name="nick" value="${detalle.nombreOrganizador}"/></c:url>
+<p>Organizador: <a href="${urlOrganizador}"><c:out value="${empty organizador ? detalle.nombreOrganizador : organizador.nombre}"/></a></p>
+<p>Inicio: <c:out value="${fechaInicio}"/> — Fin: <c:out value="${fechaFin}"/></p>
+<p>Fecha de alta: <c:out value="${fechaAlta}"/></p>
+<h3>Tipos de registro</h3><ul>
+<c:forEach var="t" items="${tipos}"><c:url var="urlTipo" value="/tipo-registro"><c:param name="edicion" value="${detalle.idNombre}"/><c:param name="nombre" value="${t.idNombre}"/></c:url>
+<li><a href="${urlTipo}"><c:out value="${t.idNombre}"/></a> — $<c:out value="${t.costo}"/> — Cupo: <c:out value="${t.cupo}"/></li></c:forEach>
+</ul><c:if test="${empty tipos}"><p>Esta edición no tiene tipos de registro.</p></c:if>
+<h3>Patrocinios</h3><ul>
+<c:forEach var="i" items="${patrocinadoras}"><c:url var="urlPatrocinio" value="/consulta-patrocinio"><c:param name="edicion" value="${detalle.idNombre}"/><c:param name="institucion" value="${i}"/></c:url>
+<li><a href="${urlPatrocinio}"><c:out value="${i}"/></a></li></c:forEach>
+</ul><c:if test="${empty patrocinadoras}"><p>Esta edición no tiene patrocinios.</p></c:if>
+<div class="d-flex flex-wrap gap-2 mt-2">
+<c:if test="${puedeRegistrarse}"><c:url var="urlRegistro" value="/registro-edicion"><c:param name="edicion" value="${detalle.idNombre}"/></c:url>
+<a href="${urlRegistro}" class="btn btn-primary">Registrarme</a></c:if>
+<c:if test="${puedeArchivar}">
+<form method="post" action="${raiz}/archivar-edicion" class="m-0">
+<jsp:include page="/WEB-INF/views/fragmentos/csrf.jsp"/>
+<input type="hidden" name="edicion" value="<c:out value='${detalle.idNombre}'/>">
+<button type="submit" class="btn btn-outline-danger" onclick="return confirm('¿Confirmás que querés archivar esta edición?');">Archivar edición</button>
+</form>
+</c:if>
+</div>
+</article>
+<c:if test="${esPropietario}">
+<section class="card card-body mb-3"><h3>Asistentes registrados</h3>
+<c:if test="${empty registros}"><p>Esta edición no tiene asistentes registrados.</p></c:if>
+<c:if test="${not empty registros}"><div class="table-responsive"><table class="table"><thead><tr><th>Asistente</th><th>Tipo</th><th>Fecha</th><th>Costo</th><th>Usó código</th><th>Asistencia</th></tr></thead><tbody>
+<c:forEach var="r" items="${registros}"><c:url var="urlConsultaRegistro" value="/consulta-registro"><c:param name="edicion" value="${detalle.idNombre}"/><c:param name="asistente" value="${r.nickname}"/></c:url>
+<c:url var="urlTipoRegistro" value="/tipo-registro"><c:param name="edicion" value="${detalle.idNombre}"/><c:param name="nombre" value="${r.nombreTipoRegistro}"/></c:url>
+<tr><td><a href="${urlConsultaRegistro}"><c:out value="${r.nickname}"/></a></td><td><a href="${urlTipoRegistro}"><c:out value="${r.nombreTipoRegistro}"/></a></td><td><c:out value="${r.fecha}"/></td><td>$<c:out value="${r.costo}"/></td><td><c:out value="${r.usoCodigo}"/></td><td>${r.asistenciaConfirmada ? 'Confirmada' : 'Pendiente'}</td></tr>
+</c:forEach></tbody></table></div></c:if>
+<c:url var="urlRegistros" value="/consulta-registro"><c:param name="edicion" value="${detalle.idNombre}"/></c:url>
+<a href="${urlRegistros}">Consultar registros de esta edición</a></section>
+</c:if>
+<c:if test="${not empty registroPropio}"><section class="card card-body mb-3"><h3>Mi registro</h3>
+<c:url var="urlTipoPropio" value="/tipo-registro"><c:param name="edicion" value="${detalle.idNombre}"/><c:param name="nombre" value="${registroPropio.nombreTipoRegistro}"/></c:url>
+<p>Tipo: <a href="${urlTipoPropio}"><c:out value="${registroPropio.nombreTipoRegistro}"/></a></p>
+<p>Fecha de registro: <c:out value="${registroPropio.fecha}"/></p><p>Costo: $<c:out value="${registroPropio.costo}"/></p><p>Utilizó código de patrocinio: <c:out value="${registroPropio.usoCodigo}"/></p>
+<p>Asistencia: <strong>${registroPropio.asistenciaConfirmada ? 'Confirmada' : 'Pendiente'}</strong></p>
+<div class="d-flex flex-wrap gap-2">
+<c:url var="urlRegistroPropio" value="/consulta-registro"><c:param name="edicion" value="${detalle.idNombre}"/></c:url>
+<a href="${urlRegistroPropio}" class="btn btn-outline-primary">Consultar mi registro</a>
+<c:if test="${puedeConfirmarAsistencia}">
+<form method="post" action="${raiz}/confirmar-asistencia" class="m-0">
+<jsp:include page="/WEB-INF/views/fragmentos/csrf.jsp"/>
+<input type="hidden" name="edicion" value="<c:out value='${detalle.idNombre}'/>">
+<input type="hidden" name="origen" value="edicion">
+<button type="submit" class="btn btn-success">Confirmar asistencia</button>
+</form>
+</c:if>
+<c:if test="${registroPropio.asistenciaConfirmada}">
+<c:url var="urlConstancia" value="/constancia-asistencia"><c:param name="edicion" value="${detalle.idNombre}"/></c:url>
+<a href="${urlConstancia}" class="btn btn-outline-success">Descargar constancia (PDF)</a>
+</c:if>
+</div>
+</section></c:if>
+</c:if>
+</main><script src="${raiz}/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="${raiz}/js/consultas-selectores.js"></script></body></html>

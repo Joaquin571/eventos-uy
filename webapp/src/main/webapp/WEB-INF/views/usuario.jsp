@@ -104,7 +104,10 @@
                                     <span>
                                         <strong><c:out value="${edicion.idNombre}" /></strong>
                                         <c:if test="${edicion.estado.descripcion ne 'Aceptada'}">
-                                            <small class="text-muted d-block">Visible solo para el organizador</small>
+                                            <small class="text-muted d-block">
+                                                Visible solo para el organizador
+                                                <c:if test="${not empty edicion.fechaArchivo}"> · Archivada el <c:out value="${edicion.fechaArchivo}" /></c:if>
+                                            </small>
                                         </c:if>
                                     </span>
                                     <c:choose>
@@ -113,6 +116,9 @@
                                         </c:when>
                                         <c:when test="${edicion.estado.descripcion eq 'Ingresada'}">
                                             <span class="badge bg-warning text-dark">Ingresada</span>
+                                        </c:when>
+                                        <c:when test="${edicion.estado.descripcion eq 'Archivada'}">
+                                            <span class="badge bg-secondary">Archivada</span>
                                         </c:when>
                                         <c:otherwise>
                                             <span class="badge bg-danger">Rechazada</span>
@@ -139,13 +145,18 @@
                                 <c:url var="urlRegistro" value="/consulta-registro">
                                     <c:param name="edicion" value="${registro.nombreEdicion}" />
                                 </c:url>
-                                <a href="${urlRegistro}" class="list-group-item list-group-item-action">
-                                    <strong><c:out value="${registro.nombreEdicion}" /></strong>
-                                    <small class="text-muted d-block">
-                                        <c:out value="${registro.nombreTipoRegistro}" /> ·
-                                        $<c:out value="${registro.costo}" /> ·
-                                        <c:out value="${registro.fecha}" />
-                                    </small>
+                                <a href="${urlRegistro}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                    <span>
+                                        <strong><c:out value="${registro.nombreEdicion}" /></strong>
+                                        <small class="text-muted d-block">
+                                            <c:out value="${registro.nombreTipoRegistro}" /> ·
+                                            $<c:out value="${registro.costo}" /> ·
+                                            <c:out value="${registro.fecha}" />
+                                        </small>
+                                    </span>
+                                    <span class="badge ${registro.asistenciaConfirmada ? 'bg-success' : 'bg-secondary'}">
+                                        ${registro.asistenciaConfirmada ? 'Asistencia confirmada' : 'Pendiente'}
+                                    </span>
                                 </a>
                             </c:forEach>
                         </div>

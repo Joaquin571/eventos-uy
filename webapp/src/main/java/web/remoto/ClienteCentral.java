@@ -60,4 +60,8 @@ public final class ClienteCentral implements ServicioPortal {
  @Override public boolean altaUsuario(EntradaUsuario entrada){return invocar(p->p.altaUsuario(ConversorDatos.convertir(entrada,web.soap.generado.portal.EntradaUsuario.class)));}
  @Override public DtUsuario modificarUsuario(EntradaUsuario entrada){return ConversorDatos.convertir(invocar(p->p.modificarUsuario(ConversorDatos.convertir(entrada,web.soap.generado.portal.EntradaUsuario.class))),DtUsuario.class);}
  @Override public List<DtEvento> listarEventosPorCategoria(String categoria){return invocar(p->p.listarEventosPorCategoria(categoria)).stream().map(v->ConversorDatos.convertir(v,DtEvento.class)).toList();}
+
+ @Override public boolean confirmarAsistencia(String edicion){return invocar(p->p.confirmarAsistencia(edicion));}
+ @Override public void archivarEdicion(String edicion){invocar(p->{p.archivarEdicion(edicion);return null;});}
+ @Override public DtConstanciaAsistencia obtenerDatosConstancia(String edicion){return ConversorDatos.convertir(invocar(p->p.obtenerDatosConstancia(edicion)),DtConstanciaAsistencia.class);}
 }

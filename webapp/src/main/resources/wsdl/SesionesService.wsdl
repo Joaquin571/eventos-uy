@@ -6,36 +6,36 @@
       <xsd:import namespace="https://eventos.uy/soap/sesiones" schemaLocation="SesionesService_schema1.xsd"/>
     </xsd:schema>
   </types>
-  <message name="iniciarSesion">
-    <part name="parameters" element="tns:iniciarSesion"/>
-  </message>
-  <message name="iniciarSesionResponse">
-    <part name="parameters" element="tns:iniciarSesionResponse"/>
-  </message>
-  <message name="SesionSoapException">
-    <part name="fault" element="tns:SesionFault"/>
-  </message>
   <message name="cerrarSesion">
     <part name="parameters" element="tns:cerrarSesion"/>
   </message>
   <message name="cerrarSesionResponse">
     <part name="parameters" element="tns:cerrarSesionResponse"/>
   </message>
+  <message name="SesionSoapException">
+    <part name="fault" element="tns:SesionFault"/>
+  </message>
+  <message name="iniciarSesion">
+    <part name="parameters" element="tns:iniciarSesion"/>
+  </message>
+  <message name="iniciarSesionResponse">
+    <part name="parameters" element="tns:iniciarSesionResponse"/>
+  </message>
   <portType name="Sesiones">
-    <operation name="iniciarSesion">
-      <input wsam:Action="https://eventos.uy/soap/sesiones/Sesiones/iniciarSesionRequest" message="tns:iniciarSesion"/>
-      <output wsam:Action="https://eventos.uy/soap/sesiones/Sesiones/iniciarSesionResponse" message="tns:iniciarSesionResponse"/>
-      <fault message="tns:SesionSoapException" name="SesionSoapException" wsam:Action="https://eventos.uy/soap/sesiones/Sesiones/iniciarSesion/Fault/SesionSoapException"/>
-    </operation>
     <operation name="cerrarSesion">
       <input wsam:Action="https://eventos.uy/soap/sesiones/Sesiones/cerrarSesionRequest" message="tns:cerrarSesion"/>
       <output wsam:Action="https://eventos.uy/soap/sesiones/Sesiones/cerrarSesionResponse" message="tns:cerrarSesionResponse"/>
       <fault message="tns:SesionSoapException" name="SesionSoapException" wsam:Action="https://eventos.uy/soap/sesiones/Sesiones/cerrarSesion/Fault/SesionSoapException"/>
     </operation>
+    <operation name="iniciarSesion">
+      <input wsam:Action="https://eventos.uy/soap/sesiones/Sesiones/iniciarSesionRequest" message="tns:iniciarSesion"/>
+      <output wsam:Action="https://eventos.uy/soap/sesiones/Sesiones/iniciarSesionResponse" message="tns:iniciarSesionResponse"/>
+      <fault message="tns:SesionSoapException" name="SesionSoapException" wsam:Action="https://eventos.uy/soap/sesiones/Sesiones/iniciarSesion/Fault/SesionSoapException"/>
+    </operation>
   </portType>
   <binding name="SesionesPortBinding" type="tns:Sesiones">
     <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
-    <operation name="iniciarSesion">
+    <operation name="cerrarSesion">
       <soap:operation soapAction=""/>
       <input>
         <soap:body use="literal"/>
@@ -47,7 +47,7 @@
         <soap:fault name="SesionSoapException" use="literal"/>
       </fault>
     </operation>
-    <operation name="cerrarSesion">
+    <operation name="iniciarSesion">
       <soap:operation soapAction=""/>
       <input>
         <soap:body use="literal"/>
@@ -66,3 +66,4 @@
     </port>
   </service>
 </definitions>
+

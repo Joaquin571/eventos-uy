@@ -27,6 +27,14 @@
 
   <xs:element name="altaUsuarioResponse" type="tns:altaUsuarioResponse"/>
 
+  <xs:element name="archivarEdicion" type="tns:archivarEdicion"/>
+
+  <xs:element name="archivarEdicionResponse" type="tns:archivarEdicionResponse"/>
+
+  <xs:element name="confirmarAsistencia" type="tns:confirmarAsistencia"/>
+
+  <xs:element name="confirmarAsistenciaResponse" type="tns:confirmarAsistenciaResponse"/>
+
   <xs:element name="consultarDetalleEdicion" type="tns:consultarDetalleEdicion"/>
 
   <xs:element name="consultarDetalleEdicionResponse" type="tns:consultarDetalleEdicionResponse"/>
@@ -91,6 +99,10 @@
 
   <xs:element name="modificarUsuarioResponse" type="tns:modificarUsuarioResponse"/>
 
+  <xs:element name="obtenerDatosConstancia" type="tns:obtenerDatosConstancia"/>
+
+  <xs:element name="obtenerDatosConstanciaResponse" type="tns:obtenerDatosConstanciaResponse"/>
+
   <xs:element name="obtenerImagen" type="tns:obtenerImagen"/>
 
   <xs:element name="obtenerImagenResponse" type="tns:obtenerImagenResponse"/>
@@ -136,26 +148,6 @@
     </xs:sequence>
   </xs:complexType>
 
-  <xs:complexType name="listarEventos">
-    <xs:sequence/>
-  </xs:complexType>
-
-  <xs:complexType name="listarEventosResponse">
-    <xs:sequence>
-      <xs:element name="return" type="tns:dtEvento" minOccurs="0" maxOccurs="unbounded"/>
-    </xs:sequence>
-  </xs:complexType>
-
-  <xs:complexType name="dtEvento">
-    <xs:sequence>
-      <xs:element name="nombre" type="xs:string" minOccurs="0"/>
-      <xs:element name="sigla" type="xs:string" minOccurs="0"/>
-      <xs:element name="descripcion" type="xs:string" minOccurs="0"/>
-      <xs:element name="fechaAlta" type="xs:string" minOccurs="0"/>
-      <xs:element name="categorias" type="xs:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
-    </xs:sequence>
-  </xs:complexType>
-
   <xs:complexType name="obtenerOpcionesAltaPatrocinio">
     <xs:sequence>
       <xs:element name="evento" type="xs:string" minOccurs="0"/>
@@ -179,6 +171,16 @@
     </xs:sequence>
   </xs:complexType>
 
+  <xs:complexType name="dtEvento">
+    <xs:sequence>
+      <xs:element name="nombre" type="xs:string" minOccurs="0"/>
+      <xs:element name="sigla" type="xs:string" minOccurs="0"/>
+      <xs:element name="descripcion" type="xs:string" minOccurs="0"/>
+      <xs:element name="fechaAlta" type="xs:string" minOccurs="0"/>
+      <xs:element name="categorias" type="xs:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
   <xs:complexType name="dtEdicion">
     <xs:sequence>
       <xs:element name="idNombre" type="xs:string" minOccurs="0"/>
@@ -190,6 +192,7 @@
       <xs:element name="pais" type="xs:string" minOccurs="0"/>
       <xs:element name="nombreOrganizador" type="xs:string" minOccurs="0"/>
       <xs:element name="estado" type="tns:estadoEdicion" minOccurs="0"/>
+      <xs:element name="fechaArchivo" type="xs:string" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>
 
@@ -201,14 +204,31 @@
     </xs:sequence>
   </xs:complexType>
 
-  <xs:complexType name="altaTipoRegistro">
+  <xs:complexType name="listarEventos">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:complexType name="listarEventosResponse">
     <xs:sequence>
-      <xs:element name="datos" type="tns:dtTipoRegistro" minOccurs="0"/>
-      <xs:element name="edicion" type="xs:string" minOccurs="0"/>
+      <xs:element name="return" type="tns:dtEvento" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:complexType>
 
-  <xs:complexType name="altaTipoRegistroResponse">
+  <xs:complexType name="altaEvento">
+    <xs:sequence>
+      <xs:element name="datos" type="tns:dtEvento" minOccurs="0"/>
+      <xs:element name="imagen" type="tns:dtImagen" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="dtImagen">
+    <xs:sequence>
+      <xs:element name="tipoContenido" type="xs:string" minOccurs="0"/>
+      <xs:element name="contenido" type="xs:base64Binary" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="altaEventoResponse">
     <xs:sequence>
       <xs:element name="return" type="xs:boolean"/>
     </xs:sequence>
@@ -245,6 +265,7 @@
       <xs:element name="nombreEdicion" type="xs:string" minOccurs="0"/>
       <xs:element name="nicknameAsistente" type="xs:string" minOccurs="0"/>
       <xs:element name="usoCodigo" type="xs:boolean"/>
+      <xs:element name="asistenciaConfirmada" type="xs:boolean"/>
     </xs:sequence>
   </xs:complexType>
 
@@ -280,23 +301,41 @@
     </xs:complexContent>
   </xs:complexType>
 
-  <xs:complexType name="altaEvento">
+  <xs:complexType name="altaTipoRegistro">
     <xs:sequence>
-      <xs:element name="datos" type="tns:dtEvento" minOccurs="0"/>
-      <xs:element name="imagen" type="tns:dtImagen" minOccurs="0"/>
+      <xs:element name="datos" type="tns:dtTipoRegistro" minOccurs="0"/>
+      <xs:element name="edicion" type="xs:string" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>
 
-  <xs:complexType name="dtImagen">
-    <xs:sequence>
-      <xs:element name="tipoContenido" type="xs:string" minOccurs="0"/>
-      <xs:element name="contenido" type="xs:base64Binary" minOccurs="0"/>
-    </xs:sequence>
-  </xs:complexType>
-
-  <xs:complexType name="altaEventoResponse">
+  <xs:complexType name="altaTipoRegistroResponse">
     <xs:sequence>
       <xs:element name="return" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="obtenerDatosConstancia">
+    <xs:sequence>
+      <xs:element name="edicion" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="obtenerDatosConstanciaResponse">
+    <xs:sequence>
+      <xs:element name="return" type="tns:dtConstanciaAsistencia" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="dtConstanciaAsistencia">
+    <xs:sequence>
+      <xs:element name="nombreAsistente" type="xs:string" minOccurs="0"/>
+      <xs:element name="apellidoAsistente" type="xs:string" minOccurs="0"/>
+      <xs:element name="nombreEvento" type="xs:string" minOccurs="0"/>
+      <xs:element name="nombreEdicion" type="xs:string" minOccurs="0"/>
+      <xs:element name="ciudad" type="xs:string" minOccurs="0"/>
+      <xs:element name="fechaInicio" type="xs:string" minOccurs="0"/>
+      <xs:element name="fechaFin" type="xs:string" minOccurs="0"/>
+      <xs:element name="fechaEmision" type="xs:string" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>
 
@@ -335,6 +374,27 @@
     </xs:sequence>
   </xs:complexType>
 
+  <xs:complexType name="altaUsuario">
+    <xs:sequence>
+      <xs:element name="entrada" type="tns:entradaUsuario" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="entradaUsuario">
+    <xs:sequence>
+      <xs:element name="usuario" type="tns:dtUsuario" minOccurs="0"/>
+      <xs:element name="contrasenia" type="xs:string" minOccurs="0"/>
+      <xs:element name="confirmacion" type="xs:string" minOccurs="0"/>
+      <xs:element name="imagen" type="tns:dtImagen" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="altaUsuarioResponse">
+    <xs:sequence>
+      <xs:element name="return" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
   <xs:complexType name="altaPatrocinio">
     <xs:sequence>
       <xs:element name="datos" type="tns:dtPatrocinio" minOccurs="0"/>
@@ -356,27 +416,6 @@
   </xs:complexType>
 
   <xs:complexType name="altaPatrocinioResponse">
-    <xs:sequence>
-      <xs:element name="return" type="xs:boolean"/>
-    </xs:sequence>
-  </xs:complexType>
-
-  <xs:complexType name="altaUsuario">
-    <xs:sequence>
-      <xs:element name="entrada" type="tns:entradaUsuario" minOccurs="0"/>
-    </xs:sequence>
-  </xs:complexType>
-
-  <xs:complexType name="entradaUsuario">
-    <xs:sequence>
-      <xs:element name="usuario" type="tns:dtUsuario" minOccurs="0"/>
-      <xs:element name="contrasenia" type="xs:string" minOccurs="0"/>
-      <xs:element name="confirmacion" type="xs:string" minOccurs="0"/>
-      <xs:element name="imagen" type="tns:dtImagen" minOccurs="0"/>
-    </xs:sequence>
-  </xs:complexType>
-
-  <xs:complexType name="altaUsuarioResponse">
     <xs:sequence>
       <xs:element name="return" type="xs:boolean"/>
     </xs:sequence>
@@ -439,6 +478,18 @@
   </xs:complexType>
 
   <xs:complexType name="disponibleNicknameResponse">
+    <xs:sequence>
+      <xs:element name="return" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="confirmarAsistencia">
+    <xs:sequence>
+      <xs:element name="edicion" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="confirmarAsistenciaResponse">
     <xs:sequence>
       <xs:element name="return" type="xs:boolean"/>
     </xs:sequence>
@@ -605,6 +656,16 @@
     </xs:sequence>
   </xs:complexType>
 
+  <xs:complexType name="archivarEdicion">
+    <xs:sequence>
+      <xs:element name="edicion" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="archivarEdicionResponse">
+    <xs:sequence/>
+  </xs:complexType>
+
   <xs:complexType name="listarUsuarios">
     <xs:sequence/>
   </xs:complexType>
@@ -633,6 +694,7 @@
       <xs:enumeration value="INGRESADA"/>
       <xs:enumeration value="ACEPTADA"/>
       <xs:enumeration value="RECHAZADA"/>
+      <xs:enumeration value="ARCHIVADA"/>
     </xs:restriction>
   </xs:simpleType>
 
@@ -654,3 +716,4 @@
     </xs:restriction>
   </xs:simpleType>
 </xs:schema>
+

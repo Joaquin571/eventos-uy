@@ -9,7 +9,6 @@ import java.time.LocalDate;
 public class DtRegistro {
     public DtRegistro() { }
 
-
     @XmlJavaTypeAdapter(FechaXml.class)
     private LocalDate fechaRegistro;
     private float costo;
@@ -19,6 +18,7 @@ public class DtRegistro {
     // El código en sí nunca viaja en el DtRegistro.
     private String nicknameAsistente;
     private boolean usoCodigo;
+    private boolean asistenciaConfirmada;
 
     public DtRegistro(
             LocalDate fechaRegistro,
@@ -77,6 +77,10 @@ public class DtRegistro {
         return usoCodigo;
     }
 
+    public boolean isAsistenciaConfirmada() {
+        return asistenciaConfirmada;
+    }
+
     @Override
     public String toString() {
         return nombreEdicion + " - "
@@ -91,4 +95,5 @@ public class DtRegistro {
     public void setNombreEdicion(String valor) { this.nombreEdicion = valor; }
     public void setNicknameAsistente(String valor) { this.nicknameAsistente = valor; }
     public void setUsoCodigo(boolean valor) { this.usoCodigo = valor; }
+    public void setAsistenciaConfirmada(boolean valor) { this.asistenciaConfirmada = valor; }
 }

@@ -17,6 +17,7 @@ public class Edicion implements ConImagen{
     private LocalDate fechaInicio;
     private LocalDate fechaFin;
     private LocalDate fechaAlta;
+    private LocalDate fechaArchivo;
     private String ciudad;
     private String pais;
     @Enumerated(EnumType.STRING)
@@ -110,11 +111,24 @@ public class Edicion implements ConImagen{
     public LocalDate getFechaAlta() {
         return fechaAlta;
     }
+    public LocalDate getFechaArchivo() { return fechaArchivo;}
+    public void setFechaArchivo(LocalDate fechaArchivo) { this.fechaArchivo = fechaArchivo;}
     public String getCiudad() {
         return ciudad;
     }
     public String getPais() {
         return pais;
+    }
+
+    public void archivar(LocalDate hoy) {
+        if (this.estado != EstadoEdicion.ACEPTADA) {
+            throw new IllegalStateException("Solo se puede archivar una edición en estado Aceptada.");
+        }
+        if (this.fechaFin == null || !this.fechaFin.isBefore(hoy)) {
+            throw new IllegalArgumentException("Solo se puede archivar una edición cuya fecha de fin sea anterior al día actual.");
+        }
+        this.estado = EstadoEdicion.ARCHIVADA;
+        this.fechaArchivo = hoy;
     }
 
     public EstadoEdicion getEstado() {

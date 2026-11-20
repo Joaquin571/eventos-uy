@@ -53,7 +53,8 @@ public class UsuarioServlet extends HttpServlet {
                             registro.getNombreEdicion(),
                             registro.getNombreTipoRegistro(),
                             costo == Math.rint(costo) ? String.valueOf((long) costo) : String.format("%.2f", costo),
-                            registro.getFechaRegistro() == null ? "" : registro.getFechaRegistro().format(FECHA)));
+                            registro.getFechaRegistro() == null ? "" : registro.getFechaRegistro().format(FECHA),
+                            registro.isAsistenciaConfirmada()));
                 }
 
                 req.setAttribute("registros", registros);

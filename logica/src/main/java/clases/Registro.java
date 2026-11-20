@@ -21,6 +21,9 @@ public class Registro {
     private LocalDate fechaRegistro;
     private float costo;
 
+    @Column(nullable = false)
+    private boolean asistenciaConfirmada = false;
+
     @ManyToOne
     @JoinColumn(name = "TIPO_REGISTRO_ID")
     private TipoRegistro tipoRegistro;
@@ -32,11 +35,10 @@ public class Registro {
     @ManyToOne
     @JoinColumn(name = "ASISTENTE_NICKNAME")
     private Asistente asistente;
+
     @ManyToOne
     @JoinColumn(name = "PATROCINIO_CODIGO")
     private Patrocinio patrocinio;
-
-
 
     protected Registro() {
     }
@@ -53,21 +55,31 @@ public class Registro {
         this.edicion = edicion;
     }
 
-    public Long getId() {return id;}
-    public LocalDate getFechaRegistro() {return fechaRegistro;}
-    public float getCosto() {return costo;}
-    public void setCosto(float costo) {this.costo = costo;}
-    public TipoRegistro getTipoRegistro() {return tipoRegistro;}
-    public void setTipoRegistro(TipoRegistro tipoRegistro) {this.tipoRegistro = tipoRegistro;}
-    public Edicion getEdicion() {return edicion;}
-    public void setEdicion(Edicion edicion) {this.edicion = edicion;}
-    public Asistente getAsistente() {return asistente;}
-    public void setAsistente(Asistente asistente) {this.asistente = asistente;}
+    public Long getId() { return id; }
+    public LocalDate getFechaRegistro() { return fechaRegistro; }
+    public float getCosto() { return costo; }
+    public void setCosto(float costo) { this.costo = costo; }
+    public boolean isAsistenciaConfirmada() { return asistenciaConfirmada; }
+    public void setAsistenciaConfirmada(boolean asistenciaConfirmada) { this.asistenciaConfirmada = asistenciaConfirmada; }
+    public TipoRegistro getTipoRegistro() { return tipoRegistro; }
+    public void setTipoRegistro(TipoRegistro tipoRegistro) { this.tipoRegistro = tipoRegistro; }
+    public Edicion getEdicion() { return edicion; }
+    public void setEdicion(Edicion edicion) { this.edicion = edicion; }
+    public Asistente getAsistente() { return asistente; }
+    public void setAsistente(Asistente asistente) { this.asistente = asistente; }
+
     public Patrocinio getPatrocinio() {
         return patrocinio;
     }
 
     public void setPatrocinio(Patrocinio patrocinio) {
         this.patrocinio = patrocinio;
+    }
+
+    public void confirmarAsistencia() {
+        if (this.asistenciaConfirmada) {
+            throw new IllegalStateException("La asistencia ya fue confirmada para este registro.");
+        }
+        this.asistenciaConfirmada = true;
     }
 }
