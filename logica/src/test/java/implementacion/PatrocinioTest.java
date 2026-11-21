@@ -46,7 +46,7 @@ class PatrocinioTest extends soporte.PruebaConBaseSegura {
     @Test
     void propietarioPuedePatrocinarSusEdicionesEnLosTresEstados() {
         Actor propietario = Actor.usuarioAutenticado(sistema.autenticar(org, "clave"));
-        for (EstadoEdicion estado : EstadoEdicion.values()) {
+        for (EstadoEdicion estado : List.of(EstadoEdicion.INGRESADA, EstadoEdicion.ACEPTADA, EstadoEdicion.RECHAZADA)) {
             String nombre = edicion + estado;
             LocalDate hoy = LocalDate.now();
             assertTrue(sistema.altaEdicion(new DtEdicion(nombre, "ED", hoy, hoy, hoy, "Ciudad", "País", org), evento, datatypes.Actor.administradorLocal()));

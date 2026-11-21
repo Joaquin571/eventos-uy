@@ -25,9 +25,9 @@ class PatrociniosFlujoTest {
         e.parametros.clear(); e.parametros.put("evento", "Evento");
         PortalDoble.http(()->new AltaPatrocinioServlet().doGet(e.request,e.response),e.request,e.response);
         List<DtEdicion> opciones = ediciones(e);
-        assertEquals(4, opciones.size());
+        assertEquals(EstadoEdicion.values().length + 1, opciones.size());
         assertTrue(opciones.stream().allMatch(d -> d.getNombreOrganizador().equals("duenio")));
-        assertEquals(Set.of(EstadoEdicion.INGRESADA, EstadoEdicion.ACEPTADA, EstadoEdicion.RECHAZADA),
+        assertEquals(Set.of(EstadoEdicion.values()),
                 new HashSet<>(opciones.stream().map(DtEdicion::getEstado).toList()));
         assertTrue(((Collection<?>) e.atributos.get("tipos")).isEmpty());
     }

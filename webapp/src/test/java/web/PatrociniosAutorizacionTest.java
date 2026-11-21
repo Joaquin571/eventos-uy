@@ -290,6 +290,7 @@ class PatrociniosAutorizacionTest {
         });
         final HttpSession httpSesion = doble(HttpSession.class, (p, m, a) -> {
             if (m.getName().equals("getAttribute")) return sesion.get(a[0]);
+            if (m.getName().equals("removeAttribute")) { sesion.remove(a[0]); return null; }
             throw new AssertionError("Llamada inesperada a la sesión: " + m.getName());
         });
         final RequestDispatcher despachador = doble(RequestDispatcher.class, (p, m, a) -> {
@@ -307,6 +308,7 @@ class PatrociniosAutorizacionTest {
             case "setAttribute" -> { atributos.put((String) a[0], a[1]); yield null; }
             case "getAttribute" -> atributos.get(a[0]);
             case "getContextPath" -> "/eventos";
+            case "getMethod" -> "GET";
             case "getRequestDispatcher" -> despachador;
             default -> throw new AssertionError("Llamada inesperada a la petici?n: " + m.getName());
         });

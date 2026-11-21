@@ -123,21 +123,29 @@ class ConsultasSistemaTest extends soporte.PruebaConBaseSegura {
         assertTrue(sistema.altaEvento(new DtEvento(evento, "ED", "Evento", hoy, List.of(categoria)), datatypes.Actor.administradorLocal()));
         for (EstadoEdicion estado : EstadoEdicion.values()) {
             String nombre = estado.name() + sufijo;
-            assertTrue(sistema.altaEdicion(new DtEdicion(nombre, "ED", hoy.plusDays(10), hoy.plusDays(11),
+            LocalDate inicio = estado == EstadoEdicion.ARCHIVADA ? hoy.minusDays(3) : hoy.plusDays(10);
+            LocalDate fin = estado == EstadoEdicion.ARCHIVADA ? hoy.minusDays(2) : hoy.plusDays(11);
+            assertTrue(sistema.altaEdicion(new DtEdicion(nombre, "ED", inicio, fin,
                     hoy.minusYears(1), "Montevideo", "Uruguay", org), evento, datatypes.Actor.administradorLocal()));
-            if (estado != EstadoEdicion.INGRESADA) sistema.aceptarRechazarEdicion(nombre, estado == EstadoEdicion.ACEPTADA, datatypes.Actor.administradorLocal());
+            if (estado != EstadoEdicion.INGRESADA) {
+                sistema.aceptarRechazarEdicion(nombre, estado != EstadoEdicion.RECHAZADA, datatypes.Actor.administradorLocal());
+            }
+            if (estado == EstadoEdicion.ARCHIVADA) {
+                sistema.archivarEdicion(nombre, Actor.usuarioAutenticado(sistema.autenticar(org, "clave")));
+            }
         }
         String ajena = "Ajena " + sufijo;
         assertTrue(sistema.altaEdicion(new DtEdicion(ajena, "AJ", hoy.plusDays(10), hoy.plusDays(11), hoy, "Salto", "Uruguay", otro), evento, datatypes.Actor.administradorLocal()));
         var ediciones = sistema.obtenerEdicionesOrganizador(org);
-        assertEquals(3, ediciones.size());
+        assertEquals(EstadoEdicion.values().length, ediciones.size());
         assertEquals(Set.of(EstadoEdicion.values()), ediciones.stream().map(DtEdicion::getEstado).collect(Collectors.toSet()));
         for (DtEdicion edicion : ediciones) {
             assertEquals(edicion.getEstado().name() + sufijo, edicion.getIdNombre());
             assertEquals(org, edicion.getNombreOrganizador());
             assertEquals("ED", edicion.getSigla());
-            assertEquals(hoy.plusDays(10), edicion.getFechaInicio());
-            assertEquals(hoy.plusDays(11), edicion.getFechaFin());
+            assertEquals(edicion.getEstado() == EstadoEdicion.ARCHIVADA ? hoy.minusDays(3) : hoy.plusDays(10), edicion.getFechaInicio());
+            assertEquals(edicion.getEstado() == EstadoEdicion.ARCHIVADA ? hoy.minusDays(2) : hoy.plusDays(11), edicion.getFechaFin());
+            if (edicion.getEstado() == EstadoEdicion.ARCHIVADA) assertEquals(hoy, edicion.getFechaArchivo());
             assertEquals(hoy, edicion.getFechaAlta());
             assertEquals("Montevideo", edicion.getCiudad());
             assertEquals("Uruguay", edicion.getPais());

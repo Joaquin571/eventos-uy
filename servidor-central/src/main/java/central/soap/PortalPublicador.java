@@ -49,12 +49,29 @@ public class PortalPublicador {
         catch(OperacionSoapException e) { throw e; }
         catch(excepciones.NoEncontradoException e) { throw new OperacionSoapException("NO_ENCONTRADO",e.getMessage()); }
         catch(excepciones.AccesoDenegadoException e) { throw new OperacionSoapException("ACCESO_DENEGADO",e.getMessage()); }
-        catch(IllegalArgumentException | IllegalStateException e) { throw new OperacionSoapException("DATOS_INVALIDOS",e.getMessage()); }
-        catch(Exception e) {
-            if(e.getClass()==Exception.class) throw new OperacionSoapException("DATOS_INVALIDOS",e.getMessage());
-            System.getLogger(getClass().getName()).log(System.Logger.Level.ERROR,"Fallo técnico del servicio Portal.");
-            throw new OperacionSoapException("SERVICIO_NO_DISPONIBLE","No se pudo completar la operación.");
+        catch(IllegalArgumentException | IllegalStateException e) {
+            if (esErrorDeNegocio(e)) throw new OperacionSoapException("DATOS_INVALIDOS", e.getMessage());
+            throw falloTecnico();
         }
+        catch(Exception e) {
+            if(e.getClass()==Exception.class && esErrorDeNegocio(e))
+                throw new OperacionSoapException("DATOS_INVALIDOS",e.getMessage());
+            throw falloTecnico();
+        }
+    }
+    private boolean esErrorDeNegocio(Exception error) {
+        // Solo las validaciones del dominio y del mapeo de entrada pueden exponer su mensaje al cliente.
+        StackTraceElement[] pila = error.getStackTrace();
+        if (pila.length == 0) return false;
+        String origen = pila[0].getClassName();
+        return origen.equals(getClass().getName()) || origen.equals(MapeadorPortal.class.getName())
+                || origen.startsWith("implementacion.Sistema") || origen.equals("implementacion.ValidadorImagen")
+                || origen.startsWith("manejadores.") || origen.startsWith("clases.")
+                || origen.startsWith("datatypes.");
+    }
+    private OperacionSoapException falloTecnico() {
+        System.getLogger(getClass().getName()).log(System.Logger.Level.ERROR, "Fallo técnico del servicio Portal.");
+        return new OperacionSoapException("SERVICIO_NO_DISPONIBLE", "No se pudo completar la operación.");
     }
     private Actor actor(boolean requerido) throws OperacionSoapException {
         try {
