@@ -31,6 +31,13 @@ Los argumentos Maven que empiezan con `-D` van **entre comillas** en PowerShell.
 mvn '-Dtest=ConsultasSistemaTest,PatrocinioTest,VisitasEventoTest,AsistenciaYArchivoTest' '-Dsurefire.failIfNoSpecifiedTests=false' test
 ```
 
+Tras integrar el sitio móvil, verificar también el video de edición, la confirmación de asistencia, el acceso móvil y el transporte SOAP HTTPS junto con el flujo de patrocinios:
+
+```powershell
+mvn -o '-Dtest=MovilVideoYAsistenciaTest,MovilAccesoTest,FiltroAccesoMovilTest,SesionMovilWebTest' '-Dsurefire.failIfNoSpecifiedTests=false' test
+mvn -o '-Dtest=PortalSoapHttpsTest,DisponibilidadSoapTest,PatrociniosFlujoTest,PatrociniosAutorizacionTest,InicioSoapTest' '-Dsurefire.failIfNoSpecifiedTests=false' test
+```
+
 Si pasan, ejecutar una sola suite completa con el perfil JaCoCo. Es el ciclo `clean verify` solicitado, con `-Pcobertura` para activar medición y umbral:
 
 ```powershell
@@ -68,6 +75,15 @@ Después de confirmar manualmente el destino, el tipo de columna y la ausencia d
 
 ## 5. Resultado del cierre
 
-La última ejecución `mvn -o '-Pcobertura' clean verify` terminó en **BUILD SUCCESS**: 356 JUnit de `logica`, 18 de `servidor-central` y 186 de `webapp`; **560 aprobadas, 0 fallidas y 0 errores**. La regla JaCoCo de 80 % pasó. El informe de `logica` (`target/site/jacoco/index.html` y `jacoco.xml`) mide **2048 de 2405 líneas, 85,16 %**. `datos/CargarDatosPrueba` (82 líneas), `datatypes/DtAltaTipoRegistro` (16) y `datatypes/DtFormularioRegistro` (1) quedaron sin líneas ejecutadas; `ManejadorRegistros` conserva 41 líneas sin cubrir y `Sistema`, 29. JaCoCo incluye estas clases en el denominador.
+Después del fast-forward de Valentina (`258658e`), las pruebas focalizadas móviles dieron **31 aprobadas**, las de SOAP HTTPS y patrocinios **53 aprobadas** y las persistentes de patrocinio/Portal HTTPS terminaron en `BUILD SUCCESS`, sin fallos ni errores (21/11/2026). Antes de las pruebas persistentes se confirmó por PostgreSQL `current_database()=eventosuy_test`, esquema `public` y la columna `registro.asistenciaconfirmada`; no se aplicaron migraciones.
 
-El porcentaje de **IntelliJ Run with Coverage** todavía debe medirse en la defensa siguiendo el apartado 3; no sustituirlo por 85,16 % sin comprobarlo en el IDE.
+La ejecución única `mvn -o '-Pcobertura' clean verify` sobre esta integración terminó en **BUILD SUCCESS**: 356 JUnit de `logica`, 18 de `servidor-central` y 197 de `webapp`; **571 aprobadas, 0 fallidas y 0 errores**. La regla JaCoCo de 80 % pasó. El informe de `logica` (`target/site/jacoco/index.html` y `jacoco.xml`) mide **2050 de 2405 líneas, 85,24 %**. `datos/CargarDatosPrueba` (82 líneas) y `datatypes/DtAltaTipoRegistro` (16) quedaron sin líneas ejecutadas; `ManejadorRegistros` conserva 41 líneas sin cubrir y `Sistema`, 29. JaCoCo incluye estas clases en el denominador.
+
+El porcentaje de **IntelliJ Run with Coverage** todavía debe medirse en la defensa siguiendo el apartado 3; no sustituirlo por 85,24 % sin comprobarlo en el IDE.
+
+## 6. Recorrido móvil para la defensa
+
+1. Iniciar sesión como asistente en el teléfono y abrir una edición con video de YouTube. Comprobar que el reproductor se ajusta al ancho; en una edición sin video no debe aparecer un marco vacío.
+2. Entrar a **Registrar asistencia** y elegir un registro propio de una edición aceptada que ya comenzó. Confirmar y mostrar el mensaje de éxito y la marca **Asistió** al regresar a la lista.
+3. Volver al mismo registro: la confirmación no debe ofrecerse otra vez. En una edición futura, mostrar el aviso de que la asistencia se habilita cuando comienza. Sin sesión, comprobar que vuelve al login móvil.
+4. Explicar que la Webapp invoca `confirmarAsistencia` de Central por SOAP; no escribe directamente en PostgreSQL. Mostrar `MovilVideoYAsistenciaTest` y el informe JaCoCo junto con **Run with Coverage** de IntelliJ.
