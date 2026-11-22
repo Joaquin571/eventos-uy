@@ -43,8 +43,8 @@ public final class ClienteEventosCentral {
         }
     }
 
-    private static String leerDireccion() {
-        Path archivo = Path.of(System.getProperty("user.home"), ".eventosUy", "web.properties");
+    static String leerDireccion() {
+        Path archivo = web.remoto.ConfiguracionWeb.archivoConfiguracion();
         Properties propiedades = new Properties();
         try (var lector = Files.newBufferedReader(archivo)) {
             propiedades.load(lector);
@@ -55,7 +55,7 @@ public final class ClienteEventosCentral {
                 throw new IllegalArgumentException();
             return web.remoto.ConfiguracionWeb.validar(new URI("https", null, host, puerto, ruta, null, null)).toString();
         } catch (Exception error) {
-            throw new WebServiceException("Revisá ~/.eventosUy/web.properties.", error);
+            throw new WebServiceException("Revisá la configuración HTTPS de Central en web.properties.", error);
         }
     }
 

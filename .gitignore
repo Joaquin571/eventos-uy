@@ -31,3 +31,6 @@ bin/
 .idea/
 .smarttomcat/
 *.zip
+
+# Dependencias, evidencias y configuración privada de ensayos locales.
+/.build-cache/

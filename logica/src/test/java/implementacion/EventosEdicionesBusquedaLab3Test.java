@@ -55,6 +55,26 @@ class EventosEdicionesBusquedaLab3Test extends soporte.PruebaConBaseSegura {
         assertThrows(IllegalArgumentException.class, () -> sistema.finalizarEvento(evento, actor));
     }
 
+    @Test void listadoPublicoNoConsultaOtraVezCadaEvento() throws Exception {
+        String primero="consultaPublicaA"+sufijo, segundo="consultaPublicaB"+sufijo;
+        preparar(primero);
+        sistema.altaEvento(new DtEvento(segundo,"PB","Segundo",LocalDate.now(),List.of("categoria"+sufijo)),Actor.administradorLocal());
+        try(var em=persistencia.BaseDeDatos.getEntityManager()){
+            var estadisticas=em.getEntityManagerFactory().unwrap(org.hibernate.SessionFactory.class).getStatistics();
+            boolean habilitadas=estadisticas.isStatisticsEnabled();
+            try{
+                estadisticas.setStatisticsEnabled(true);estadisticas.clear();
+                var eventos=sistema.listarEventosPublicos();
+                assertTrue(eventos.stream().anyMatch(e->primero.equals(e.getNombre())));
+                assertTrue(eventos.stream().anyMatch(e->segundo.equals(e.getNombre())));
+                assertTrue(eventos.stream().noneMatch(DtEvento::isFinalizado));
+                System.out.println("[PRUEBA] Consultas JPQL del listado público: "+estadisticas.getQueryExecutionCount());
+                assertTrue(estadisticas.getQueryExecutionCount()<=2,
+                        "El listado público no debe ejecutar una consulta JPQL por cada evento: "+estadisticas.getQueryExecutionCount());
+            }finally{estadisticas.setStatisticsEnabled(habilitadas);}
+        }
+    }
+
     @Test void busquedaIgnoraMayusculasYOrdena() throws Exception {
         String a = "Alpha" + sufijo;
         String b = "Zeta" + sufijo;

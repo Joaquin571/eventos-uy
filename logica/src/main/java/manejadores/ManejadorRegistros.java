@@ -180,13 +180,7 @@ public class ManejadorRegistros {
             }
 
             Registro registro = encontrados.getFirst();
-            Edicion edicion = registro.getEdicion();
-            if (edicion == null || edicion.getEstado() != datatypes.EstadoEdicion.ACEPTADA) {
-                throw new IllegalArgumentException("Solo se puede confirmar asistencia en ediciones aceptadas.");
-            }
-            if (edicion.getFechaInicio() != null && LocalDate.now().isBefore(edicion.getFechaInicio())) {
-                throw new IllegalArgumentException("No se puede confirmar asistencia antes de la fecha de inicio de la edición.");
-            }
+            // La letra (§6.3) exige registro propio y confirmación única, sin restricciones de fecha o estado.
             registro.confirmarAsistencia();
             tx.commit();
         } catch (RuntimeException e) {

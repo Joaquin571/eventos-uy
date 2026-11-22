@@ -85,12 +85,12 @@ class MovilVideoYAsistenciaTest {
         assertEquals(405, e.estado); assertTrue(e.llamadas.isEmpty());
     }
 
-    @Test void elBotonSoloSeOfreceSiLaEdicionEstaAceptadaYYaComenzo() throws Exception {
+    @Test void elBotonSeOfreceParaRegistroPropioSinRestriccionesDeFechaOEstado() throws Exception {
         record Caso(EstadoEdicion estado, LocalDate inicio, boolean esperado) { }
         LocalDate hoy = LocalDate.now();
         for (var c : List.of(new Caso(EstadoEdicion.ACEPTADA, hoy.minusDays(1), true), new Caso(EstadoEdicion.ACEPTADA, hoy, true),
-                new Caso(EstadoEdicion.ACEPTADA, hoy.plusDays(1), false), new Caso(EstadoEdicion.ARCHIVADA, hoy.minusDays(5), false),
-                new Caso(EstadoEdicion.INGRESADA, hoy.minusDays(5), false), new Caso(EstadoEdicion.ACEPTADA, null, false))) {
+                new Caso(EstadoEdicion.ACEPTADA, hoy.plusDays(1), true), new Caso(EstadoEdicion.ARCHIVADA, hoy.minusDays(5), true),
+                new Caso(EstadoEdicion.INGRESADA, hoy.minusDays(5), true), new Caso(EstadoEdicion.ACEPTADA, null, true))) {
             var e = conSesion(); e.parametros.put("edicion", "Maraton2026"); e.prepararRegistro(false);
             var ed = new DtEdicion("Maraton2026", "ED", c.inicio(), c.inicio() == null ? null : c.inicio().plusDays(2),
                     LocalDate.of(2026, 2, 1), "Ciudad", "País", "duenio");
@@ -98,6 +98,7 @@ class MovilVideoYAsistenciaTest {
             e.detalleEdicion.setEdicion(ed);
             new MovilRegistrosServlet().doGet(e.req, e.resp);
             assertEquals(c.esperado(), e.atributos.get("puedeConfirmarAsistencia"), c.toString());
+            assertEquals(List.of("consultarRegistros[Maraton2026, ]"), e.llamadas);
         }
     }
 
@@ -107,6 +108,29 @@ class MovilVideoYAsistenciaTest {
         assertFalse(e.atributos.containsKey("puedeConfirmarAsistencia"));
         assertEquals(List.of("consultarRegistros[Maraton2026, ]"), e.llamadas);
         assertTrue(((DetalleRegistroVista) e.atributos.get("detalle")).isAsistenciaConfirmada());
+    }
+
+    @Test void registroPropioArchivadoSinAsistenciaSePuedeConsultarEnAmbosSitios() throws Exception {
+        for (boolean movil : List.of(true, false)) {
+            var e = conSesion(); e.parametros.put("edicion", "Maraton2026"); e.prepararRegistro(false);
+            e.falloDetalle = new web.remoto.ErrorCentral("NO_ENCONTRADO", "Edición no visible.");
+            if (movil) new MovilRegistrosServlet().doGet(e.req, e.resp);
+            else new ConsultaRegistroServlet().doGet(e.req, e.resp);
+            assertEquals(200, e.estado);
+            assertNotNull(e.atributos.get("detalle"));
+            assertEquals(Boolean.TRUE, e.atributos.get("puedeConfirmarAsistencia"));
+        }
+    }
+
+    @Test void consultaDeRegistroNoOcultaFallasRealesDeCentral() {
+        for (boolean movil : List.of(true, false)) {
+            var e = conSesion(); e.parametros.put("edicion", "Maraton2026"); e.prepararRegistro(false);
+            e.falloRegistros = new web.remoto.ErrorCentral("SERVICIO_NO_DISPONIBLE", "Central no disponible.");
+            assertSame(e.falloRegistros, assertThrows(web.remoto.ErrorCentral.class, () -> {
+                if (movil) new MovilRegistrosServlet().doGet(e.req, e.resp);
+                else new ConsultaRegistroServlet().doGet(e.req, e.resp);
+            }));
+        }
     }
 
     @Test void elModoAsistenciaYLosMensajesLlegaranALaVista() throws Exception {
@@ -130,6 +154,8 @@ class MovilVideoYAsistenciaTest {
         int estado = 200;
         String redireccion;
         RuntimeException falloConfirmar;
+        RuntimeException falloDetalle;
+        RuntimeException falloRegistros;
         final Map<String, String> parametros = new HashMap<>();
         final Map<String, Object> atributos = new HashMap<>(), sesion = new HashMap<>();
         final List<String> llamadas = new ArrayList<>();
@@ -153,8 +179,8 @@ class MovilVideoYAsistenciaTest {
             llamadas.add(m.getName() + Arrays.toString(a));
             return switch (m.getName()) {
                 case "consultarEdiciones" -> seleccion;
-                case "consultarDetalleEdicion" -> detalleEdicion;
-                case "consultarRegistros" -> registros;
+                case "consultarDetalleEdicion" -> { if (falloDetalle != null) throw falloDetalle; yield detalleEdicion; }
+                case "consultarRegistros" -> { if (falloRegistros != null) throw falloRegistros; yield registros; }
                 case "confirmarAsistencia" -> { if (falloConfirmar != null) throw falloConfirmar; yield Boolean.TRUE; }
                 default -> throw new AssertionError("Consulta inesperada: " + m.getName());
             };

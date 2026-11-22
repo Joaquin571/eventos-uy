@@ -9,7 +9,7 @@ Requisitos: PostgreSQL 17, JDK 25, Maven y el esquema de Lab 3 aplicado a `event
 En PowerShell, desde la raíz del proyecto, introducir la contraseña mediante un diálogo seguro; no escribirla en un comando ni en un archivo:
 
 ```powershell
-Set-Location 'C:\Users\Joaco\Desktop\PA_2026'
+# Ejecutar desde la raíz del repositorio, donde está pom.xml
 $env:EVENTOS_DB_HOST = 'localhost'
 $env:EVENTOS_DB_PORT = '5432'
 $env:EVENTOS_DB_NAME = 'eventosuy_test'
@@ -73,7 +73,7 @@ Remove-Item Env:PGPASSWORD
 
 Después de confirmar manualmente el destino, el tipo de columna y la ausencia de conflictos, un script faltante se aplica con `psql -X -v ON_ERROR_STOP=1 -h localhost -p 5432 -U $env:EVENTOS_DB_USER -d eventosuy_test -f '<ruta-del-script>'`. Nunca usar otro nombre de base ni ejecutar todos los scripts a ciegas.
 
-## 5. Resultado del cierre
+## 5. Resultado histórico anterior a esta auditoría
 
 Después del fast-forward de Valentina (`258658e`), las pruebas focalizadas móviles dieron **31 aprobadas**, las de SOAP HTTPS y patrocinios **53 aprobadas** y las persistentes de patrocinio/Portal HTTPS terminaron en `BUILD SUCCESS`, sin fallos ni errores (21/11/2026). Antes de las pruebas persistentes se confirmó por PostgreSQL `current_database()=eventosuy_test`, esquema `public` y la columna `registro.asistenciaconfirmada`; no se aplicaron migraciones.
 
@@ -84,6 +84,19 @@ El porcentaje de **IntelliJ Run with Coverage** todavía debe medirse en la defe
 ## 6. Recorrido móvil para la defensa
 
 1. Iniciar sesión como asistente en el teléfono y abrir una edición con video de YouTube. Comprobar que el reproductor se ajusta al ancho; en una edición sin video no debe aparecer un marco vacío.
-2. Entrar a **Registrar asistencia** y elegir un registro propio de una edición aceptada que ya comenzó. Confirmar y mostrar el mensaje de éxito y la marca **Asistió** al regresar a la lista.
-3. Volver al mismo registro: la confirmación no debe ofrecerse otra vez. En una edición futura, mostrar el aviso de que la asistencia se habilita cuando comienza. Sin sesión, comprobar que vuelve al login móvil.
+2. Entrar a **Registrar asistencia** y elegir un registro propio sin asistencia. Confirmar y mostrar el mensaje de éxito y la marca **Asistió** al regresar a la lista. La letra §6.3 no impone fecha de inicio ni estado actual de edición.
+3. Volver al mismo registro: la confirmación no debe ofrecerse otra vez. Comprobar también un registro propio de una edición futura o archivada. Sin sesión, comprobar que vuelve al login móvil.
 4. Explicar que la Webapp invoca `confirmarAsistencia` de Central por SOAP; no escribe directamente en PostgreSQL. Mostrar `MovilVideoYAsistenciaTest` y el informe JaCoCo junto con **Run with Coverage** de IntelliJ.
+
+
+## 7. Resultado comprobado el 22/11/2026
+
+La revisión actual ejecutó 583 JUnit de lógica, Central, web, contratos y SOAP/PDF, más cuatro IT de paquetes: **587 aprobadas**. También pasaron 62 pruebas JavaScript y los tres ejecutores Swing. El recorrido Tomcat realizó **99 solicitudes HTTP reales** y la prueba de PostgreSQL inaccesible comprobó que el JAR falla antes de publicar SOAP sin exponer claves. No se suma una repetición como prueba distinta.
+
+Cobertura final de lógica: **2103/2466 líneas, 85,28 %**, con JaCoCo real sobre las clases Java 25 actuales. Informe local en `.build-cache/auditoria/cobertura-final/index.html`; límites y evidencias completos en [AUDITORIA_LAB3.md](../../AUDITORIA_LAB3.md). El resultado histórico del apartado 5 no es una nueva ejecución del reactor acreditada por esta revisión. La medición de la interfaz IntelliJ permanece pendiente.
+
+Después de construir ambos artefactos y configurar una base exclusiva `eventosuy_test`, seleccionar expresamente las IT:
+
+```powershell
+mvn -pl webapp -am '-Dtest=CentralJarArranqueIT,InstalacionLimpiaIT,TomcatPortalHttpsIT,CentralSinBaseIT' '-Dsurefire.failIfNoSpecifiedTests=false' test
+```

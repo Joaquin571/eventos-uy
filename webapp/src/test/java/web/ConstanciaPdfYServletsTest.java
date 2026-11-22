@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpSession;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.apache.pdfbox.text.TextPosition;
 import org.junit.jupiter.api.Test;
 import web.remoto.ErrorCentral;
 
@@ -25,6 +26,53 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ConstanciaPdfYServletsTest {
+
+    @Test
+    void camposConLongitudMaximaNoQuedanFueraDeLasPaginas() throws Exception {
+        String nombre = "AS" + "W".repeat(253), apellido = "AP" + "W".repeat(253);
+        String evento = "EV" + "W".repeat(253), edicion = "ED" + "W".repeat(253), ciudad = "CI" + "W".repeat(253);
+        var datos = new DtConstanciaAsistencia(nombre, apellido, evento, edicion, ciudad,
+                LocalDate.now(), LocalDate.now(), LocalDate.now());
+        try (PDDocument doc = Loader.loadPDF(GeneradorConstanciaPdf.generar(datos))) {
+            var lector = new PDFTextStripper() {
+                @Override protected void processTextPosition(TextPosition posicion) {
+                    var pagina = doc.getPage(getCurrentPageNo() - 1).getMediaBox();
+                    assertTrue(posicion.getXDirAdj() >= 59f, "Texto fuera del margen izquierdo");
+                    assertTrue(posicion.getXDirAdj() + posicion.getWidthDirAdj() <= pagina.getWidth() - 59f,
+                            "Texto recortado por el margen derecho");
+                    assertTrue(posicion.getYDirAdj() <= pagina.getHeight() - 45f,
+                            "Texto recortado por el borde inferior");
+                    super.processTextPosition(posicion);
+                }
+            };
+            String texto = lector.getText(doc).replaceAll("\\s+", "");
+            for (String campo : new String[]{nombre, apellido, evento, edicion, ciudad})
+                assertTrue(texto.contains(campo), "Se perdió parte de un campo largo");
+        }
+    }
+
+    @Test
+    void conservaNombresConCaracteresFueraDeWinAnsi() throws Exception {
+        var datos = new DtConstanciaAsistencia("Łukasz", "Žižek", "Encuentro Ω", "Edición 2026",
+                "Łódź", LocalDate.now(), LocalDate.now(), LocalDate.now());
+        try (PDDocument doc = Loader.loadPDF(GeneradorConstanciaPdf.generar(datos))) {
+            String texto = new PDFTextStripper().getText(doc);
+            assertTrue(texto.contains("Łukasz Žižek"));
+            assertTrue(texto.contains("Encuentro Ω"));
+            assertTrue(texto.contains("Łódź"));
+        }
+    }
+
+    @Test
+    void saltosDeLineaYTabulacionesEnDatosNoRompenElPdf() throws Exception {
+        var datos = new DtConstanciaAsistencia("Ana\nMaría", "Pérez", "Evento\tUY", "Edición",
+                "Montevideo", LocalDate.now(), LocalDate.now(), LocalDate.now());
+        try (PDDocument doc = Loader.loadPDF(GeneradorConstanciaPdf.generar(datos))) {
+            String texto = new PDFTextStripper().getText(doc);
+            assertTrue(texto.contains("Ana María Pérez"));
+            assertTrue(texto.contains("Evento UY"));
+        }
+    }
 
     @Test
     void generaPdfValidoConTodosLosCamposExigidos() throws Exception {

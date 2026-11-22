@@ -108,8 +108,10 @@ class AsistenciaYArchivoTest extends soporte.PruebaConBaseSegura {
                 asis.getNickname(), futura, "General", new DtRegistro(hoy, 500), null, actorAsis
         ));
 
-        // No permite confirmar antes de la fecha de inicio ni si no está registrado
-        assertThrows(IllegalArgumentException.class, () -> sistema.confirmarAsistencia(futura, actorAsis));
+        // §6.3 no impone fecha de inicio; sí exige un registro propio.
+        sistema.confirmarAsistencia(futura, actorAsis);
+        assertTrue(sistema.obtenerRegistrosAsistente(asis.getNickname()).stream()
+                .filter(r -> futura.equals(r.getNombreEdicion())).findFirst().orElseThrow().isAsistenciaConfirmada());
         assertThrows(IllegalArgumentException.class, () -> sistema.confirmarAsistencia(edicion, actorOtro));
 
         // Antes de confirmar, no se puede emitir constancia
@@ -229,6 +231,12 @@ class AsistenciaYArchivoTest extends soporte.PruebaConBaseSegura {
                 .orElseThrow();
         assertEquals(EstadoEdicion.ARCHIVADA, dtFinalizada.getEstado());
         assertEquals(hoy, dtFinalizada.getFechaArchivo());
+
+        // §6.2: se muestra en el perfil de su organizador, también al consultarlo como visitante.
+        var perfilPublico = sistema.consultarPerfil(duenio.getNickname(), null);
+        assertTrue(perfilPublico.ediciones().stream().anyMatch(e -> finalizada.equals(e.getIdNombre())));
+        assertTrue(perfilPublico.ediciones().stream().noneMatch(e -> ingresada.equals(e.getIdNombre())));
+        assertTrue(perfilPublico.registros().isEmpty());
 
         // Conserva los registros y asistencias existentes
         DtRegistro regConservado = sistema.obtenerRegistrosEdicion(finalizada).stream()

@@ -119,6 +119,17 @@
 
                         <div class="list-group">
                             <c:forEach var="edicion" items="${ediciones}">
+                                <c:choose>
+                                <c:when test="${edicion.estado.descripcion eq 'Archivada' and not esPropio}">
+                                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>
+                                            <strong><c:out value="${edicion.idNombre}" /></strong>
+                                            <small class="text-muted d-block">Archivada el <c:out value="${edicion.fechaArchivo}" /></small>
+                                        </span>
+                                        <span class="badge bg-secondary">Archivada</span>
+                                    </div>
+                                </c:when>
+                                <c:otherwise>
                                 <c:url var="urlEdicion" value="/edicion">
                                     <c:param name="nombre" value="${edicion.idNombre}" />
                                 </c:url>
@@ -148,6 +159,8 @@
                                         </c:otherwise>
                                     </c:choose>
                                 </a>
+                                </c:otherwise>
+                                </c:choose>
                             </c:forEach>
                         </div>
                     </div>

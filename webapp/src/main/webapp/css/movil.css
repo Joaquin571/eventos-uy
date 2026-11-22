@@ -27,6 +27,12 @@ body.movil {
 .movil-salir { background: none; border: 0; color: rgba(255, 255, 255, .85); }
 .movil-usuario { color: #fff; padding: .75rem 0; border-bottom: 1px solid rgba(255, 255, 255, .2); margin-bottom: .5rem; }
 .movil-usuario small { display: block; color: rgba(255, 255, 255, .7); }
+.movil-usuario { overflow-wrap: anywhere; }
+.navbar-movil .navbar-collapse { min-width: 0; flex-wrap: wrap; }
+.movil-busqueda { display: flex; gap: .5rem; width: 100%; margin: .5rem 0; }
+.movil-busqueda .form-control { min-width: 0; }
+.navbar-movil .navbar-nav { flex-wrap: wrap; }
+@media (min-width: 768px) { .movil-usuario { width: 100%; } }
 
 /* Formularios táctiles: 16 px evita el zoom automático de iOS */
 .movil input, .movil select, .movil button { font-size: 16px; }

@@ -66,6 +66,7 @@ public class PortalPublicador {
         String origen = pila[0].getClassName();
         return origen.equals(getClass().getName()) || origen.equals(MapeadorPortal.class.getName())
                 || origen.startsWith("implementacion.Sistema") || origen.equals("implementacion.ValidadorImagen")
+                || origen.equals("implementacion.VideoYoutube")
                 || origen.startsWith("manejadores.") || origen.startsWith("clases.")
                 || origen.startsWith("datatypes.");
     }

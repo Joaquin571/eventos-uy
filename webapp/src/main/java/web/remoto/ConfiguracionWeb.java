@@ -17,10 +17,13 @@ public final class ConfiguracionWeb {
             throw new IllegalArgumentException("El destino Central debe utilizar HTTPS.");
         return uri;
     }
-    public static ConfiguracionWeb cargar(){
-        Path archivo=System.getProperty("eventos.web.config")==null
+    public static Path archivoConfiguracion(){
+        return System.getProperty("eventos.web.config")==null
                 ?Path.of(System.getProperty("user.home"),".eventosUy","web.properties")
                 :Path.of(System.getProperty("eventos.web.config"));
+    }
+    public static ConfiguracionWeb cargar(){
+        Path archivo=archivoConfiguracion();
         try(var lector=Files.newBufferedReader(archivo)){
             Properties p=new Properties();p.load(lector);String host=p.getProperty("central.host");int puerto=Integer.parseInt(p.getProperty("central.puerto"));
             if(host==null || host.isBlank() || puerto<1 || puerto>65535)throw new IllegalArgumentException();

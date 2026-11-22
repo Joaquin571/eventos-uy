@@ -78,6 +78,56 @@ class PortalPersistenciaHttpsTest {
     private ClienteCentral asistente(String prefijo){String nick=prefijo+sufijo;publico().altaUsuario(entrada(new DtAsistente(nick,"Asistente",nick+"@test.uy","Apellido",LocalDate.of(2000,1,1),institucion),CLAVE,imagen()));return login(nick,CLAVE);}
     private DtImagen imagen(){return new DtImagen("image/png",PNG.clone());}
 
+    @Test void videoInvalidoDevuelveValidacionDeNegocioSinGuardarEdicion(){
+        String nombre = "tlsVideoInvalido" + sufijo;
+        var datos = new DtEdicion(nombre,"VI",LocalDate.now(),LocalDate.now(),null,"Ciudad","País",orgNick);
+        datos.setVideoYoutube("https://example.com/video");
+        var error = assertThrows(IllegalArgumentException.class, () -> org.altaEdicion(datos,evento,null));
+        assertTrue(error.getMessage().contains("YouTube"));
+        assertFalse(sistema.obtenerEdicionesEvento(evento,null).stream().anyMatch(e -> nombre.equals(e.getIdNombre())));
+    }
+
+    @Test void asistenciaArchivoYConstanciaConservanRegistrosYPermisosPorHttps(){
+        String nombre = "tlsArchivoAsistencia" + sufijo;
+        LocalDate hoy = LocalDate.now();
+        var datos = new DtEdicion(nombre,"AA",hoy.minusDays(3),hoy.minusDays(1),null,"Montevideo","Uruguay",orgNick);
+        datos.setVideoYoutube("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+        assertTrue(org.altaEdicion(datos,evento,null));
+        assertTrue(org.altaTipoRegistro(new DtTipoRegistro("General","Acceso",100,10),nombre));
+        sistema.aceptarRechazarEdicion(nombre,true,datatypes.Actor.administradorLocal());
+        var asistio = asistente("tlsAsistio");
+        var ausente = asistente("tlsAusente");
+        assertTrue(asistio.registrar(nombre,"General","general",null));
+        assertTrue(ausente.registrar(nombre,"General","general",null));
+        assertThrows(IllegalArgumentException.class, () -> asistio.obtenerDatosConstancia(nombre));
+        assertEquals("https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ",
+                asistio.consultarDetalleEdicion(nombre).getEdicion().getVideoYoutube());
+        assertTrue(asistio.confirmarAsistencia(nombre));
+        assertThrows(IllegalArgumentException.class, () -> asistio.confirmarAsistencia(nombre));
+        assertEquals("ACCESO_DENEGADO", assertThrows(ErrorCentral.class, () -> ajeno.archivarEdicion(nombre)).getCodigo());
+        org.archivarEdicion(nombre);
+        assertTrue(publico().buscarEventosYEdiciones(nombre,OrdenBusqueda.NOMBRE_ASC).isEmpty());
+        assertEquals("NO_ENCONTRADO",assertThrows(ErrorCentral.class, () -> ausente.consultarDetalleEdicion(nombre)).getCodigo());
+        assertFalse(ausente.consultarRegistros(nombre,"").getDetalle().isAsistenciaConfirmada());
+        assertTrue(asistio.consultarRegistros(nombre,"").getDetalle().isAsistenciaConfirmada());
+        var archivada = org.consultarPerfil(orgNick).getEdiciones().stream()
+                .filter(e -> nombre.equals(e.getIdNombre())).findFirst().orElseThrow();
+        assertEquals(EstadoEdicion.ARCHIVADA,archivada.getEstado());
+        assertEquals(hoy,archivada.getFechaArchivo());
+        assertTrue(publico().consultarPerfil(orgNick).getEdiciones().stream()
+                .anyMatch(e -> nombre.equals(e.getIdNombre()) && e.getEstado() == EstadoEdicion.ARCHIVADA));
+        assertTrue(publico().consultarPerfil(orgNick).getRegistros().isEmpty());
+        BaseDeDatos.cerrar(); BaseDeDatos.inicializar();
+        var constancia = asistio.obtenerDatosConstancia(nombre);
+        assertEquals(evento,constancia.getNombreEvento());
+        assertEquals(nombre,constancia.getNombreEdicion());
+        assertEquals("Montevideo",constancia.getCiudad());
+        assertEquals(hoy,constancia.getFechaEmision());
+        assertThrows(IllegalArgumentException.class, () -> ausente.obtenerDatosConstancia(nombre));
+        assertTrue(ausente.confirmarAsistencia(nombre));
+        assertEquals(nombre,ausente.obtenerDatosConstancia(nombre).getNombreEdicion());
+    }
+
     @Test void busquedaYFinalizacionViaSoapHttpsRespetanVisibilidadYAutorizacion(){
         String nuevo = "tlsBusquedaFinal" + sufijo;
         org.altaEvento(new DtEvento(nuevo,"BF","Descripción buscable",null,List.of(categoria)),null);

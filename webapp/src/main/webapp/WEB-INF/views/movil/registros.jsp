@@ -60,9 +60,6 @@
                         <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold">Registrar asistencia</button>
                     </form>
                 </c:if>
-                <c:if test="${not detalle.asistenciaConfirmada and not puedeConfirmarAsistencia}">
-                    <p class="small text-secondary mt-3 mb-0">La asistencia se puede registrar cuando la edición ya comenzó.</p>
-                </c:if>
             </div>
         </section>
     </c:if>

@@ -4,7 +4,6 @@ import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.*;
 
 @WebServlet("/consulta-registro")
@@ -25,12 +24,7 @@ public class ConsultaRegistroServlet extends HttpServlet {
         if(detalle!=null){
             req.setAttribute("detalle",DetalleRegistroVista.de(detalle,nombres.getOrDefault(detalle.getNicknameAsistente(),detalle.getNicknameAsistente())));
             if(!consulta.isOrganizador() && !detalle.isAsistenciaConfirmada()){
-                var infoEdicion = central.consultarDetalleEdicion(detalle.getNombreEdicion()).getEdicion();
-                boolean puedeConfirmar = infoEdicion != null
-                        && infoEdicion.getEstado() == EstadoEdicion.ACEPTADA
-                        && infoEdicion.getFechaInicio() != null
-                        && !LocalDate.now().isBefore(infoEdicion.getFechaInicio());
-                req.setAttribute("puedeConfirmarAsistencia", puedeConfirmar);
+                req.setAttribute("puedeConfirmarAsistencia", true);
             }
         }
         req.getRequestDispatcher("/WEB-INF/views/consulta-registro.jsp").forward(req,resp);

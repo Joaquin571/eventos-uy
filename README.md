@@ -1,5 +1,11 @@
 # eventos.uy – Laboratorio 3 (Grupo 04)
 
+Estado verificado y límites: [auditoría Lab 3](AUDITORIA_LAB3.md). Preparación adicional:
+[ensayo local con un comando](docs/ENSAYO_LOCAL.md),
+[datos reproducibles](docs/DATOS_DEMO_LAB3.md),
+[pruebas LAN/Tailscale y fallos](docs/PRUEBAS_RED_LAB3.md) y
+[modelo y secuencias actuales](docs/lab3/ANALISIS_DISENO_ACTUAL.md).
+
 ## Instalación vigente del Laboratorio 3
 
 Requiere JDK 25, Maven 3, PostgreSQL y Tomcat 11. Para el preparador de esquema,

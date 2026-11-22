@@ -1,8 +1,6 @@
 package web;
 
-import contratos.ServicioPortal;
 import contratos.dto.DtRegistro;
-import contratos.dto.EstadoEdicion;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -10,7 +8,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.time.LocalDate;
 
 /**
  * Consulta de Registro y Registro de Asistencia móvil: las ediciones a las que el asistente se registró y el
@@ -36,16 +33,9 @@ public class MovilRegistrosServlet extends HttpServlet {
         var detalle = consulta.getDetalle();
         if (detalle != null) {
             req.setAttribute("detalle", vista(detalle, asistente.getNombre()));
-            if (!detalle.isAsistenciaConfirmada()) req.setAttribute("puedeConfirmarAsistencia", puedeConfirmar(central, detalle));
+            if (!detalle.isAsistenciaConfirmada()) req.setAttribute("puedeConfirmarAsistencia", true);
         }
         req.getRequestDispatcher("/WEB-INF/views/movil/registros.jsp").forward(req, resp);
-    }
-
-    /** Mismo criterio que la consulta de registro de escritorio: edición Aceptada y ya iniciada. */
-    private boolean puedeConfirmar(ServicioPortal central, DtRegistro registro) {
-        var edicion = central.consultarDetalleEdicion(registro.getNombreEdicion()).getEdicion();
-        return edicion != null && edicion.getEstado() == EstadoEdicion.ACEPTADA
-                && edicion.getFechaInicio() != null && !LocalDate.now().isBefore(edicion.getFechaInicio());
     }
 
     private DetalleRegistroVista vista(DtRegistro registro, String nombre) {

@@ -669,10 +669,7 @@ public class Sistema implements ISistema {
 
     @Override
     public Collection<DtEvento> listarEventosPublicos() {
-        return listarEventos().stream().filter(e -> {
-            Evento entidad = manejadorEventos.obtenerEvento(e.getNombre());
-            return entidad != null && !entidad.isFinalizado();
-        }).toList();
+        return listarEventos().stream().filter(e -> !e.isFinalizado()).toList();
     }
 
     @Override
@@ -1200,7 +1197,8 @@ public class Sistema implements ISistema {
                 ? new ArrayList<>(obtenerRegistrosAsistente(nickname)) : List.of();
         List<DtEdicion> ediciones = usuario instanceof DtOrganizador
                 ? obtenerEdicionesOrganizador(nickname).stream()
-                .filter(e -> propio || e.getEstado() == EstadoEdicion.ACEPTADA).toList() : List.of();
+                .filter(e -> propio || e.getEstado() == EstadoEdicion.ACEPTADA
+                        || e.getEstado() == EstadoEdicion.ARCHIVADA).toList() : List.of();
         return new DtPerfilUsuario(usuario, propio, registros, ediciones);
     }
 

@@ -64,7 +64,7 @@ Arrancar Central sólo cuando la validación JPA del esquema pueda completarse. 
 
 ## 5. Tomcat en PC 2
 
-En la cuenta que ejecuta Tomcat, crear `%USERPROFILE%\.eventosUy\web.properties` desde [web.properties.example](webapp/src/main/resources/web.properties.example). Definir `central.host=IP_CENTRAL`, `central.puerto=9128` y las rutas del servicio. `ConfiguracionWeb.cargar` admite un archivo alternativo con `-Deventos.web.config=...`, pero `web.soap.ClienteEventosCentral.leerDireccion` aún lee la ruta predeterminada; mantener allí el archivo hasta retirar esa dependencia. Los clientes rechazan destinos que no sean HTTPS.
+En la cuenta que ejecuta Tomcat, crear `%USERPROFILE%\.eventosUy\web.properties` desde [web.properties.example](webapp/src/main/resources/web.properties.example). Definir `central.host=IP_CENTRAL`, `central.puerto=9128` y las rutas del servicio. Todos los clientes SOAP (Eventos, Portal y Sesiones) admiten el mismo archivo alternativo con `-Deventos.web.config=...`. Los clientes rechazan destinos que no sean HTTPS.
 
 Crear un truststore PKCS#12 nuevo en PC 2 con el certificado **público** de Central y configurar `javax.net.ssl.trustStore`, `javax.net.ssl.trustStoreType=PKCS12` y `javax.net.ssl.trustStorePassword` en la JVM de Tomcat, fuera del repositorio. Para Tomcat iniciado mediante scripts, `bin/setenv.bat` puede definir `CATALINA_OPTS`; un servicio Windows requiere configurar su JVM por separado. No desactivar la validación TLS. Consultar [ejemplos](docs/CONFIGURACION_EJEMPLOS.md#3-tomcat-11-independiente).
 

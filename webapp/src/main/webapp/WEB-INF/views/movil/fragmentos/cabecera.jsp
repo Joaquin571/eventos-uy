@@ -15,6 +15,11 @@
                     <strong><c:out value="${sessionScope.usuario.nombre}" /></strong>
                     <small><c:out value="${sessionScope.usuario.nickname}" /> · Asistente</small>
                 </div>
+                <form class="movil-busqueda" method="get" action="${raiz}/buscar" role="search">
+                    <input class="form-control" type="search" name="texto" aria-label="Buscar eventos y ediciones"
+                           placeholder="Buscar eventos y ediciones">
+                    <button class="btn btn-outline-light movil-toque" type="submit">Buscar</button>
+                </form>
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link movil-toque ${seccionMovil eq 'eventos' ? 'active' : ''}"

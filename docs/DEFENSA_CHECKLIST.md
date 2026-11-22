@@ -27,8 +27,8 @@ Versión breve de la [guía de despliegue](../README_DESPLIEGUE_LAB3.md). La [le
 ## Recorrido móvil
 
 - [ ] Iniciar sesión como asistente y abrir una edición con video. Comprobar el reproductor al ancho de la pantalla; en una edición sin video no debe verse un marco vacío.
-- [ ] Abrir **Registrar asistencia**. Elegir un registro propio de una edición aceptada y ya iniciada; confirmar y mostrar el mensaje de éxito y la marca **Asistió**.
-- [ ] Volver al mismo registro: el botón no debe ofrecerse de nuevo. En una edición futura, mostrar el aviso de que debe comenzar antes de registrar asistencia.
+- [ ] Abrir **Registrar asistencia**. Elegir un registro propio sin asistencia; confirmar y mostrar el mensaje de éxito y la marca **Asistió**. La letra no impone fecha de inicio ni estado actual de edición.
+- [ ] Volver al mismo registro: el botón no debe ofrecerse de nuevo. Consultar también un registro conservado de una edición archivada.
 - [ ] Sin sesión válida, comprobar redirección al login móvil. Explicar que Webapp invoca `confirmarAsistencia` de Central por SOAP y no escribe directamente en PostgreSQL.
 - [ ] Para preguntas de código, usar la [guía de arquitectura](lab3/DEFENSA_ARQUITECTURA.md). Para JUnit y cobertura, usar la [guía de pruebas](lab3/GUIA_PRUEBAS_COBERTURA.md); la defensa distribuida no depende de IntelliJ.
 

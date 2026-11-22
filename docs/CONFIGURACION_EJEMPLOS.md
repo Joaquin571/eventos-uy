@@ -34,7 +34,7 @@ central.ruta.portal=/portal
 central.ruta.sesiones=/sesiones
 ```
 
-`ConfiguracionWeb.cargar` admite `-Deventos.web.config=RUTA_PRIVADA` para Portal y Sesiones. `web.soap.ClienteEventosCentral.leerDireccion` sigue leyendo `%USERPROFILE%\.eventosUy\web.properties` para el servicio `/eventos`; por eso conviene mantener el archivo predeterminado. La Webapp no necesita `EVENTOS_DB_*`, `db.*` ni acceso PostgreSQL.
+Todos los clientes SOAP (Eventos, Portal y Sesiones) admiten `-Deventos.web.config=RUTA_PRIVADA`. Si no se define esa propiedad, usan `%USERPROFILE%\.eventosUy\web.properties`. La Webapp no necesita `EVENTOS_DB_*`, `db.*` ni acceso PostgreSQL.
 
 ## 2. Certificado y confianza TLS
 
