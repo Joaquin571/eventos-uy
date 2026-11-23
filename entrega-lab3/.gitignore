@@ -1,0 +1,12 @@
+/PC1/config/central.properties
+/PC2/config/web.properties
+/PC1/config/arranque.json
+/PC2/config/arranque.json
+/PC1/certificados/*.p12
+/PC1/certificados/*.cer
+/PC2/certificados/*.p12
+/PC2/certificados/*.cer
+*.bak-*
+*.dump
+/base-datos/.compilacion/
+/base-datos/respaldos/
