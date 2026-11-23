@@ -3,7 +3,7 @@ import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
-@WebServlet(urlPatterns={"","/inicio"})
+@WebServlet(urlPatterns={"","/inicio","/eventos"})
 public class InicioServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req,HttpServletResponse resp)throws ServletException,IOException {
         String categoria=req.getParameter("categoria");

@@ -30,6 +30,9 @@ public final class ConfiguracionWeb {
             URI portal=new URI("https",null,host,puerto,p.getProperty("central.ruta.portal","/portal"),null,null);
             URI sesiones=new URI("https",null,host,puerto,p.getProperty("central.ruta.sesiones","/sesiones"),null,null);
             return new ConfiguracionWeb(portal,sesiones);
-        }catch(Exception e){throw new ErrorCentral("SERVICIO_NO_DISPONIBLE","Revisá la configuración HTTPS de Central.");}
+        }catch(Exception e){
+            DiagnosticoSoap.configuracion(archivo,e);
+            throw new ErrorCentral("SERVICIO_NO_DISPONIBLE","Revisá la configuración HTTPS de Central.");
+        }
     }
 }

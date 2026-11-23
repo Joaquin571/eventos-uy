@@ -1,0 +1,15 @@
+# Generar PC1/config/central.properties con Preparar-Central.ps1.
+# Reemplazar todos los valores COMPLETAR. No guardar secretos en el paquete.
+central.host=COMPLETAR_IP_O_DNS_PC1
+central.escucha=COMPLETAR_IP_PC1
+central.puerto=9128
+central.ruta=/eventos
+central.ruta.sesiones=/sesiones
+central.ruta.portal=/portal
+sesiones.duracion.segundos=1800
+tls.almacen=COMPLETAR_RUTA_ABSOLUTA_PC1/certificados/central.p12
+tls.almacen.password=COMPLETAR_EN_COPIA_PRIVADA
+tls.clave.password=COMPLETAR_EN_COPIA_PRIVADA
+db.url=jdbc:postgresql://127.0.0.1:5432/eventosuy_defensa_demo
+db.usuario=COMPLETAR_USUARIO_DB
+db.password=COMPLETAR_EN_COPIA_PRIVADA

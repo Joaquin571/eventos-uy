@@ -8,9 +8,15 @@ import java.nio.file.Path;
 public final class Main {
     private Main() { }
 
+    static Path archivoConfiguracion() {
+        String externo = System.getProperty("eventos.central.config");
+        return externo == null || externo.isBlank()
+                ? Path.of(System.getProperty("user.home"), ".eventosUy", "central.properties")
+                : Path.of(externo);
+    }
+
     public static void main(String[] args) {
-        ConfiguracionCentral configuracion = new ConfiguracionCentral(
-                Path.of(System.getProperty("user.home"), ".eventosUy", "central.properties"));
+        ConfiguracionCentral configuracion = new ConfiguracionCentral(archivoConfiguracion());
         // Configuración TLS y listener preparados antes de intentar inicializar persistencia.
         ServidorHttpsCentral servidor = new ServidorHttpsCentral(configuracion);
         try {

@@ -36,7 +36,10 @@ public final class ClienteCentral implements ServicioPortal {
    String codigo=e.getFaultInfo().getCodigo();String mensaje=e.getFaultInfo().getMensaje();
    if("DATOS_INVALIDOS".equals(codigo))throw new IllegalArgumentException(mensaje);
    throw new ErrorCentral(codigo,mensaje);
-  }catch(WebServiceException e){throw new ErrorCentral("SERVICIO_NO_DISPONIBLE","El servidor Central no está disponible.");}
+  }catch(WebServiceException e){
+   DiagnosticoSoap.transporte("Portal", destino, e);
+   throw new ErrorCentral("SERVICIO_NO_DISPONIBLE","El servidor Central no está disponible.");
+  }
  }
  @Override public List<DtEvento> listarEventos(){return invocar(p->p.listarEventos()).stream().map(v->ConversorDatos.convertir(v,DtEvento.class)).toList();}
  @Override public void registrarVisitaEvento(String evento){invocar(p->{p.registrarVisitaEvento(evento);return null;});}

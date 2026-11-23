@@ -27,6 +27,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /** Cliente wsimport -> SOAP real -> fachada; Servlet con request/response simulados. Sin JPA. */
 class InicioSoapTest {
+    @Test void listadoTambienRespondeEnRutaEventos() {
+        var rutas = InicioServlet.class.getAnnotation(jakarta.servlet.annotation.WebServlet.class).urlPatterns();
+        assertTrue(Arrays.asList(rutas).contains("/eventos"));
+    }
     HttpsServer servidor;
     Endpoint portalEndpoint;
     URI portal;

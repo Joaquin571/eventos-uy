@@ -1,0 +1,6 @@
+# Generar PC2/config/web.properties con Preparar-Web.ps1.
+central.host=COMPLETAR_IP_O_DNS_PC1
+central.puerto=9128
+central.ruta=/eventos
+central.ruta.portal=/portal
+central.ruta.sesiones=/sesiones

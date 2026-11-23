@@ -28,6 +28,16 @@ class ConfiguracionClienteEventosTest {
         });
     }
 
+    @Test void ipTailscaleFormaElPortalExactoSinFallbackALocalhost() throws Exception {
+        Path archivo = temporal.resolve("web.properties");
+        Files.writeString(archivo, "central.host=100.115.156.116\ncentral.puerto=9128\n"
+                + "central.ruta=/eventos\ncentral.ruta.portal=/portal\ncentral.ruta.sesiones=/sesiones\n");
+        conArchivo(archivo, () -> {
+            assertEquals("https://100.115.156.116:9128/portal", ConfiguracionWeb.cargar().portal().toString());
+            assertEquals("https://100.115.156.116:9128/eventos", ClienteEventosCentral.leerDireccion());
+        });
+    }
+
     @Test void archivoSeleccionadoInexistenteNoUsaOtroComoRespaldo() {
         conArchivo(temporal.resolve("inexistente.properties"), () ->
                 assertThrows(WebServiceException.class, ClienteEventosCentral::leerDireccion));

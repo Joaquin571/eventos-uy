@@ -2,6 +2,7 @@ package web.soap;
 
 import jakarta.xml.ws.BindingProvider;
 import jakarta.xml.ws.WebServiceException;
+import web.remoto.DiagnosticoSoap;
 import web.soap.generado.EventoSoap;
 import web.soap.generado.EventosService;
 import web.soap.generado.ConsultaException_Exception;
@@ -29,17 +30,22 @@ public final class ClienteEventosCentral {
     }
 
     public List<EventoSoap> listarEventos() {
-        var puerto = Servicio.INSTANCIA.getEventosPort();
-        var contexto = ((BindingProvider) puerto).getRequestContext();
-        contexto.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, direccion.get());
-        contexto.put("com.sun.xml.ws.connect.timeout", 3000);
-        contexto.put("com.sun.xml.ws.request.timeout", 10000);
-        if(sockets!=null)contexto.put(com.sun.xml.ws.developer.JAXWSProperties.SSL_SOCKET_FACTORY,sockets);
+        String destino = null;
         try {
+            var puerto = Servicio.INSTANCIA.getEventosPort();
+            var contexto = ((BindingProvider) puerto).getRequestContext();
+            destino = direccion.get();
+            contexto.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, destino);
+            contexto.put("com.sun.xml.ws.connect.timeout", 3000);
+            contexto.put("com.sun.xml.ws.request.timeout", 10000);
+            if(sockets!=null)contexto.put(com.sun.xml.ws.developer.JAXWSProperties.SSL_SOCKET_FACTORY,sockets);
             return puerto.listarEventos();
         } catch (ConsultaException_Exception error) {
             // No propagar faultString ni detalles técnicos a la vista.
             throw new WebServiceException("No se pudo consultar el Servidor Central.", error);
+        } catch (WebServiceException error) {
+            DiagnosticoSoap.transporte("Eventos", destino == null ? null : java.net.URI.create(destino), error);
+            throw error;
         }
     }
 

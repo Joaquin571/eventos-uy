@@ -53,13 +53,20 @@ public final class ClienteSesionesCentral implements ServicioSesiones {
             if("CREDENCIALES_INVALIDAS".equals(e.getFaultInfo().getCodigo()) || "SOLICITUD_MALFORMADA".equals(e.getFaultInfo().getCodigo()))
                 throw new IllegalArgumentException("El nickname, el correo o la contraseña no son correctos.");
             throw new ErrorCentral("SERVICIO_NO_DISPONIBLE","No se pudo iniciar la sesión.");
-        }catch(WebServiceException e){throw new ErrorCentral("SERVICIO_NO_DISPONIBLE","El servidor Central no está disponible.");}
+        }catch(WebServiceException e){
+            DiagnosticoSoap.transporte("Sesiones", destino, e);
+            throw new ErrorCentral("SERVICIO_NO_DISPONIBLE","El servidor Central no está disponible.");
+        }
     }
     public void cerrar(String credencial){
         if(credencial==null)return;
         var puerto=puerto();((BindingProvider)puerto).getRequestContext().put(MessageContext.HTTP_REQUEST_HEADERS,
                 Map.of("Authorization",List.of("Bearer "+credencial)));
         try{puerto.cerrarSesion();}
-        catch(SesionSoapException | WebServiceException e){throw new ErrorCentral("SERVICIO_NO_DISPONIBLE","No se pudo notificar el cierre de sesión.");}
+        catch(SesionSoapException e){throw new ErrorCentral("SERVICIO_NO_DISPONIBLE","No se pudo notificar el cierre de sesión.");}
+        catch(WebServiceException e){
+            DiagnosticoSoap.transporte("Sesiones", destino, e);
+            throw new ErrorCentral("SERVICIO_NO_DISPONIBLE","No se pudo notificar el cierre de sesión.");
+        }
     }
 }
