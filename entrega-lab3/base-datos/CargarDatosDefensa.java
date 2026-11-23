@@ -22,6 +22,8 @@ class CargarDatosDefensa {
     private record Ficha(String evento, String sigla, String descripcion, String categoria,
                          String edicion, String ciudad, LocalDate inicio, int dias,
                          String organizador, int precio, EstadoEdicion estado) { }
+    private record PatrocinioPreparado(String evento, String edicion, String institucion,
+                                      String codigo, int monto, int gratuitos, String organizador) { }
     private static final List<Ficha> FICHAS = List.of(
         new Ficha("Festival de Música de Montevideo", "FMM", "Tres días de música uruguaya en escenarios de Montevideo.", "Música", "Festival de Música de Montevideo 2027", "Montevideo", LocalDate.of(2027,2,12),3,"cultura_sur",850,EstadoEdicion.ACEPTADA),
         new Ficha("Feria Gastronómica de San José", "FGSJ", "Productores y cocineros locales comparten sabores de la región.", "Gastronomía", "Feria Gastronómica de San José 2027", "San José de Mayo", LocalDate.of(2027,3,13),2,"encuentros_uy",300,EstadoEdicion.ACEPTADA),
@@ -51,6 +53,12 @@ class CargarDatosDefensa {
         {"sofia_rodriguez","Sofía","Rodríguez"},{"martin_silva","Martín","Silva"},
         {"valeria_gomez","Valeria","Gómez"},{"diego_martinez","Diego","Martínez"}
     };
+    private static final List<PatrocinioPreparado> PATROCINIOS = List.of(
+        new PatrocinioPreparado("Congreso de Tecnología e Innovación","Congreso de Tecnología e Innovación 2027",
+            "Cooperativa Horizonte","HORIZONTE27",25000,3,"innovacion_uy"),
+        new PatrocinioPreparado("Festival de Música de Montevideo","Festival de Música de Montevideo 2027",
+            "Fundación Río de la Plata","RIOPLATA27",20000,3,"cultura_sur")
+    );
     private static void exigir(boolean valor, String operacion) {
         if (!valor) throw new IllegalStateException("No se pudo completar: " + operacion);
     }
@@ -82,6 +90,21 @@ class CargarDatosDefensa {
             if (!eventos.add(f.evento) || !ediciones.add(f.edicion) || f.inicio.isBefore(MINIMO) || f.dias < 1 || f.precio < 0)
                 throw new IllegalStateException("Ficha duplicada o fecha/precio inválido: " + f.evento);
         }
+        Set<String> codigos = new HashSet<>(), pares = new HashSet<>();
+        for (PatrocinioPreparado p : PATROCINIOS) {
+            Ficha f = FICHAS.stream().filter(x -> x.edicion.equals(p.edicion)).findFirst()
+                    .orElseThrow(() -> new IllegalStateException("Edición de patrocinio inexistente: " + p.edicion));
+            if (!f.evento.equals(p.evento) || !f.organizador.equals(p.organizador)
+                    || !codigos.add(p.codigo) || !pares.add(p.edicion + "\u0000" + p.institucion))
+                throw new IllegalStateException("Relación o código de patrocinio inválido: " + p.codigo);
+            validarReglaPatrocinio(f.precio, p.gratuitos, p.monto);
+        }
+    }
+    /** Misma comparación con float que usa Sistema.altaPatrocinio. */
+    static void validarReglaPatrocinio(float costoEntrada, int gratuitos, float aporte) {
+        if (!Float.isFinite(costoEntrada) || costoEntrada < 0 || gratuitos < 0 || gratuitos > 150
+                || !Float.isFinite(aporte) || aporte <= 0 || costoEntrada * gratuitos > aporte * 0.20f)
+            throw new IllegalArgumentException("Patrocinio preparado fuera del límite del 20%." );
     }
     private static void revisarExistentes(ISistema s) {
         for (String[] o : ORGANIZADORES) {
@@ -110,9 +133,44 @@ class CargarDatosDefensa {
                 if (!f.organizador.equals(e.getNombreOrganizador()) || !f.inicio.equals(e.getFechaInicio())
                         || !f.inicio.plusDays(f.dias-1).equals(e.getFechaFin()) || !f.ciudad.equals(e.getCiudad()))
                     throw new IllegalStateException("La edición existente tiene otros datos: " + f.edicion);
+                if (e.getEstado() != f.estado && !(e.getEstado() == EstadoEdicion.INGRESADA
+                        && f.estado != EstadoEdicion.INGRESADA))
+                    throw new IllegalStateException("La edición existente tiene otro estado: " + f.edicion);
                 DtTipoRegistro t = s.consultarTipoRegistro(f.edicion,"General");
-                if (t != null && Float.compare(t.getCosto(),f.precio) != 0)
-                    throw new IllegalStateException("El precio de entrada existente es distinto: " + f.edicion);
+                if (t != null && (Float.compare(t.getCosto(),f.precio) != 0 || t.getCupo() != 150))
+                    throw new IllegalStateException("La entrada existente tiene otros datos: " + f.edicion);
+            }
+        }
+        for (String nombre : List.of("Cooperativa Horizonte","Fundación Río de la Plata")) {
+            if (!s.existeInstitucion(nombre)) continue;
+            DtInstitucion i = s.consultarInstitucion(nombre);
+            if (!"Institución ficticia para prácticas académicas.".equals(i.getDescripcion())
+                    || !"https://example.com".equals(i.getSitioWeb()))
+                throw new IllegalStateException("La institución existente tiene otros datos: " + nombre);
+        }
+        Actor admin = Actor.administradorLocal();
+        for (PatrocinioPreparado p : PATROCINIOS) {
+            DtPatrocinio porCodigo = s.consultarPatrocinio(p.codigo,admin);
+            DtPatrocinio porRelacion = s.consultarPatrocinio(p.edicion,p.institucion,admin);
+            if (porCodigo == null && porRelacion == null) continue;
+            if (porCodigo == null || porRelacion == null
+                    || !p.codigo.equals(porRelacion.getCodigoPatrocinio())
+                    || !p.edicion.equals(porCodigo.getNombreEdicion())
+                    || !p.institucion.equals(porCodigo.getNombreInstituto())
+                    || !"General".equals(porCodigo.getNombreTipoRegistro())
+                    || porCodigo.getNivel() != NivelPatrocinio.PLATA
+                    || Float.compare(porCodigo.getMontoAporte(),p.monto) != 0
+                    || porCodigo.getCantRegistrosGrat() != p.gratuitos)
+                throw new IllegalStateException("Patrocinio existente incompatible: " + p.codigo);
+        }
+        for (int n=0; n<ASISTENTES.length; n++) {
+            String nick = ASISTENTES[n][0];
+            if (!s.existeUsuario(nick)) continue;
+            for (int j=0; j<2; j++) {
+                String edicion = FICHAS.get((n+j*6) % 13).edicion;
+                for (DtRegistro r : s.obtenerRegistrosAsistente(nick))
+                    if (edicion.equals(r.getNombreEdicion()) && !"General".equals(r.getNombreTipoRegistro()))
+                        throw new IllegalStateException("El registro existente usa otra entrada: " + nick + "/" + edicion);
             }
         }
     }
@@ -198,8 +256,7 @@ class CargarDatosDefensa {
         for (String nombre : instituciones) if (!s.existeInstitucion(nombre))
             exigir(s.altaInstitucion(new DtInstitucion(nombre,"Institución ficticia para prácticas académicas.","https://example.com"),admin),nombre);
         // Patrocinios y registros se añaden solo cuando su clave natural no existe.
-        patrocinio(s,"Congreso de Tecnología e Innovación","Congreso de Tecnología e Innovación 2027","Cooperativa Horizonte","HORIZONTE27",25000,4,"innovacion_uy");
-        patrocinio(s,"Festival de Música de Montevideo","Festival de Música de Montevideo 2027","Fundación Río de la Plata","RIOPLATA27",20000,3,"cultura_sur");
+        for (PatrocinioPreparado p : PATROCINIOS) patrocinio(s,p.evento,p.edicion,p.institucion,p.codigo,p.monto,p.gratuitos,p.organizador);
         for (int i=0; i<ASISTENTES.length; i++) {
             String nick = ASISTENTES[i][0];
             for (int j=0; j<2; j++) {

@@ -61,6 +61,8 @@ try {
     $modo = '--validar'
     if ($Verificar) { $modo = '--verificar' }
     if ($Cargar) {
+        & $Java --class-path $jar $fuente --validar
+        if ($LASTEXITCODE -ne 0) { throw 'La validación previa falló. No se creó respaldo ni se cargaron datos.' }
         $respaldoDir = Join-Path $PSScriptRoot 'respaldos'
         New-Item -ItemType Directory -Path $respaldoDir -Force | Out-Null
         $respaldo = Join-Path $respaldoDir ("eventosuy_demo_{0}.dump" -f (Get-Date -Format 'yyyyMMdd_HHmmss_fff'))

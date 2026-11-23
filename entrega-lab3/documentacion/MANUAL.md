@@ -256,6 +256,32 @@ contraseña, host y puerto de `PC1/config/central.properties`, sin imprimir
 contraseñas. Solicita la clave de las cuentas ficticias de manera interactiva.
 No cambia la configuración, el esquema, certificados ni servicios.
 
+### Reanudación tras una carga parcial
+
+En las dos ejecuciones fallidas iniciales quedaron cargados los 4 organizadores,
+6 asistentes, 10 categorías, 16 eventos, 16 ediciones, 16 entradas General y
+2 instituciones. No quedaron patrocinios ni inscripciones. La causa fue el
+primer patrocinio: 4 entradas de $1500 sumaban $6000 y superaban el 20% del
+aporte de $25000 ($5000). El cargador corregido prepara 3 entradas: $4500.
+El segundo patrocinio prepara 3 entradas de $850: $2550 frente a un máximo de
+$4000. La validación previa comprueba ambos importes y las relaciones antes de
+crear otro respaldo. También compara los registros existentes con las fichas;
+si encuentra una clave ocupada con datos incompatibles, se detiene sin escribir.
+
+Para reanudar, sustituir `Cargar-Datos-Defensa.ps1`, `CargarDatosDefensa.java`
+y el manifiesto SHA-256 por las versiones del commit de corrección. Ejecutar
+primero `Cargar-Datos-Defensa.ps1` sin parámetros. Una vez autorizado, ejecutar
+`-Cargar`; omitirá las entidades ya compatibles y añadirá los 2 patrocinios y
+12 inscripciones faltantes. La contraseña solicitada se usa solo al crear
+usuarios faltantes: las claves de los 10 usuarios ya creados no se cambian.
+Después ejecutar `-Verificar`.
+
+Cada caso de uso de `ISistema` abre y confirma su propia transacción JPA. Por
+eso la carga completa no puede envolverse en una transacción única desde este
+script sin cambiar los manejadores de la aplicación. La validación previa,
+el respaldo obligatorio y la reanudación idempotente reducen el riesgo de un
+estado parcial. No se cambió la lógica transaccional del Central.
+
 ### Verificar resultados y consultar desde PC2
 
 En PC1, ejecutar:
