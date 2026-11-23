@@ -9,6 +9,11 @@ No hacen falta Git, IntelliJ, Maven ni archivos previos en el perfil de usuario.
 
 Seguir [documentacion/MANUAL.md](documentacion/MANUAL.md). Comprobar archivos con
 `documentacion/SHA256SUMS.txt`.
+En el repositorio, `scripts/Verificar-HashesEntrega.ps1` comprueba el manifiesto
+desde PowerShell 5.1. Usar `-Actualizar` para regenerarlo antes de un commit y
+`-VerificarGit` después del commit. El hash de archivos de texto usa finales de
+línea LF canónicos, por lo que coincide tanto en un checkout Windows CRLF como
+con los blobs publicados en Git. Los JAR/WAR se comprueban byte a byte.
 
 La configuración operativa se crea en `PC1/config/central.properties` y
 `PC2/config/web.properties`; los almacenes TLS en las carpetas `certificados/`.
